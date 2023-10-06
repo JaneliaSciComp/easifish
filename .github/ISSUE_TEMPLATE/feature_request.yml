@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea for the nf-core/lightsheetrecon pipeline
+description: Suggest an idea for the JaneliaSciComp/janeliascicomp-easifish pipeline
 labels: enhancement
 body:
   - type: textarea
