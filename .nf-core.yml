@@ -1,1 +1,6 @@
 repository_type: pipeline
+template:
+  prefix: JaneliaSciComp
+  skip:
+  - github_badges
+  - igenomes
