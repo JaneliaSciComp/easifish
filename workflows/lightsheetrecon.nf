@@ -52,7 +52,7 @@ def summary_params = paramsSummaryMap(workflow)
 // Print parameter summary log to screen
 log.info logo + paramsSummaryLog(workflow) + citation
 
-WorkflowLightsheetrecon.initialise(params, log)
+WorkflowEASIFISH.initialise(params, log)
 
 
 /*
@@ -97,7 +97,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow NFCORE_LIGHTSHEETRECON {
+workflow EASIFISH {
     ch_versions = Channel.empty()
 
     INPUT_CHECK (
@@ -167,10 +167,10 @@ workflow NFCORE_LIGHTSHEETRECON {
     //
     // MODULE: MultiQC
     //
-    workflow_summary    = WorkflowLightsheetrecon.paramsSummaryMultiqc(workflow, summary_params)
+    workflow_summary    = WorkflowEASIFISH.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
-    methods_description    = WorkflowLightsheetrecon.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
+    methods_description    = WorkflowEASIFISH.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
     ch_methods_description = Channel.value(methods_description)
 
     ch_multiqc_files = Channel.empty()

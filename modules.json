@@ -1,6 +1,6 @@
 {
-    "name": "nf-core/lightsheetrecon",
-    "homePage": "https://github.com/nf-core/lightsheetrecon",
+    "name": "JaneliaSciComp/easifish",
+    "homePage": "https://github.com/JaneliaSciComp/easifish",
     "repos": {
         "git@github.com:JaneliaSciComp/nextflow-modules.git": {
             "modules": {

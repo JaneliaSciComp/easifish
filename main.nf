@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/lightsheetrecon
+    JaneliaSciComp/easifish
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/lightsheetrecon
-    Website: https://nf-co.re/lightsheetrecon
-    Slack  : https://nfcore.slack.com/channels/lightsheetrecon
+    Github : https://github.com/JaneliaSciComp/easifish
+    Website: https://nf-co.re/easifish
+    Slack  : https://nfcore.slack.com/channels/easifish
 ----------------------------------------------------------------------------------------
 */
 
@@ -41,13 +41,13 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { NFCORE_LIGHTSHEETRECON } from './workflows/lightsheetrecon'
+include { EASIFISH } from './workflows/easifish'
 
 //
-// WORKFLOW: Run main nf-core/lightsheetrecon analysis pipeline
+// WORKFLOW: Run main JaneliaSciComp/easifish analysis pipeline
 //
 workflow {
-    NFCORE_LIGHTSHEETRECON ()
+    EASIFISH ()
 }
 
 /*

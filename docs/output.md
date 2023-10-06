@@ -1,4 +1,4 @@
-# nf-core/lightsheetrecon: Output
+# JaneliaSciComp/easifish: Output
 
 ## Introduction
 

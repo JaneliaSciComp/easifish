@@ -1,11 +1,11 @@
 //
-// This file holds several functions specific to the workflow/lightsheetrecon.nf in the nf-core/lightsheetrecon pipeline
+// This file holds several functions specific to the workflow/easifish.nf in the JaneliaSciComp/easifish pipeline
 //
 
 import nextflow.Nextflow
 import groovy.text.SimpleTemplateEngine
 
-class WorkflowLightsheetrecon {
+class WorkflowEASIFISH {
 
     //
     // Check and validate parameters

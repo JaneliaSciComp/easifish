@@ -1,4 +1,4 @@
-# nf-core/lightsheetrecon: Citations
+# JaneliaSciComp/easifish: Citations
 
 ## [EASI-FISH protocol](https://pubmed.ncbi.nlm.nih.gov/34875226/)
 

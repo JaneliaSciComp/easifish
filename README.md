@@ -1,21 +1,21 @@
-# [![nf-core/lightsheetrecon](docs/images/nf-core-lightsheetrecon_logo_light.png)](https://github.com/JaneliaSciComp/lightsheetrecon#gh-light-mode-only) [![nf-core/lightsheetrecon](docs/images/nf-core-lightsheetrecon_logo_dark.png)](https://github.com/JaneliaSciComp/lightsheetrecon#gh-dark-mode-only)
+# [![JaneliaSciComp/easifish](docs/images/JaneliaSciComp-easifish_logo_light.png)](https://github.com/JaneliaSciComp/easifish#gh-light-mode-only) [![JaneliaSciComp/easifish](docs/images/JaneliaSciComp-easifish_logo_dark.png)](https://github.com/JaneliaSciComp/easifish#gh-dark-mode-only)
 
-[![GitHub Actions CI Status](https://github.com/nf-core/lightsheetrecon/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/lightsheetrecon/actions?query=workflow%3A%22nf-core+CI%22)
-[![GitHub Actions Linting Status](https://github.com/nf-core/lightsheetrecon/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/lightsheetrecon/actions?query=workflow%3A%22nf-core+linting%22)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/lightsheetrecon/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![GitHub Actions CI Status](https://github.com/JaneliaSciComp/easifish/workflows/nf-core%20CI/badge.svg)](https://github.com/JaneliaSciComp/easifish/actions?query=workflow%3A%22nf-core+CI%22)
+[![GitHub Actions Linting Status](https://github.com/JaneliaSciComp/easifish/workflows/nf-core%20linting/badge.svg)](https://github.com/JaneliaSciComp/easifish/actions?query=workflow%3A%22nf-core+linting%22)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/easifish/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/nf-core/lightsheetrecon)
+[![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/JaneliaSciComp/easifish)
 
-[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23lightsheetrecon-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/lightsheetrecon)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
+[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23easifish-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/easifish)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
 
 ## Introduction
 
-**nf-core/lightsheetrecon** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes flatfield correction and tile stitching, and outputs a multi-resolution image pyramid in N5 format. In the future this pipeline will support additional input formats as well as deconvolution and other image processing methods.
+**JaneliaSciComp/easifish** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes flatfield correction and tile stitching, and outputs a multi-resolution image pyramid in N5 format. In the future this pipeline will support additional input formats as well as deconvolution and other image processing methods.
 
-![nf-core/rnaseq metro map](docs/images/nf-core-lightsheetrecon_metro_map.png)
+![nf-core/rnaseq metro map](docs/images/JaneliaSciComp-easifish_metro_map.png)
 
 1. Spin up a Spark cluster if configured
 2. Read image metadata from MVL metadata file ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/ParseCZITilesMetadata.java))
@@ -49,7 +49,7 @@ Each row represents a file in the input data set. The identifier (`id`) groups f
 Now, you can run the pipeline using:
 
 ```bash
-nextflow run nf-core/lightsheetrecon \
+nextflow run JaneliaSciComp/easifish \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
@@ -61,13 +61,13 @@ provided by the `-c` Nextflow option can be used to provide any configuration _*
 see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 :::
 
-For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/lightsheetrecon/usage) and the [parameter documentation](https://nf-co.re/lightsheetrecon/parameters).
+For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/easifish/usage) and the [parameter documentation](https://nf-co.re/easifish/parameters).
 
 ## Pipeline output
 
-To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/lightsheetrecon/results) tab on the nf-core website pipeline page.
+To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/easifish/results) tab on the nf-core website pipeline page.
 For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/lightsheetrecon/output).
+[output documentation](https://nf-co.re/easifish/output).
 
 ## Credits
 
@@ -75,7 +75,7 @@ The [stitching-spark tools](https://github.com/saalfeldlab/stitching-spark) used
 
 The modules for running Spark clusters on Nextflow were originally prototyped by [Cristian Goina](https://github.com/cgoina).
 
-The nf-core/lightsheetrecon pipeline was originally constructed by [Konrad Rokicki](https://github.com/krokicki).
+The JaneliaSciComp/easifish pipeline was originally constructed by [Konrad Rokicki](https://github.com/krokicki).
 
 The workflow diagram is based on the SVG source from the [cutandrun](https://github.com/nf-core/cutandrun/) pipeline.
 
@@ -83,13 +83,13 @@ The workflow diagram is based on the SVG source from the [cutandrun](https://git
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
-For further information or help, don't hesitate to get in touch on the [Slack `#lightsheetrecon` channel](https://nfcore.slack.com/channels/lightsheetrecon) (you can join with [this invite](https://nf-co.re/join/slack)).
+For further information or help, don't hesitate to get in touch on the [Slack `#easifish` channel](https://nfcore.slack.com/channels/easifish) (you can join with [this invite](https://nf-co.re/join/slack)).
 
 ## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 
-If you use `nf-core/lightsheetrecon` for your analysis, please cite the EASI-FISH article as follows:
+If you use `JaneliaSciComp/easifish` for your analysis, please cite the EASI-FISH article as follows:
 
 > Yuhan Wang, Mark Eddison, Greg Fleishman, Martin Weigert, Shengjin Xu, Fredrick E. Henry, Tim Wang, Andrew L. Lemire, Uwe Schmidt, Hui Yang,
 > Konrad Rokicki, Cristian Goina, Karel Svoboda, Eugene W. Myers, Stephan Saalfeld, Wyatt Korff, Scott M. Sternson, Paul W. Tillberg.

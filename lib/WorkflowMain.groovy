@@ -1,5 +1,5 @@
 //
-// This file holds several functions specific to the main.nf workflow in the nf-core/lightsheetrecon pipeline
+// This file holds several functions specific to the main.nf workflow in the JaneliaSciComp/easifish pipeline
 //
 
 import nextflow.Nextflow

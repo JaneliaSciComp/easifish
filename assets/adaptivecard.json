@@ -17,7 +17,7 @@
                         "size": "Large",
                         "weight": "Bolder",
                         "color": "<% if (success) { %>Good<% } else { %>Attention<%} %>",
-                        "text": "nf-core/lightsheetrecon v${version} - ${runName}",
+                        "text": "JaneliaSciComp/easifish v${version} - ${runName}",
                         "wrap": true
                     },
                     {
