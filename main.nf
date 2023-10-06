@@ -4,8 +4,6 @@
     JaneliaSciComp/easifish
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/JaneliaSciComp/easifish
-    Website: https://nf-co.re/easifish
-    Slack  : https://nfcore.slack.com/channels/easifish
 ----------------------------------------------------------------------------------------
 */
 

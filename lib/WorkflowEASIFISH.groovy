@@ -1,17 +1,32 @@
 //
+<<<<<<<< HEAD:lib/WorkflowEASIFISH.groovy
 // This file holds several functions specific to the workflow/easifish.nf in the JaneliaSciComp/easifish pipeline
+========
+// This file holds several functions specific to the workflow/janeliascicomp-easifish.nf in the JaneliaSciComp/easifish pipeline
+>>>>>>>> TEMPLATE:lib/WorkflowJaneliascicomp-easifish.groovy
 //
 
 import nextflow.Nextflow
 import groovy.text.SimpleTemplateEngine
 
+<<<<<<<< HEAD:lib/WorkflowEASIFISH.groovy
 class WorkflowEASIFISH {
+========
+class WorkflowJaneliascicomp-easifish {
+>>>>>>>> TEMPLATE:lib/WorkflowJaneliascicomp-easifish.groovy
 
     //
     // Check and validate parameters
     //
     public static void initialise(params, log) {
 
+<<<<<<<< HEAD:lib/WorkflowEASIFISH.groovy
+========
+
+        if (!params.fasta) {
+            Nextflow.error "Genome fasta file not specified with e.g. '--fasta genome.fa' or via a detectable config file."
+        }
+>>>>>>>> TEMPLATE:lib/WorkflowJaneliascicomp-easifish.groovy
     }
 
     //
@@ -46,9 +61,19 @@ class WorkflowEASIFISH {
     //
 
     public static String toolCitationText(params) {
+<<<<<<<< HEAD:lib/WorkflowEASIFISH.groovy
         def citation_text = [
                 "Tools used in the workflow included:",
                 "stitching-spark (https://github.com/saalfeldlab/stitching-spark),",
+========
+
+        // TODO nf-core: Optionally add in-text citation tools to this list.
+        // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
+        // Uncomment function in methodsDescriptionText to render in MultiQC report
+        def citation_text = [
+                "Tools used in the workflow included:",
+                "FastQC (Andrews 2010),",
+>>>>>>>> TEMPLATE:lib/WorkflowJaneliascicomp-easifish.groovy
                 "MultiQC (Ewels et al. 2016)",
                 "."
             ].join(' ').trim()
@@ -57,7 +82,16 @@ class WorkflowEASIFISH {
     }
 
     public static String toolBibliographyText(params) {
+<<<<<<<< HEAD:lib/WorkflowEASIFISH.groovy
         def reference_text = [
+========
+
+        // TODO Optionally add bibliographic entries to this list.
+        // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
+        // Uncomment function in methodsDescriptionText to render in MultiQC report
+        def reference_text = [
+                "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
+>>>>>>>> TEMPLATE:lib/WorkflowJaneliascicomp-easifish.groovy
                 "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
             ].join(' ').trim()
 
@@ -75,8 +109,18 @@ class WorkflowEASIFISH {
         meta["nodoi_text"] = meta.manifest_map.doi ? "": "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
         // Tool references
+<<<<<<<< HEAD:lib/WorkflowEASIFISH.groovy
         meta["tool_citations"] = toolCitationText(params).replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
         meta["tool_bibliography"] = toolBibliographyText(params)
+========
+        meta["tool_citations"] = ""
+        meta["tool_bibliography"] = ""
+
+        // TODO Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
+        //meta["tool_citations"] = toolCitationText(params).replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
+        //meta["tool_bibliography"] = toolBibliographyText(params)
+
+>>>>>>>> TEMPLATE:lib/WorkflowJaneliascicomp-easifish.groovy
 
         def methods_text = mqc_methods_yaml.text
 
@@ -84,6 +128,7 @@ class WorkflowEASIFISH {
         def description_html = engine.createTemplate(methods_text).make(meta)
 
         return description_html
+<<<<<<<< HEAD:lib/WorkflowEASIFISH.groovy
     }
 
     //
@@ -100,3 +145,6 @@ class WorkflowEASIFISH {
         }
     }
 }
+========
+    }}
+>>>>>>>> TEMPLATE:lib/WorkflowJaneliascicomp-easifish.groovy
