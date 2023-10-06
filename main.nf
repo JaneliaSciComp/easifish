@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    JaneliaSciComp/janeliascicomp-easifish
+    JaneliaSciComp/easifish
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/JaneliaSciComp/janeliascicomp-easifish
+    Github : https://github.com/JaneliaSciComp/easifish
 ----------------------------------------------------------------------------------------
 */
 
@@ -42,7 +42,7 @@ WorkflowMain.initialise(workflow, params, log)
 include { JANELIASCICOMP-EASIFISH } from './workflows/janeliascicomp-easifish'
 
 //
-// WORKFLOW: Run main JaneliaSciComp/janeliascicomp-easifish analysis pipeline
+// WORKFLOW: Run main JaneliaSciComp/easifish analysis pipeline
 //
 workflow JANELIASCICOMP_JANELIASCICOMP-EASIFISH {
     JANELIASCICOMP-EASIFISH ()

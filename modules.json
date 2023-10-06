@@ -1,6 +1,6 @@
 {
-    "name": "JaneliaSciComp/janeliascicomp-easifish",
-    "homePage": "https://github.com/JaneliaSciComp/janeliascicomp-easifish",
+    "name": "JaneliaSciComp/easifish",
+    "homePage": "https://github.com/JaneliaSciComp/easifish",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {

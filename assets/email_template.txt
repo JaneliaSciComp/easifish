@@ -1,10 +1,10 @@
 Run Name: $runName
 
 <% if (success){
-    out << "## JaneliaSciComp/janeliascicomp-easifish execution completed successfully! ##"
+    out << "## JaneliaSciComp/easifish execution completed successfully! ##"
 } else {
     out << """####################################################
-## JaneliaSciComp/janeliascicomp-easifish execution completed unsuccessfully! ##
+## JaneliaSciComp/easifish execution completed unsuccessfully! ##
 ####################################################
 The exit status of the task that caused the workflow execution to fail was: $exitStatus.
 The full error message was:
@@ -27,5 +27,5 @@ Pipeline Configuration:
 <% out << summary.collect{ k,v -> " - $k: $v" }.join("\n") %>
 
 --
-JaneliaSciComp/janeliascicomp-easifish
-https://github.com/JaneliaSciComp/janeliascicomp-easifish
+JaneliaSciComp/easifish
+https://github.com/JaneliaSciComp/easifish

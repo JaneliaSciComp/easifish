@@ -1,5 +1,5 @@
 //
-// This file holds several functions specific to the workflow/janeliascicomp-easifish.nf in the JaneliaSciComp/janeliascicomp-easifish pipeline
+// This file holds several functions specific to the workflow/janeliascicomp-easifish.nf in the JaneliaSciComp/easifish pipeline
 //
 
 import nextflow.Nextflow

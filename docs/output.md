@@ -1,4 +1,4 @@
-# JaneliaSciComp/janeliascicomp-easifish: Output
+# JaneliaSciComp/easifish: Output
 
 ## Introduction
 

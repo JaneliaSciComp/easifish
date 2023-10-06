@@ -1,4 +1,4 @@
-# JaneliaSciComp/janeliascicomp-easifish: Citations
+# JaneliaSciComp/easifish: Citations
 
 ## [nf-core](https://pubmed.ncbi.nlm.nih.gov/32055031/)
 
