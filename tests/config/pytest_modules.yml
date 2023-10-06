@@ -1,0 +1,3 @@
+dask:
+  - modules/local/dask/**
+  - tests/modules/local/dask/**
