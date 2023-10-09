@@ -1,5 +1,4 @@
 process DASK_STARTSCHEDULER {
-    tag "$meta.id"
     label 'process_single'
     container 'docker.io/multifish/biocontainers-dask:2023.8.1'
 
@@ -7,7 +6,7 @@ process DASK_STARTSCHEDULER {
     tuple path(cluster_work_dir)
 
     output:
-    tuple val(cluster_work_fullpath), emit: swf
+    tuple val(cluster_work_fullpath), emit: clusterpath
     path "versions.yml", emit: versions
 
     when:
@@ -36,7 +35,7 @@ process DASK_STARTSCHEDULER {
     /opt/scripts/startscheduler.sh \
         --container-engine ${container_engine} \
         --pid-file ${dask_scheduler_pid_file} \
-        --scheduler-file ${dask_scheduler_info_filename} \
+        --scheduler-file ${dask_scheduler_info_file} \
         --scheduler-start-timeout ${dask_scheduler_start_timeout_secs} \
         --scheduler-poll-interval ${dask_scheduler_poll_interval_secs} \
         --terminate-file ${terminate_file_name} \

@@ -9,11 +9,14 @@ process DASK_TERMINATE {
     val(cluster_work_fullpath)
 
     script:
-    cluster_work_fullpath = cluster_work_dir.resolveSymLink().toString()
-    def terminate_file_name = "${cluster_work_dir}/terminate-dask"
+    def cluster_work_path = cluster_work_dir
+    cluster_work_fullpath = cluster_work_path.resolveSymLink().toString()
+    def terminate_file_name = "${cluster_work_path}/terminate-dask"
     """
-    echo "\$(date): Terminate DASK Scheduler: ${cluster_work_dir}"
+    echo "\$(date): Terminate DASK Scheduler: ${cluster_work_path}"
+    echo $PWD
     cat > ${terminate_file_name} <<EOF
+    \$(date)
     DONE
     EOF
     cat ${terminate_file_name}

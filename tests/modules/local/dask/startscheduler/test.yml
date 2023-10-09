@@ -1,2 +1,10 @@
--name: dask_startscheduler test_dask_scheduler
-  command: nextflow run ./tests/modules/local/dask/startscheduler -entry test_dask_scheduler -c ./tests/config/nextflow.config -stub-run
+- name: start dask scheduler
+  command: nextflow run ./tests/modules/local/dask/startscheduler -entry test_start_dask_scheduler -c ./tests/modules/local/dask/startscheduler/nextflow.config
+  tags:
+    - dask
+    - startscheduler
+- name: terminate cluster before starting dask scheduler 
+  command: nextflow run ./tests/modules/local/dask/startscheduler -entry test_terminate_before_starting_dask_scheduler -c ./tests/modules/local/dask/startscheduler/nextflow.config
+  tags:
+    - dask
+    - startscheduler
