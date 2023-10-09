@@ -30,7 +30,6 @@ process DASK_STARTSCHEDULER {
 
 
     cluster_work_fullpath = cluster_work_dir.resolveSymLink().toString()
-
     """
     /opt/scripts/startscheduler.sh \
         --container-engine ${container_engine} \
