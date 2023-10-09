@@ -1,12 +1,12 @@
 process DASK_STARTSCHEDULER {
     label 'process_single'
-    container 'docker.io/multifish/biocontainers-dask:2023.8.1'
+    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
-    tuple path(cluster_work_dir)
+    path(cluster_work_dir)
 
     output:
-    tuple val(cluster_work_fullpath), emit: clusterpath
+    val(cluster_work_fullpath), emit: clusterpath
     path "versions.yml", emit: versions
 
     when:
