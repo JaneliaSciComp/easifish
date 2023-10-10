@@ -4,14 +4,14 @@ nextflow.enable.dsl = 2
 
 include { 
     DASK_STARTSCHEDULER;
-} from '../../../../../modules/local/dask/startscheduler/main.nf'
+} from '../../../../../modules/local/dask/startscheduler/main'
 
 include { 
     DASK_TERMINATE;
-} from '../../../../../modules/local/dask/terminate/main.nf'
+} from '../../../../../modules/local/dask/terminate/main'
 
 workflow test_start_dask_scheduler {
-    def dask_work_dirname = "${workDir}/test/dask/${workflow.sessionId}"
+    def dask_work_dirname = "${workDir}/test_start_dask_scheduler/dask/${workflow.sessionId}"
     def dask_work_dir = file(dask_work_dirname)
     
     if (!dask_work_dir.exists()) dask_work_dir.mkdirs()
@@ -25,7 +25,7 @@ workflow test_start_dask_scheduler {
 }
 
 workflow test_terminate_before_starting_dask_scheduler {
-    def dask_work_dirname = "${workDir}/test/dask/${workflow.sessionId}"
+    def dask_work_dirname = "${workDir}/test_terminate_before_starting_dask_scheduler/dask/${workflow.sessionId}"
     def dask_work_dir = file(dask_work_dirname)
     
     if (!dask_work_dir.exists()) dask_work_dir.mkdirs()

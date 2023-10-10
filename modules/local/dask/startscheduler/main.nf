@@ -1,6 +1,7 @@
 process DASK_STARTSCHEDULER {
     label 'process_single'
     container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
+    containerOptions { get_container_opts(task.ext.args ?: [:]) }
 
     input:
     path(cluster_work_dir)
@@ -13,7 +14,7 @@ process DASK_STARTSCHEDULER {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args = task.ext.args ?: [:]
     def container_engine = workflow.containerEngine
     
     def dask_scheduler_pid_file ="${cluster_work_dir}/dask-scheduler.pid"
@@ -24,7 +25,7 @@ process DASK_STARTSCHEDULER {
     def dask_scheduler_poll_interval_secs = args.dask_scheduler_poll_interval_secs ?: '5'
     def dask_scheduler_port_arg = args.dask_scheduler_port ? "--port ${args.dask_scheduler_port}" : ''
 
-    def with_dashboard_arg = params.with_dask_dashboard 
+    def with_dashboard_arg = args.with_dask_dashboard 
                                 ? "--dashboard"
                                 : ""
 
@@ -46,4 +47,19 @@ process DASK_STARTSCHEDULER {
         : \$(echo \$(dask --version 2>&1)))
     END_VERSIONS
     """
+}
+
+def get_container_opts(args) {
+    def containerOptions = args.containerOptions ?: ''
+    if (workflow.containerEngine == 'docker') {
+        def dask_scheduler_port = args.dask_scheduler_port ?: 8786
+
+        def port_bindings = "-p ${dask_scheduler_port}:${dask_scheduler_port}"
+        if (args.with_dask_dashboard) {
+            def dask_dashboard_port = args.dask_dashboard_port ?: 8787
+            port_bindings = "${port_bindings} -p ${dask_dashboard_port}:${dask_dashboard_port}"
+        }
+        return containerOptions + ' ' + port_bindings
+    }
+    return containerOptions
 }

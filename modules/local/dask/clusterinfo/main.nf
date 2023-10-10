@@ -6,13 +6,6 @@ process DASK_CLUSTERINFO {
     path(cluster_work_dir)
 
     output:
-    val(cluster_work_fullpath)
-
-    script:
-    input:
-    tuple path(cluster_work_dir)
-
-    output:
     val(cluster_work_fullpath), emit: clusterpath
     tuple env(cluster_id), env(cluster_address), emit: cluster_info
 
@@ -29,17 +22,18 @@ process DASK_CLUSTERINFO {
 
     cluster_work_fullpath = cluster_work_dir.resolveSymLink().toString()
     """
-    /opt/scripts/waitforanyfile.sh \
+    /opt/scripts/waitforanyfile.sh "0" \
         "${dask_scheduler_info_file},${terminate_file_name}" \
-        ${dask_scheduler_poll_interval_secs} \
-        ${dask_scheduler_start_timeout_secs}
+        ${dask_scheduler_start_timeout_secs} \
+        ${dask_scheduler_poll_interval_secs}
 
-    echo "\$(date): Get cluster info from ${dask_scheduler_info_file}"
-    if [[ -e ${dask_scheduler_info_file} ]] ; then
+    if [[ -e "${dask_scheduler_info_file}" ]] ; then
+        echo "\$(date): Get cluster info from ${dask_scheduler_info_file}"
         cluster_id=\$(jq ".id" ${dask_scheduler_info_file})
         cluster_address=\$(jq ".address" ${dask_scheduler_info_file})
         cluster_workdir="${cluster_work_fullpath}"
     else
+        echo "\$(date): Cluster info file ${dask_scheduler_info_file} not found"
         cluster_id=
         cluster_address=
     fi

@@ -1,0 +1,30 @@
+name: "dask_prepare"
+description: Prepare work directory for running a Dask cluster
+keywords:
+  - dask
+tools:
+  - dask:
+      description: Dask is a flexible library for parallel computing in Python.
+      homepage: https://www.dask.org/
+      documentation: https://docs.dask.org/en/stable/
+      tool_dev_url: https://github.com/dask/dask
+      licence: ["BSD 3-Clause License"]
+
+input:
+  - dask_work_dir:
+      type: path
+      description: |
+        Parent directory where the cluster work directory should be created
+  - dask_work_dirname:
+      type: string
+      description: |
+        Name of cluster work directory
+
+output:
+  - cluster_work_fullpath:
+      type: string
+      description: |
+        Full path to the cluster work directory
+
+authors:
+  - "@cgoina"

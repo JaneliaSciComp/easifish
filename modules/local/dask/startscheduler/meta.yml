@@ -21,6 +21,7 @@ input:
           [
             "with_dask_dashboard": (optional),
             "dask_scheduler_port": (optional),
+            "dask_dashboard_port": (optional),
             "dask_scheduler_start_timeout_secs": 120,
             "dask_scheduler_poll_interval_secs": 5,
           ]
