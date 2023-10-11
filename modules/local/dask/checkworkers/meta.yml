@@ -1,5 +1,5 @@
-name: dask_clusterinfo
-description: Retrieve dask cluster info from the JSON file created by the scheduler
+name: dask_checkworker
+description: Check if a worker is running
 keywords:
   - dask
 tools:
@@ -20,29 +20,45 @@ input:
         {
           [
             "dask_scheduler_port": (optional),
-            "dask_scheduler_start_timeout_secs": 120,
-            "dask_scheduler_poll_interval_secs": 5,
+            "dask_worker_start_timeout_secs": 120,
+            "dask_worker_poll_interval_secs": 5,
           ]
         }
         ```
+  - scheduler_address:
+      type: string
+      description: |
+        Scheduler's IP address
   - cluster_work_dir:
       type: path
       description: |
         The cluster work directory where the scheduler will run
+  - total_workers:
+      type: int
+      description: |
+        Total number of workers in the cluster
+  - required_workers:
+      type: int
+      description: |
+        Number of workers that should be available before the cluster is being used 
 
 output:
+  - scheduler_address:
+      type: string
+      description: |
+        Scheduler's IP address
   - cluster_work_fullpath:
       type: string
       description: |
         Full path to the cluster work directory where the scheduler is running
-  - cluster_address:
-      type: string
-      description: |
-        Dask cluster scheduler's address
   - available_workers:
       type: int
       description: |
-        Number of available workers - this is always 0 here
+        Number of workers that are ready
+  - versions:
+      type: string
+      description: |
+        Software versions file
 
 authors:
   - "@cgoina"

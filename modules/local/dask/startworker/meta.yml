@@ -1,5 +1,5 @@
-name: dask_clusterinfo
-description: Retrieve dask cluster info from the JSON file created by the scheduler
+name: dask_startworker
+description: Start a dask worker
 keywords:
   - dask
 tools:
@@ -20,29 +20,47 @@ input:
         {
           [
             "dask_scheduler_port": (optional),
-            "dask_scheduler_start_timeout_secs": 120,
-            "dask_scheduler_poll_interval_secs": 5,
+            "dask_worker_start_timeout_secs": 120,
+            "dask_worker_poll_interval_secs": 5,
           ]
         }
         ```
+  - scheduler_address:
+      type: string
+      description: |
+        Scheduler's IP address
   - cluster_work_dir:
       type: path
       description: |
         The cluster work directory where the scheduler will run
+  - worker_id:
+      type: string
+      description: |
+        Worker's ID
+  - worker_cores:
+      type: int
+      description: Number of cores per worker
+  - worker_mem_in_gb:
+      type: int
+      description: Memory in GB to be allocated to each worker
 
 output:
   - cluster_work_fullpath:
       type: string
       description: |
         Full path to the cluster work directory where the scheduler is running
-  - cluster_address:
+  - worker_name:
       type: string
       description: |
-        Dask cluster scheduler's address
-  - available_workers:
-      type: int
+        Dask worker name
+  - worker_dir:
+      type: string
       description: |
-        Number of available workers - this is always 0 here
+        Dask worker dir
+  - versions:
+      type: string
+      description: |
+        Software versions file
 
 authors:
   - "@cgoina"

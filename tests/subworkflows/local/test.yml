@@ -1,0 +1,7 @@
+- name: start dask cluster
+  command: nextflow run ./tests/subworkflows/local/dask_startcluster/main.nf -entry test_start_dask_cluster -c ./tests/subworkflows/local/dask_startcluster/nextflow.config
+  tags:
+    - dask
+    - startscheduler
+  files:
+    - path: output/dask_startcluster/versions.yml
