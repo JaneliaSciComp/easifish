@@ -6,3 +6,5 @@
   command: nextflow run ./tests/modules/local/dask/startscheduler -entry test_terminate_before_starting_dask_scheduler -c ./tests/modules/local/dask/startscheduler/nextflow.config
   tags:
     - startscheduler
+  files:
+    - path: output/dask/versions.yml
