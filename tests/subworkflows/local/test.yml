@@ -4,4 +4,4 @@
     - dask
     - startscheduler
   files:
-    - path: output/dask_startcluster/versions.yml
+    - path: output/dask/versions.yml
