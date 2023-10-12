@@ -1,7 +1,6 @@
 process DASK_STARTSCHEDULER {
     label 'process_single'
     container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
-    containerOptions { get_container_opts(task.ext.args ?: [:]) }
 
     input:
     tuple val(meta), path(cluster_work_dir)
@@ -21,14 +20,16 @@ process DASK_STARTSCHEDULER {
     def dask_scheduler_info_file = "${cluster_work_dir}/dask-scheduler-info.json"
     def terminate_file_name = "${cluster_work_dir}/terminate-dask"
 
-    def dask_scheduler_start_timeout_secs = args.dask_scheduler_start_timeout_secs ?: '120'
-    def dask_scheduler_poll_interval_secs = args.dask_scheduler_poll_interval_secs ?: '5'
-    def dask_scheduler_port_arg = args.dask_scheduler_port ? "--port ${args.dask_scheduler_port}" : ''
+    def dask_scheduler_port = args.dask_scheduler_port ?: 0
+    def dask_scheduler_start_timeout_secs = args.dask_scheduler_start_timeout_secs ?: 120
+    def dask_scheduler_poll_interval_secs = args.dask_scheduler_poll_interval_secs ?: 5
 
-    def with_dashboard_arg = args.with_dask_dashboard 
-                                ? "--dashboard"
+    def dask_scheduler_port_arg = dask_scheduler_port ? "--port ${dask_scheduler_port}" : ''
+    def dask_dashboard_address_arg = args.dashboard_port ? "--dashboard-address :${args.dashboard_port}" : ''
+
+    def no_dashboard_arg = args.no_dask_dashboard
+                                ? "--no-dashboard"
                                 : ""
-
 
     cluster_work_fullpath = cluster_work_dir.resolveSymLink().toString()
     """
@@ -40,26 +41,12 @@ process DASK_STARTSCHEDULER {
         --scheduler-poll-interval ${dask_scheduler_poll_interval_secs} \
         --terminate-file ${terminate_file_name} \
         ${dask_scheduler_port_arg} \
-        ${with_dashboard_arg}
+        ${dask_dashboard_address_arg} \
+        ${no_dashboard_arg}
 
     cat <<-END_VERSIONS > versions.yml
     "dask":
         : \$(echo \$(dask --version 2>&1)))
     END_VERSIONS
     """
-}
-
-def get_container_opts(args) {
-    def containerOptions = args.containerOptions ?: ''
-    if (workflow.containerEngine == 'docker') {
-        def dask_scheduler_port = args.dask_scheduler_port ?: 8786
-
-        def port_bindings = "-p ${dask_scheduler_port}:${dask_scheduler_port}"
-        if (args.with_dask_dashboard) {
-            def dask_dashboard_port = args.dask_dashboard_port ?: 8787
-            port_bindings = "${port_bindings} -p ${dask_dashboard_port}:${dask_dashboard_port}"
-        }
-        return containerOptions + ' ' + port_bindings
-    }
-    return containerOptions
 }

@@ -47,12 +47,13 @@ workflow DASK_CLUSTER {
                      dask_worker_cores,
                      dask_worker_mem_db)
 
-    dask_cluster_info.subscribe {
-        log.info "!!!! CLUSTER INFO: $it"
-    }
     // check dask workers
-    DASK_CHECKWORKERS(dask_cluster_info, dask_workers, required_workers)
+    def cluster = DASK_CHECKWORKERS(dask_cluster_info, dask_workers, required_workers)
+
+    cluster.cluster_info.subscribe {
+        log.debug "Cluster info: $it"
+    }
 
     emit:
-    done = DASK_CHECKWORKERS.out.cluster_info // [ meta, cluster_work_dir, scheduler_address ]
+    done = cluster.cluster_info // [ meta, cluster_work_dir, scheduler_address, available_workers ]
 }

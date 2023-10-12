@@ -5,3 +5,10 @@
     - startscheduler
   files:
     - path: output/dask/versions.yml
+- name: start two dask clusters
+  command: nextflow run ./tests/subworkflows/local/dask_cluster/main.nf -entry test_start_two_dask_clusters -c ./tests/subworkflows/local/dask_cluster/nextflow.config
+  tags:
+    - dask
+    - startscheduler
+  files:
+    - path: output/dask/versions.yml
