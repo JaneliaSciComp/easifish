@@ -3,10 +3,10 @@ process DASK_TERMINATE {
     container 'docker.io/multifish/biocontainers-dask:2023.8.1'
 
     input:
-    path(cluster_work_dir)
+    tuple val(meta), path(cluster_work_dir)
 
     output:
-    val(cluster_work_fullpath)
+    tuple val(meta), val(cluster_work_fullpath)
 
     script:
     def cluster_work_path = cluster_work_dir

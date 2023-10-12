@@ -25,12 +25,16 @@ input:
           ]
         }
         ```
+  - meta:
+      type: map
   - cluster_work_dir:
       type: path
       description: |
         The cluster work directory where the scheduler will run
 
 output:
+  - meta:
+      type: map
   - cluster_work_fullpath:
       type: string
       description: |

@@ -5,13 +5,13 @@ process DASK_STARTWORKER {
     clusterOptions { task.ext.cluster_opts }
 
     input:
-    tuple val(scheduler_address), path(cluster_work_dir), val(worker_id)
+    tuple val(meta), path(cluster_work_dir), val(scheduler_address), val(worker_id)
+    path(data)
     val(worker_cores)
     val(worker_mem_in_gb)
 
     output:
-    val(cluster_work_fullpath), emit: clusterpath
-    tuple val(worker_name), val(worker_dir), emit: workerinfo
+    tuple val(meta), val(cluster_work_fullpath), val(scheduler_address), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -41,7 +41,7 @@ process DASK_STARTWORKER {
     worker_dir = dask_worker_work_dir
 
     """
-    /opt/scripts/startworker.sh \
+    /opt/scripts/daskscripts/startworker.sh \
         --container-engine ${container_engine} \
         --name ${dask_worker_name} \
         --worker-dir ${dask_worker_work_dir} \

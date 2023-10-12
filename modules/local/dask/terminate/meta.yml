@@ -11,12 +11,18 @@ tools:
       licence: ["Apache License 2.0"]
 
 input:
+  - meta:
+      type: map
+
   - cluster_work_dir:
       type: path
       description: |
         The cluster work directory.
 
 output:
+  - meta:
+      type: map
+
   - cluster_work_fullpath:
       type: string
       description: |

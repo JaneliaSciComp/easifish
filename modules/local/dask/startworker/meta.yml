@@ -25,6 +25,8 @@ input:
           ]
         }
         ```
+  - meta:
+      type: map
   - scheduler_address:
       type: string
       description: |
@@ -37,6 +39,10 @@ input:
       type: string
       description: |
         Worker's ID
+  - data:
+      type: path
+      description: |
+        Shared path (or list of paths) which should be mounted in the worker for access
   - worker_cores:
       type: int
       description: Number of cores per worker
@@ -45,6 +51,8 @@ input:
       description: Memory in GB to be allocated to each worker
 
 output:
+  - meta:
+      type: map
   - cluster_work_fullpath:
       type: string
       description: |

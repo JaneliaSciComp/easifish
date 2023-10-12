@@ -1,5 +1,5 @@
 - name: start dask cluster
-  command: nextflow run ./tests/subworkflows/local/dask_startcluster/main.nf -entry test_start_dask_cluster -c ./tests/subworkflows/local/dask_startcluster/nextflow.config
+  command: nextflow run ./tests/subworkflows/local/dask_cluster/main.nf -entry test_start_dask_cluster -c ./tests/subworkflows/local/dask_cluster/nextflow.config
   tags:
     - dask
     - startscheduler

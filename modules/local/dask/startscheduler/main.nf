@@ -4,10 +4,10 @@ process DASK_STARTSCHEDULER {
     containerOptions { get_container_opts(task.ext.args ?: [:]) }
 
     input:
-    path(cluster_work_dir)
+    tuple val(meta), path(cluster_work_dir)
 
     output:
-    val(cluster_work_fullpath), emit: clusterpath
+    tuple val(meta), val(cluster_work_fullpath), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -32,7 +32,7 @@ process DASK_STARTSCHEDULER {
 
     cluster_work_fullpath = cluster_work_dir.resolveSymLink().toString()
     """
-    /opt/scripts/startscheduler.sh \
+    /opt/scripts/daskscripts/startscheduler.sh \
         --container-engine ${container_engine} \
         --pid-file ${dask_scheduler_pid_file} \
         --scheduler-file ${dask_scheduler_info_file} \

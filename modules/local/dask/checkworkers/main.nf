@@ -3,13 +3,12 @@ process DASK_CHECKWORKERS {
     container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
-    tuple val(scheduler_address), path(cluster_work_dir)
+    tuple val(meta), path(cluster_work_dir), val(scheduler_address)
     val(total_workers)
     val(required_workers)
 
     output:
-    val(cluster_work_fullpath), emit: clusterpath
-    tuple val(scheduler_address), val(cluster_work_fullpath), env(available_workers), emit: cluster_info
+    tuple val(meta), val(cluster_work_fullpath), val(scheduler_address), env(available_workers), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -28,7 +27,7 @@ process DASK_CHECKWORKERS {
 
     """
     # checkworkers.sh sets available_workers variable
-    . /opt/scripts/checkworkers.sh \
+    . /opt/scripts/daskscripts/checkworkers.sh \
         --cluster-work-dir ${cluster_work_dir} \
         --scheduler-address ${scheduler_address} \
         --worker-start-timeout ${dask_worker_start_timeout_secs} \

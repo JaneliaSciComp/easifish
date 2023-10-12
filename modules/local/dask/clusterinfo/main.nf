@@ -1,13 +1,12 @@
 process DASK_CLUSTERINFO {
     label 'process_low'
-    container 'docker.io/multifish/biocontainers-dask:2023.8.1'
+    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
-    path(cluster_work_dir)
+    tuple val(meta), path(cluster_work_dir)
 
     output:
-    val(cluster_work_fullpath), emit: clusterpath
-    tuple env(scheduler_address), val(cluster_work_fullpath), val(available_workers), emit: cluster_info
+    tuple val(meta), val(cluster_work_fullpath), env(scheduler_address), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -22,10 +21,9 @@ process DASK_CLUSTERINFO {
     def dask_scheduler_poll_interval_secs = args.dask_scheduler_poll_interval_secs ?: '5'
 
     cluster_work_fullpath = cluster_work_dir.resolveSymLink().toString()
-    available_workers = 0
 
     """
-    /opt/scripts/waitforanyfile.sh "0" \
+    /opt/scripts/daskscripts/waitforanyfile.sh "0" \
         "${dask_scheduler_info_file},${terminate_file_name}" \
         ${dask_scheduler_start_timeout_secs} \
         ${dask_scheduler_poll_interval_secs}

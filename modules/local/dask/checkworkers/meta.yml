@@ -25,6 +25,8 @@ input:
           ]
         }
         ```
+  - meta:
+      type: map
   - scheduler_address:
       type: string
       description: |
@@ -43,6 +45,8 @@ input:
         Number of workers that should be available before the cluster is being used 
 
 output:
+  - meta:
+      type: map
   - scheduler_address:
       type: string
       description: |

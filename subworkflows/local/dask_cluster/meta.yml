@@ -6,3 +6,7 @@ keywords:
   - infrastructure
 components:
   - dask/prepare
+  - dask/startscheduler
+  - dask/clusterinfo
+  - dask/startworker
+  - dask/checkworkers

@@ -11,16 +11,21 @@ tools:
       licence: ["BSD 3-Clause License"]
 
 input:
-  - dask_work_dir:
+  - meta:
+      type: map
+  - dask_work_parent:
       type: path
       description: |
-        Parent directory where the cluster work directory should be created
+        Parent directory of the cluster work directory. 
+        This is passed only for mapping purposes and it must exist.
   - dask_work_dirname:
       type: string
       description: |
         Name of cluster work directory
 
 output:
+  - meta:
+      type: map
   - cluster_work_fullpath:
       type: string
       description: |

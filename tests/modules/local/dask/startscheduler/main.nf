@@ -17,7 +17,7 @@ workflow test_start_dask_scheduler {
     if (!dask_work_dir.exists()) dask_work_dir.mkdirs()
 
     def dask_cluster_input = [
-        dask_work_dir
+        [id:'test_start_dask_scheduler'], dask_work_dir
     ]
 
     DASK_STARTSCHEDULER(dask_cluster_input)
@@ -34,7 +34,7 @@ workflow test_terminate_before_starting_dask_scheduler {
     terminateDaskFile.createNewFile() 
 
     def dask_cluster_input = [
-        dask_work_dir
+        [id: 'test_terminate_before_starting_dask_scheduler'], dask_work_dir
     ]
 
     DASK_STARTSCHEDULER(dask_cluster_input)
