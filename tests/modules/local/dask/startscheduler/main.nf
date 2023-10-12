@@ -21,7 +21,8 @@ workflow test_start_dask_scheduler {
     ]
 
     DASK_STARTSCHEDULER(dask_cluster_input)
-    DASK_TERMINATE(DASK_STARTSCHEDULER.out.clusterpath)
+
+    DASK_TERMINATE(dask_cluster_input)
 }
 
 workflow test_terminate_before_starting_dask_scheduler {
