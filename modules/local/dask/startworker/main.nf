@@ -20,7 +20,7 @@ process DASK_STARTWORKER {
     script:
     def args = task.ext.args ?: [:]
     def container_engine = workflow.containerEngine
-    
+
     def dask_worker_name = "worker-${worker_id}"
     def dask_scheduler_info_file = "${cluster_work_dir}/dask-scheduler-info.json"
     def terminate_file_name = "${cluster_work_dir}/terminate-dask"

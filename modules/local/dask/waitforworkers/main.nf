@@ -1,4 +1,4 @@
-process DASK_CHECKWORKERS {
+process DASK_WAITFORWORKERS {
     label 'process_low'
     container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 

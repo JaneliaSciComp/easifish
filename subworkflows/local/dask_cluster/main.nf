@@ -1,8 +1,8 @@
 include { DASK_PREPARE } from '../../../modules/local/dask/prepare/main'
-include { DASK_STARTSCHEDULER } from '../../../modules/local/dask/startscheduler/main'
-include { DASK_CLUSTERINFO } from '../../../modules/local/dask/clusterinfo/main'
+include { DASK_STARTMANAGER } from '../../../modules/local/dask/startmanager/main'
+include { DASK_WAITFORMANAGER } from '../../../modules/local/dask/waitformanager/main'
 include { DASK_STARTWORKER } from '../../../modules/local/dask/startworker/main'
-include { DASK_CHECKWORKERS } from '../../../modules/local/dask/checkworkers/main'
+include { DASK_WAITFORWORKERS } from '../../../modules/local/dask/waitforworkers/main'
 
 workflow DASK_CLUSTER {
     take:
@@ -23,12 +23,12 @@ workflow DASK_CLUSTER {
     | DASK_PREPARE // prepare dask work dir -> [ meta, cluster_work_dir ]
     
     // start scheduler
-    DASK_STARTSCHEDULER(dask_prepare_result)
+    DASK_STARTMANAGER(dask_prepare_result)
 
-    // get cluster info
-    DASK_CLUSTERINFO(dask_prepare_result)
+    // wait for manager to start
+    DASK_WAITFORMANAGER(dask_prepare_result)
 
-    def dask_cluster_info = DASK_CLUSTERINFO.out.cluster_info
+    def dask_cluster_info = DASK_WAITFORMANAGER.out.cluster_info
 
     // prepare inputs for dask workers
     def workers_list = 1..dask_workers
@@ -48,7 +48,7 @@ workflow DASK_CLUSTER {
                      dask_worker_mem_db)
 
     // check dask workers
-    def cluster = DASK_CHECKWORKERS(dask_cluster_info, dask_workers, required_workers)
+    def cluster = DASK_WAITFORWORKERS(dask_cluster_info, dask_workers, required_workers)
 
     cluster.cluster_info.subscribe {
         log.debug "Cluster info: $it"

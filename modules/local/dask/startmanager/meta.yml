@@ -1,4 +1,4 @@
-name: dask_startscheduler
+name: dask_startmanager
 description: Start a Dask scheduler which runs until the terminate module is called
 keywords:
   - dask

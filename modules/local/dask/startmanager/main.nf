@@ -1,4 +1,4 @@
-process DASK_STARTSCHEDULER {
+process DASK_STARTMANAGER {
     label 'process_single'
     container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 

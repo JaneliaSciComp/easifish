@@ -2,9 +2,12 @@ include { DASK_CLUSTER } from '../../../../subworkflows/local/dask_cluster/main.
 include { DASK_TERMINATE } from '../../../../modules/local/dask/terminate/main'
 
 workflow test_start_dask_cluster {
+    def test_dir = file("${workDir}/dask/dummy")
+    test_dir.mkdirs()
+
     def dask_cluster_input = [
         [id: 'test_start_dask_cluster'],
-        [/* empty data file list*/],
+        [test_dir],
     ]
 
     def dask_cluster_info = DASK_CLUSTER(
@@ -26,16 +29,15 @@ workflow test_start_dask_cluster {
 }
 
 workflow test_start_two_dask_clusters {
-    def test_dir = file("${workDir}/dask")
-    def test_file = new File("${test_dir}", 'dummy')
-    test_file.createNewFile()
+    def test_dir = file("${workDir}/dask/dummy")
+    test_dir.mkdirs()
 
     def dask_cluster_input = [
         [
             [
                 id: 'test_start_two_dask_clusters_1',
             ],
-            [test_file],
+            [test_dir],
         ],
         [
             [

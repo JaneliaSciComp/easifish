@@ -8,6 +8,9 @@ process DASK_TERMINATE {
     output:
     tuple val(meta), val(cluster_work_fullpath)
 
+    when:
+    task.ext.when == null || task.ext.when
+
     script:
     def cluster_work_path = cluster_work_dir
     cluster_work_fullpath = cluster_work_path.resolveSymLink().toString()
