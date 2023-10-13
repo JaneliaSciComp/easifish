@@ -1,6 +1,6 @@
 process DASK_TERMINATE {
     label 'process_low'
-    container 'docker.io/multifish/biocontainers-dask:2023.8.1'
+    container { params.dask_container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
     tuple val(meta), path(cluster_work_dir)

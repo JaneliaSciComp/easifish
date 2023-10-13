@@ -1,11 +1,11 @@
 - name: start local dask cluster
-  command: nextflow run ./tests/subworkflows/local/start_dask/main.nf -entry test_local_dask -c ./tests/subworkflows/local/start_dask/nextflow.config
+  command: nextflow run ./tests/subworkflows/local/start_dask/main.nf -entry test_start_stop_dask -c ./tests/subworkflows/local/start_dask/nextflow.config --distributed false
   tags:
     - dask
   files:
     - path: output/dask/versions.yml
 - name: start distributed dask cluster
-  command: nextflow run ./tests/subworkflows/local/start_dask/main.nf -entry test_distributed_dask -c ./tests/subworkflows/local/start_dask/nextflow.config
+  command: nextflow run ./tests/subworkflows/local/start_dask/main.nf -entry test_start_stop_dask -c ./tests/subworkflows/local/start_dask/nextflow.config --distributed true
   tags:
     - dask
   files:

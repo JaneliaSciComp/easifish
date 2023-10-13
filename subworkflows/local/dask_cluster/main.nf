@@ -14,10 +14,11 @@ workflow DASK_CLUSTER {
 
     main:
     def dask_prepare_result = meta_and_files.map { meta, data ->
-        def cluster_work_dir = file("${params.dask_work_dir}/${meta.id}")
-        log.debug "Prepare cluster work dir for $meta, $data -> $cluster_work_dir"
+        def dask_work_dir = params.dask_work_dir ?: "${workDir}/dask"
+        def cluster_work_dir = file(dask_work_dir).resolve(meta.id)
+        log.debug "Cluster work dir for ${meta}, ${data} -> ${dask_work_dir}, ${cluster_work_dir}"
         [
-            meta, cluster_work_dir.parent.parent, cluster_work_dir,
+            meta, file(dask_work_dir), cluster_work_dir,
         ]
     }
     | DASK_PREPARE // prepare dask work dir -> [ meta, cluster_work_dir ]

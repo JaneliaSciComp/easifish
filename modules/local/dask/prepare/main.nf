@@ -1,6 +1,6 @@
 process DASK_PREPARE {
     label 'process_low'
-    container 'docker.io/multifish/biocontainers-dask:2023.8.1'
+    container { params.dask_container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
     // The parent dask dir and the dir name are passed separately so that parent

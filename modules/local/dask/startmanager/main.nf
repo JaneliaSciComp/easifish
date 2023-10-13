@@ -1,6 +1,6 @@
 process DASK_STARTMANAGER {
     label 'process_single'
-    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
+    container { params.dask_container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
     tuple val(meta), path(cluster_work_dir)
@@ -23,7 +23,7 @@ process DASK_STARTMANAGER {
     """
     cluster_work_fullpath=\$(realpath ${cluster_work_dir})
 
-    /opt/scripts/daskscripts/startscheduler.sh \
+    /opt/scripts/daskscripts/startmanager.sh \
         --container-engine ${container_engine} \
         --pid-file ${dask_scheduler_pid_file} \
         --scheduler-file ${dask_scheduler_info_file} \

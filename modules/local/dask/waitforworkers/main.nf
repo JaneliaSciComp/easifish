@@ -1,6 +1,6 @@
 process DASK_WAITFORWORKERS {
     label 'process_low'
-    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
+    container { params.dask_container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
     tuple val(meta), path(cluster_work_dir), val(scheduler_address)
@@ -25,8 +25,8 @@ process DASK_WAITFORWORKERS {
     """
     cluster_work_fullpath=\$(realpath ${cluster_work_dir})
 
-    # checkworkers.sh sets available_workers variable
-    . /opt/scripts/daskscripts/checkworkers.sh \
+    # waitforworkers.sh sets available_workers variable
+    . /opt/scripts/daskscripts/waitforworkers.sh \
         --cluster-work-dir ${cluster_work_dir} \
         --scheduler-address ${scheduler_address} \
         --total-workers ${total_workers} \
