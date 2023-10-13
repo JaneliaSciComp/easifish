@@ -1,7 +1,7 @@
 include { DASK_CLUSTER } from '../../../../subworkflows/local/dask_cluster/main.nf'
 include { DASK_TERMINATE } from '../../../../modules/local/dask/terminate/main'
 
-workflow test_start_dask_cluster {
+workflow test_start_one_dask_cluster {
     def test_dir = file("output/dask/dummy")
     test_dir.mkdirs()
 

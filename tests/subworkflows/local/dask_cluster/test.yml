@@ -1,5 +1,5 @@
 - name: start single dask cluster
-  command: nextflow run ./tests/subworkflows/local/dask_cluster/main.nf -entry test_start_dask_cluster -c ./tests/subworkflows/local/dask_cluster/nextflow.config
+  command: nextflow run ./tests/subworkflows/local/dask_cluster/main.nf -entry test_start_one_dask_cluster -c ./tests/subworkflows/local/dask_cluster/nextflow.config
   tags:
     - dask
   files:
