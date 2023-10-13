@@ -1,13 +1,13 @@
 process DASK_STARTWORKER {
     container { params.dask_container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
-    cpus { worker_cores }
+    cpus { worker_cpus }
     memory "${worker_mem_in_gb} GB"
     clusterOptions { task.ext.cluster_opts }
 
     input:
     tuple val(meta), path(cluster_work_dir), val(scheduler_address), val(worker_id)
     path(data)
-    val(worker_cores)
+    val(worker_cpus)
     val(worker_mem_in_gb)
 
     output:

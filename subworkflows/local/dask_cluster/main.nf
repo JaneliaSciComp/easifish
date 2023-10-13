@@ -9,7 +9,7 @@ workflow DASK_CLUSTER {
     meta_and_files       // channel: [val(meta), files...]
     dask_workers         // int: number of total workers in the cluster
     required_workers     // int: number of required workers in the cluster
-    dask_worker_cores    // int: number of cores per worker
+    dask_worker_cpus    // int: number of cores per worker
     dask_worker_mem_db   // int: worker memory in GB
 
     main:
@@ -45,7 +45,7 @@ workflow DASK_CLUSTER {
     // start dask workers
     DASK_STARTWORKER(dask_workers_input.worker_info,
                      dask_workers_input.data,
-                     dask_worker_cores,
+                     dask_worker_cpus,
                      dask_worker_mem_db)
 
     // check dask workers
