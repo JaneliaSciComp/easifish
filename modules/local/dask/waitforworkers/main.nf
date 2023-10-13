@@ -9,7 +9,7 @@ process DASK_WAITFORWORKERS {
 
     output:
     tuple val(meta), env(cluster_work_fullpath), val(scheduler_address), env(available_workers), emit: cluster_info
-    path "versions.yml", emit: versions
+    path "versions.yml",                                                                         emit: versions
 
     when:
     task.ext.when == null || task.ext.when

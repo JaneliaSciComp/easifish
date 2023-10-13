@@ -1,7 +1,7 @@
-include { DASK_PREPARE } from '../../../modules/local/dask/prepare/main'
-include { DASK_STARTMANAGER } from '../../../modules/local/dask/startmanager/main'
+include { DASK_PREPARE        } from '../../../modules/local/dask/prepare/main'
+include { DASK_STARTMANAGER   } from '../../../modules/local/dask/startmanager/main'
 include { DASK_WAITFORMANAGER } from '../../../modules/local/dask/waitformanager/main'
-include { DASK_STARTWORKER } from '../../../modules/local/dask/startworker/main'
+include { DASK_STARTWORKER    } from '../../../modules/local/dask/startworker/main'
 include { DASK_WAITFORWORKERS } from '../../../modules/local/dask/waitforworkers/main'
 
 workflow DASK_CLUSTER {

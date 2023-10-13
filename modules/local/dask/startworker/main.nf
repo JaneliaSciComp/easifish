@@ -12,7 +12,7 @@ process DASK_STARTWORKER {
 
     output:
     tuple val(meta), env(cluster_work_fullpath), val(scheduler_address), emit: cluster_info
-    path "versions.yml", emit: versions
+    path "versions.yml",                                                 emit: versions
 
     when:
     task.ext.when == null || task.ext.when

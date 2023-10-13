@@ -1,5 +1,5 @@
 include { START_DASK } from '../../../../subworkflows/local/start_dask/main.nf'
-include { STOP_DASK } from '../../../../subworkflows/local/stop_dask/main.nf'
+include { STOP_DASK  } from '../../../../subworkflows/local/stop_dask/main.nf'
 
 params.distributed = true
 
