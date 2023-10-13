@@ -1,8 +1,8 @@
-include { START_DASK          } from 'start_dask/main'
-include { DISTRIBUTEDCELLPOSE } from 'distributedcellpose/main'
-include { STOP_DASK           } from 'stop_dask/main'
+include { START_DASK          } from '../../start_dask/main'
+include { DISTRIBUTEDCELLPOSE } from '../../../../modules/local/distributedcellpose/main'
+include { STOP_DASK           } from '../../stop_dask/main'
 
-workflow SEGMENT_CELLPOSE {
+workflow SEGMENTATIONTOOLS_CELLPOSE {
 
     take:
     ch_input                   // [ meta, image ]
