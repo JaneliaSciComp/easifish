@@ -6,22 +6,24 @@ process DASK_TERMINATE {
     tuple val(meta), path(cluster_work_dir)
 
     output:
-    tuple val(meta), val(cluster_work_fullpath)
+    tuple val(meta), env(cluster_work_fullpath)
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def cluster_work_path = cluster_work_dir
-    cluster_work_fullpath = cluster_work_path.resolveSymLink().toString()
     def terminate_file_name = "${cluster_work_path}/terminate-dask"
     """
+    cluster_work_fullpath=\$(realpath ${cluster_work_dir})
+
     echo "\$(date): Terminate DASK Scheduler: ${cluster_work_path}"
     echo $PWD
     cat > ${terminate_file_name} <<EOF
     \$(date)
     DONE
     EOF
+
     cat ${terminate_file_name}
     """
 }

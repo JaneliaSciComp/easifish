@@ -14,7 +14,7 @@ workflow DASK_CLUSTER {
 
     main:
     def dask_prepare_result = meta_and_files.map { meta, data ->
-        def cluster_work_dir = file("${workDir}/dask/${meta.id}")
+        def cluster_work_dir = file("${params.dask_work_dir}/${meta.id}")
         log.debug "Prepare cluster work dir for $meta, $data -> $cluster_work_dir"
         [
             meta, cluster_work_dir.parent.parent, cluster_work_dir,

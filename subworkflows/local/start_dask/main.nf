@@ -12,7 +12,6 @@ workflow START_DASK {
     main:
     def cluster_info
     if (distributed_cluster) {
-        log.info "!!!!!!! DISTRIBUTED DASK: $distributed_cluster"
         cluster_info = DASK_CLUSTER(meta_and_files, dask_workers, required_workers, dask_worker_cores, dask_worker_mem_db)
         | join(meta_and_files, by: 0)
         | map { meta, cluster_work_dir, scheduler_address, available_workers, data ->
@@ -24,7 +23,6 @@ workflow START_DASK {
             [ meta, data, dask_context ]
         }
     } else {
-        log.info "!!!!!!! LOCAL DASK: $distributed_cluster"
         cluster_info = meta_and_files
         | map { meta, data ->
             [ meta, data, [:] ]

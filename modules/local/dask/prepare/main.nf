@@ -8,13 +8,12 @@ process DASK_PREPARE {
     tuple val(meta), path(dask_work_parent), val(dask_work_fullpath)
 
     output:
-    tuple val(meta), val(cluster_work_fullpath)
+    tuple val(meta), val(dask_work_fullpath)
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    cluster_work_fullpath = file(dask_work_fullpath).resolveSymLink().toString()
     """
     /opt/scripts/daskscripts/prepare.sh "${dask_work_fullpath}"
     """
