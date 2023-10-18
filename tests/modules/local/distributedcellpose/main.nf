@@ -3,31 +3,28 @@ include { DISTRIBUTEDCELLPOSE } from '../../../../modules/local/distributedcellp
 include { STOP_DASK           } from '../../../../subworkflows/local/stop_dask/main'
 
 workflow test_distributed_cellpose_with_dask {
+    def test_input_output = [
+        file('../multifish-testdata/LHA3_R3_small/stitching/export.n5'),
+        file('../multifish-testdata/LHA3_R3_small/segmentation'),
+    ]
     def cellpose_test_data = [
         [
             id: 'test_distributed_cellpose_with_dask',
-            image_dataset: 'c1/s3',
+            image_dataset: params.image_dataset,
         ],
-        [
-            file('../multifish-testdata/LHA3_R3_small/stitching/export.n5'),
-            file('../multifish-testdata/LHA3_R3_small/segmentation'),
-        ]
+        params.dask_config 
+            ? test_input_output + [ file(params.dask_config).parent ]
+            : test_input_output
     ]
     def cellpose_test_data_ch = Channel.of(cellpose_test_data)
-    def cellpose_workers = 2
-    def cellpose_required_workers = 2
-    def cellpose_driver_cpus = 1
-    def cellpose_driver_mem_gb = 6
-    def cellpose_worker_cpus = 1
-    def cellpose_worker_mem_gb = 3
     
     def cluster_info = START_DASK(
         cellpose_test_data_ch,
         true,
-        cellpose_workers,
-        cellpose_required_workers,
-        cellpose_worker_cpus,
-        cellpose_worker_mem_gb,
+        params.cellpose_workers,
+        params.cellpose_required_workers,
+        params.cellpose_worker_cpus,
+        params.cellpose_worker_mem_gb,
     )
 
     def cellpose_input = cluster_info
@@ -48,9 +45,13 @@ workflow test_distributed_cellpose_with_dask {
     def cellpose_results = DISTRIBUTEDCELLPOSE(
         cellpose_input.data,
         cellpose_input.cluster,
-        cellpose_driver_cpus,
-        cellpose_driver_mem_gb,
+        params.cellpose_driver_cpus,
+        params.cellpose_driver_mem_gb,
     )
+
+    cellpose_results.subscribe {
+        log.info "Cellpose results: $it"
+    }
 
     cluster_info.join(cellpose_results, by:0)
     | map {
