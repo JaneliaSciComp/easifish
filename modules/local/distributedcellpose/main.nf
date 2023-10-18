@@ -1,17 +1,17 @@
 process DISTRIBUTEDCELLPOSE {
-    container 'docker.io/multifish/distributed-cellpose:2.1.1'
+    container 'docker.io/multifish/distributed-cellpose:2.2.3'
     cpus { cellpose_cpus }
     memory "${cellpose_mem_in_gb} GB"
     clusterOptions { task.ext.cluster_opts }
 
     input:
-    tuple val(meta), path(image)
+    tuple val(meta), path(image), path(outputdir)
     val(dask_scheduler)
-    cellpose_cpus
-    cellpose_mem_in_gb
+    val(cellpose_cpus)
+    val(cellpose_mem_in_gb)
 
     output:
-    val(meta)
+    tuple val(meta), path(image)
 
     script:
     def args = task.ext.args ?: ''
@@ -19,8 +19,9 @@ process DISTRIBUTEDCELLPOSE {
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
 
     """
-    python /opt/scripts/cellposescripts/distributed_cellpose.py \
+    python /opt/scripts/cellpose/distributed_cellpose.py \
         -i ${image} ${image_dataset_arg} \
+        -o ${outputdir} \
         ${dask_scheduler_arg} \
         ${args}
     """

@@ -1,0 +1,7 @@
+- name: distributed cellpose with dask
+  command: nextflow run ./tests/modules/local/distributedcellpose/main.nf -entry test_distributed_cellpose_with_dask -c ./tests/modules/local/distributedcellpose/nextflow.config
+  tags:
+    - cellpose
+    - dask
+  files:
+    - path: output/dask/versions.yml
