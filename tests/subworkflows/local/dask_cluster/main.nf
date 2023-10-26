@@ -7,11 +7,12 @@ workflow test_start_one_dask_cluster {
 
     def dask_cluster_input = [
         [id: 'test_start_dask_cluster'],
-        [test_dir],
+        []
     ]
 
     def dask_cluster_info = DASK_CLUSTER(
         Channel.of(dask_cluster_input),
+        test_dir, // dask work dir
         3, // dask workers
         2, // required workers
         1, // worker cores
@@ -31,13 +32,14 @@ workflow test_start_one_dask_cluster {
 workflow test_start_two_dask_clusters {
     def test_dir = file("output/dask/dummy")
     test_dir.mkdirs()
+    def test_data_dir = file("output/dask/dummy/data")
 
     def dask_cluster_input = [
         [
             [
                 id: 'test_start_two_dask_clusters_1',
             ],
-            [test_dir],
+            [test_data_dir],
         ],
         [
             [
@@ -49,6 +51,7 @@ workflow test_start_two_dask_clusters {
 
     def dask_cluster_info = DASK_CLUSTER(
         Channel.fromList(dask_cluster_input),
+        test_dir,
         3, // dask workers
         2, // required workers
         1, // worker cores

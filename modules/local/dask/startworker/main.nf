@@ -1,5 +1,5 @@
 process DASK_STARTWORKER {
-    container { params.dask_container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
+    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
     cpus { worker_cpus }
     memory "${worker_mem_in_gb} GB"
     clusterOptions { task.ext.cluster_opts }

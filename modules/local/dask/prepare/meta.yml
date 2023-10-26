@@ -13,15 +13,11 @@ tools:
 input:
   - meta:
       type: map
-  - dask_work_parent:
+  - dask_work_dir:
       type: path
       description: |
         Parent directory of the cluster work directory. 
         This is passed only for mapping purposes and it must exist.
-  - dask_work_dirname:
-      type: string
-      description: |
-        Name of cluster work directory
 
 output:
   - meta:

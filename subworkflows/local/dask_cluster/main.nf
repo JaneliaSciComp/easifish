@@ -7,21 +7,15 @@ include { DASK_WAITFORWORKERS } from '../../../modules/local/dask/waitforworkers
 workflow DASK_CLUSTER {
     take:
     meta_and_files       // channel: [val(meta), files...]
+    dask_work_dir        // dask work directory
     dask_workers         // int: number of total workers in the cluster
     required_workers     // int: number of required workers in the cluster
-    dask_worker_cpus    // int: number of cores per worker
+    dask_worker_cpus     // int: number of cores per worker
     dask_worker_mem_db   // int: worker memory in GB
 
     main:
-    def dask_prepare_result = meta_and_files.map { meta, data ->
-        def dask_work_dir = params.dask_work_dir ?: "${workDir}/dask"
-        def cluster_work_dir = file(dask_work_dir).resolve(meta.id)
-        log.debug "Cluster work dir for ${meta}, ${data} -> ${dask_work_dir}, ${cluster_work_dir}"
-        [
-            meta, file(dask_work_dir), cluster_work_dir,
-        ]
-    }
-    | DASK_PREPARE // prepare dask work dir -> [ meta, cluster_work_dir ]
+    // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
+    def dask_prepare_result = DASK_PREPARE(meta_and_files, dask_work_dir)
     
     // start scheduler
     DASK_STARTMANAGER(dask_prepare_result)

@@ -1,6 +1,6 @@
 process DASK_STARTMANAGER {
     label 'process_single'
-    container { params.dask_container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
+    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
     tuple val(meta), path(cluster_work_dir)

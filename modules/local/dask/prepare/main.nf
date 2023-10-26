@@ -1,20 +1,22 @@
 process DASK_PREPARE {
     label 'process_low'
-    container { params.dask_container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
+    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
 
     input:
-    // The parent dask dir and the dir name are passed separately so that parent
-    // gets mounted and work dir can be created within it
-    tuple val(meta), path(dask_work_parent), val(dask_work_fullpath)
+    tuple val(meta), path(data)
+    tuple path(dask_work_dir)
 
     output:
-    tuple val(meta), val(dask_work_fullpath)
+    tuple val(meta), env(cluster_work_fullpath)
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     """
-    /opt/scripts/daskscripts/prepare.sh "${dask_work_fullpath}"
+    cluster_work_dir="${dask_work_dir}/${meta.id}"
+    cluster_work_fullpath=\$(realpath \${cluster_work_dir})
+
+    /opt/scripts/daskscripts/prepare.sh "\${cluster_work_fullpath}"
     """
 }

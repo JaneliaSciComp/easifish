@@ -12,6 +12,7 @@ workflow test_start_stop_dask {
     def dask_cluster_info = START_DASK(
         Channel.of(dask_cluster_input),
         params.distributed,
+        file(params.dask_work_dir),
         3, // dask workers
         2, // required workers
         1, // worker cores
