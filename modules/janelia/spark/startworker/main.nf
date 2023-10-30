@@ -1,5 +1,5 @@
 process SPARK_STARTWORKER {
-    container 'docker.io/multifish/biocontainers-spark:3.1.3'
+    container 'docker.io/biocontainers/spark:3.1.3_cv1'
     cpus { worker_cores }
     // 1 GB of overhead for Spark, the rest for executors
     memory "${worker_mem_in_gb+1} GB"

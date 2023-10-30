@@ -1,7 +1,8 @@
 include { SPARK_CLUSTER } from '../spark_cluster/main'
 
 /**
- * Prepares Spark contexts, either a distributed cluster or local.
+ * Prepares a Spark context using either a distributed cluster or single process
+ * as specified by the `spark_cluster` parameter.
  *
  * Expects a channel of meta tuples where the meta contains a `spark_work_dir` key.
  * A Spark cluster is created for each meta, and the Spark contexts are returned
