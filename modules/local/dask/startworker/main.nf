@@ -1,5 +1,5 @@
 process DASK_STARTWORKER {
-    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
+    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.10.1' }
     cpus { worker_cpus }
     memory "${worker_mem_in_gb} GB"
     clusterOptions { task.ext.cluster_opts }
@@ -44,9 +44,9 @@ process DASK_STARTWORKER {
         --terminate-file ${terminate_file_name} \
         ${args}
 
+    dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//" )
     cat <<-END_VERSIONS > versions.yml
-    "dask":
-        : \$(echo \$(dask --version 2>&1)))
+    "dask": \${dask_version}
     END_VERSIONS
     """
 }

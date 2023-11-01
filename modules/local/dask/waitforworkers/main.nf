@@ -1,6 +1,6 @@
 process DASK_WAITFORWORKERS {
     label 'process_low'
-    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.8.1' }
+    container { task.ext.container ?: 'docker.io/multifish/biocontainers-dask:2023.10.1' }
 
     input:
     tuple val(meta), path(cluster_work_dir), val(scheduler_address)
@@ -34,9 +34,9 @@ process DASK_WAITFORWORKERS {
         --terminate-file ${terminate_file_name} \
         ${args}
 
+    dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//" )
     cat <<-END_VERSIONS > versions.yml
-    "dask":
-        : \$(echo \$(dask --version 2>&1)))
+    "dask": \${dask_version}
     END_VERSIONS
     """
 }
