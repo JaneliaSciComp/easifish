@@ -26,6 +26,7 @@ process DASK_STARTMANAGER {
     /opt/scripts/daskscripts/startmanager.sh \
         --container-engine ${container_engine} \
         --pid-file ${dask_scheduler_pid_file} \
+        --scheduler-work-dir ${cluster_work_dir} \
         --scheduler-file ${dask_scheduler_info_file} \
         --terminate-file ${terminate_file_name} \
         ${args}

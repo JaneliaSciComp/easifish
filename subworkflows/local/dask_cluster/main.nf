@@ -26,11 +26,11 @@ workflow DASK_CLUSTER {
     def dask_cluster_info = DASK_WAITFORMANAGER.out.cluster_info
 
     // prepare inputs for dask workers
-    def workers_list = 1..dask_workers
+    def dask_workers_list = 1..dask_workers
 
     def dask_workers_input = dask_cluster_info
     | join(meta_and_files, by: 0)
-    | combine(workers_list)
+    | combine(dask_workers_list)
     | multiMap { meta, cluster_work_dir, scheduler_address, data, worker_id ->
         worker_info: [ meta, cluster_work_dir, scheduler_address, worker_id ]
         data: data
