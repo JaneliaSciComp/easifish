@@ -71,3 +71,26 @@ workflow test_distributed_cellpose_with_dask {
     | DASK_TERMINATE
 
 }
+
+workflow test_distributed_cellpose_without_dask_scheduler {
+    def cellpose_test_data = [
+        [
+            id: 'test_distributed_cellpose_with_dask',
+        ],
+        file(params.input_image),
+        file(params.output_image_dir),
+    ]
+
+    def cellpose_results = DISTRIBUTEDCELLPOSE(
+        Channel.of(cellpose_test_data),
+        Channel.of([ params.input_image_dataset, params.output_image_name ]),
+        Channel.of(''),
+        params.cellpose_driver_cpus,
+        params.cellpose_driver_mem_gb,
+    )
+
+    cellpose_results.results.subscribe {
+        log.info "Cellpose results: $it"
+    }
+
+}
