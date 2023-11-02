@@ -37,8 +37,7 @@ process DISTRIBUTEDCELLPOSE {
         -i ${image} ${input_image_dataset_arg} \
         -o ${output} \
         ${dask_scheduler_arg} \
-        ${args} \
-        2>&1
+        ${args}
 
     cellpose_version=\$(python /opt/scripts/cellpose/distributed_cellpose.py \
                             --version | \
