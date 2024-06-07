@@ -98,8 +98,9 @@ workflow EASIFISH {
     def data_dirs = [indir, outdir]
 
     def ch_acquisitions = INPUT_CHECK (
+        samplesheet_file,
         indir,
-        samplesheet_file
+        outdir,
     )
     .acquisitions
     .map {

@@ -3,12 +3,14 @@
 //
 
 include { SAMPLESHEET_CHECK } from '../../modules/local/samplesheet_check'
-include { DOWNLOAD } from '../../modules/local/download'
+include { DOWNLOAD          } from '../../modules/local/download/main'
+include { LINK              } from '../../modules/local/link/main'
 
 workflow INPUT_CHECK {
     take:
-    image_dir
     samplesheet // file: /path/to/samplesheet.csv
+    input_image_dir
+    output_image_dir
 
     main:
     SAMPLESHEET_CHECK(samplesheet)
@@ -23,12 +25,15 @@ workflow INPUT_CHECK {
     }
     .set { tiles }
 
-    DOWNLOAD(image_dir, tiles.remote)
-        .tiles
-        .mix(tiles.local)
-        .map { create_acq_channel(it, image_dir) }
-        // Group by acquisition
-        .groupTuple()
+    def downloaded_tiles = DOWNLOAD(tiles.remote, output_image_dir).tiles
+    def linked_tiles = LINK(tiles.local, input_image_dir, output_image_dir).tiles
+    // download remote tiles
+    downloaded_tiles
+        .mix(linked_tiles)
+        .map { row, image_dir ->
+            create_acq_channel(it, image_dir)
+        }
+        .groupTuple() // Group by acquisition
         .map {
             def (meta, files, patterns) = it
             // Set acquisition's filename pattern to the meta map
@@ -48,7 +53,8 @@ workflow INPUT_CHECK {
 
 def create_acq_channel(LinkedHashMap samplesheet_row, image_dir) {
     def meta = [:]
+    def image_name = file(samplesheet_row.filename).name
     meta.id = samplesheet_row.id
-    filepath = "${image_dir}/${samplesheet_row.filename}"
+    def filepath = "${image_dir}/${image_name}"
     return [meta, file(filepath), samplesheet_row.pattern]
 }
