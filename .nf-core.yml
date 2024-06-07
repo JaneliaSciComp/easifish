@@ -14,8 +14,6 @@ lint:
     - docs/images/nf-core-janeliascicomp-easifish_logo_light.png
     - docs/images/nf-core-janeliascicomp-easifish_logo_dark.png
     - .github/ISSUE_TEMPLATE/bug_report.yml
-  multiqc_config:
-    - report_comment
   nextflow_config:
     - manifest.name
     - manifest.homePage

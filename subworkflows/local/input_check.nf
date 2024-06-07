@@ -35,7 +35,9 @@ workflow INPUT_CHECK {
             meta.pattern = patterns.findAll({ it?.trim() }).first()
             // Set image dir to the meta map
             meta.image_dir = image_dir
-            [meta, files]
+            def r = [meta, files]
+            log.debug "Set acquisitions $it -> $r"
+            r
         }
         .set { acquisitions }
 

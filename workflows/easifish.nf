@@ -61,26 +61,23 @@ WorkflowEASIFISH.initialise(params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
-ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
-ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT LOCAL MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { INPUT_CHECK         } from '../subworkflows/local/input_check'
-include { SPARK_START         } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP          } from '../subworkflows/janelia/spark_stop/main'
-include { STITCHING_PREPARE   } from '../modules/local/stitching/prepare/main'
-include { STITCHING_PARSECZI  } from '../modules/local/stitching/parseczi/main'
-include { STITCHING_CZI2N5    } from '../modules/local/stitching/czi2n5/main'
-include { STITCHING_FLATFIELD } from '../modules/local/stitching/flatfield/main'
-include { STITCHING_STITCH    } from '../modules/local/stitching/stitch/main'
-include { STITCHING_FUSE      } from '../modules/local/stitching/fuse/main'
+include { INPUT_CHECK            } from '../subworkflows/local/input_check'
+include { SPARK_START            } from '../subworkflows/janelia/spark_start/main'
+include { SPARK_STOP             } from '../subworkflows/janelia/spark_stop/main'
+include { BIGSTREAM_REGISTRATION } from '../subworkflows/janelia/bigstream_registration/main'
+
+include { STITCHING_PREPARE      } from '../modules/local/stitching/prepare/main'
+include { STITCHING_PARSECZI     } from '../modules/local/stitching/parseczi/main'
+include { STITCHING_CZI2N5       } from '../modules/local/stitching/czi2n5/main'
+include { STITCHING_FLATFIELD    } from '../modules/local/stitching/flatfield/main'
+include { STITCHING_STITCH       } from '../modules/local/stitching/stitch/main'
+include { STITCHING_FUSE         } from '../modules/local/stitching/fuse/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,7 +85,6 @@ include { STITCHING_FUSE      } from '../modules/local/stitching/fuse/main'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
@@ -98,9 +94,10 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 */
 
 workflow EASIFISH {
-    ch_versions = Channel.empty()
+    def ch_versions = Channel.empty()
+    def data_dirs = [indir, outdir]
 
-    INPUT_CHECK (
+    def ch_acquisitions = INPUT_CHECK (
         indir,
         samplesheet_file
     )
@@ -111,10 +108,11 @@ workflow EASIFISH {
         meta.spark_work_dir = "${outdir}/spark/${workflow.sessionId}/${meta.id}"
         meta.stitching_dir = "${outdir}/stitching/${meta.id}"
         // Add top level dirs here so that they get mounted into the Spark processes
-        dirs = [indir, outdir]
-        [meta, dirs+files]
+        def r = [meta, files + data_dirs]
+        log.info "Input acquisitions: $files -> $r"
+        r
     }
-    .set { ch_acquisitions }
+
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
     // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
@@ -124,9 +122,10 @@ workflow EASIFISH {
         ch_acquisitions
     )
 
-    SPARK_START(
+    def stitching_input = SPARK_START(
         STITCHING_PREPARE.out,
-        [indir, outdir],
+        params.workdir,
+        data_dirs,
         params.spark_cluster,
         params.spark_workers as int,
         params.spark_worker_cores as int,
@@ -134,8 +133,17 @@ workflow EASIFISH {
         params.spark_driver_cores as int,
         params.spark_driver_memory
     )
+    | join(ch_acquisitions, by:0)
+    | map {
+        def (meta, spark, files) = it
+        def r = [
+            meta, files, spark,
+        ]
+        log.info "Stitching input: $it -> $r"
+        r
+    }
 
-    STITCHING_PARSECZI(SPARK_START.out)
+    STITCHING_PARSECZI(stitching_input)
     ch_versions = ch_versions.mix(STITCHING_PARSECZI.out.versions)
 
     STITCHING_CZI2N5(STITCHING_PARSECZI.out.acquisitions)
@@ -155,36 +163,16 @@ workflow EASIFISH {
     STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
     ch_versions = ch_versions.mix(STITCHING_FUSE.out.versions)
 
-    done = SPARK_STOP(STITCHING_FUSE.out.acquisitions)
+    STITCHING_FUSE.out.acquisitions
+    | map {
+        log.info "!!!!! $it"
+        it
+    }
 
-    //
-    // MODULE: Pipeline reporting
-    //
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    )
+    done = SPARK_STOP(STITCHING_FUSE.out.acquisitions, params.spark_cluster)
 
-    //
-    // MODULE: MultiQC
-    //
-    workflow_summary    = WorkflowEASIFISH.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
 
-    methods_description    = WorkflowEASIFISH.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
-    ch_methods_description = Channel.value(methods_description)
 
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-
-    MULTIQC (
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList()
-    )
-    multiqc_report = MULTIQC.out.report.toList()
 }
 
 /*
