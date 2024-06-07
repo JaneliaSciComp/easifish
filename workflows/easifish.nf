@@ -175,7 +175,8 @@ workflow EASIFISH {
     | filter { meta, spark -> meta.id != params.reference_vol }
 
     def registration_inputs = ref_volume
-    | combine(mov_volumes) {
+    | combine(mov_volumes)
+    | map {
         log.info "!!!!REG INPUTS: $it"
         it
     }
