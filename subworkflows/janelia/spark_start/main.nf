@@ -3,10 +3,10 @@ process SPARK_STARTMANAGER {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark)
+    tuple val(meta), path(spark_work_dir), val(spark)
 
     output:
-    tuple val(meta), val(spark)
+    tuple val(meta), env(full_spark_work_dir), val(spark)
 
     when:
     task.ext.when == null || task.ext.when
@@ -20,6 +20,14 @@ process SPARK_STARTMANAGER {
     terminate_file_name = "${spark.work_dir}/terminate-spark"
     container_engine = workflow.containerEngine
     """
+    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+    if [[ ! -e \${full_spark_work_dir} ]] ; then
+        echo "Create spark work directory: \${full_spark_work_dir}"
+        mkdir -p \${full_spark_work_dir}
+    else
+        echo "Spark work directory: \${full_spark_work_dir} - already exists"
+    fi
+
     /opt/scripts/startmanager.sh "$spark_local_dir" "${spark.work_dir}" "$spark_master_log_file" \
         "$spark_config_filepath" "$terminate_file_name" "$args" $sleep_secs $container_engine
     """
@@ -150,8 +158,7 @@ workflow SPARK_START {
     // create a Spark context for each meta
     def meta_and_sparks = ch_meta.map {
         def meta = it[0]
-        def spark_work_dir = "${working_dir}/spark/${workflow.sessionId}/${meta.id}" 
-        file(spark_work_dir).mkdirs()
+        def spark_work_dir = file("${working_dir}/spark/${workflow.sessionId}/${meta.id}")
         def spark = [:]
         spark.work_dir = spark_work_dir
         spark.workers = spark_workers ?: 1
@@ -162,7 +169,7 @@ workflow SPARK_START {
         // 1 GB of overhead for Spark, the rest for executors
         spark.worker_memory = (spark_worker_cores * spark_gb_per_core + 1)+" GB"
         spark.executor_memory = (spark_worker_cores * spark_gb_per_core)+" GB"
-        [meta, spark]
+        [meta, spark_work_dir, spark]
     }
 
     if (spark_cluster) {
@@ -191,7 +198,8 @@ workflow SPARK_START {
 
         // wait for all workers to start
         spark_cluster_res = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1])
-    } else {
+    }
+    else {
         // when running locally, the driver needs enough resources to run a spark worker
         spark_cluster_res = meta_and_sparks.map {
             def (meta, spark) = it
