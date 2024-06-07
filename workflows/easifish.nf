@@ -86,7 +86,6 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 
 workflow EASIFISH {
     def ch_versions = Channel.empty()
-    def data_dirs = [indir, outdir]
 
     def ch_acquisitions = INPUT_CHECK (
         samplesheet_file,
@@ -157,14 +156,32 @@ workflow EASIFISH {
     STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
     ch_versions = ch_versions.mix(STITCHING_FUSE.out.versions)
 
-    def spark_stop_input = STITCHING_FUSE.out.acquisitions
+    def terminate_spark = STITCHING_FUSE.out.acquisitions
     | map {
         def (meta, files, spark) = it
         [ meta, spark ]
     }
 
-    done = SPARK_STOP(spark_stop_input, params.spark_cluster)
+    def stitching_result = SPARK_STOP(terminate_spark, params.spark_cluster)
 
+    stitching_result.subscribe {
+        log.info "Stitching result: $it"
+    }
+
+    def ref_volume = stitching_result
+    | filter { meta, spark -> meta.id == params.reference_vol }
+
+    def mov_volumes = stitching_result
+    | filter { meta, spark -> meta.id != params.reference_vol }
+
+    def registration_inputs = ref_volume
+    | combine(mov_volumes) {
+        log.info "!!!!REG INPUTS: $it"
+        it
+    }
+
+    emit:
+    done = registration_inputs
 }
 
 /*
