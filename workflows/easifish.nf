@@ -26,7 +26,7 @@ if (!params.indir) {
 }
 
 // Make indir absolute
-def indir = indir_d.toPath().toAbsolutePath().normalize().toString()
+def indir = indir_d.toAbsolutePath().normalize().toString()
 log.info "Using absolute path for indir: "+indir
 
 def outdir_d = file(params.outdir)
