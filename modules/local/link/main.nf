@@ -33,7 +33,7 @@ process LINK {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        ln: \$(ln --version | sed 's/ln \(GNU coreutils\) //g')
+        ln: \$(ln --version | sed 's/ln (GNU coreutils) //g')
     END_VERSIONS
     """
 }
