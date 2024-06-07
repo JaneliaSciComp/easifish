@@ -101,7 +101,7 @@ workflow EASIFISH {
         meta.stitching_dir = "${outdir}/stitching/${meta.id}"
         meta.stitching_result = 'result.n5' // FIXME!!!!!
         // Add top level dirs here so that they get mounted into the Spark processes
-        def r = [meta, files + data_dirs]
+        def r = [meta, files + [outdir]]
         log.info "Input acquisitions: $files -> $r"
         r
     }
@@ -118,7 +118,7 @@ workflow EASIFISH {
     def stitching_input = SPARK_START(
         STITCHING_PREPARE.out,
         params.workdir,
-        data_dirs,
+        [outdir],
         params.spark_cluster,
         params.spark_workers as int,
         params.spark_worker_cores as int,
