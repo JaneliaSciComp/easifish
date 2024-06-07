@@ -39,7 +39,7 @@ workflow INPUT_CHECK {
             // Set acquisition's filename pattern to the meta map
             meta.pattern = patterns.findAll({ it?.trim() }).first()
             // Set image dir to the meta map
-            meta.image_dir = image_dir
+            meta.image_dir = files.collect { file(it).parent }.first()
             def r = [meta, files]
             log.debug "Set acquisitions $it -> $r"
             r
