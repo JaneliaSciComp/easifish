@@ -5,8 +5,8 @@ process LINK {
 
     input:
     val samplesheet_row
-    path(input_dir, stageAs: 'in/*'),
-    path(output_dir, stageAs: 'out/*'),
+    path(input_dir, stageAs: 'in/*')
+    path(output_dir, stageAs: 'out/*')
 
     output:
     tuple val(samplesheet_row), env(output_fullpath), emit: tiles
