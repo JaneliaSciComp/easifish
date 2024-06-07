@@ -15,9 +15,10 @@ process STITCHING_FUSE {
     task.ext.when == null || task.ext.when
 
     script:
-    extra_args = task.ext.args ?: ''
-    executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
-    driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
+    def extra_args = task.ext.args ?: ''
+    def executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
+    def driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
+    def stitched_result_arg = meta.stitching_result ? ""
     """
     # Create command line parameters
     declare -a app_args
@@ -25,6 +26,7 @@ process STITCHING_FUSE {
     do
         app_args+=( -i "\$file" )
     done
+    echo "Fuse args: \${app_args[@]}"
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
         /app/app.jar org.janelia.stitching.StitchingSpark \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \

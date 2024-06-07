@@ -25,6 +25,7 @@ process STITCHING_STITCH {
     do
         app_args+=( -i "\$file" )
     done
+    echo "Stitching args: \${app_args[@]}"
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
         /app/app.jar org.janelia.stitching.StitchingSpark \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
