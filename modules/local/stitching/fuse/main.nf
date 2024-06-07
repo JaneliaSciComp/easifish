@@ -18,7 +18,7 @@ process STITCHING_FUSE {
     def extra_args = task.ext.args ?: ''
     def executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
     def driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
-    def stitched_result_arg = meta.stitching_result ? ""
+    def stitched_result_arg = meta.stitching_result ? "--outputContainerName ${meta.stitching_result}" : ''
     """
     # Create command line parameters
     declare -a app_args
