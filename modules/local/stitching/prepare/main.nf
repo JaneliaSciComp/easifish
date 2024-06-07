@@ -6,7 +6,7 @@ process STITCHING_PREPARE {
     tuple val(meta), path(files)
 
     output:
-    tuple val(meta), path(files)
+    tuple val(meta), val(files)
 
     script:
     """
