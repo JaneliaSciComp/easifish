@@ -1,6 +1,6 @@
 process STITCHING_FUSE {
     tag "${meta.id}"
-    container 'docker.io/janeliascicomp/stitching-spark:1.11.0'
+    container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0'
     cpus { spark.driver_cores }
     memory { spark.driver_memory }
 
