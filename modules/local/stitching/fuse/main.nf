@@ -30,7 +30,9 @@ process STITCHING_FUSE {
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
         /app/app.jar org.janelia.stitching.StitchingSpark \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
-        --fuse \${app_args[@]} ${extra_args}
+        --fuse \${app_args[@]} \
+        ${stitched_result_arg} \
+        ${extra_args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
