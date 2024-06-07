@@ -42,7 +42,7 @@ process SPARK_WAITFORMANAGER {
     maxRetries 20
 
     input:
-    tuple val(meta), val(spark)
+    tuple val(meta), path(spark_work_dir), val(spark)
 
     output:
     tuple val(meta), val(spark), env(spark_uri)
@@ -53,8 +53,8 @@ process SPARK_WAITFORMANAGER {
     script:
     sleep_secs = task.ext.sleep_secs ?: '1'
     max_wait_secs = task.ext.max_wait_secs ?: '3600'
-    spark_master_log_name = "${spark.work_dir}/sparkmaster.log"
-    terminate_file_name = "${spark.work_dir}/terminate-spark"
+    spark_master_log_name = "${spark_work_dir}/sparkmaster.log"
+    terminate_file_name = "${spark_work_dir}/terminate-spark"
     """
     /opt/scripts/waitformanager.sh "$spark_master_log_name" "$terminate_file_name" $sleep_secs $max_wait_secs
     export spark_uri=`cat spark_uri`
@@ -202,7 +202,7 @@ workflow SPARK_START {
     else {
         // when running locally, the driver needs enough resources to run a spark worker
         spark_cluster_res = meta_and_sparks.map {
-            def (meta, spark) = it
+            def (meta, spark_work_dir, spark) = it
             spark.workers = 1
             spark.driver_cores = spark_driver_cores + spark_worker_cores
             spark.driver_memory = (2 + spark_worker_cores * spark_gb_per_core) + " GB"
