@@ -4,44 +4,42 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+// Check mandatory parameters
+if (params.input) {
+    samplesheet_file = file(params.input)
+} else {
+    exit 1, 'Input samplesheet not specified!'
+}
+
 // Validate input parameters
 if (params.spark_workers > 1 && !params.spark_cluster) {
-    exit 1, "You must enable --spark_cluster if --spark_workers is greater than 1."
+    exit 1, 'You must enable --spark_cluster if --spark_workers is greater than 1.'
 }
 
 // Default indir if it was not specified
-def indir = params.indir
-if (!indir) {
-    indir = file(params.input).parent
-    log.info "Setting default indir to: "+indir
-}
-
-// Create input data directory if we need to
-def indir_d = new File(indir)
-if (!indir_d.exists()) {
-    indir_d.mkdirs()
+def indir_d
+if (!params.indir) {
+    indir_d = file(params.input).parent
+    log.info "Setting default indir to: "+indir_d
+} else {
+    indir_d = file(params.indir)
 }
 
 // Make indir absolute
-indir = indir_d.toPath().toAbsolutePath().normalize().toString()
+def indir = indir_d.toPath().toAbsolutePath().normalize().toString()
 log.info "Using absolute path for indir: "+indir
 
-def outdir_d = new File(params.outdir)
-if (!outdir_d.exists()) {
-    exit 1, "The path specified by --outdir does not exist: "+params.outdir
-}
+def outdir_d = file(params.outdir)
 
 // Make outdir absolute
-outdir = outdir_d.toPath().toAbsolutePath().normalize().toString()
+outdir = outdir_d.toAbsolutePath().normalize().toString()
 log.info "Using absolute path for outdir: "+outdir
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, indir, outdir ]
-for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
-
-
-// Check mandatory parameters
-if (params.input) { samplesheet_file = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+def checkPathParamList = [ params.input, indir ]
+for (param in checkPathParamList) {
+    if (param) { file(param, checkIfExists: true) }
+}
 
 include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
 
@@ -53,13 +51,6 @@ def summary_params = paramsSummaryMap(workflow)
 log.info logo + paramsSummaryLog(workflow) + citation
 
 WorkflowEASIFISH.initialise(params, log)
-
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    CONFIG FILES
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
