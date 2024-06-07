@@ -28,7 +28,7 @@ process DOWNLOAD {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        python: \$(python --version | sed 's/Python //g')
+        download: 1.1.0
     END_VERSIONS
     """
 }

@@ -33,9 +33,7 @@ process LINK {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        python: \$(python --version | sed 's/Python //g')
+        ln: \$(ln --version | sed 's/ln \(GNU coreutils\) //g')
     END_VERSIONS
     """
 }
-
-
