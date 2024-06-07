@@ -25,9 +25,6 @@ workflow SPARK_STOP {
 
     main:
     if (spark_cluster) {
-        ch_meta.subscribe {
-            log.info "!!!!! TERMINATE $it"
-        }
         done = SPARK_TERMINATE(ch_meta)
     }
     else {
