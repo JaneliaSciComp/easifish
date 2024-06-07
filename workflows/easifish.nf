@@ -97,12 +97,12 @@ workflow EASIFISH {
     .map {
         def (meta, files) = it
         // set output subdirectories for each acquisition
-        meta.spark_work_dir = "${outdir}/spark/${workflow.sessionId}/${meta.id}"
+        meta.spark_work_dir = "${params.workdir}/${workflow.sessionId}/${meta.id}"
         meta.stitching_dir = "${outdir}/stitching/${meta.id}"
         meta.stitching_result = 'result.n5' // FIXME!!!!!
         // Add top level dirs here so that they get mounted into the Spark processes
         def r = [meta, files + [outdir]]
-        log.info "Input acquisitions: $files -> $r"
+        log.debug "Input acquisitions: $files -> $r"
         r
     }
 
@@ -132,7 +132,7 @@ workflow EASIFISH {
         def r = [
             meta, files, spark,
         ]
-        log.info "Stitching input: $it -> $r"
+        log.debug "Stitching input: $it -> $r"
         r
     }
 
@@ -156,15 +156,13 @@ workflow EASIFISH {
     STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
     ch_versions = ch_versions.mix(STITCHING_FUSE.out.versions)
 
-    STITCHING_FUSE.out.acquisitions
+    def spark_stop_input = STITCHING_FUSE.out.acquisitions
     | map {
-        log.info "!!!!! $it"
-        it
+        def (meta, files, spark) = it
+        [ meta, spark ]
     }
 
-    done = SPARK_STOP(STITCHING_FUSE.out.acquisitions, params.spark_cluster)
-
-
+    done = SPARK_STOP(spark_stop_input, params.spark_cluster)
 
 }
 
