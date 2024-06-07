@@ -16,12 +16,11 @@ process LINK {
     task.ext.when == null || task.ext.when
 
     script: // This script is bundled with the pipeline, in ./bin
-    def full_filename = samplesheet_row.filename[0] == '/'
-        ? samplesheet_row.filename
-        : "\$(readlink -e ${input_dir})/${samplesheet_row.filename}"
     def filename = file(samplesheet_row.filename).name
     """
+    input_fullpath=\$(readlink -e ${input_dir})
     output_fullpath=\$(readlink -m ${output_dir})
+    full_filename="\${input_fullpath}/${filename}"
     if [[ ! -e \${output_fullpath} ]] ; then
         echo "Create output directory: \${output_fullpath}"
         mkdir -p \${output_fullpath}
@@ -29,7 +28,8 @@ process LINK {
         echo "Output directory: \${output_fullpath} - already exists"
     fi
     pushd \${output_fullpath}
-    ln -s ${full_filename} ${filename}
+    ln -s \${full_filename} ${filename}
+    popd
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
