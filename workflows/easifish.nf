@@ -12,7 +12,7 @@ if (params.spark_workers > 1 && !params.spark_cluster) {
 // Default indir if it was not specified
 def indir = params.indir
 if (!indir) {
-    indir = params.outdir + "/input"
+    indir = file(params.input).parent
     log.info "Setting default indir to: "+indir
 }
 
