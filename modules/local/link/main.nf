@@ -28,7 +28,7 @@ process LINK {
         echo "Output directory: \${output_fullpath} - already exists"
     fi
     pushd \${output_fullpath}
-    ln -s \${full_filename} ${filename}
+    ln -sf \${full_filename} ${filename}
     popd
 
     cat <<-END_VERSIONS > versions.yml
