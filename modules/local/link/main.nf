@@ -1,7 +1,7 @@
 process LINK {
     tag "${samplesheet_row.filename}"
     label 'process_single'
-    container "docker.io/multifish/downloader:1.1.0"
+    container "ghcr.io/janeliascicomp/stitching-spark:1.11.0"
 
     input:
     val samplesheet_row
