@@ -31,7 +31,7 @@ workflow INPUT_CHECK {
     downloaded_tiles
         .mix(linked_tiles)
         .map { row, image_dir ->
-            create_acq_channel(it, image_dir)
+            create_acq_channel(row, image_dir)
         }
         .groupTuple() // Group by acquisition
         .map {
