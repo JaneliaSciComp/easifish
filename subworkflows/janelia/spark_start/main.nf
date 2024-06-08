@@ -22,7 +22,7 @@ process SPARK_STARTMANAGER {
     """
     full_spark_work_dir=\$(readlink -m ${spark_work_dir})
     if [[ ! -e \${full_spark_work_dir} ]] ; then
-        echo "Create spark work directory: \${full_spark_work_dir}"
+        echo "Create spark work directory ${spark_work_dir} -> \${full_spark_work_dir}"
         mkdir -p \${full_spark_work_dir}
     else
         echo "Spark work directory: \${full_spark_work_dir} - already exists"
