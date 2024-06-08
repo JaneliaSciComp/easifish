@@ -169,10 +169,10 @@ workflow EASIFISH {
     }
 
     def ref_volume = completed_stitching_result
-    | filter { meta, spark -> meta.id == params.reference_vol }
+    | filter { meta, spark -> meta.id == params.registration_fix_image }
 
     def mov_volumes = completed_stitching_result
-    | filter { meta, spark -> meta.id != params.reference_vol }
+    | filter { meta, spark -> meta.id != params.registration_fix_image }
 
     def fix_global_subpath = params.fix_global_subpath
         ? params.fix_global_subpath
