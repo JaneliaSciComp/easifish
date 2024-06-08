@@ -20,7 +20,7 @@ process DASK_PREPARE {
         mkdir -p \${dwork}
         cluster_work_dir=\$(readlink -e \${dwork})
     else
-        cluster_work_dir=\$(readlink ${dask_work_dir})
+        cluster_work_dir=\$(readlink -e ${dask_work_dir})
     fi
     cluster_work_fullpath="\${cluster_work_dir}/${meta.id}"
     /opt/scripts/daskscripts/prepare.sh "\${cluster_work_fullpath}"
