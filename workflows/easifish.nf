@@ -207,8 +207,8 @@ workflow EASIFISH {
         def fix = "${fix_meta.stitching_dir}/${fix_meta.stitching_result}"
         def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}" // global_moving
 
-        def registration_dir = "${outdir}/registration/${reg_meta.id}"
-        def dask_work_dir = "${params.workdir}/${workflow.sessionId}/dask/${reg_meta.id}"
+        def registration_dir = file("${outdir}/registration/${reg_meta.id}")
+        def dask_work_dir = file("${params.workdir}/${workflow.sessionId}/dask/${reg_meta.id}")
 
 
         def deformations = get_warped_subpaths().collect { warped_subpath ->
