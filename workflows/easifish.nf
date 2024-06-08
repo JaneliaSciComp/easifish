@@ -216,8 +216,8 @@ workflow EASIFISH {
                 mov, warped_subpath, '',
                 "${registration_dir}/warped.n5", '',
             ]
-	    log.info "Deformation input: warped_subpath -> ${deformation_input}"
-	    deformation_input
+            log.debug "Deformation input: warped_subpath -> ${deformation_input}"
+            deformation_input
         }
 
         def ri =  [
