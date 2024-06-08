@@ -187,8 +187,8 @@ workflow EASIFISH {
     def mov_local_subpath = params.mov_local_subpath
         ? params.mov_local_subpath
         : "${params.reg_ch}/${params.local_scale}"
-    def local_transform_subpath = params.local_transform_subpath
-        ? params.local_transform_subpath
+    def deform_subpath = params.deform_subpath
+        ? params.deform_subpath
         : params.local_scale
     def dask_config = params.dask_config
         ? file(params.dask_config)
@@ -243,8 +243,8 @@ workflow EASIFISH {
 
             params.local_steps,
             registration_dir,
-            "transform", local_transform_subpath, // local_transform_name, local_transform_dataset
-            "invtransform", local_transform_subpath, // local_inv_transform_name, local_inv_transform_dataset
+            "transform", deform_subpath, // local_transform_name, local_transform_dataset
+            "invtransform", deform_subpath, // local_inv_transform_name, local_inv_transform_dataset
             'warped.n5', '', // local_aligned_name, local_aligned_subpath
 
             deformations,
