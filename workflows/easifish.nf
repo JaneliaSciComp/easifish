@@ -198,16 +198,18 @@ workflow EASIFISH {
     | combine(mov_volumes)
     | map {
         def (fix_meta, fix_spark, mov_meta, mov_spark) = it
+
         def reg_meta = [
             id: "${fix_meta.id}-${mov_meta.id}",
             fix: fix_meta,
             mov: mov_meta,
         ]
         def fix = "${fix_meta.stitching_dir}/${fix_meta.stitching_result}"
-        def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}", // global_moving
+        def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}" // global_moving
 
         def registration_dir = "${outdir}/registration/${reg_meta.id}"
         def dask_work_dir = "${params.workdir}/${workflow.sessionId}/${reg_meta.id}"
+
 
         def deformations = get_warped_subpaths().collect { warped_subpath ->
             [
@@ -294,11 +296,11 @@ def get_warped_subpaths() {
         [warped_channels, warped_scales]
             .combinations()
             .collect { warped_ch, warped_scale ->
-            [
-                fixed,  "${warped_ch}/${warped_scale}", '',
-                moving, "${warped_ch}/${warped_scale}", '',
-                "${output}/warped", '',
-            ]
+                [
+                    "${warped_ch}/${warped_scale}",
+                    "${warped_ch}/${warped_scale}",
+                ]
+	    }
     } else {
         []
     }
