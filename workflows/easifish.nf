@@ -268,7 +268,7 @@ workflow EASIFISH {
         params.global_align_mem_gb,
         params.local_align_cpus,
         params.local_align_mem_gb,
-    )
+    ).local
 
     registration_results | view
 
