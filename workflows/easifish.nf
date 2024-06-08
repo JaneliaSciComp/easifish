@@ -156,22 +156,22 @@ workflow EASIFISH {
     STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
     ch_versions = ch_versions.mix(STITCHING_FUSE.out.versions)
 
-    def terminate_spark = STITCHING_FUSE.out.acquisitions
+    def fuse_result = STITCHING_FUSE.out.acquisitions
     | map {
         def (meta, files, spark) = it
         [ meta, spark ]
     }
 
-    def stitching_result = SPARK_STOP(terminate_spark, params.spark_cluster)
+    def completed_stitching_result = SPARK_STOP(fuse_result, params.spark_cluster)
 
-    stitching_result.subscribe {
+    completed_stitching_result.subscribe {
         log.debug "Stitching result: $it"
     }
 
-    def ref_volume = stitching_result
+    def ref_volume = completed_stitching_result
     | filter { meta, spark -> meta.id == params.reference_vol }
 
-    def mov_volumes = stitching_result
+    def mov_volumes = completed_stitching_result
     | filter { meta, spark -> meta.id != params.reference_vol }
 
     def fix_global_subpath = params.fix_global_subpath
@@ -210,13 +210,14 @@ workflow EASIFISH {
         def registration_dir = file("${outdir}/registration/${reg_meta.id}")
         def dask_work_dir = file("${params.workdir}/${workflow.sessionId}/dask/${reg_meta.id}")
 
-
         def deformations = get_warped_subpaths().collect { warped_subpath ->
-            [
+            def deformation_input = [
                 fix, warped_subpath, '',
                 mov, warped_subpath, '',
-                "${registration_dir}/warped", '',
+                "${registration_dir}/warped.n5", '',
             ]
+	    log.info "Deformation input: warped_subpath -> ${deformation_input}"
+	    deformation_input
         }
 
         def ri =  [
@@ -305,10 +306,7 @@ def get_warped_subpaths() {
         [warped_channels, warped_scales]
             .combinations()
             .collect { warped_ch, warped_scale ->
-                [
-                    "${warped_ch}/${warped_scale}",
-                    "${warped_ch}/${warped_scale}",
-                ]
+                "${warped_ch}/${warped_scale}"
 	    }
     } else {
         []
