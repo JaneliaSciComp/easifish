@@ -28,7 +28,7 @@ process SPARK_STARTMANAGER {
         echo "Spark work directory: \${full_spark_work_dir} - already exists"
     fi
 
-    /opt/scripts/startmanager.sh "$spark_local_dir" "${spark.work_dir}" "$spark_master_log_file" \
+    /opt/scripts/startmanager.sh "$spark_local_dir" \${full_spark_work_dir} "$spark_master_log_file" \
         "$spark_config_filepath" "$terminate_file_name" "$args" $sleep_secs $container_engine
     """
 }
