@@ -174,12 +174,92 @@ workflow EASIFISH {
     def mov_volumes = stitching_result
     | filter { meta, spark -> meta.id != params.reference_vol }
 
+    def fix_global_subpath = params.fix_global_subpath
+        ? params.fix_global_subpath
+        : "${params.reg_ch}/${params.global_scale}"
+    def mov_global_subpath = params.mov_global_subpath
+        ? params.mov_global_subpath
+        : "${params.reg_ch}/${params.global_scale}"
+
+    def fix_local_subpath = params.fix_local_subpath
+        ? params.fix_local_subpath
+        : "${params.reg_ch}/${params.local_scale}"
+    def mov_local_subpath = params.mov_local_subpath
+        ? params.mov_local_subpath
+        : "${params.reg_ch}/${params.local_scale}"
+    def local_transform_subpath = params.local_transform_subpath
+        ? params.local_transform_subpath
+        : params.local_scale
+    def dask_config = params.dask_config
+        ? file(params.dask_config)
+        : ''
+
     def registration_inputs = ref_volume
     | combine(mov_volumes)
     | map {
-        log.info "!!!!REG INPUTS: $it"
-        it
+        def (fix_meta, fix_spark, mov_meta, mov_spark) = it
+        def reg_meta = [
+            id: "${fix_meta.id}-${mov_meta.id}",
+            fix: fix_meta,
+            mov: mov_meta,
+        ]
+        def fix = "${fix_meta.stitching_dir}/${fix_meta.stitching_result}"
+        def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}", // global_moving
+
+        def registration_dir = "${outdir}/registration/${reg_meta.id}"
+        def dask_work_dir = "${params.workdir}/${workflow.sessionId}/${reg_meta.id}"
+
+        def deformations = get_warped_subpaths().collect { warped_subpath ->
+            [
+                fix, warped_subpath, '',
+                mov, warped_subpath, '',
+                "${registration_dir}/warped", '',
+            ]
+        }
+
+        def ri =  [
+            reg_meta,
+
+            fix, // global_fixed
+            fix_global_subpath, // global_fixed_subpath
+            mov, // global_moving
+            mov_global_subpath, // global_moving_subpath
+            '', '', // global_fixed_mask, global_fixed_mask_dataset
+            '', '', // global_moving_mask, global_fixed_moving_dataset
+
+            params.global_steps,
+            registration_dir,
+            'aff/affine.mat', // global_transform_name
+            'aff/ransac_affine', '',    // global_aligned_name, global_alignment_subpath
+
+            fix, // local_fixed
+            fix_local_subpath, // local_fixed_subpath
+            mov, // local_moving
+            mov_local_subpath, // local_moving_subpath
+            '', '', // local_fixed_mask, local_fixed_mask_dataset
+            '', '', // local_moving_mask, local_fixed_moving_dataset
+
+            params.local_steps,
+            registration_dir,
+            "transform", local_transform_subpath, // local_transform_name, local_transform_dataset
+            "invtransform", local_transform_subpath, // local_inv_transform_name, local_inv_transform_dataset
+            'warped.n5', '', // local_aligned_name, local_aligned_subpath
+
+            deformations,
+
+            params.with_dask_cluster,
+            dask_work_dir,
+            dask_config,
+            params.bigstream_local_align_workers,
+            params.bigstream_local_align_min_workers,
+            params.bigstream_local_align_worker_cpus,
+            params.bigstream_local_align_worker_mem_gb,
+        ]
+        log.info "Registration inputs: $it -> $ri"
+        ri
     }
+
+    registration_inputs | view
 
     emit:
     done = registration_inputs
@@ -200,6 +280,40 @@ workflow.onComplete {
     if (params.hook_url) {
         NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
     }
+}
+
+def get_warped_subpaths() {
+    def warped_channels_param = params.warped_channels ?: params.channels
+    def warped_scales_param = params.warped_scales ?: params.local_scale
+
+    if (params.warped_subpaths) {
+        as_list(params.warped_subpaths)
+    } else if (warped_channels_param && warped_scales_param) {
+        warped_scales = as_list(warped_scales_param)
+        warped_channels = as_list(warped_channels_param)
+        [warped_channels, warped_scales]
+            .combinations()
+            .collect { warped_ch, warped_scale ->
+            [
+                fixed,  "${warped_ch}/${warped_scale}", '',
+                moving, "${warped_ch}/${warped_scale}", '',
+                "${output}/warped", '',
+            ]
+    } else {
+        []
+    }
+}
+
+def as_list(v) {
+    def vlist
+    if (v instanceof Collection) {
+        vlist = deformation_entries
+    } else if (v) {
+        vlist = v.tokenize(', ')
+    } else {
+        vlist = []
+    }
+    vlist
 }
 
 /*
