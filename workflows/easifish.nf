@@ -165,7 +165,7 @@ workflow EASIFISH {
     def stitching_result = SPARK_STOP(terminate_spark, params.spark_cluster)
 
     stitching_result.subscribe {
-        log.info "Stitching result: $it"
+        log.debug "Stitching result: $it"
     }
 
     def ref_volume = stitching_result
@@ -257,7 +257,7 @@ workflow EASIFISH {
             params.local_align_worker_cpus,
             params.local_align_worker_mem_gb,
         ]
-        log.info "Registration inputs: $it -> $ri"
+        log.debug "Registration inputs: $it -> $ri"
         ri
     }
 
