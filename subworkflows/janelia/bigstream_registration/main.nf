@@ -148,7 +148,7 @@ workflow BIGSTREAM_REGISTRATION {
         return r
     }
 
-    def bigstream_config = as_value_channel(registration_config).map { it ?: [] }
+    def bigstream_config = as_value_channel(registration_config).map { it ? file(it): [] }
 
     def global_align_results = BIGSTREAM_GLOBALALIGN(
         global_align_input,

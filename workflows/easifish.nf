@@ -252,19 +252,28 @@ workflow EASIFISH {
             params.with_dask_cluster,
             dask_work_dir,
             dask_config,
-            params.bigstream_local_align_workers,
-            params.bigstream_local_align_min_workers,
-            params.bigstream_local_align_worker_cpus,
-            params.bigstream_local_align_worker_mem_gb,
+            params.local_align_workers,
+            params.local_align_min_workers,
+            params.local_align_worker_cpus,
+            params.local_align_worker_mem_gb,
         ]
         log.info "Registration inputs: $it -> $ri"
         ri
     }
 
-    registration_inputs | view
+    def registration_results = BIGSTREAM_REGISTRATION(
+        registration_inputs,
+        params.bigstream_config,
+        params.global_align_cpus,
+        params.global_align_mem_gb,
+        params.local_align_cpus,
+        params.local_align_mem_gb,
+    )
+
+    registration_results | view
 
     emit:
-    done = registration_inputs
+    done = registration_results
 }
 
 /*
