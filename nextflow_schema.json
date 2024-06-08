@@ -52,14 +52,16 @@
                     "type": "string",
                     "fa_icon": "fas fa-layer-group",
                     "description": "List of channel names to process.",
-                    "help_text": "Channel names are specified in the format \"c[channel_number]\", where the channel_number is 0-indexed."
+                    "help_text": "Channel names are specified in the format \"c[channel_number]\", where the channel_number is 0-indexed.",
+                    "default": "c0,c1"
                 },
                 "resolution": {
                     "type": "string",
                     "fa_icon": "fas fa-file-image",
                     "pattern": "^[\\.\\d]+,[\\.\\d]+,[\\.\\d]+$",
                     "description": "Voxel resolution in all 3 dimensions. Default: 0.23,0.23,0.42",
-                    "help_text": "This is a comma-delimited tuple as x,y,z."
+                    "help_text": "This is a comma-delimited tuple as x,y,z.",
+                    "default": "0.23,0.23,0.42"
                 }
             }
         },
@@ -68,17 +70,19 @@
             "type": "object",
             "description": "Stitching options",
             "properties": {
+                "stitching_result_container": {
+                    "type": "string",
+                    "default": "result.n5"
+                },
                 "stitching_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "default": "all",
-                    "description": "Name of the channel used for stitching, e.g. 'c1' or '1'. You can also specify 'all' to use all of the channels. Default: 'all'",
-                    "help_text": ""
+                    "description": "Name of the channel used for stitching, e.g. 'c1' or '1'. You can also specify 'all' to use all of the channels. Default: 'all'"
                 },
                 "flatfield_correction": {
                     "type": "boolean",
                     "fa_icon": "fas fa-cube",
-                    "default": false,
                     "description": "Apply flatfield correction before stitching? Default: true"
                 },
                 "axis_mapping": {
@@ -99,56 +103,65 @@
                     "type": "integer",
                     "fa_icon": "far fa-square",
                     "description": "Block size (in Z dimension) when retiling after stitching. Default: 64",
-                    "help_text": "This must be smaller than the number of Z slices in the data."
+                    "help_text": "This must be smaller than the number of Z slices in the data.",
+                    "default": 512
                 },
                 "stitching_mode": {
                     "type": "string",
                     "fa_icon": "fas fa-braille",
                     "description": "Rematching mode ('full' or 'incremental'). Default: incremental",
-                    "hidden": true
+                    "hidden": true,
+                    "default": "incremental"
                 },
                 "stitching_padding": {
                     "type": "string",
                     "fa_icon": "fas fa-expand",
-                    "description": "Padding for the overlap regions. Default: 0,0,0"
+                    "description": "Padding for the overlap regions. Default: 0,0,0",
+                    "default": "0,0,0"
                 },
                 "stitching_blur_sigma": {
                     "type": "integer",
                     "fa_icon": "fas fa-border-style",
-                    "description": "Sigma value of the gaussian blur pre-applied to the images before stitching. Default: 2"
+                    "description": "Sigma value of the gaussian blur pre-applied to the images before stitching. Default: 2",
+                    "default": 2
                 },
                 "spark_cluster": {
                     "type": "boolean",
                     "fa_icon": "fas fa-cube",
                     "description": "Use a distributed cluster to run Spark jobs? Default: false",
                     "help": "By default, the Spark jobs will execute in a standalone Spark instance running as a single job. If you enable this option, a transient Spark cluster will be created on multiple nodes (controlled by the options below).",
-                    "default": false
+                    "default": true
                 },
                 "spark_workers": {
                     "type": "integer",
                     "fa_icon": "fas fa-cogs",
-                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 4"
+                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 4",
+                    "default": 10
                 },
                 "spark_worker_cores": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of cores allocated to each Spark worker. Default: 4"
+                    "description": "Number of cores allocated to each Spark worker. Default: 4",
+                    "default": 1
                 },
                 "spark_gb_per_core": {
                     "type": "integer",
                     "fa_icon": "fas fa-cog",
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
-                    "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. "
+                    "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. ",
+                    "default": 12
                 },
                 "spark_driver_cores": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of cores allocated for the Spark driver. Default: 1"
+                    "description": "Number of cores allocated for the Spark driver. Default: 1",
+                    "default": 1
                 },
                 "spark_driver_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory to allocate for the Spark driver. Default: 15g"
+                    "description": "Amount of memory to allocate for the Spark driver. Default: 15g",
+                    "default": "12 GB"
                 },
                 "spark_local_dir": {
                     "type": "string",
@@ -157,6 +170,146 @@
                 }
             },
             "fa_icon": "far fa-map"
+        },
+        "registration": {
+            "title": "Registration",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "bigstream_config": {
+                    "type": "string",
+                    "default": "conf/bigstream_config.yml"
+                },
+                "reuse_global_affine": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "fix_mask_descriptor": {
+                    "type": "string"
+                },
+                "mov_mask_descriptor": {
+                    "type": "string"
+                },
+                "global_steps": {
+                    "type": "string",
+                    "default": "affine"
+                },
+                "global_scale": {
+                    "type": "string",
+                    "default": "s3",
+                    "hidden": true
+                },
+                "mov_global_subpath": {
+                    "type": "string",
+                    "hidden": true
+                },
+                "mov_local_subpath": {
+                    "type": "string",
+                    "hidden": true
+                },
+                "local_steps": {
+                    "type": "string",
+                    "default": "affine,deform"
+                },
+                "local_scale": {
+                    "type": "string",
+                    "default": "s2",
+                    "hidden": true
+                },
+                "fix_local_subpath": {
+                    "type": "string",
+                    "hidden": true
+                },
+                "global_align_cpus": {
+                    "type": "integer",
+                    "default": 6
+                },
+                "deform_subpath": {
+                    "type": "string",
+                    "hidden": true
+                },
+                "warped_subpaths": {
+                    "type": "string"
+                },
+                "with_dask_cluster": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "dask_config": {
+                    "type": "string",
+                    "default": "conf/dask_config.yml"
+                },
+                "warped_channels": {
+                    "type": "string",
+                    "hidden": true
+                },
+                "warped_scales": {
+                    "type": "string",
+                    "default": "s0"
+                },
+                "global_align_mem_gb": {
+                    "type": "integer",
+                    "default": 15
+                },
+                "local_align_cpus": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "local_align_mem_gb": {
+                    "type": "integer",
+                    "default": 15
+                },
+                "local_align_workers": {
+                    "type": "integer",
+                    "default": 10
+                },
+                "local_align_min_workers": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "local_align_worker_cpus": {
+                    "type": "integer",
+                    "default": 3
+                },
+                "local_align_worker_mem_gb": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "bigstream_local_blocksize": {
+                    "type": "string",
+                    "hidden": true,
+                    "default": "128,128,128"
+                },
+                "bigstream_local_overlap_factor": {
+                    "type": "number",
+                    "default": 0.5,
+                    "hidden": true
+                },
+                "bigstream_inv_iterations": {
+                    "type": "integer",
+                    "default": 5,
+                    "hidden": true
+                },
+                "bigstream_inv_order": {
+                    "type": "integer",
+                    "default": 2,
+                    "hidden": true
+                },
+                "bigstream_inv_sqrt_iterations": {
+                    "type": "integer",
+                    "default": 5,
+                    "hidden": true
+                },
+                "bigstream_dask_cluster_max_tasks": {
+                    "type": "integer",
+                    "default": 0,
+                    "hidden": true
+                },
+                "dask_scheduler_port_binding": {
+                    "type": "string"
+                }
+            }
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -216,7 +369,7 @@
                 "max_cpus": {
                     "type": "integer",
                     "description": "Maximum number of CPUs that can be requested for any single job.",
-                    "default": 16,
+                    "default": 500,
                     "fa_icon": "fas fa-microchip",
                     "hidden": true,
                     "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
@@ -224,7 +377,7 @@
                 "max_memory": {
                     "type": "string",
                     "description": "Maximum amount of memory that can be requested for any single job.",
-                    "default": "128.GB",
+                    "default": "1024.GB",
                     "fa_icon": "fas fa-memory",
                     "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
                     "hidden": true,
@@ -331,6 +484,17 @@
                     "description": "Validation of parameters in lenient more.",
                     "hidden": true,
                     "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
+                },
+                "registration_fix_image": {
+                    "type": "string",
+                    "default": "LHA3_R3_tiny"
+                },
+                "reg_ch": {
+                    "type": "string",
+                    "default": "c1"
+                },
+                "fix_global_subpath": {
+                    "type": "string"
                 }
             }
         }
@@ -346,6 +510,9 @@
             "$ref": "#/definitions/stitching_options"
         },
         {
+            "$ref": "#/definitions/registration"
+        },
+        {
             "$ref": "#/definitions/institutional_config_options"
         },
         {
@@ -354,5 +521,26 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "workdir": {
+            "type": "string",
+            "default": "work"
+        },
+        "user_id": {
+            "type": "integer",
+            "default": 503
+        },
+        "group_id": {
+            "type": "integer",
+            "default": 20
+        },
+        "singularity_cache_dir": {
+            "type": "string",
+            "default": "$HOME/.singularity_cache"
+        },
+        "runtime_opts": {
+            "type": "string"
+        }
+    }
 }
