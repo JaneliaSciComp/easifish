@@ -129,11 +129,11 @@ class NfcoreTemplate {
         def email_html    = html_template.toString()
 
         // Render the sendmail template
-        def max_multiqc_email_size = (params.containsKey('max_multiqc_email_size') ? params.max_multiqc_email_size : 0) as nextflow.util.MemoryUnit
-        def smail_fields           = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, projectDir: "$projectDir", mqcFile: mqc_report, mqcMaxSize: max_multiqc_email_size.toBytes() ]
-        def sf                     = new File("$projectDir/assets/sendmail_template.txt")
-        def sendmail_template      = engine.createTemplate(sf).make(smail_fields)
-        def sendmail_html          = sendmail_template.toString()
+        def max_email_size    = (params.containsKey('max_email_size') ? params.max_email_size : 0) as nextflow.util.MemoryUnit
+        def smail_fields      = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, projectDir: "$projectDir", mqcFile: mqc_report, mqcMaxSize: max_email_size.toBytes() ]
+        def sf                = new File("$projectDir/assets/sendmail_template.txt")
+        def sendmail_template = engine.createTemplate(sf).make(smail_fields)
+        def sendmail_html     = sendmail_template.toString()
 
         // Send the HTML e-mail
         Map colors = logColours(params.monochrome_logs)
@@ -146,7 +146,7 @@ class NfcoreTemplate {
             } catch (all) {
                 // Catch failures and try with plaintext
                 def mail_cmd = [ 'mail', '-s', subject, '--content-type=text/html', email_address ]
-                if ( mqc_report.size() <= max_multiqc_email_size.toBytes() ) {
+                if ( mqc_report.size() <= max_email_size.toBytes() ) {
                     mail_cmd += [ '-A', mqc_report ]
                 }
                 mail_cmd.execute() << email_html
