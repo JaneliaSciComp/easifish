@@ -9,6 +9,7 @@ lint:
     - .github/workflows/awsfulltest.yml
     - conf/igenomes.config
   files_unchanged:
+    - LICENSE
     - CODE_OF_CONDUCT.md
     - assets/nf-core-janeliascicomp-easifish_logo_light.png
     - docs/images/nf-core-janeliascicomp-easifish_logo_light.png
@@ -17,6 +18,7 @@ lint:
   nextflow_config:
     - manifest.name
     - manifest.homePage
+  multiqc_config: False
   readme:
     - nextflow_badge
 repository_type: pipeline
