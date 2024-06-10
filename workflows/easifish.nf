@@ -96,7 +96,7 @@ workflow EASIFISH {
     .map {
         def (meta, files) = it
         // set output subdirectories for each acquisition
-        meta.spark_work_dir = "${params.workdir}/${workflow.sessionId}/spark/${meta.id}"
+        meta.session_work_dir = "${params.workdir}/${workflow.sessionId}"
         meta.stitching_dir = "${outdir}/stitching/${meta.id}"
         meta.stitching_result = params.stitching_result_container
         // Add output dir here so that it will get mounted into the Spark processes
@@ -208,7 +208,7 @@ workflow EASIFISH {
         def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}" // global_moving
 
         def registration_dir = file("${outdir}/registration/${reg_meta.id}")
-        def dask_work_dir = file("${params.workdir}/${workflow.sessionId}/dask/${reg_meta.id}")
+        def dask_work_dir = "${fix_meta.session_work_dir}/dask/${reg_meta.id}"
 
         def deformations = get_warped_subpaths().collect { warped_subpath ->
             def deformation_input = [

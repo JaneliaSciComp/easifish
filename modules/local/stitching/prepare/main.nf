@@ -12,6 +12,6 @@ process STITCHING_PREPARE {
     """
     umask 0002
     mkdir -p ${meta.stitching_dir}
-    mkdir -p ${meta.spark_work_dir}
+    mkdir -p ${meta.session_work_dir}
     """
 }
