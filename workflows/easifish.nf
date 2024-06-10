@@ -237,7 +237,7 @@ workflow EASIFISH {
             registration_working_dir, // global_transform_output
             'aff/affine.mat', // global_transform_name
             registration_output, // global_align_output
-            params.registration_result_container, // global_aligned_name
+            "aff/${params.registration_result_container}", // global_aligned_name
             '',    // global_alignment_subpath
 
             fix, // local_fixed

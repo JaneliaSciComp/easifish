@@ -33,6 +33,7 @@ process STITCHING_FUSE {
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
         --fuse \${app_args[@]} \
         ${stitched_result_arg} \
+        ${stitched_dataset_arg} \
         ${extra_args}
 
     cat <<-END_VERSIONS > versions.yml
