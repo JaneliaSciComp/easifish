@@ -279,11 +279,11 @@
                 "bigstream_local_blocksize": {
                     "type": "string",
                     "hidden": true,
-                    "default": "128,128,128"
+                    "default": ""
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.5,
+                    "default": 0,
                     "hidden": true
                 },
                 "bigstream_inv_iterations": {
