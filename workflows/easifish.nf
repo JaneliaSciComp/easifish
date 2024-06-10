@@ -97,7 +97,8 @@ workflow EASIFISH {
         def (meta, files) = it
         // set output subdirectories for each acquisition
         meta.session_work_dir = "${params.workdir}/${workflow.sessionId}"
-        meta.stitching_dir = "${outdir}/stitching/${meta.id}"
+        meta.stitching_dir = outdir
+        meta.stitching_dataset = meta.id
         meta.stitching_result = params.stitching_result_container
         // Add output dir here so that it will get mounted into the Spark processes
         def data_files = files + [outdir]
@@ -205,16 +206,18 @@ workflow EASIFISH {
             mov: mov_meta,
         ]
         def fix = "${fix_meta.stitching_dir}/${fix_meta.stitching_result}"
-        def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}" // global_moving
+        def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}/${mov_meta.stitching_dataset}"
 
-        def registration_dir = file("${outdir}/registration/${reg_meta.id}")
-        def dask_work_dir = "${fix_meta.session_work_dir}/dask/${reg_meta.id}"
+        def registration_working_dir = file("${outdir}/registration/${reg_meta.id}")
+        def registration_output = outdir
+        def registration_dataset = mov_meta.id
+        def dask_work_dir = file("${fix_meta.session_work_dir}/dask/${reg_meta.id}")
 
         def deformations = get_warped_subpaths().collect { warped_subpath ->
             def deformation_input = [
-                fix, warped_subpath, '',
-                mov, warped_subpath, '',
-                "${registration_dir}/warped.n5", '',
+                fix, "${fix_meta.stitching_dataset}/${warped_subpath}", '',
+                mov, "${mov_meta.stitching_dataset}/${warped_subpath}", '',
+                "${registration_output}", '',
             ]
             log.debug "Deformation input: warped_subpath -> ${deformation_input}"
             deformation_input
@@ -224,29 +227,33 @@ workflow EASIFISH {
             reg_meta,
 
             fix, // global_fixed
-            fix_global_subpath, // global_fixed_subpath
+            "${fix_meta.stitching_dataset}/${fix_global_subpath}", // global_fixed_subpath
             mov, // global_moving
-            mov_global_subpath, // global_moving_subpath
+            "${mov_meta.stitching_dataset}/${mov_global_subpath}", // global_moving_subpath
             '', '', // global_fixed_mask, global_fixed_mask_dataset
             '', '', // global_moving_mask, global_fixed_moving_dataset
 
             params.global_steps,
-            registration_dir,
+            registration_working_dir, // global_transform_output
             'aff/affine.mat', // global_transform_name
-            'aff/ransac_affine', '',    // global_aligned_name, global_alignment_subpath
+            registration_output, // global_align_output
+            params.registration_result_container, // global_aligned_name
+            '',    // global_alignment_subpath
 
             fix, // local_fixed
-            fix_local_subpath, // local_fixed_subpath
+            "${fix_meta.stitching_dataset}/${fix_local_subpath}", // local_fixed_subpath
             mov, // local_moving
-            mov_local_subpath, // local_moving_subpath
+            "${mov_meta.stitching_dataset}/${mov_local_subpath}", // local_moving_subpath
             '', '', // local_fixed_mask, local_fixed_mask_dataset
             '', '', // local_moving_mask, local_fixed_moving_dataset
 
             params.local_steps,
-            registration_dir,
+            registration_working_dir, // local_transformation_output
             "transform", deform_subpath, // local_transform_name, local_transform_dataset
             "invtransform", deform_subpath, // local_inv_transform_name, local_inv_transform_dataset
-            'warped.n5', '', // local_aligned_name, local_aligned_subpath
+            registration_output, // local_align_output
+            params.registration_result_container, // local_aligned_name
+            '', // local_aligned_subpath
 
             deformations,
 

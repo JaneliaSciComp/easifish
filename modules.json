@@ -12,12 +12,12 @@
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "d57cde52099effc7727331f964e36205bcf42b62",
+                        "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "d57cde52099effc7727331f964e36205bcf42b62",
+                        "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
                         "installed_by": ["bigstream_registration"]
                     }
                 }
@@ -26,7 +26,7 @@
                 "janelia": {
                     "bigstream_registration": {
                         "branch": "main",
-                        "git_sha": "bdd0cebdea34749e54e157124bac161902ebdca8",
+                        "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_start": {
