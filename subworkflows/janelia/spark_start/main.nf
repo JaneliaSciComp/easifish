@@ -195,10 +195,16 @@ workflow SPARK_START {
 
         // start workers
         // these run indefinitely until SPARK_TERMINATE is called
-        SPARK_STARTWORKER(meta_workers)
+        def spark_workers_results = SPARK_STARTWORKER(meta_workers)
 
-        // when workers exit they should clean up after themselves
-        SPARK_CLEANUP(SPARK_STARTWORKER.out.groupTuple(by: [0,1]))
+        spark_workers_results.subscribe { log.debug "Spark worker result: $it" }
+
+        spark_workers_results.groupTuple(by:[0,1])
+        | map {
+            def (meta, spark, data_paths_lists, worker_ids)
+            [ meta, spark, data_paths_lists.flatten(), worker_ids ]
+        }
+        | SPARK_CLEANUP // when workers exit they should clean up after themselves
 
         // wait for all workers to start
         spark_cluster_res = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1])
