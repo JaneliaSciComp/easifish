@@ -87,19 +87,21 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 workflow EASIFISH {
     def ch_versions = Channel.empty()
 
-    def stitching_outdir = "${outdir}/stitching"
+    def stitching_workdir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching"
+    def stitching_result_dir = params.stitching_result_dir ? file(params.stitching_result_dir) : outdir
+
     def ch_acquisitions = INPUT_CHECK (
         samplesheet_file,
         indir,
-        stitching_outdir,
+        stitching_workdir,
     )
     .acquisitions
     .map {
         def (meta, files) = it
         // set output subdirectories for each acquisition
         meta.session_work_dir = "${params.workdir}/${workflow.sessionId}"
-        meta.stitching_dir = stitching_outdir
-        meta.stitching_result_dir = outdir
+        meta.stitching_dir = stitching_workdir
+        meta.stitching_result_dir = stitching_result_dir
         meta.stitching_dataset = meta.id
         meta.stitching_container = params.stitching_result_container ?: "stitched.n5"
         // Add output dir here so that it will get mounted into the Spark processes
@@ -121,7 +123,7 @@ workflow EASIFISH {
     def stitching_input = SPARK_START(
         STITCHING_PREPARE.out,
         params.workdir,
-        [outdir, stitching_outdir],
+        [outdir, stitching_workdir, stitching_result_dir],
         params.spark_cluster,
         params.spark_workers as int,
         params.spark_worker_cores as int,
