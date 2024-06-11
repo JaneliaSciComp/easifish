@@ -16,7 +16,7 @@ process DOWNLOAD {
 
     script: // This script is bundled with the pipeline, in ./bin
     """
-    download_fullpath=\$(readlink -m ${download_dir})
+    download_fullpath=\$(readlink -m "${download_dir}/${samplesheet_row.id}")
     if [[ ! -e \${download_fullpath} ]] ; then
         echo "Create download directory: \${download_fullpath}"
         mkdir -p \${download_fullpath}

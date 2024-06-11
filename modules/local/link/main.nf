@@ -19,7 +19,7 @@ process LINK {
     def filename = file(samplesheet_row.filename).name
     """
     input_fullpath=\$(readlink -e ${input_dir})
-    output_fullpath=\$(readlink -m ${output_dir})
+    output_fullpath=\$(readlink -m "${output_dir}/${samplesheet_row.id}")
     full_filename="\${input_fullpath}/${filename}"
     if [[ ! -e \${output_fullpath} ]] ; then
         echo "Create output directory: \${output_fullpath}"
