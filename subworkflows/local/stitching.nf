@@ -36,7 +36,6 @@ workflow STITCHING {
         spark_driver_cores,
         spark_driver_mem_gb
     )
-    | join(acquisition_data, by:0)
     | map {
         def (meta, spark, files) = it
         def r = [
