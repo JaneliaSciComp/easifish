@@ -97,7 +97,8 @@ workflow EASIFISH {
         def (meta, files) = it
         // set output subdirectories for each acquisition
         meta.session_work_dir = "${params.workdir}/${workflow.sessionId}"
-        meta.stitching_dir = outdir
+        meta.stitching_dir = "${outdir}/stitching"
+        meta.stitching_result_dir = outdir
         meta.stitching_dataset = meta.id
         meta.stitching_result = params.stitching_result_container
         // Add output dir here so that it will get mounted into the Spark processes
@@ -206,7 +207,7 @@ workflow EASIFISH {
             mov: mov_meta,
         ]
         def fix = "${fix_meta.stitching_dir}/${fix_meta.stitching_result}"
-        def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}/${mov_meta.stitching_dataset}"
+        def mov = "${mov_meta.stitching_dir}/${mov_meta.stitching_result}"
 
         def registration_working_dir = file("${outdir}/registration/${reg_meta.id}")
         def registration_output = outdir
