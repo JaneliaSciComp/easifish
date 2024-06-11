@@ -19,7 +19,7 @@ process STITCHING_FUSE {
     def executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
     def driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
     def stitching_result_dir_arg = meta.stitching_result_dir ? "-o ${meta.stitching_result_dir}" : ''
-    def stitched_result_arg = meta.stitching_result ? "--outputContainerName ${meta.stitching_result}" : ''
+    def stitched_container_arg = meta.stitching_container ? "--outputContainerName ${meta.stitching_result}" : ''
     def stitched_dataset_arg = meta.stitching_dataset ? "--outputDatasetName ${meta.stitching_dataset}" : ''
     """
     # Create command line parameters
@@ -33,7 +33,8 @@ process STITCHING_FUSE {
         /app/app.jar org.janelia.stitching.StitchingSpark \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
         --fuse \${app_args[@]} \
-        ${stitched_result_arg} \
+        ${stitching_result_dir_arg} \
+        ${stitched_container_arg} \
         ${stitched_dataset_arg} \
         ${extra_args}
 
