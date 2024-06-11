@@ -68,7 +68,7 @@ process SPARK_STARTWORKER {
 
     input:
     tuple val(meta), val(spark), val(worker_id)
-    path(data_dir, stageAs: '?/*')
+    path(data_dirs, stageAs: '?/*')
 
     output:
     tuple val(meta), val(spark), val(worker_id)
@@ -102,6 +102,7 @@ process SPARK_WAITFORWORKER {
 
     input:
     tuple val(meta), val(spark), val(worker_id)
+    path(data_dirs, stageAs: '?/*')
 
     output:
     tuple val(meta), val(spark), val(worker_id)
@@ -196,7 +197,7 @@ workflow SPARK_START {
         SPARK_CLEANUP(SPARK_STARTWORKER.out.groupTuple(by: [0,1]))
 
         // wait for all workers to start
-        spark_cluster_res = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1])
+        spark_cluster_res = SPARK_WAITFORWORKER(meta_workers, data_dirs).groupTuple(by: [0,1])
     } else {
         // when running locally, the driver needs enough resources to run a spark worker
         spark_cluster_res = meta_and_sparks.map {
