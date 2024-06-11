@@ -70,7 +70,7 @@ process SPARK_STARTWORKER {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*'), val(worker_id)
 
     output:
-    tuple val(meta), val(spark), paths(data_paths), val(worker_id)
+    tuple val(meta), val(spark), path(data_paths), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
