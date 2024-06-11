@@ -10,7 +10,7 @@ if [ ! -e $filepath ]; then
 fi
 
 if [ "$md5" ]; then
-    if md5sum -s -c <<< "$md5  $filepath"; then
+    if md5sum -c <<< "$md5  $filepath"; then
         echo "File checksum verified: $filepath"
     else
         echo "Checksum failed for $filepath"
