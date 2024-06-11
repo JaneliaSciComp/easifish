@@ -100,7 +100,7 @@ workflow EASIFISH {
         def (meta, files) = it
         // set output subdirectories for each acquisition
         meta.session_work_dir = "${params.workdir}/${workflow.sessionId}"
-        meta.stitching_dir = stitching_workdir
+        meta.stitching_dir = "${stitching_workdir}/${meta.id}"
         meta.stitching_result_dir = stitching_result_dir
         meta.stitching_dataset = meta.id
         meta.stitching_container = params.stitching_result_container ?: "stitched.n5"
