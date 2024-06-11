@@ -13,7 +13,11 @@ process STITCHING_PREPARE {
     script:
     """
     umask 0002
-    mkdir -p ${meta.stitching_dir}
+    echo "Create session working directory: ${meta.session_work_dir}"
     mkdir -p ${meta.session_work_dir}
+    echo "Create stitching working directory: ${meta.stitching_dir}"
+    mkdir -p ${meta.stitching_dir}
+    echo "Create stitching final results directory: ${meta.stitching_result_dir}"
+    mkdir -p ${meta.stitching_result_dir}
     """
 }

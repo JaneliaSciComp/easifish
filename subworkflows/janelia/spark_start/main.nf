@@ -143,7 +143,7 @@ process SPARK_CLEANUP {
  */
 workflow SPARK_START {
     take:
-    ch_meta               // channel: [ val(meta) ]
+    ch_meta               // channel: meta
     working_dir           // path: shared storage path for worker communication
     data_dirs             // path: [ array of paths to be mounted to the Spark workers ]
     spark_cluster         // boolean: use a distributed cluster?
@@ -156,8 +156,7 @@ workflow SPARK_START {
     main:
 
     // create a Spark context for each meta
-    def meta_and_sparks = ch_meta.map {
-        def meta = it[0]
+    def meta_and_sparks = ch_meta.map { meta ->
         def spark_work_dir = file("${working_dir}/spark/${meta.id}")
         def spark = [:]
         spark.work_dir = spark_work_dir
