@@ -125,8 +125,7 @@ workflow EASIFISH {
     def stitching_input = SPARK_START(
         STITCHING_PREPARE.out,
         params.workdir,
-        spark_data_files,   
-        [stitching_workdir, stitching_result_dir],
+        spark_data_files,
         params.spark_cluster,
         params.spark_workers as int,
         params.spark_worker_cores as int,
