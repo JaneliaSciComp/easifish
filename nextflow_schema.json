@@ -72,7 +72,7 @@
             "properties": {
                 "stitching_result_container": {
                     "type": "string",
-                    "default": "result.n5"
+                    "default": "stitched.n5"
                 },
                 "stitching_channel": {
                     "type": "string",
@@ -125,6 +125,9 @@
                     "description": "Sigma value of the gaussian blur pre-applied to the images before stitching. Default: 2",
                     "default": 2
                 },
+                "stitching_dir": {
+                    "type": "string"
+                },
                 "spark_cluster": {
                     "type": "boolean",
                     "fa_icon": "fas fa-cube",
@@ -163,6 +166,9 @@
                     "description": "Amount of memory to allocate for the Spark driver. Default: 15g",
                     "default": "12 GB"
                 },
+                "stitching_result_dir": {
+                    "type": "string"
+                },
                 "spark_local_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
@@ -181,6 +187,21 @@
                     "type": "string",
                     "default": "conf/bigstream_config.yml"
                 },
+                "registration_fix_image": {
+                    "type": "string",
+                    "default": "LHA3_R3_tiny"
+                },
+                "fix_global_subpath": {
+                    "type": "string"
+                },
+                "mov_global_subpath": {
+                    "type": "string",
+                    "hidden": true
+                },
+                "reg_ch": {
+                    "type": "string",
+                    "default": "c1"
+                },
                 "reuse_global_affine": {
                     "type": "boolean",
                     "default": true
@@ -198,10 +219,6 @@
                 "global_scale": {
                     "type": "string",
                     "default": "s3",
-                    "hidden": true
-                },
-                "mov_global_subpath": {
-                    "type": "string",
                     "hidden": true
                 },
                 "mov_local_subpath": {
@@ -278,8 +295,7 @@
                 },
                 "bigstream_local_blocksize": {
                     "type": "string",
-                    "hidden": true,
-                    "default": ""
+                    "hidden": true
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
@@ -308,6 +324,10 @@
                 },
                 "dask_scheduler_port_binding": {
                     "type": "string"
+                },
+                "registration_result_container": {
+                    "type": "string",
+                    "default": "registration.n5"
                 }
             }
         },
@@ -485,15 +505,23 @@
                     "hidden": true,
                     "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
                 },
-                "registration_fix_image": {
+                "workdir": {
                     "type": "string",
-                    "default": "LHA3_R3_tiny"
+                    "default": "work"
                 },
-                "reg_ch": {
+                "user_id": {
+                    "type": "integer",
+                    "default": 503
+                },
+                "group_id": {
+                    "type": "integer",
+                    "default": 20
+                },
+                "singularity_cache_dir": {
                     "type": "string",
-                    "default": "c1"
+                    "default": "/Users/goinac/.singularity_cache"
                 },
-                "fix_global_subpath": {
+                "runtime_opts": {
                     "type": "string"
                 }
             }
@@ -521,26 +549,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {
-        "workdir": {
-            "type": "string",
-            "default": "work"
-        },
-        "user_id": {
-            "type": "integer",
-            "default": 503
-        },
-        "group_id": {
-            "type": "integer",
-            "default": 20
-        },
-        "singularity_cache_dir": {
-            "type": "string",
-            "default": "$HOME/.singularity_cache"
-        },
-        "runtime_opts": {
-            "type": "string"
-        }
-    }
+    ]
 }
