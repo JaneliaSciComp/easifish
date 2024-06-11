@@ -201,7 +201,7 @@ workflow SPARK_START {
 
         spark_workers_results.groupTuple(by:[0,1])
         | map {
-            def (meta, spark, data_paths_lists, worker_ids)
+            def (meta, spark, data_paths_lists, worker_ids) = it
             [ meta, spark, data_paths_lists.flatten(), worker_ids ]
         }
         | SPARK_CLEANUP // when workers exit they should clean up after themselves
