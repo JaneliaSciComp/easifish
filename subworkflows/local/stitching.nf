@@ -22,12 +22,12 @@ workflow STITCHING {
     spark_driver_mem_gb
 
     main:
-    STITCHING_PREPARE(
+    def prepared_data = STITCHING_PREPARE(
         acquisition_data
     )
 
     def stitching_input = SPARK_START(
-        STITCHING_PREPARE.out, // [meta, data_paths]
+        prepared_data, // [meta, data_paths]
         workdir,
         with_spark_cluster,
         spark_workers,
@@ -36,6 +36,7 @@ workflow STITCHING {
         spark_driver_cores,
         spark_driver_mem_gb
     )
+    | join(prepared_data, by:0)
     | map {
         def (meta, spark, files) = it
         def r = [
