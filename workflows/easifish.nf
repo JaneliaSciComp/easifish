@@ -120,12 +120,10 @@ workflow EASIFISH {
         ch_acquisitions
     )
 
-    def spark_data_files = STITCHING_PREPARE.out.join(ch_acquisitions).map { it[1] }
-
     def stitching_input = SPARK_START(
         STITCHING_PREPARE.out,
         params.workdir,
-        spark_data_files,
+        STITCHING_PREPARE.out.map { it[1] },
         params.spark_cluster,
         params.spark_workers as int,
         params.spark_worker_cores as int,
