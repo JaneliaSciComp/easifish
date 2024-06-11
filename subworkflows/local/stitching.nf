@@ -50,7 +50,7 @@ workflow STITCHING {
 
     STITCHING_CZI2N5(STITCHING_PARSECZI.out.acquisitions)
 
-    def ready_for_flatfield = STITCHING_CZI2N5.out
+    def ready_for_flatfield = STITCHING_CZI2N5.out.acquisitions
     | combine(as_value_channel(with_flatfield_correction))
     | branch {
         def (meta, files, spark, flatfield_correction) = it
