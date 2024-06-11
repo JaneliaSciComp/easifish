@@ -28,7 +28,7 @@ process LINK {
         echo "Output directory: \${output_fullpath} - already exists"
     fi
     pushd \${output_fullpath}
-    echo "Create link for ${filename} to \${full_filename}"
+    echo "Create link \${output_fullpath}/${filename} to \${full_filename}"
     ln -sf \${full_filename} ${filename}
     popd
 
