@@ -128,7 +128,7 @@ process SPARK_CLEANUP {
     tuple val(meta), val(spark), path(data_paths, stageAs: '?/*'), val(worker_ids)
 
     output:
-    tuple val(meta), val(spark), path(), val(worker_ids)
+    tuple val(meta), val(spark), path(data_paths), val(worker_ids)
 
     script:
     """
