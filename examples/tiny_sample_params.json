@@ -1,0 +1,11 @@
+{
+    "channels": "c0,c1",
+    "input": "examples/local_tiny_samplesheet.csv",
+    "indir": "mylocal/inputs/tiny_dataset",
+    "outdir": "mylocal/results/tiny_dataset",
+    "registration_fix_image": "LHA3_R3_tiny",
+    "reg_ch": "c1",
+    "global_scale": "s3",
+    "local_scale": "s2",
+    "warped_scales": "s0"
+}
