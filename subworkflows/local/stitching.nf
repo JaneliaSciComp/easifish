@@ -11,7 +11,7 @@ include { STITCHING_FUSE         } from '../../modules/local/stitching/fuse/main
 
 workflow STITCHING {
     take:
-    acquisitions // [ meta, files ]
+    acquisition_data // [ meta, files ]
     workdir
     with_spark_cluster
     with_flatfield_correction
@@ -23,7 +23,7 @@ workflow STITCHING {
 
     main:
     STITCHING_PREPARE(
-        acquisitions
+        acquisition_data
     )
 
     def stitching_input = SPARK_START(
@@ -36,7 +36,7 @@ workflow STITCHING {
         spark_driver_cores,
         spark_driver_mem_gb
     )
-    | join(acquisitions, by:0)
+    | join(acquisition_data, by:0)
     | map {
         def (meta, spark, files) = it
         def r = [
