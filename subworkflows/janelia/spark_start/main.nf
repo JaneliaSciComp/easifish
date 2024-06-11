@@ -169,7 +169,9 @@ workflow SPARK_START {
         // 1 GB of overhead for Spark, the rest for executors
         spark.worker_memory = (spark_worker_cores * spark_gb_per_core + 1)+" GB"
         spark.executor_memory = (spark_worker_cores * spark_gb_per_core)+" GB"
-        [meta, spark]
+        def r = [meta, spark]
+        log.debug "Prepare to start spark: $r"
+        r
     }
 
     if (spark_cluster) {
