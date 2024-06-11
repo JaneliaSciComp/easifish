@@ -3,7 +3,7 @@ process SPARK_STARTMANAGER {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: '?/*')
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*')
 
     output:
     tuple val(meta), val(spark), path(data_paths)
@@ -42,10 +42,10 @@ process SPARK_WAITFORMANAGER {
     maxRetries 20
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: '?/*')
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*')
 
     output:
-    tuple val(meta), val(spark), env(spark_uri), path(data_paths)
+    tuple val(meta), val(spark), path(data_paths), env(spark_uri)
 
     when:
     task.ext.when == null || task.ext.when
@@ -67,10 +67,10 @@ process SPARK_STARTWORKER {
     memory { spark.worker_memory }
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: '?/*'), val(worker_id)
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*'), val(worker_id)
 
     output:
-    tuple val(meta), val(spark), val(worker_id)
+    tuple val(meta), val(spark), paths(data_paths), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -100,7 +100,7 @@ process SPARK_WAITFORWORKER {
     maxRetries 20
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: '?/*'), val(worker_id)
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*'), val(worker_id)
 
     output:
     tuple val(meta), val(spark), path(data_paths), val(worker_id)
@@ -125,7 +125,7 @@ process SPARK_CLEANUP {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: '?/*'), val(worker_ids)
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*'), val(worker_ids)
 
     output:
     tuple val(meta), val(spark), path(data_paths), val(worker_ids)
@@ -187,7 +187,7 @@ workflow SPARK_START {
         // cross product all worker directories with all worker numbers
         def worker_list = 1..spark_workers
         def meta_workers = SPARK_WAITFORMANAGER.out.map {
-            def (meta, spark, spark_uri, data_paths) = it
+            def (meta, spark, data_paths, spark_uri) = it
             spark.uri = spark_uri
             [meta, spark, data_paths]
         }
