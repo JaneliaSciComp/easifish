@@ -3,10 +3,10 @@ process SPARK_STARTMANAGER {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark), paths(data_paths, stageAs: '?/*')
+    tuple val(meta), val(spark), path(data_paths, stageAs: '?/*')
 
     output:
-    tuple val(meta), val(spark), paths(data_paths)
+    tuple val(meta), val(spark), path(data_paths)
 
     when:
     task.ext.when == null || task.ext.when
@@ -42,10 +42,10 @@ process SPARK_WAITFORMANAGER {
     maxRetries 20
 
     input:
-    tuple val(meta), val(spark), paths(data_paths, stageAs: '?/*')
+    tuple val(meta), val(spark), path(data_paths, stageAs: '?/*')
 
     output:
-    tuple val(meta), val(spark), env(spark_uri), paths(data_paths)
+    tuple val(meta), val(spark), env(spark_uri), path(data_paths)
 
     when:
     task.ext.when == null || task.ext.when
@@ -125,10 +125,10 @@ process SPARK_CLEANUP {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark), paths(data_paths, stageAs: '?/*'), val(worker_ids)
+    tuple val(meta), val(spark), path(data_paths, stageAs: '?/*'), val(worker_ids)
 
     output:
-    tuple val(meta), val(spark), paths(), val(worker_ids)
+    tuple val(meta), val(spark), path(), val(worker_ids)
 
     script:
     """
