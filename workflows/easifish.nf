@@ -87,17 +87,18 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 workflow EASIFISH {
     def ch_versions = Channel.empty()
 
+    def stitching_outdir = "${outdir}/stitching"
     def ch_acquisitions = INPUT_CHECK (
         samplesheet_file,
         indir,
-        outdir,
+        stitching_outdir,
     )
     .acquisitions
     .map {
         def (meta, files) = it
         // set output subdirectories for each acquisition
         meta.session_work_dir = "${params.workdir}/${workflow.sessionId}"
-        meta.stitching_dir = "${outdir}/stitching"
+        meta.stitching_dir = stitching_outdir
         meta.stitching_result_dir = outdir
         meta.stitching_dataset = meta.id
         meta.stitching_result = params.stitching_result_container
@@ -120,7 +121,7 @@ workflow EASIFISH {
     def stitching_input = SPARK_START(
         STITCHING_PREPARE.out,
         params.workdir,
-        [outdir],
+        [outdir, stitching_outdir],
         params.spark_cluster,
         params.spark_workers as int,
         params.spark_worker_cores as int,
@@ -218,7 +219,7 @@ workflow EASIFISH {
             def deformation_input = [
                 fix, "${fix_meta.stitching_dataset}/${warped_subpath}", '',
                 mov, "${mov_meta.stitching_dataset}/${warped_subpath}", '',
-                "${registration_output}", '',
+                "${registration_output}/${params.registration_result_container}", '',
             ]
             log.debug "Deformation input: warped_subpath -> ${deformation_input}"
             deformation_input
