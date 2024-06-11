@@ -21,6 +21,7 @@ lint:
   multiqc_config: False
   readme:
     - nextflow_badge
+nf_core_version: 2.14.1
 repository_type: pipeline
 template:
   prefix: JaneliaSciComp
