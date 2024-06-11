@@ -105,7 +105,7 @@ workflow EASIFISH {
         meta.stitching_dataset = meta.id
         meta.stitching_container = params.stitching_result_container ?: "stitched.n5"
         // Add output dir here so that it will get mounted into the Spark processes
-        def data_files = files + [outdir]
+        def data_files = files + [outdir, stitching_workdir, stitching_result_dir]
         def r = [ meta, data_files ]
         log.debug "Input acquisitions: $files -> $r"
         r
@@ -120,10 +120,13 @@ workflow EASIFISH {
         ch_acquisitions
     )
 
+    def spark_data_files = STITCHING_PREPARE.out.join(ch_acquisitions).map { it[1] }
+
     def stitching_input = SPARK_START(
         STITCHING_PREPARE.out,
         params.workdir,
-        [outdir, stitching_workdir, stitching_result_dir],
+        spark_data_files,   
+        [stitching_workdir, stitching_result_dir],
         params.spark_cluster,
         params.spark_workers as int,
         params.spark_worker_cores as int,

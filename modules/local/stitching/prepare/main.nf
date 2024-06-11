@@ -3,10 +3,12 @@ process STITCHING_PREPARE {
     label 'process_single'
 
     input:
+     // files input here is only used for
+     // properly mounting the dir when running in a container
     tuple val(meta), path(files)
 
     output:
-    tuple val(meta), val(files)
+    tuple val(meta)
 
     script:
     """
