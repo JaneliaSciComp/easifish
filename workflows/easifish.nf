@@ -59,16 +59,9 @@ WorkflowEASIFISH.initialise(params, log)
 */
 
 include { INPUT_CHECK            } from '../subworkflows/local/input_check'
-include { SPARK_START            } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP             } from '../subworkflows/janelia/spark_stop/main'
-include { BIGSTREAM_REGISTRATION } from '../subworkflows/janelia/bigstream_registration/main'
+include { STITCHING              } from '../subworkflows/local/stitching'
 
-include { STITCHING_PREPARE      } from '../modules/local/stitching/prepare/main'
-include { STITCHING_PARSECZI     } from '../modules/local/stitching/parseczi/main'
-include { STITCHING_CZI2N5       } from '../modules/local/stitching/czi2n5/main'
-include { STITCHING_FLATFIELD    } from '../modules/local/stitching/flatfield/main'
-include { STITCHING_STITCH       } from '../modules/local/stitching/stitch/main'
-include { STITCHING_FUSE         } from '../modules/local/stitching/fuse/main'
+include { BIGSTREAM_REGISTRATION } from '../subworkflows/janelia/bigstream_registration/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,66 +109,22 @@ workflow EASIFISH {
     // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
     // ! There is currently no tooling to help you write a sample sheet schema
 
-    STITCHING_PREPARE(
-        ch_acquisitions
-    )
-
-    def stitching_input = SPARK_START(
-        STITCHING_PREPARE.out, // meta, data_paths
+    def stitching_result = STITCHING(
+        ch_acquisitions,
         params.workdir,
         params.spark_cluster,
+        params.flatfield_correction,
         params.spark_workers as int,
         params.spark_worker_cores as int,
         params.spark_gb_per_core as int,
         params.spark_driver_cores as int,
-        params.spark_driver_memory
+        params.spark_driver_mem_gb as int,
     )
-    | join(ch_acquisitions, by:0)
-    | map {
-        def (meta, spark, files) = it
-        def r = [
-            meta, files, spark,
-        ]
-        log.debug "Stitching input: $it -> $r"
-        r
-    }
 
-    STITCHING_PARSECZI(stitching_input)
-    ch_versions = ch_versions.mix(STITCHING_PARSECZI.out.versions)
-
-    STITCHING_CZI2N5(STITCHING_PARSECZI.out.acquisitions)
-    ch_versions = ch_versions.mix(STITCHING_CZI2N5.out.versions)
-
-    flatfield_done = STITCHING_CZI2N5.out
-    if (params.flatfield_correction) {
-        flatfield_done = STITCHING_FLATFIELD(
-            STITCHING_CZI2N5.out.acquisitions
-        )
-        ch_versions = ch_versions.mix(flatfield_done.versions)
-    }
-
-    STITCHING_STITCH(flatfield_done.acquisitions)
-    ch_versions = ch_versions.mix(STITCHING_STITCH.out.versions)
-
-    STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
-    ch_versions = ch_versions.mix(STITCHING_FUSE.out.versions)
-
-    def fuse_result = STITCHING_FUSE.out.acquisitions
-    | map {
-        def (meta, files, spark) = it
-        [ meta, spark ]
-    }
-
-    def completed_stitching_result = SPARK_STOP(fuse_result, params.spark_cluster)
-
-    completed_stitching_result.subscribe {
-        log.debug "Stitching result: $it"
-    }
-
-    def ref_volume = completed_stitching_result
+    def ref_volume = stitching_result
     | filter { meta, spark -> meta.id == params.registration_fix_image }
 
-    def mov_volumes = completed_stitching_result
+    def mov_volumes = stitching_result
     | filter { meta, spark -> meta.id != params.registration_fix_image }
 
     def fix_global_subpath = params.fix_global_subpath
