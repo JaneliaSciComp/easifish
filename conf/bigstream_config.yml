@@ -24,7 +24,7 @@ ransac:
 global_align:
   affine:
     initial_condition: CENTER
-    alignment_spacing: 4.0
+    alignment_spacing: 2.0
     shrink_factors: [2]
     smooth_sigmas: [2]
     optimizer: RSGD
