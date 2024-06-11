@@ -21,6 +21,7 @@ workflow STITCHING {
     spark_driver_cores
     spark_driver_mem_gb
 
+    main:
     STITCHING_PREPARE(
         acquisitions
     )
