@@ -121,6 +121,8 @@ workflow EASIFISH {
         params.spark_driver_mem_gb as int,
     )
 
+    stitching_result.subscribe { log.debug "Stitched image ready for the next step: $it " }
+
     def ref_volume = stitching_result
     | filter { meta ->
         meta.id == params.registration_fix_id
