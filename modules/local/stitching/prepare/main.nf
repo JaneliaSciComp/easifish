@@ -8,7 +8,7 @@ process STITCHING_PREPARE {
     tuple val(meta), path(files, stageAs: 'data/?/*')
 
     output:
-    tuple val(meta), path(files)
+    tuple val(meta), path(files, followLinks: true)
 
     script:
     """
