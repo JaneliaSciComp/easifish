@@ -35,9 +35,9 @@ input:
   - spark_driver_cores:
       type: integer
       description: Number of cores for the Spark driver
-  - spark_driver_memory:
-      type: string
-      description: Memory specification for the Spark driver
+  - spark_driver_mem_gb:
+      type: integer
+      description: Number of GB of memory for the Spark driver
 
 output:
   - spark_context:

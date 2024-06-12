@@ -160,11 +160,11 @@
                     "description": "Number of cores allocated for the Spark driver. Default: 1",
                     "default": 1
                 },
-                "spark_driver_memory": {
-                    "type": "string",
+                "spark_driver_mem_gb": {
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory to allocate for the Spark driver. Default: 15g",
-                    "default": "12 GB"
+                    "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
+                    "default": 12
                 },
                 "stitching_result_dir": {
                     "type": "string"
@@ -187,7 +187,7 @@
                     "type": "string",
                     "default": "conf/bigstream_config.yml"
                 },
-                "registration_fix_image": {
+                "registration_fix_id": {
                     "type": "string",
                     "default": "LHA3_R3_tiny"
                 },
