@@ -1,7 +1,7 @@
 id,filename,pattern
-LHA3_R3_tiny,LHA3_R3_tiny_V01.czi,LHA3_R3_tiny_V%02d.czi
-LHA3_R3_tiny,LHA3_R3_tiny_V02.czi,LHA3_R3_tiny_V%02d.czi
-LHA3_R3_tiny,LHA3_R3_tiny.mvl,
-LHA3_R5_tiny,LHA3_R5_tiny_V01.czi,LHA3_R5_tiny_V%02d.czi
-LHA3_R5_tiny,LHA3_R5_tiny_V02.czi,LHA3_R5_tiny_V%02d.czi
-LHA3_R5_tiny,LHA3_R5_tiny.mvl,
+r3,LHA3_R3_tiny_V01.czi,LHA3_R3_tiny_V%02d.czi
+r3,LHA3_R3_tiny_V02.czi,LHA3_R3_tiny_V%02d.czi
+r3,LHA3_R3_tiny.mvl,
+r5,LHA3_R5_tiny_V01.czi,LHA3_R5_tiny_V%02d.czi
+r5,LHA3_R5_tiny_V02.czi,LHA3_R5_tiny_V%02d.czi
+r5,LHA3_R5_tiny.mvl,
