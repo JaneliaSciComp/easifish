@@ -6,7 +6,7 @@ process SPARK_STARTMANAGER {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*')
 
     output:
-    tuple val(meta), val(spark), path(data_paths)
+    tuple val(meta), val(spark), path(data_paths, followLinks: true)
 
     when:
     task.ext.when == null || task.ext.when
@@ -45,7 +45,7 @@ process SPARK_WAITFORMANAGER {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*')
 
     output:
-    tuple val(meta), val(spark), path(data_paths), env(spark_uri)
+    tuple val(meta), val(spark), path(data_paths, followLinks: true), env(spark_uri)
 
     when:
     task.ext.when == null || task.ext.when
@@ -128,7 +128,7 @@ process SPARK_CLEANUP {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*'), val(worker_ids)
 
     output:
-    tuple val(meta), val(spark), path(data_paths), val(worker_ids)
+    tuple val(meta), val(spark), path(data_paths, followLinks: true), val(worker_ids)
 
     script:
     """

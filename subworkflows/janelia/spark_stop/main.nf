@@ -28,10 +28,10 @@ workflow SPARK_STOP {
     main:
     if (spark_cluster) {
         done = SPARK_TERMINATE(ch_meta_spark_and_data_files)
-    }
-    else {
+    } else {
         done = ch_meta_spark_and_data_files
     }
+    done.subscribe { log.debug "Terminated spark cluster: $it" }
 
     emit:
     done
