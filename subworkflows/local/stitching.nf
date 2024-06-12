@@ -11,15 +11,15 @@ include { STITCHING_FUSE         } from '../../modules/local/stitching/fuse/main
 
 workflow STITCHING {
     take:
-    acquisition_data // [ meta, files ]
-    with_flatfield_correction
-    with_spark_cluster
-    workdir
-    spark_workers
-    spark_worker_cores
-    spark_gb_per_core
-    spark_driver_cores
-    spark_driver_mem_gb
+    acquisition_data       // channel: [ meta, files ]
+    flatfield_correction   // boolean: run flatfield correction
+    with_spark_cluster     // boolean: use a distributed spark cluster
+    workdir                // string|file: spark work dir
+    spark_workers          // int: number of workers in the cluster (ignored if spark_cluster is false)
+    spark_worker_cores     // int: number of cores per worker
+    spark_gb_per_core      // int: number of GB of memory per worker core
+    spark_driver_cores     // int: number of cores for the driver
+    spark_driver_mem_gb    // int: number of GB of memory for the driver
 
     main:
     def prepared_data = STITCHING_PREPARE(
@@ -36,8 +36,7 @@ workflow STITCHING {
         spark_driver_cores,
         spark_driver_mem_gb
     )
-    | join(prepared_data, by:0)
-    | map {
+    | map { // rearrange input args
         def (meta, spark, files) = it
         def r = [
             meta, files, spark,
@@ -50,19 +49,12 @@ workflow STITCHING {
 
     STITCHING_CZI2N5(STITCHING_PARSECZI.out.acquisitions)
 
-    def ready_for_flatfield = STITCHING_CZI2N5.out.acquisitions
-    | combine(as_value_channel(with_flatfield_correction))
-    | branch {
-        def (meta, files, spark, flatfield_correction) = it
-        with_flatfield: flatfield_correction
-                        [ meta, files, spark ]
-        without_flatfield: !flatfield_correction
-                        [ meta, files, spark ]
+    def flatfield_results
+    if (flatfield_correction) {
+        flatfield_results = STITCHING_FLATFIELD(STITCHING_CZI2N5.out.acquisitions).acquisitions
+    } else {
+        flatfield_results = STITCHING_CZI2N5.out.acquisitions
     }
-
-    def flatfield_results = STITCHING_FLATFIELD(ready_for_flatfield.with_flatfield)
-        .acquisitions
-        .mix(ready_for_flatfield.without_flatfield)
 
     STITCHING_STITCH(flatfield_results)
 
@@ -71,10 +63,11 @@ workflow STITCHING {
     def fuse_result = STITCHING_FUSE.out.acquisitions
     | map {
         def (meta, files, spark) = it
-        [ meta, spark ]
+        // revert spark map with files for spark_stop
+        [ meta, spark, files ]
     }
 
-    def completed_stitching_result = SPARK_STOP(fuse_result, params.spark_cluster)
+    def completed_stitching_result = SPARK_STOP(fuse_result, with_spark_cluster)
 
     completed_stitching_result.subscribe {
         log.debug "Stitching result: $it"
@@ -82,16 +75,4 @@ workflow STITCHING {
 
     emit:
     done = completed_stitching_result
-}
-
-def as_value_channel(v) {
-    if (!v.toString().contains("Dataflow")) {
-        Channel.value(v)
-    } else if (!v.toString().contains("value")) {
-        // if not a value channel return the first value
-        v.first()
-    } else {
-        // this is a value channel
-        v
-    }
 }
