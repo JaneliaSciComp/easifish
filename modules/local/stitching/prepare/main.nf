@@ -8,9 +8,12 @@ process STITCHING_PREPARE {
     tuple val(meta), path(files, stageAs: 'data/?/*')
 
     output:
-    tuple val(meta), path(files, followLinks: true)
+    tuple val(meta), path(returned_files)
 
     script:
+    returned_files = files.collect {
+        f.resolveSymLink()
+    }
     """
     umask 0002
     echo "Create session working directory: ${meta.session_work_dir}"
