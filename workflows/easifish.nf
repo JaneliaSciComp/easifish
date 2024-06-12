@@ -80,6 +80,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 workflow EASIFISH {
     def ch_versions = Channel.empty()
 
+    def session_work_dir = "${params.workdir}/${workflow.sessionId}"
     def stitching_workdir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching"
     def stitching_result_dir = params.stitching_result_dir ? file(params.stitching_result_dir) : outdir
 
@@ -92,7 +93,7 @@ workflow EASIFISH {
     .map {
         def (meta, files) = it
         // set output subdirectories for each acquisition
-        meta.session_work_dir = "${params.workdir}/${workflow.sessionId}/${meta.id}"
+        meta.session_work_dir = "${session_work_dir}/${meta.id}"
         meta.stitching_dir = "${stitching_workdir}/${meta.id}"
         meta.stitching_result_dir = stitching_result_dir
         meta.stitching_dataset = meta.id
@@ -113,7 +114,7 @@ workflow EASIFISH {
         ch_acquisitions,
         params.flatfield_correction,
         params.spark_cluster,
-        params.workdir,
+        session_work_dir,
         params.spark_workers as int,
         params.spark_worker_cores as int,
         params.spark_gb_per_core as int,
@@ -125,6 +126,7 @@ workflow EASIFISH {
 
     def ref_volume = stitching_result
     | filter { meta ->
+        log.info "Check ${meta} if it is fixed image"
         meta.id == params.registration_fix_id
     }
 
@@ -132,6 +134,7 @@ workflow EASIFISH {
 
     def mov_volumes = stitching_result
     | filter { meta ->
+        log.info "Check ${meta} if it is fixed image"
         meta.id != params.registration_fix_id
     }
 

@@ -68,8 +68,8 @@ workflow STITCHING {
     }
 
     def completed_stitching_result = SPARK_STOP(fuse_result, with_spark_cluster)
-
-    completed_stitching_result.subscribe {
+    | map {
+        // Only meta contains data relevant for the next steps
         def (meta, spark, data_paths) = it
         log.debug "Stitching result: $meta"
         meta
