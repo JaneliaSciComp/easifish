@@ -52,8 +52,7 @@
                     "type": "string",
                     "fa_icon": "fas fa-layer-group",
                     "description": "List of channel names to process.",
-                    "help_text": "Channel names are specified in the format \"c[channel_number]\", where the channel_number is 0-indexed.",
-                    "default": "c0,c1"
+                    "help_text": "Channel names are specified in the format \"c[channel_number]\", where the channel_number is 0-indexed."
                 },
                 "resolution": {
                     "type": "string",
@@ -126,7 +125,8 @@
                     "default": 2
                 },
                 "stitching_dir": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Directory containing intermediate stitching results"
                 },
                 "spark_cluster": {
                     "type": "boolean",
@@ -167,7 +167,8 @@
                     "default": 12
                 },
                 "stitching_result_dir": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Directory containing final stitching results"
                 },
                 "spark_local_dir": {
                     "type": "string",
@@ -185,132 +186,169 @@
             "properties": {
                 "bigstream_config": {
                     "type": "string",
-                    "default": "conf/bigstream_config.yml"
+                    "default": "conf/bigstream_config.yml",
+                    "description": "Location of the YAML bigstream configuration"
                 },
                 "registration_fix_id": {
                     "type": "string",
-                    "default": "LHA3_R3_tiny"
+                    "description": "ID of the fix image used for registration"
                 },
                 "fix_global_subpath": {
-                    "type": "string"
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Explicit fix image dataset used for global registration"
                 },
                 "mov_global_subpath": {
                     "type": "string",
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Explicit moving image dataset used for global registration"
                 },
                 "reg_ch": {
                     "type": "string",
-                    "default": "c1"
+                    "default": "c1",
+                    "description": "Reference channel used for registration"
                 },
                 "reuse_global_affine": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "If True and global affine exists, reuse it"
                 },
                 "fix_mask_descriptor": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "tuple that describes fix max"
                 },
                 "mov_mask_descriptor": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "tuple that describes mov max"
                 },
                 "global_steps": {
                     "type": "string",
-                    "default": "affine"
+                    "default": "affine",
+                    "hidden": true,
+                    "description": "Global steps - if not set they are read from the bigstream config"
                 },
                 "global_scale": {
                     "type": "string",
                     "default": "s3",
-                    "hidden": true
+                    "description": "Scale used for global registration"
+                },
+                "fix_local_subpath": {
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Fix dataset used for local registration"
                 },
                 "mov_local_subpath": {
                     "type": "string",
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Moving dataset used for local registration"
                 },
                 "local_steps": {
                     "type": "string",
-                    "default": "affine,deform"
+                    "default": "affine,deform",
+                    "description": "Steps for local alignment - if not set they are read from bigstream config yaml",
+                    "hidden": true
                 },
                 "local_scale": {
                     "type": "string",
                     "default": "s2",
-                    "hidden": true
-                },
-                "fix_local_subpath": {
-                    "type": "string",
-                    "hidden": true
-                },
-                "global_align_cpus": {
-                    "type": "integer",
-                    "default": 6
+                    "description": "Scale used for local registration"
                 },
                 "deform_subpath": {
                     "type": "string",
-                    "hidden": true
+                    "hidden": true,
+                    "description": "subpath used for saving the deformation field"
                 },
                 "warped_subpaths": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "explicit datasets to be warped",
+                    "hidden": true
                 },
                 "with_dask_cluster": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "If true use a distributed dask cluster"
                 },
                 "dask_config": {
                     "type": "string",
-                    "default": "conf/dask_config.yml"
+                    "default": "conf/dask_config.yml",
+                    "description": "Dask cluster configuration"
                 },
                 "warped_channels": {
                     "type": "string",
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Channels to be warped"
                 },
                 "warped_scales": {
                     "type": "string",
-                    "default": "s0"
+                    "default": "s0",
+                    "description": "All scales that need to be warped"
+                },
+                "global_align_cpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "hidden": true,
+                    "description": "Number of CPUs used for global registration"
                 },
                 "global_align_mem_gb": {
                     "type": "integer",
-                    "default": 15
+                    "default": 15,
+                    "description": "Memory for global alignment",
+                    "hidden": true
                 },
                 "local_align_cpus": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "CPUs used for local alignment driver",
+                    "hidden": true
                 },
                 "local_align_mem_gb": {
                     "type": "integer",
-                    "default": 15
+                    "default": 15,
+                    "description": "Memory (GB) used for local alignment driver",
+                    "hidden": true
                 },
                 "local_align_workers": {
                     "type": "integer",
-                    "default": 10
+                    "default": 10,
+                    "description": "Number of workers used for local alignment"
                 },
                 "local_align_min_workers": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Minimum number of workers that need to be available before the local alignment starts"
                 },
                 "local_align_worker_cpus": {
                     "type": "integer",
-                    "default": 3
+                    "default": 3,
+                    "description": "Number of CPUs for each worker"
                 },
                 "local_align_worker_mem_gb": {
                     "type": "integer",
-                    "default": 30
+                    "default": 30,
+                    "description": "Memory for each worker"
                 },
                 "bigstream_local_blocksize": {
                     "type": "string",
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Local alignment processing block size"
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
                     "default": 0,
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Block overlap used for local alignment"
                 },
                 "bigstream_inv_iterations": {
                     "type": "integer",
                     "default": 5,
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Iterations for generating the inverse deformation field"
                 },
                 "bigstream_inv_order": {
                     "type": "integer",
                     "default": 2,
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Parameter for generating the inverse deformation field"
                 },
                 "bigstream_inv_sqrt_iterations": {
                     "type": "integer",
@@ -320,14 +358,16 @@
                 "bigstream_dask_cluster_max_tasks": {
                     "type": "integer",
                     "default": 0,
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Total number of concurrent dask tasks"
                 },
                 "dask_scheduler_port_binding": {
                     "type": "string"
                 },
                 "registration_result_container": {
                     "type": "string",
-                    "default": "registration.n5"
+                    "default": "registration.n5",
+                    "description": "Name of the final registration container"
                 }
             }
         },
