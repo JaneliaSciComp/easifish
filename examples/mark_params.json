@@ -8,5 +8,6 @@
     "reg_ch": "c3",
     "global_scale": "s3",
     "local_scale": "s2",
-    "warped_scales": "s0"
+    "warped_scales": "s0",
+    "lsf_opts": "-P scicompsoft"
 }
