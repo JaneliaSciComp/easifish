@@ -36,10 +36,10 @@ workflow INPUT_CHECK {
         .groupTuple() // Group by acquisition
         .map {
             def (meta, files, patterns) = it
-            log.info "!!!! FILES/patterns: $files, $patterns"
-            if (patterns) {
+            def trimmed_patterns = patterns.findAll { it?.trim() }
+            if (trimmed_patterns) {
                 // Set acquisition's filename pattern to the meta map
-                meta.pattern = patterns.findAll({ it?.trim() }).first()
+                meta.pattern = trimmed_patterns.first()
             }
             // Set image dir to the meta map
             meta.image_dir = files.collect { file(it).parent }.first()
