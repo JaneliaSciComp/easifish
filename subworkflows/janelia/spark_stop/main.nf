@@ -3,10 +3,12 @@ process SPARK_TERMINATE {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark)
+    // we need to pass the data_paths because it should contain the spark work dir
+    // and that needs to be mounted in the container
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*')
 
     output:
-    tuple val(meta), val(spark)
+    tuple val(meta), val(spark), path(data_paths)
 
     script:
     terminate_file_name = "${spark.work_dir}/terminate-spark"
@@ -20,15 +22,15 @@ process SPARK_TERMINATE {
  */
 workflow SPARK_STOP {
     take:
-    ch_meta               // channel: [ val(meta), val(spark) ]
-    spark_cluster         // boolean: use a distributed cluster?
+    ch_meta_spark_and_data_files // channel: [ val(meta), val(spark), path(data_paths) ]
+    spark_cluster                // boolean: use a distributed cluster?
 
     main:
     if (spark_cluster) {
-        done = SPARK_TERMINATE(ch_meta)
+        done = SPARK_TERMINATE(ch_meta_spark_and_data_files)
     }
     else {
-        done = ch_meta
+        done = ch_meta_spark_and_data_files
     }
 
     emit:

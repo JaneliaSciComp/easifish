@@ -14,7 +14,7 @@ input:
       description: |
         Channel of tuples containing a meta map and a list of data paths
         Structure: [ val(meta), [path(data_paths)] ]
-  - with_spark_cluster:
+  - spark_cluster:
       type: boolean
       description: Whether or not to spin up a Spark cluster
   - working_dir:
