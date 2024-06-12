@@ -5,7 +5,7 @@ process STITCHING_PREPARE {
     input:
      // files input here is only used for
      // properly mounting the dir when running in a container
-    tuple val(meta), path(files, stageAs: '?/*')
+    tuple val(meta), path(files, stageAs: 'data/?/*')
 
     output:
     tuple val(meta), path(files)

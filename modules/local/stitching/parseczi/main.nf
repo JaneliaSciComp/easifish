@@ -5,7 +5,7 @@ process STITCHING_PARSECZI {
     memory { spark.driver_memory }
 
     input:
-    tuple val(meta), path(files), val(spark)
+    tuple val(meta), path(files, stageAs: 'data/?/*'), val(spark)
 
     output:
     tuple val(meta), path(files), val(spark), emit: acquisitions
