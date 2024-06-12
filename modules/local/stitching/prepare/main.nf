@@ -8,13 +8,14 @@ process STITCHING_PREPARE {
     tuple val(meta), path(files, stageAs: 'data/?/*')
 
     output:
-    tuple val(meta), path(returned_files)
+    tuple val(meta), path(files)
 
     script:
-    returned_files = files.collect { f ->
-        f.resolveSymLink()
-    }
     """
+    file_list=("${files}.join(' ')")
+    for f in \${file_list}; do
+        echo \$(readlink -m \$f)
+    done
     umask 0002
     echo "Create session working directory: ${meta.session_work_dir}"
     mkdir -p ${meta.session_work_dir}
