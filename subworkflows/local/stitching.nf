@@ -77,5 +77,5 @@ workflow STITCHING {
     }
 
     emit:
-    done = completed_stitching_result
+    done = completed_stitching_result // channel: [ meta, spark_context ]
 }
