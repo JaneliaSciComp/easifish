@@ -3,7 +3,7 @@
     "input": "examples/local_tiny_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny/data",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
-    "flatfield_correction": true,
+    "flatfield_correction": false,
     "registration_fix_id": "t3",
     "reg_ch": "c1",
     "global_scale": "s3",
