@@ -12,7 +12,7 @@ process STITCHING_PREPARE {
 
     script:
     """
-    file_list=("${files}.join(' ')")
+    file_list=("${files.join(' ')}")
     for f in \${file_list}; do
         echo \$(readlink -m \$f)
     done
