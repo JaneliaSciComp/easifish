@@ -12,9 +12,9 @@ include { STITCHING_FUSE         } from '../../modules/local/stitching/fuse/main
 workflow STITCHING {
     take:
     acquisition_data // [ meta, files ]
-    workdir
-    with_spark_cluster
     with_flatfield_correction
+    with_spark_cluster
+    workdir
     spark_workers
     spark_worker_cores
     spark_gb_per_core

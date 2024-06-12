@@ -111,9 +111,9 @@ workflow EASIFISH {
 
     def stitching_result = STITCHING(
         ch_acquisitions,
-        params.workdir,
-        params.spark_cluster,
         params.flatfield_correction,
+        params.spark_cluster,
+        params.workdir,
         params.spark_workers as int,
         params.spark_worker_cores as int,
         params.spark_gb_per_core as int,
