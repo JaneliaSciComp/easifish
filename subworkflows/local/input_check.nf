@@ -36,6 +36,7 @@ workflow INPUT_CHECK {
         .groupTuple() // Group by acquisition
         .map {
             def (meta, files, patterns) = it
+            log.info "!!!! FILES: $files"
             // Set acquisition's filename pattern to the meta map
             meta.pattern = patterns.findAll({ it?.trim() }).first()
             // Set image dir to the meta map
