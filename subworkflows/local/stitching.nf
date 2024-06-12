@@ -26,57 +26,54 @@ workflow STITCHING {
         acquisition_data
     )
 
-    // def stitching_input = SPARK_START(
-    //     prepared_data, // [meta, data_paths]
-    //     with_spark_cluster,
-    //     workdir,
-    //     spark_workers,
-    //     spark_worker_cores,
-    //     spark_gb_per_core,
-    //     spark_driver_cores,
-    //     spark_driver_mem_gb
-    // )
-    // | map { // rearrange input args
-    //     def (meta, spark, files) = it
-    //     def r = [
-    //         meta, files, spark,
-    //     ]
-    //     log.debug "Stitching input: $it -> $r"
-    //     r
-    // }
+    def stitching_input = SPARK_START(
+        prepared_data, // [meta, data_paths]
+        with_spark_cluster,
+        workdir,
+        spark_workers,
+        spark_worker_cores,
+        spark_gb_per_core,
+        spark_driver_cores,
+        spark_driver_mem_gb
+    )
+    | map { // rearrange input args
+        def (meta, spark, files) = it
+        def r = [
+            meta, files, spark,
+        ]
+        log.debug "Stitching input: $it -> $r"
+        r
+    }
 
-    // STITCHING_PARSECZI(stitching_input)
+    STITCHING_PARSECZI(stitching_input)
 
-    // STITCHING_CZI2N5(STITCHING_PARSECZI.out.acquisitions)
+    STITCHING_CZI2N5(STITCHING_PARSECZI.out.acquisitions)
 
-    // def flatfield_results
-    // if (flatfield_correction) {
-    //     flatfield_results = STITCHING_FLATFIELD(STITCHING_CZI2N5.out.acquisitions).acquisitions
-    // } else {
-    //     flatfield_results = STITCHING_CZI2N5.out.acquisitions
-    // }
+    def flatfield_results
+    if (flatfield_correction) {
+        flatfield_results = STITCHING_FLATFIELD(STITCHING_CZI2N5.out.acquisitions).acquisitions
+    } else {
+        flatfield_results = STITCHING_CZI2N5.out.acquisitions
+    }
 
-    // STITCHING_STITCH(flatfield_results)
+    STITCHING_STITCH(flatfield_results)
 
-    // STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
+    STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
 
-    // def fuse_result = STITCHING_FUSE.out.acquisitions
-    // | map {
-    //     def (meta, files, spark) = it
-    //     // revert spark map with files for spark_stop
-    //     [ meta, spark, files ]
-    // }
+    def fuse_result = STITCHING_FUSE.out.acquisitions
+    | map {
+        def (meta, files, spark) = it
+        // revert spark map with files for spark_stop
+        [ meta, spark, files ]
+    }
 
-    // def completed_stitching_result = SPARK_STOP(fuse_result, with_spark_cluster)
+    def completed_stitching_result = SPARK_STOP(fuse_result, with_spark_cluster)
 
-    // completed_stitching_result.subscribe {
-    //     def (meta, spark, data_paths) = it
-    //     def r = meta
-    //     log.debug "Stitching result: $it -> $r"
-    //     r
-    // }
-
-    def completed_stitching_result = prepared_data.map { it[0] }
+    completed_stitching_result.subscribe {
+        def (meta, spark, data_paths) = it
+        log.debug "Stitching result: $meta"
+        meta
+    }
 
     emit:
     done = completed_stitching_result // channel: meta
