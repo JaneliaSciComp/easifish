@@ -11,7 +11,7 @@ process STITCHING_PREPARE {
     tuple val(meta), path(returned_files)
 
     script:
-    returned_files = files.collect {
+    returned_files = files.collect { f ->
         f.resolveSymLink()
     }
     """
