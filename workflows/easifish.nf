@@ -177,7 +177,7 @@ workflow EASIFISH {
         def registration_working_dir = file("${outdir}/registration/${reg_meta.id}")
         def registration_output = outdir
         def registration_dataset = mov_meta.id
-        def dask_work_dir = file("${fix_meta.session_work_dir}/dask/${reg_meta.id}")
+        def dask_work_dir = file("${session_work_dir}/dask/${reg_meta.id}")
 
         def deformations = get_warped_subpaths().collect { warped_subpath ->
             def deformation_input = [
