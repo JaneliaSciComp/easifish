@@ -162,7 +162,7 @@ workflow SPARK_START {
     | combine(as_value_channel(spark_driver_cores))
     | combine(as_value_channel(spark_driver_mem_gb))
     | map {
-        def (meta, data_paths,
+        def (meta, data_paths, // ch_meta
              distributed,
              work_dir,
              nworkers,
@@ -225,6 +225,8 @@ workflow START_DISTRIBUTED_SPARK {
         }
     }
 
+    meta_workers.subscribe { log.debug "Spark worker input: $it" }
+
     // start workers
     // these run indefinitely until SPARK_TERMINATE is called
     def spark_workers_results = SPARK_STARTWORKER(meta_workers)
@@ -240,8 +242,8 @@ workflow START_DISTRIBUTED_SPARK {
     spark_cluster_res = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1])
     | map {
         def (meta, spark) = it
-        log.debug "Created Spark context for ${meta.id}: "+spark
-        [meta, spark]
+        log.debug "Create distributed Spark context: ${meta}, ${spark}"
+        [ meta, spark ]
     }
 
     emit:
@@ -260,7 +262,8 @@ workflow START_LOCAL_SPARK {
         spark.driver_cores = spark_driver_cores + spark_worker_cores
         spark.driver_memory = (2 + spark_worker_cores * spark_gb_per_core) + " GB"
         spark.uri = 'local[*]'
-        [meta, spark]
+        log.debug "Create local Spark context: ${meta}, ${spark}"
+        [ meta, spark ]
     }
 
     emit:
