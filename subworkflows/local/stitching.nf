@@ -70,7 +70,10 @@ workflow STITCHING {
     def completed_stitching_result = SPARK_STOP(fuse_result, with_spark_cluster)
 
     completed_stitching_result.subscribe {
-        log.debug "Stitching result: $it"
+        def (meta, spark, data_paths) = it
+        def r = [ meta, spark ]
+        log.debug "Stitching result: $it -> $r"
+        $r
     }
 
     emit:
