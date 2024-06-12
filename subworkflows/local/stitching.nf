@@ -73,7 +73,7 @@ workflow STITCHING {
         def (meta, spark, data_paths) = it
         def r = [ meta, spark ]
         log.debug "Stitching result: $it -> $r"
-        $r
+        r
     }
 
     emit:
