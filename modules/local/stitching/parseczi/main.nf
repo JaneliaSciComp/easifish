@@ -30,7 +30,7 @@ process STITCHING_PARSECZI {
     """
     file_list=("${files.join(' ')}")
     for f in \${file_list}; do
-        echo \$(readlink -m \$f)
+        echo "\f -> \$(readlink -m \$f)"
     done
 
     /opt/scripts/runapp.sh "$workflow.containerEngine" "$spark.work_dir" "$spark.uri" \
