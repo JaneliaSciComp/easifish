@@ -1,7 +1,7 @@
 {
     "channels": "c0,c1,c2,c3",
     "input": "examples/mark_samplesheet.csv",
-    "indir": " /nrs/scicompsoft/rokicki/flyefish/gel1_brain1",
+    "indir": "/nrs/scicompsoft/rokicki/flyefish/gel1_brain1",
     "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results",
     "flatfield_correction": false,
     "registration_fix_id": "t1",
