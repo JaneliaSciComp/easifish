@@ -212,7 +212,8 @@ workflow SPARK_START {
         | map {
             def (meta, spark, data_paths) = it
             log.debug "Create distributed Spark context: ${meta}, ${spark}"
-            [ meta, spark, data_paths ]
+            // data_paths is a list of list of paths so we need to flatten it
+            [ meta, spark, data_paths.flatten() ]
         }
     } else {
         // when running locally, the driver needs enough resources to run a spark worker
