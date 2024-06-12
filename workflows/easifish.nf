@@ -122,24 +122,18 @@ workflow EASIFISH {
     )
 
     def ref_volume = stitching_result
-    | filter {
-        def (meta, spark) = it
-        def r = meta.id == params.registration_fix_id
-        if (r) {
-            log.debug "Found fix image: $it -> $meta"
-        }
-        r
+    | filter { meta ->
+        meta.id == params.registration_fix_id
     }
 
+    ref_volume.subscribe { log.debug "Fix image: $it" }
+
     def mov_volumes = stitching_result
-    | filter {
-        def (meta, spark) = it
-        def r = meta.id != params.registration_fix_id
-        if (r) {
-            log.debug "Found moving image: $it -> $meta"
-        }
-        r
+    | filter { meta ->
+        meta.id != params.registration_fix_id
     }
+
+    mov_volumes.subscribe { log.debug "Moving image: $it" }
 
     def fix_global_subpath = params.fix_global_subpath
         ? params.fix_global_subpath
@@ -164,7 +158,8 @@ workflow EASIFISH {
     def registration_inputs = ref_volume
     | combine(mov_volumes)
     | map {
-        def (fix_meta, fix_spark, mov_meta, mov_spark) = it
+        def (fix_meta, mov_meta) = it
+        log.debug "Prepare registration inputs: $it -> ${fix_meta}, ${mov_meta}"
 
         def reg_meta = [
             id: "${fix_meta.id}-${mov_meta.id}",

@@ -71,11 +71,11 @@ workflow STITCHING {
 
     completed_stitching_result.subscribe {
         def (meta, spark, data_paths) = it
-        def r = [ meta, spark ]
+        def r = meta
         log.debug "Stitching result: $it -> $r"
         r
     }
 
     emit:
-    done = completed_stitching_result // channel: [ meta, spark_context ]
+    done = completed_stitching_result // channel: meta
 }
