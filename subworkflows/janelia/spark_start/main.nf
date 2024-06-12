@@ -143,89 +143,138 @@ process SPARK_CLEANUP {
 workflow SPARK_START {
     take:
     ch_meta               // channel: [ meta, [data_paths] ]
+    with_spark_cluster    // boolean: use a distributed cluster?
     working_dir           // path: shared storage path for worker communication
-    spark_cluster         // boolean: use a distributed cluster?
     spark_workers         // int: number of workers in the cluster (ignored if spark_cluster is false)
     spark_worker_cores    // int: number of cores per worker
     spark_gb_per_core     // int: number of GB of memory per worker core
     spark_driver_cores    // int: number of cores for the driver
-    spark_driver_mem_gb   // string: memory specification for the driver
+    spark_driver_mem_gb   // int: number of GB of memory for the driver
 
     main:
-
     // create a Spark context for each meta
-    def meta_spark_and_data_files = ch_meta.map {
-        def (meta, data_paths) = it
-        def spark_work_dir = file("${working_dir}/spark/${meta.id}")
+    def meta_spark_and_data_files = ch_meta
+    | combine(as_value_channel(with_spark_cluster))
+    | combine(as_value_channel(working_dir))
+    | combine(as_value_channel(spark_workers))
+    | combine(as_value_channel(spark_worker_cores))
+    | combine(as_value_channel(spark_gb_per_core))
+    | combine(as_value_channel(spark_driver_cores))
+    | combine(as_value_channel(spark_driver_mem_gb))
+    | map {
+        def (meta, data_paths,
+             distributed,
+             work_dir,
+             nworkers,
+             worker_cpus,
+             worker_mem_gb_per_core,
+             driver_cpus,
+             driver_mem_gb) = it
+        def spark_work_dir = file("${work_dir}/spark/${meta.id}")
         def spark = [:]
         spark.work_dir = spark_work_dir
-        spark.workers = spark_workers ?: 1
-        spark.worker_cores = spark_worker_cores
-        spark.driver_cores = spark_driver_cores ?: 1
-        spark.driver_memory = "${spark_driver_mem_gb} GB"
-        spark.parallelism = (spark_workers * spark_worker_cores)
+        spark.workers = nworkers ?: 1
+        spark.worker_cores = worker_cpus
+        spark.driver_cores = driver_cpus ?: 1
+        spark.driver_memory = "${driver_mem_gb} GB"
+        spark.parallelism = (nworkers * worker_cpus)
         // 1 GB of overhead for Spark, the rest for executors
-        spark.worker_memory = (spark_worker_cores * spark_gb_per_core + 1)+" GB"
-        spark.executor_memory = (spark_worker_cores * spark_gb_per_core)+" GB"
-        def r = [meta, spark, data_paths]
+        spark.worker_memory = (worker_cpus * worker_mem_gb_per_core + 1)+" GB"
+        spark.executor_memory = (worker_cpus * worker_mem_gb_per_core)+" GB"
+        def r = [meta, spark, data_paths + [spark_work_dir], distributed]
         log.debug "Prepare to start spark: $r"
         r
     }
+    | branch {
+        def (meta, spark, files, distributed) = it
+        with_distributed_cluster: distributed
+            [ meta, spark, files ]
+        with_local_spark: !distributed
+            [ meta, spark, files ]
+    }
 
-    if (spark_cluster) {
-        // start the Spark manager
-        // this runs indefinitely until SPARK_TERMINATE is called
-        SPARK_STARTMANAGER(meta_spark_and_data_files)
+    spark_context = START_DISTRIBUTED_SPARK(meta_spark_and_data_files.with_distributed_cluster)
+        .mix(START_LOCAL_SPARK(meta_spark_and_data_files.with_local_spark))
 
-        // start a watcher that waits for the manager to be ready
-        SPARK_WAITFORMANAGER(meta_spark_and_data_files)
+    emit:
+    spark_context // channel: [ val(meta), val(spark) ]
+}
 
-        SPARK_WAITFORMANAGER.out.subscribe {
-            log.debug "Spark manager available: $it"
-        }
+workflow START_DISTRIBUTED_SPARK {
+    take:
+    meta_spark_and_data_files
 
-        // cross product all worker directories with all worker numbers
-        def worker_list = 1..spark_workers
-        def meta_workers = SPARK_WAITFORMANAGER.out.map {
-            def (meta, spark, data_paths, spark_uri) = it
-            spark.uri = spark_uri
-            [meta, spark, data_paths]
-        }
-        | combine(worker_list)
+    main:
+    // start the Spark manager
+    // this runs indefinitely until SPARK_TERMINATE is called
+    SPARK_STARTMANAGER(meta_spark_and_data_files)
 
-        // start workers
-        // these run indefinitely until SPARK_TERMINATE is called
-        def spark_workers_results = SPARK_STARTWORKER(meta_workers)
+    // start a watcher that waits for the manager to be ready
+    SPARK_WAITFORMANAGER(meta_spark_and_data_files)
 
-        spark_workers_results.subscribe { log.debug "Spark worker result: $it" }
+    SPARK_WAITFORMANAGER.out.subscribe {
+        log.debug "Spark manager available: $it"
+    }
 
-        spark_workers_results.groupTuple(by:[0,1])
-        | map {
-            def (meta, spark, data_paths_lists, worker_ids) = it
-            [ meta, spark, data_paths_lists.flatten(), worker_ids ]
-        }
-        | SPARK_CLEANUP // when workers exit they should clean up after themselves
-
-        // wait for all workers to start
-        spark_cluster_res = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1])
-    } else {
-        // when running locally, the driver needs enough resources to run a spark worker
-        spark_cluster_res = meta_spark_and_data_files.map {
-            def (meta, spark) = it // ignore data_paths
-            spark.workers = 1
-            spark.driver_cores = spark_driver_cores + spark_worker_cores
-            spark.driver_memory = (2 + spark_worker_cores * spark_gb_per_core) + " GB"
-            spark.uri = 'local[*]'
-            [meta, spark]
+    def meta_workers = SPARK_WAITFORMANAGER.out.flatMap {
+        def (meta, spark, data_paths, spark_uri) = it
+        spark.uri = spark_uri
+        def worker_list = 1..spark.workers
+        worker_list.collect { worker_id ->
+            [ meta, spark, data_paths, worker_id ]
         }
     }
 
-    spark_context = spark_cluster_res.map {
+    // start workers
+    // these run indefinitely until SPARK_TERMINATE is called
+    def spark_workers_results = SPARK_STARTWORKER(meta_workers)
+
+    spark_workers_results.groupTuple(by:[0,1])
+    | map {
+        def (meta, spark, data_paths_lists, worker_ids) = it
+        [ meta, spark, data_paths_lists.flatten(), worker_ids ]
+    }
+    | SPARK_CLEANUP // when workers exit they should clean up after themselves
+
+    // wait for all workers to start
+    spark_cluster_res = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1])
+    | map {
         def (meta, spark) = it
         log.debug "Created Spark context for ${meta.id}: "+spark
         [meta, spark]
     }
 
     emit:
-    spark_context // channel: [ val(meta), val(spark) ]
+    spark_cluster_res
+}
+
+workflow START_LOCAL_SPARK {
+    take:
+    meta_spark_and_data_files
+
+    main:
+    // when running locally, the driver needs enough resources to run a spark worker
+    local_spark_res = meta_spark_and_data_files.map {
+        def (meta, spark) = it // ignore data_paths
+        spark.workers = 1
+        spark.driver_cores = spark_driver_cores + spark_worker_cores
+        spark.driver_memory = (2 + spark_worker_cores * spark_gb_per_core) + " GB"
+        spark.uri = 'local[*]'
+        [meta, spark]
+    }
+
+    emit:
+    local_spark_res 
+}
+
+def as_value_channel(v) {
+    if (!v.toString().contains("Dataflow")) {
+        Channel.value(v)
+    } else if (!v.toString().contains("value")) {
+        // if not a value channel return the first value
+        v.first()
+    } else {
+        // this is a value channel
+        v
+    }
 }

@@ -28,8 +28,8 @@ workflow STITCHING {
 
     def stitching_input = SPARK_START(
         prepared_data, // [meta, data_paths]
-        workdir,
         with_spark_cluster,
+        workdir,
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
