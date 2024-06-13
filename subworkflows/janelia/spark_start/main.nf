@@ -3,10 +3,10 @@ process SPARK_STARTMANAGER {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*')
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*')
 
     output:
-    tuple val(meta), val(spark), path(data_paths, followLinks: true)
+    tuple val(meta), val(spark), path('data/*', followLinks: true)
 
     when:
     task.ext.when == null || task.ext.when
@@ -42,10 +42,10 @@ process SPARK_WAITFORMANAGER {
     maxRetries 20
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*')
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*')
 
     output:
-    tuple val(meta), val(spark), path(data_paths, followLinks: true), env(spark_uri)
+    tuple val(meta), val(spark), path('data/*', followLinks: true), env(spark_uri)
 
     when:
     task.ext.when == null || task.ext.when
@@ -67,10 +67,10 @@ process SPARK_STARTWORKER {
     memory { spark.worker_memory }
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*'), val(worker_id)
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_id)
 
     output:
-    tuple val(meta), val(spark), path(data_paths, followLinks: true), val(worker_id)
+    tuple val(meta), val(spark), path('data/*', followLinks: true), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -100,10 +100,10 @@ process SPARK_WAITFORWORKER {
     maxRetries 20
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*'), val(worker_id)
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_id)
 
     output:
-    tuple val(meta), val(spark), path(data_paths, followLinks: true), val(worker_id)
+    tuple val(meta), val(spark), path('data/*', followLinks: true), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -125,10 +125,10 @@ process SPARK_CLEANUP {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*'), val(worker_ids)
+    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_ids)
 
     output:
-    tuple val(meta), val(spark), path(data_paths, followLinks: true), val(worker_ids)
+    tuple val(meta), val(spark), path('data/*', followLinks: true), val(worker_ids)
 
     script:
     """
