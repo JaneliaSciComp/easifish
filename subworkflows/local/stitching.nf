@@ -39,7 +39,7 @@ workflow STITCHING {
         def data_files = files + [stitching_dir, stitching_result_dir]
 
         def r = [ meta, data_files ]
-        log.debug "Input acquisitions to stitch: $files -> $r"
+        log.debug "Input acquisitions to stitch: ${data_files} -> $r"
         r
     }
     | STITCHING_PREPARE
