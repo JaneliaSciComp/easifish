@@ -15,9 +15,9 @@ process SPARK_STARTMANAGER {
     args = task.ext.args ?: ''
     spark_local_dir = task.ext.spark_local_dir ?: "/tmp/spark-${workflow.sessionId}"
     sleep_secs = task.ext.sleep_secs ?: '1'
-    spark_config_filepath = "${spark_work_dir}/spark-defaults.conf"
-    spark_master_log_file = "${spark_work_dir}/sparkmaster.log"
-    terminate_file_name = "${spark_work_dir}/terminate-spark"
+    spark_config_filepath = "\${full_spark_work_dir}/spark-defaults.conf"
+    spark_master_log_file = "\${full_spark_work_dir}/sparkmaster.log"
+    terminate_file_name = "\${full_spark_work_dir}/terminate-spark"
     container_engine = workflow.containerEngine
     """
     full_spark_work_dir=\$(readlink -m ${spark_work_dir})
@@ -53,8 +53,8 @@ process SPARK_WAITFORMANAGER {
     script:
     sleep_secs = task.ext.sleep_secs ?: '1'
     max_wait_secs = task.ext.max_wait_secs ?: '3600'
-    spark_master_log_name = "${spark_work_dir}/sparkmaster.log"
-    terminate_file_name = "${spark_work_dir}/terminate-spark"
+    spark_master_log_name = "\${full_spark_work_dir}/sparkmaster.log"
+    terminate_file_name = "\${full_spark_work_dir}/terminate-spark"
     """
     full_spark_work_dir=\$(readlink -m ${spark_work_dir})
 
@@ -81,15 +81,15 @@ process SPARK_STARTWORKER {
     script:
     args = task.ext.args ?: ''
     sleep_secs = task.ext.sleep_secs ?: '1'
-    spark_worker_log_file = "${spark_work_dir}/sparkworker-${worker_id}.log"
-    spark_config_filepath = "${spark_work_dir}/spark-defaults.conf"
-    terminate_file_name = "${spark_work_dir}/terminate-spark"
+    spark_worker_log_file = "\${full_spark_work_dir}/sparkworker-${worker_id}.log"
+    spark_config_filepath = "\${full_spark_work_dir}/spark-defaults.conf"
+    terminate_file_name = "\${full_spark_work_dir}/terminate-spark"
     worker_memory = spark.worker_memory.replace(" KB",'').replace(" MB",'').replace(" GB",'').replace(" TB",'')
     container_engine = workflow.containerEngine
     """
     full_spark_work_dir=\$(readlink -m ${spark_work_dir})
 
-    /opt/scripts/startworker.sh "${spark_work_dir}" "${spark.uri}" $worker_id \
+    /opt/scripts/startworker.sh "\${full_spark_work_dir}" "${spark.uri}" $worker_id \
         ${spark.worker_cores} ${worker_memory} \
         "$spark_worker_log_file" "$spark_config_filepath" "$terminate_file_name" \
         "$args" $sleep_secs $container_engine
@@ -116,8 +116,8 @@ process SPARK_WAITFORWORKER {
     script:
     sleep_secs = task.ext.sleep_secs ?: '1'
     max_wait_secs = task.ext.max_wait_secs ?: '3600'
-    spark_worker_log_file = "${spark_work_dir}/sparkworker-${worker_id}.log"
-    terminate_file_name = "${spark_work_dir}/terminate-spark"
+    spark_worker_log_file = "\${full_spark_work_dir}/sparkworker-${worker_id}.log"
+    terminate_file_name = "\${full_spark_work_dir}/terminate-spark"
     """
     full_spark_work_dir=\$(readlink -m ${spark_work_dir})
 
@@ -139,7 +139,9 @@ process SPARK_CLEANUP {
 
     script:
     """
-    find ${spark_work_dir} -name app.jar -exec rm {} \\;
+    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+
+    find \${full_spark_work_dir} -name app.jar -exec rm {} \\;
     """
 }
 
