@@ -198,7 +198,7 @@ workflow SPARK_START {
         def meta_workers = SPARK_WAITFORMANAGER.out
         .join(ch_meta, by:0) // join with ch_meta to get the data files in order to mount them in the workers
         .flatMap {
-            def (meta, spark, spark_work_dir, spark_uri, data_files) = it
+            def (meta, spark, spark_work_dir, spark_uri, data_paths) = it
             spark.uri = spark_uri
             def worker_list = 1..spark.workers
             worker_list.collect { worker_id ->
@@ -224,7 +224,6 @@ workflow SPARK_START {
         | map {
             def (meta, spark, spark_work_dir, worker_ids) = it
             log.debug "Create distributed Spark context: ${meta}, ${spark}"
-            // data_paths is a list of list of paths so we need to flatten it
             [ meta, spark ]
         }
     } else {
