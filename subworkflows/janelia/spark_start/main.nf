@@ -200,7 +200,7 @@ workflow SPARK_START {
         // these run indefinitely until SPARK_TERMINATE is called
         SPARK_STARTWORKER(meta_workers)
 
-        SPARK_STARTWORKER.out.groupTuple(by:[0,1])
+        SPARK_STARTWORKER.out.groupTuple(by:[0,1], size: spark_workers)
         | map {
             def (meta, spark, data_paths_lists, worker_ids) = it
             [ meta, spark, data_paths_lists.flatten(), worker_ids ]
@@ -208,7 +208,7 @@ workflow SPARK_START {
         | SPARK_CLEANUP // when workers exit they should clean up after themselves
 
         // wait for all workers to start
-        spark_context = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1])
+        spark_context = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1], size: spark_workers)
         | map {
             def (meta, spark, data_paths) = it
             log.debug "Create distributed Spark context: ${meta}, ${spark}"
