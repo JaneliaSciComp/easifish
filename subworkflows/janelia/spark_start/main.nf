@@ -6,7 +6,7 @@ process SPARK_STARTMANAGER {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*')
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true)
+    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true)
 
     when:
     task.ext.when == null || task.ext.when
@@ -45,7 +45,7 @@ process SPARK_WAITFORMANAGER {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*')
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true), env(spark_uri)
+    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true), env(spark_uri)
 
     when:
     task.ext.when == null || task.ext.when
@@ -70,7 +70,7 @@ process SPARK_STARTWORKER {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_id)
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true), val(worker_id)
+    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -103,7 +103,7 @@ process SPARK_WAITFORWORKER {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_id)
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true), val(worker_id)
+    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -128,7 +128,7 @@ process SPARK_CLEANUP {
     tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_ids)
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true), val(worker_ids)
+    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true), val(worker_ids)
 
     script:
     """
@@ -211,7 +211,7 @@ workflow SPARK_START {
         spark_context = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1], size: spark_workers)
         | map {
             def (meta, spark, data_paths) = it
-            log.debug "Create distributed Spark context: ${meta}, ${spark}"
+            log.debug "Create distributed Spark context: ${meta}, ${spark}, ${data_paths}"
             // data_paths is a list of list of paths so we need to flatten it
             [ meta, spark, data_paths.flatten() ]
         }
@@ -223,7 +223,7 @@ workflow SPARK_START {
             spark.driver_cores = spark_driver_cores + spark_worker_cores
             spark.driver_memory = (2 + spark_worker_cores * spark_gb_per_core) + " GB"
             spark.uri = 'local[*]'
-            log.debug "Create local Spark context: ${meta}, ${spark}"
+            log.debug "Create local Spark context: ${meta}, ${spark}, ${data_paths}"
             [ meta, spark, data_paths ]
         }
     }
