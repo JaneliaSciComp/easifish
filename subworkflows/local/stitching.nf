@@ -11,20 +11,38 @@ include { STITCHING_FUSE         } from '../../modules/local/stitching/fuse/main
 
 workflow STITCHING {
     take:
-    acquisition_data       // channel: [ meta, files ]
-    flatfield_correction   // boolean: run flatfield correction
-    with_spark_cluster     // boolean: use a distributed spark cluster
-    workdir                // string|file: spark work dir
-    spark_workers          // int: number of workers in the cluster (ignored if spark_cluster is false)
-    spark_worker_cores     // int: number of cores per worker
-    spark_gb_per_core      // int: number of GB of memory per worker core
-    spark_driver_cores     // int: number of cores for the driver
-    spark_driver_mem_gb    // int: number of GB of memory for the driver
+    acquisition_data        // channel: [ meta, files ]
+    flatfield_correction    // boolean: run flatfield correction
+    with_spark_cluster      // boolean: use a distributed spark cluster
+    stitching_dir           // string|file: directory holding intermediate stitching data
+    stitching_result_dir    // string|file: directory where the final stitched results will be stored
+    stitched_container_name // final stitched container name - defaults to export.n5
+    id_for_stiched_dataset  // boolean: if true use id for stitched dataset otherwise no dataset is used 
+    workdir                 // string|file: spark work dir
+    spark_workers           // int: number of workers in the cluster (ignored if spark_cluster is false)
+    spark_worker_cores      // int: number of cores per worker
+    spark_gb_per_core       // int: number of GB of memory per worker core
+    spark_driver_cores      // int: number of cores for the driver
+    spark_driver_mem_gb     // int: number of GB of memory for the driver
 
     main:
-    def prepared_data = STITCHING_PREPARE(
-        acquisition_data
-    )
+    def prepared_data = acquisition_data
+    | map {
+        def (meta, files) = it
+        // set output subdirectories for each acquisition
+        meta.session_work_dir = "${workdir}/${meta.id}"
+        meta.stitching_dir = "${stitching_dir}/${meta.id}"
+        meta.stitching_result_dir = stitching_result_dir
+        meta.stitched_dataset = id_for_stiched_dataset ? meta.id : ''
+        meta.stitching_container = stitched_container_name ?: "export.n5"
+        // Add output dir here so that it will get mounted into the Spark processes
+        def data_files = files + [stitching_dir, stitching_result_dir]
+
+        def r = [ meta, data_files ]
+        log.debug "Input acquisitions to stitch: $files -> $r"
+        r
+    }
+    | STITCHING_PREPARE
 
     def stitching_input = SPARK_START(
         prepared_data, // [meta, data_paths]

@@ -81,7 +81,7 @@ workflow EASIFISH {
     def ch_versions = Channel.empty()
 
     def session_work_dir = "${params.workdir}/${workflow.sessionId}"
-    def stitching_workdir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching"
+    def stitching_dir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching"
     def stitching_result_dir = params.stitching_result_dir ? file(params.stitching_result_dir) : outdir
 
     def ch_acquisitions = INPUT_CHECK (
@@ -90,20 +90,6 @@ workflow EASIFISH {
         stitching_workdir,
     )
     .acquisitions
-    .map {
-        def (meta, files) = it
-        // set output subdirectories for each acquisition
-        meta.session_work_dir = "${session_work_dir}/${meta.id}"
-        meta.stitching_dir = "${stitching_workdir}/${meta.id}"
-        meta.stitching_result_dir = stitching_result_dir
-        meta.stitching_dataset = meta.id
-        meta.stitching_container = params.stitching_result_container ?: "stitched.n5"
-        // Add output dir here so that it will get mounted into the Spark processes
-        def data_files = files + [stitching_workdir, stitching_result_dir]
-        def r = [ meta, data_files ]
-        log.debug "Input acquisitions: $files -> $r"
-        r
-    }
 
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
@@ -114,6 +100,10 @@ workflow EASIFISH {
         ch_acquisitions,
         params.flatfield_correction,
         params.spark_cluster,
+        stitching_dir,
+        stitching_result_dir,
+        params.stitching_result_container,
+        true, // use ID for stitched dataset subpath
         session_work_dir,
         params.spark_workers as int,
         params.spark_worker_cores as int,
@@ -181,8 +171,8 @@ workflow EASIFISH {
 
         def deformations = get_warped_subpaths().collect { warped_subpath ->
             def deformation_input = [
-                fix, "${fix_meta.stitching_dataset}/${warped_subpath}", '',
-                mov, "${mov_meta.stitching_dataset}/${warped_subpath}", '',
+                fix, "${fix_meta.stitched_dataset}/${warped_subpath}", '',
+                mov, "${mov_meta.stitched_dataset}/${warped_subpath}", '',
                 "${registration_output}/${params.registration_result_container}", '',
             ]
             log.debug "Deformation input: warped_subpath -> ${deformation_input}"
@@ -193,9 +183,9 @@ workflow EASIFISH {
             reg_meta,
 
             fix, // global_fixed
-            "${fix_meta.stitching_dataset}/${fix_global_subpath}", // global_fixed_subpath
+            "${fix_meta.stitched_dataset}/${fix_global_subpath}", // global_fixed_subpath
             mov, // global_moving
-            "${mov_meta.stitching_dataset}/${mov_global_subpath}", // global_moving_subpath
+            "${mov_meta.stitched_dataset}/${mov_global_subpath}", // global_moving_subpath
             '', '', // global_fixed_mask, global_fixed_mask_dataset
             '', '', // global_moving_mask, global_fixed_moving_dataset
 
@@ -207,9 +197,9 @@ workflow EASIFISH {
             '',    // global_alignment_subpath
 
             fix, // local_fixed
-            "${fix_meta.stitching_dataset}/${fix_local_subpath}", // local_fixed_subpath
+            "${fix_meta.stitched_dataset}/${fix_local_subpath}", // local_fixed_subpath
             mov, // local_moving
-            "${mov_meta.stitching_dataset}/${mov_local_subpath}", // local_moving_subpath
+            "${mov_meta.stitched_dataset}/${mov_local_subpath}", // local_moving_subpath
             '', '', // local_fixed_mask, local_fixed_mask_dataset
             '', '', // local_moving_mask, local_fixed_moving_dataset
 

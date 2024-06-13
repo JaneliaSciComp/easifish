@@ -20,7 +20,7 @@ process STITCHING_FUSE {
     def driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
     def stitching_result_dir_arg = meta.stitching_result_dir ? "-o ${meta.stitching_result_dir}" : ''
     def stitched_container_arg = meta.stitching_container ? "--outputContainerName ${meta.stitching_container}" : ''
-    def stitched_dataset_arg = meta.stitching_dataset ? "--outputDatasetName ${meta.stitching_dataset}" : ''
+    def stitched_dataset_arg = meta.stitched_dataset ? "--outputDatasetName ${meta.stitched_dataset}" : ''
     """
     # Create command line parameters
     declare -a app_args
