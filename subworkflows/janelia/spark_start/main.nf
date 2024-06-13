@@ -69,7 +69,8 @@ process SPARK_STARTWORKER {
     memory { spark.worker_memory }
 
     input:
-    tuple val(meta), val(spark), path(spark_work_dir), val(worker_id), path(data_paths)
+    tuple val(meta), val(spark), path(spark_work_dir), val(worker_id)
+    path(data_paths)
 
     output:
     tuple val(meta), val(spark), env(full_spark_work_dir), val(worker_id)
@@ -195,9 +196,9 @@ workflow SPARK_START {
         }
 
         // prepare all arguments for all workers
-        def meta_workers = SPARK_WAITFORMANAGER.out
-        .join(ch_meta, by:0) // join with ch_meta to get the data files in order to mount them in the workers
-        .flatMap {
+        def meta_workers_with_data = SPARK_WAITFORMANAGER.out
+        | join(ch_meta, by:0) // join with ch_meta to get the data files in order to mount them in the workers
+        | flatMap {
             def (meta, spark, spark_work_dir, spark_uri, data_paths) = it
             spark.uri = spark_uri
             def worker_list = 1..spark.workers
@@ -205,12 +206,17 @@ workflow SPARK_START {
                 [ meta, spark, spark_work_dir, worker_id, data_paths ]
             }
         }
+        | multiMap {
+            def (meta, spark, spark_work_dir, worker_id, data_paths) = it
+            worker: [ meta, spark, spark_work_dir, worker_id ]
+            data: data_paths
+        }
 
-        meta_workers.subscribe { log.debug "Spark worker input: $it" }
+        meta_workers_with_data.subscribe { log.debug "Spark worker input: $it" }
 
         // start workers
         // these run indefinitely until SPARK_TERMINATE is called
-        SPARK_STARTWORKER(meta_workers)
+        SPARK_STARTWORKER(meta_workers_with_data.worker, meta_workers_with_data.data)
 
         SPARK_STARTWORKER.out.groupTuple(by:[0,1,2], size: spark_workers)
         | map {
@@ -220,7 +226,8 @@ workflow SPARK_START {
         | SPARK_CLEANUP // when workers exit they should clean up after themselves
 
         // wait for all workers to start
-        spark_context = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1], size: spark_workers)
+        spark_context = SPARK_WAITFORWORKER(meta_workers_with_data.worker)
+        | groupTuple(by: [0,1], size: spark_workers)
         | map {
             def (meta, spark, spark_work_dir, worker_ids) = it
             log.debug "Create distributed Spark context: ${meta}, ${spark}"
