@@ -220,7 +220,8 @@ workflow SPARK_START {
         SPARK_STARTWORKER.out.groupTuple(by:[0,1,2], size: spark_workers)
         | map {
             def (meta, spark, spark_work_dir, worker_ids) = it
-            [ meta, spark, spark_work_dir, worker_ids ]
+            // worker_ids are not needed for cleanup process
+            [ meta, spark, spark_work_dir ]
         }
         | SPARK_CLEANUP // when workers exit they should clean up after themselves
 
