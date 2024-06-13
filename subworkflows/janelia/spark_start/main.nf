@@ -3,10 +3,10 @@ process SPARK_STARTMANAGER {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*')
+    tuple val(meta), val(spark), path(spark_work_dir)
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true)
+    tuple val(meta), val(spark), env(full_spark_work_dir)
 
     when:
     task.ext.when == null || task.ext.when
@@ -15,14 +15,14 @@ process SPARK_STARTMANAGER {
     args = task.ext.args ?: ''
     spark_local_dir = task.ext.spark_local_dir ?: "/tmp/spark-${workflow.sessionId}"
     sleep_secs = task.ext.sleep_secs ?: '1'
-    spark_config_filepath = "${spark.work_dir}/spark-defaults.conf"
-    spark_master_log_file = "${spark.work_dir}/sparkmaster.log"
-    terminate_file_name = "${spark.work_dir}/terminate-spark"
+    spark_config_filepath = "${spark_work_dir}/spark-defaults.conf"
+    spark_master_log_file = "${spark_work_dir}/sparkmaster.log"
+    terminate_file_name = "${spark_work_dir}/terminate-spark"
     container_engine = workflow.containerEngine
     """
-    full_spark_work_dir=\$(readlink -m ${spark.work_dir})
+    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
     if [[ ! -e \${full_spark_work_dir} ]] ; then
-        echo "Create spark work directory ${spark.work_dir} -> \${full_spark_work_dir}"
+        echo "Create spark work directory ${spark_work_dir} -> \${full_spark_work_dir}"
         mkdir -p \${full_spark_work_dir}
     else
         echo "Spark work directory: \${full_spark_work_dir} - already exists"
@@ -42,10 +42,10 @@ process SPARK_WAITFORMANAGER {
     maxRetries 20
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*')
+    tuple val(meta), val(spark), path(spark_work_dir)
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true), env(spark_uri)
+    tuple val(meta), val(spark), env(full_spark_work_dir), env(spark_uri)
 
     when:
     task.ext.when == null || task.ext.when
@@ -53,9 +53,11 @@ process SPARK_WAITFORMANAGER {
     script:
     sleep_secs = task.ext.sleep_secs ?: '1'
     max_wait_secs = task.ext.max_wait_secs ?: '3600'
-    spark_master_log_name = "${spark.work_dir}/sparkmaster.log"
-    terminate_file_name = "${spark.work_dir}/terminate-spark"
+    spark_master_log_name = "${spark_work_dir}/sparkmaster.log"
+    terminate_file_name = "${spark_work_dir}/terminate-spark"
     """
+    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+
     /opt/scripts/waitformanager.sh "$spark_master_log_name" "$terminate_file_name" $sleep_secs $max_wait_secs
     export spark_uri=`cat spark_uri`
     """
@@ -67,10 +69,10 @@ process SPARK_STARTWORKER {
     memory { spark.worker_memory }
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_id)
+    tuple val(meta), val(spark), path(spark_work_dir), val(worker_id), path(data_paths)
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true), val(worker_id)
+    tuple val(meta), val(spark), env(full_spark_work_dir), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -78,13 +80,15 @@ process SPARK_STARTWORKER {
     script:
     args = task.ext.args ?: ''
     sleep_secs = task.ext.sleep_secs ?: '1'
-    spark_worker_log_file = "${spark.work_dir}/sparkworker-${worker_id}.log"
-    spark_config_filepath = "${spark.work_dir}/spark-defaults.conf"
-    terminate_file_name = "${spark.work_dir}/terminate-spark"
+    spark_worker_log_file = "${spark_work_dir}/sparkworker-${worker_id}.log"
+    spark_config_filepath = "${spark_work_dir}/spark-defaults.conf"
+    terminate_file_name = "${spark_work_dir}/terminate-spark"
     worker_memory = spark.worker_memory.replace(" KB",'').replace(" MB",'').replace(" GB",'').replace(" TB",'')
     container_engine = workflow.containerEngine
     """
-    /opt/scripts/startworker.sh "${spark.work_dir}" "${spark.uri}" $worker_id \
+    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+
+    /opt/scripts/startworker.sh "${spark_work_dir}" "${spark.uri}" $worker_id \
         ${spark.worker_cores} ${worker_memory} \
         "$spark_worker_log_file" "$spark_config_filepath" "$terminate_file_name" \
         "$args" $sleep_secs $container_engine
@@ -100,10 +104,10 @@ process SPARK_WAITFORWORKER {
     maxRetries 20
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_id)
+    tuple val(meta), val(spark), path(spark_work_dir), val(worker_id)
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true), val(worker_id)
+    tuple val(meta), val(spark), env(full_spark_work_dir), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -111,9 +115,11 @@ process SPARK_WAITFORWORKER {
     script:
     sleep_secs = task.ext.sleep_secs ?: '1'
     max_wait_secs = task.ext.max_wait_secs ?: '3600'
-    spark_worker_log_file = "${spark.work_dir}/sparkworker-${worker_id}.log"
-    terminate_file_name = "${spark.work_dir}/terminate-spark"
+    spark_worker_log_file = "${spark_work_dir}/sparkworker-${worker_id}.log"
+    terminate_file_name = "${spark_work_dir}/terminate-spark"
     """
+    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+
     /opt/scripts/waitforworker.sh "${spark.uri}" \
         "$spark_worker_log_file" "$terminate_file_name" \
         $sleep_secs $max_wait_secs
@@ -125,14 +131,14 @@ process SPARK_CLEANUP {
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/*'), val(worker_ids)
+    tuple val(meta), val(spark), path(spark_work_dir)
 
     output:
-    tuple val(meta), val(spark), path('data/*', followLinks: true, includeInputs: true), val(worker_ids)
+    tuple val(meta), val(spark)
 
     script:
     """
-    find ${spark.work_dir} -name app.jar -exec rm {} \\;
+    find ${spark_work_dir} -name app.jar -exec rm {} \\;
     """
 }
 
@@ -153,7 +159,7 @@ workflow SPARK_START {
 
     main:
     // create a Spark context for each meta
-    def meta_spark_and_data_files = ch_meta
+    def meta_and_spark = ch_meta
     | map {
         def (meta, data_paths) = it // ch_meta
         def spark_work_dir = file("${working_dir}/spark/${meta.id}")
@@ -167,7 +173,11 @@ workflow SPARK_START {
         // 1 GB of overhead for Spark, the rest for executors
         spark.worker_memory = (spark_worker_cpus * spark_gb_per_cpu + 1)+" GB"
         spark.executor_memory = (spark_worker_cpus * spark_gb_per_cpu)+" GB"
-        def r = [meta, spark, data_paths + [spark_work_dir]]
+        def r = [
+            meta,
+            spark,
+            spark_work_dir,
+        ]
         log.debug "Prepare to start spark: $r"
         r
     }
@@ -175,22 +185,24 @@ workflow SPARK_START {
     if (spark_cluster) {
         // start the Spark manager
         // this runs indefinitely until SPARK_TERMINATE is called
-        SPARK_STARTMANAGER(meta_spark_and_data_files)
+        SPARK_STARTMANAGER(meta_and_spark)
 
         // start a watcher that waits for the manager to be ready
-        SPARK_WAITFORMANAGER(meta_spark_and_data_files)
+        SPARK_WAITFORMANAGER(meta_and_spark)
 
         SPARK_WAITFORMANAGER.out.subscribe {
             log.debug "Spark manager available: $it"
         }
 
         // prepare all arguments for all workers
-        def meta_workers = SPARK_WAITFORMANAGER.out.flatMap {
-            def (meta, spark, data_paths, spark_uri) = it
+        def meta_workers = SPARK_WAITFORMANAGER.out
+        .join(ch_meta, by:0) // join with ch_meta to get the data files in order to mount them in the workers
+        .flatMap {
+            def (meta, spark, spark_work_dir, spark_uri, data_files) = it
             spark.uri = spark_uri
             def worker_list = 1..spark.workers
             worker_list.collect { worker_id ->
-                [ meta, spark, data_paths, worker_id ]
+                [ meta, spark, spark_work_dir, worker_id, data_paths ]
             }
         }
 
@@ -200,34 +212,34 @@ workflow SPARK_START {
         // these run indefinitely until SPARK_TERMINATE is called
         SPARK_STARTWORKER(meta_workers)
 
-        SPARK_STARTWORKER.out.groupTuple(by:[0,1], size: spark_workers)
+        SPARK_STARTWORKER.out.groupTuple(by:[0,1,2], size: spark_workers)
         | map {
-            def (meta, spark, data_paths_lists, worker_ids) = it
-            [ meta, spark, data_paths_lists.flatten(), worker_ids ]
+            def (meta, spark, spark_work_dir, worker_ids) = it
+            [ meta, spark, spark_work_dir, worker_ids ]
         }
         | SPARK_CLEANUP // when workers exit they should clean up after themselves
 
         // wait for all workers to start
         spark_context = SPARK_WAITFORWORKER(meta_workers).groupTuple(by: [0,1], size: spark_workers)
         | map {
-            def (meta, spark, data_paths) = it
-            log.debug "Create distributed Spark context: ${meta}, ${spark}, ${data_paths}"
+            def (meta, spark, spark_work_dir, worker_ids) = it
+            log.debug "Create distributed Spark context: ${meta}, ${spark}"
             // data_paths is a list of list of paths so we need to flatten it
-            [ meta, spark, data_paths.flatten() ]
+            [ meta, spark ]
         }
     } else {
         // when running locally, the driver needs enough resources to run a spark worker
-        spark_context = meta_spark_and_data_files.map {
-            def (meta, spark, data_paths) = it
+        spark_context = meta_and_spark.map {
+            def (meta, spark, spark_work_dir) = it
             spark.workers = 1
             spark.driver_cores = spark_driver_cores + spark_worker_cores
             spark.driver_memory = (2 + spark_worker_cores * spark_gb_per_core) + " GB"
             spark.uri = 'local[*]'
-            log.debug "Create local Spark context: ${meta}, ${spark}, ${data_paths}"
-            [ meta, spark, data_paths ]
+            log.debug "Create local Spark context: ${meta}, ${spark}"
+            [ meta, spark ]
         }
     }
 
     emit:
-    spark_context // channel: [ val(meta), val(spark), path(data_paths) ]
+    spark_context // channel: [ val(meta), val(spark) ]
 }

@@ -5,13 +5,13 @@ process SPARK_TERMINATE {
     input:
     // we need to pass the data_paths because it should contain the spark work dir
     // and that needs to be mounted in the container
-    tuple val(meta), val(spark), path(data_paths, stageAs: 'data/?/*')
+    tuple val(meta), val(spark), path(spark_work_dir)
 
     output:
-    tuple val(meta), val(spark), path(data_paths)
+    tuple val(meta), val(spark)
 
     script:
-    terminate_file_name = "${spark.work_dir}/terminate-spark"
+    terminate_file_name = "${spark_work_dir}/terminate-spark"
     """
     /opt/scripts/terminate.sh "$terminate_file_name"
     """
@@ -22,14 +22,18 @@ process SPARK_TERMINATE {
  */
 workflow SPARK_STOP {
     take:
-    ch_meta_spark_and_data_files // channel: [ val(meta), val(spark), path(data_paths) ]
-    spark_cluster                // boolean: use a distributed cluster?
+    ch_meta_and_spark // channel: [ val(meta), val(spark) ]
+    spark_cluster     // boolean: use a distributed cluster?
 
     main:
     if (spark_cluster) {
-        done = SPARK_TERMINATE(ch_meta_spark_and_data_files)
+        done = ch_meta_and_spark
+        | map {
+            def (meta, spark) = it
+            [ meta, spark, file(spark.work_dir) ]
+        } | SPARK_TERMINATE
     } else {
-        done = ch_meta_spark_and_data_files
+        done = ch_meta_and_spark
     }
     done.subscribe { log.debug "Terminated spark cluster: $it" }
 
