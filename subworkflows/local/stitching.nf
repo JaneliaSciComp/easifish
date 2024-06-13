@@ -44,6 +44,8 @@ workflow STITCHING {
     }
     | STITCHING_PREPARE
 
+    prepared_data.subscribe { log.debug "Prepared stitching input: $it" }
+
     def stitching_input = SPARK_START(
         prepared_data, // [meta, data_paths]
         with_spark_cluster,
