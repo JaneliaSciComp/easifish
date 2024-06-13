@@ -8,13 +8,15 @@ process STITCHING_PREPARE {
     tuple val(meta), path(files)
 
     output:
-    tuple val(meta), path(files)
+    tuple val(meta), env(result_file_list)
 
     script:
     """
     file_list=("${files.join(' ')}")
+    result_file_list=()
     for f in \${file_list}; do
-        echo \$(readlink -m \$f)
+        canonical_f=\$(readlink -m \$f)
+        result_file_list=("\${result_file_list[@]}" \${canonical_f})
     done
     umask 0002
     echo "Create session working directory: ${meta.session_work_dir}"
