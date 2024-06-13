@@ -87,7 +87,7 @@ workflow EASIFISH {
     def ch_acquisitions = INPUT_CHECK (
         samplesheet_file,
         indir,
-        stitching_workdir,
+        stitching_dir,
     )
     .acquisitions
 
