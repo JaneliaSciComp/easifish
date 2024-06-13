@@ -208,11 +208,10 @@ workflow SPARK_START {
         }
         | multiMap {
             def (meta, spark, spark_work_dir, worker_id, data_paths) = it
+            log.debug "Spark worker input: $it"
             worker: [ meta, spark, spark_work_dir, worker_id ]
             data: data_paths
         }
-
-        meta_workers_with_data.subscribe { log.debug "Spark worker input: $it" }
 
         // start workers
         // these run indefinitely until SPARK_TERMINATE is called
