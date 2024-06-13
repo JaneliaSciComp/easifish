@@ -45,7 +45,7 @@ workflow STITCHING {
     | STITCHING_PREPARE
     | map {
         def (meta, sfiles) = it
-        def data_files = sfiles.tokenize()
+        def data_files = sfiles.tokenize().collect { file(it) }
         [ meta, data_files ]
     }
 
@@ -60,9 +60,11 @@ workflow STITCHING {
         spark_gb_per_core,
         spark_driver_cores,
         spark_driver_mem_gb
-    )
-    | map { // rearrange input args
+    ) // ch: [ meta, spark ]
+    | join(prepared_data, by: 0) // join to add the files
+    | map {
         def (meta, spark, files) = it
+        // rearrange input args
         def r = [
             meta, files, spark,
         ]
@@ -85,17 +87,17 @@ workflow STITCHING {
 
     STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
 
-    def fuse_result = STITCHING_FUSE.out.acquisitions
+    def spark_stop_input = STITCHING_FUSE.out.acquisitions
     | map {
         def (meta, files, spark) = it
-        // revert spark map with files for spark_stop
-        [ meta, spark, files ]
+        // spark_stop only needs meta and spark
+        [ meta, spark ]
     }
 
-    def completed_stitching_result = SPARK_STOP(fuse_result, with_spark_cluster)
+    def completed_stitching_result = SPARK_STOP(spark_stop_input, with_spark_cluster)
     | map {
         // Only meta contains data relevant for the next steps
-        def (meta, spark, data_paths) = it
+        def (meta, spark) = it
         log.debug "Stitching result: $meta"
         meta
     }
