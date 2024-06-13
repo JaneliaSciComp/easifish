@@ -43,6 +43,11 @@ workflow STITCHING {
         r
     }
     | STITCHING_PREPARE
+    | map {
+        def (meta, sfiles) = it
+        def data_files = sfiles.tokenize()
+        [ meta, data_files ]
+    }
 
     prepared_data.subscribe { log.debug "Prepared stitching input: $it" }
 
