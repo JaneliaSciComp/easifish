@@ -234,7 +234,7 @@ workflow EASIFISH {
         params.local_align_mem_gb,
     ).local
 
-    registration_results | view
+    registration_results.subscribe { log.debug "Registration results: $it" }
 
     emit:
     done = registration_results
