@@ -328,7 +328,7 @@
                 },
                 "local_align_worker_mem_gb": {
                     "type": "integer",
-                    "default": 30,
+                    "default": 0,
                     "description": "Memory for each worker"
                 },
                 "bigstream_local_blocksize": {
@@ -338,7 +338,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0,
+                    "default": 0.0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -420,6 +420,18 @@
                     "description": "Institutional config URL link.",
                     "hidden": true,
                     "fa_icon": "fas fa-users-cog"
+                },
+                "lsf_queue_size": {
+                    "type": "integer",
+                    "default": 500,
+                    "description": "Nextflow queue when submitting tasks to LSF",
+                    "hidden": true
+                },
+                "default_mem_gb_per_cpu": {
+                    "type": "integer",
+                    "default": 15,
+                    "description": "Default memory per core",
+                    "hidden": true
                 }
             }
         },
@@ -556,18 +568,21 @@
                 },
                 "user_id": {
                     "type": "integer",
-                    "default": 503,
-                    "description": "user id - defaults to `id -u`"
+                    "description": "user id - defaults to `id -u`",
+                    "default": 0,
+                    "hidden": true
                 },
                 "group_id": {
                     "type": "integer",
-                    "default": 20,
-                    "description": "user group id - defaults to `id -g`"
+                    "description": "user group id - defaults to `id -g`",
+                    "hidden": true,
+                    "default": 0
                 },
                 "singularity_cache_dir": {
                     "type": "string",
-                    "default": "/Users/goinac/.singularity_cache",
-                    "description": "cache directory for singularity images"
+                    "default": "$HOME/.singularity_cache",
+                    "description": "cache directory for singularity images",
+                    "hidden": true
                 },
                 "runtime_opts": {
                     "type": "string",
@@ -598,11 +613,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {
-        "lsf_queue_size": {
-            "type": "integer",
-            "default": 500
-        }
-    }
+    ]
 }
