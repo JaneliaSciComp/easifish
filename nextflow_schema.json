@@ -69,6 +69,10 @@
             "type": "object",
             "description": "Stitching options",
             "properties": {
+                "skip_stitching": {
+                    "type": "boolean",
+                    "description": "If set skip stitching"
+                },
                 "stitching_result_container": {
                     "type": "string",
                     "default": "stitched.n5"
@@ -82,7 +86,7 @@
                 "flatfield_correction": {
                     "type": "boolean",
                     "fa_icon": "fas fa-cube",
-                    "description": "Apply flatfield correction before stitching? Default: true"
+                    "description": "Apply flatfield correction before stitching? Default: false"
                 },
                 "axis_mapping": {
                     "type": "string",
@@ -285,7 +289,7 @@
                 },
                 "global_align_cpus": {
                     "type": "integer",
-                    "default": 1,
+                    "default": 6,
                     "hidden": true,
                     "description": "Number of CPUs used for global registration"
                 },
@@ -547,22 +551,27 @@
                 },
                 "workdir": {
                     "type": "string",
-                    "default": "work"
+                    "default": "work",
+                    "description": "work directory"
                 },
                 "user_id": {
                     "type": "integer",
-                    "default": 503
+                    "default": 503,
+                    "description": "user id - defaults to `id -u`"
                 },
                 "group_id": {
                     "type": "integer",
-                    "default": 20
+                    "default": 20,
+                    "description": "user group id - defaults to `id -g`"
                 },
                 "singularity_cache_dir": {
                     "type": "string",
-                    "default": "/Users/goinac/.singularity_cache"
+                    "default": "/Users/goinac/.singularity_cache",
+                    "description": "cache directory for singularity images"
                 },
                 "runtime_opts": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "container run options"
                 }
             }
         }
@@ -589,5 +598,11 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "lsf_queue_size": {
+            "type": "integer",
+            "default": 500
+        }
+    }
 }
