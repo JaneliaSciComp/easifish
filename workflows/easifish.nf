@@ -105,6 +105,7 @@ workflow EASIFISH {
         params.stitching_result_container,
         true, // use ID for stitched dataset subpath
         session_work_dir,
+        params.skip_stitching,
         params.spark_workers as int,
         params.spark_worker_cores as int,
         params.spark_gb_per_core as int,
@@ -146,9 +147,9 @@ workflow EASIFISH {
     def deform_subpath = params.deform_subpath
         ? params.deform_subpath
         : params.local_scale
-    def dask_config = params.dask_config
-        ? file(params.dask_config)
-        : ''
+
+    def dask_work_dir = file("${session_work_dir}/dask/")
+    def dask_config = params.dask_config ? file(params.dask_config) : ''
 
     def registration_inputs = ref_volume
     | combine(mov_volumes)
@@ -167,7 +168,6 @@ workflow EASIFISH {
         def registration_working_dir = file("${outdir}/registration/${reg_meta.id}")
         def registration_output = outdir
         def registration_dataset = mov_meta.id
-        def dask_work_dir = file("${session_work_dir}/dask/${reg_meta.id}")
 
         def deformations = get_warped_subpaths().collect { warped_subpath ->
             def deformation_input = [
@@ -212,14 +212,6 @@ workflow EASIFISH {
             '', // local_aligned_subpath
 
             deformations,
-
-            params.with_dask_cluster,
-            dask_work_dir,
-            dask_config,
-            params.local_align_workers,
-            params.local_align_min_workers,
-            params.local_align_worker_cpus,
-            params.local_align_worker_mem_gb,
         ]
         log.debug "Registration inputs: $it -> $ri"
         ri
@@ -228,10 +220,17 @@ workflow EASIFISH {
     def registration_results = BIGSTREAM_REGISTRATION(
         registration_inputs,
         params.bigstream_config,
+        params.with_dask_cluster,
+        dask_work_dir,
+        dask_config,
+        params.local_align_workers,
+        params.local_align_min_workers,
+        params.local_align_worker_cpus,
+        params.local_align_worker_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_worker_cpus,
         params.global_align_cpus,
-        params.global_align_mem_gb,
+        params.global_align_mem_gb ?: params.default_mem_gb_per_cpu * params.global_align_cpus,
         params.local_align_cpus,
-        params.local_align_mem_gb,
+        params.local_align_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_cpus,
     ).local
 
     registration_results.subscribe { log.debug "Registration results: $it" }

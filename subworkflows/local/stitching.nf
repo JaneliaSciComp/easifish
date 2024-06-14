@@ -19,6 +19,7 @@ workflow STITCHING {
     stitched_container_name // final stitched container name - defaults to export.n5
     id_for_stiched_dataset  // boolean: if true use id for stitched dataset otherwise no dataset is used 
     workdir                 // string|file: spark work dir
+    skip                    // boolean: if true skip stitching completely and just return the meta as if it ran
     spark_workers           // int: number of workers in the cluster (ignored if spark_cluster is false)
     spark_worker_cores      // int: number of cores per worker
     spark_gb_per_core       // int: number of GB of memory per worker core
@@ -51,57 +52,66 @@ workflow STITCHING {
 
     prepared_data.subscribe { log.debug "Prepared stitching input: $it" }
 
-    def stitching_input = SPARK_START(
-        prepared_data, // [meta, data_paths]
-        with_spark_cluster,
-        workdir,
-        spark_workers,
-        spark_worker_cores,
-        spark_gb_per_core,
-        spark_driver_cores,
-        spark_driver_mem_gb
-    ) // ch: [ meta, spark ]
-    | join(prepared_data, by: 0) // join to add the files
-    | map {
-        def (meta, spark, files) = it
-        // rearrange input args
-        def r = [
-            meta, files, spark,
-        ]
-        log.debug "Stitching input: $it -> $r"
-        r
-    }
+    if (!skip) {
+        def stitching_input = SPARK_START(
+            prepared_data, // [meta, data_paths]
+            with_spark_cluster,
+            workdir,
+            spark_workers,
+            spark_worker_cores,
+            spark_gb_per_core,
+            spark_driver_cores,
+            spark_driver_mem_gb
+        ) // ch: [ meta, spark ]
+        | join(prepared_data, by: 0) // join to add the files
+        | map {
+            def (meta, spark, files) = it
+            // rearrange input args
+            def r = [
+                meta, files, spark,
+            ]
+            log.debug "Stitching input: $it -> $r"
+            r
+        }
 
-    STITCHING_PARSECZI(stitching_input)
+        STITCHING_PARSECZI(stitching_input)
 
-    STITCHING_CZI2N5(STITCHING_PARSECZI.out.acquisitions)
+        STITCHING_CZI2N5(STITCHING_PARSECZI.out.acquisitions)
 
-    def flatfield_results
-    if (flatfield_correction) {
-        flatfield_results = STITCHING_FLATFIELD(STITCHING_CZI2N5.out.acquisitions).acquisitions
+        def flatfield_results
+        if (flatfield_correction) {
+            flatfield_results = STITCHING_FLATFIELD(STITCHING_CZI2N5.out.acquisitions).acquisitions
+        } else {
+            flatfield_results = STITCHING_CZI2N5.out.acquisitions
+        }
+
+        STITCHING_STITCH(flatfield_results)
+
+        STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
+
+        def spark_stop_input = STITCHING_FUSE.out.acquisitions
+        | map {
+            def (meta, files, spark) = it
+            // spark_stop only needs meta and spark
+            [ meta, spark ]
+        }
+
+        completed_stitching_result = SPARK_STOP(spark_stop_input, with_spark_cluster)
+        | map {
+            // Only meta contains data relevant for the next steps
+            def (meta, spark) = it
+            log.debug "Stitching result: $meta"
+            meta
+        }
     } else {
-        flatfield_results = STITCHING_CZI2N5.out.acquisitions
-    }
-
-    STITCHING_STITCH(flatfield_results)
-
-    STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
-
-    def spark_stop_input = STITCHING_FUSE.out.acquisitions
-    | map {
-        def (meta, files, spark) = it
-        // spark_stop only needs meta and spark
-        [ meta, spark ]
-    }
-
-    def completed_stitching_result = SPARK_STOP(spark_stop_input, with_spark_cluster)
-    | map {
-        // Only meta contains data relevant for the next steps
-        def (meta, spark) = it
-        log.debug "Stitching result: $meta"
-        meta
+        completed_stitching_result = prepared_data
+        | map {
+            def (meta, data_files) = it
+            log.debug "Stitching result: $meta"
+            meta
+        }
     }
 
     emit:
-    done = completed_stitching_result // channel: meta
+    completed_stitching_result // channel: meta
 }
