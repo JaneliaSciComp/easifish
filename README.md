@@ -1,4 +1,8 @@
-# EASI-FISH Analysis Pipeline
+# (Future) EASI-FISH Analysis Pipeline
+
+> [!WARNING]
+> This pipeline is under development. 
+> For the current EASI-FISH Nextflow pipeline see <https://github.com/JaneliaSciComp/multifish>
 
 ## Introduction
 
