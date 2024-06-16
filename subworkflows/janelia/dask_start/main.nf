@@ -7,8 +7,7 @@ process DASK_PREPARE {
     path(dask_work_dir, stageAs: 'dask_work/*')
 
     output:
-    tuple val(meta), env(cluster_work_fullpath), emit: results
-    path(data),                                  emit: data
+    tuple val(meta), env(cluster_work_fullpath)
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,12 +28,10 @@ process DASK_PREPARE {
 }
 
 process DASK_STARTMANAGER {
-    label 'process_single'
     container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
 
     input:
-    tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*')
-    path(data, stageAs: '?/*')
+    tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*'), path(data, stageAs: '?/*')
 
     output:
     tuple val(meta), env(cluster_work_fullpath), emit: cluster_info
@@ -78,8 +75,8 @@ process DASK_STARTWORKER {
     tuple val(meta),
           path(cluster_work_dir, stageAs: 'dask_work/*'),
           val(scheduler_address),
-          val(worker_id)
-    path(data, stageAs: '?/*')
+          val(worker_id),
+          path(data, stageAs: '?/*')
     val(worker_cpus)
     val(worker_mem_in_gb)
 
@@ -227,12 +224,17 @@ workflow DASK_START {
             meta_and_files,
             dask_work_dir ?: [],
         )
+        | join(meta_and_files, by:0)
+        | map {
+            def (meta, dask_cluster_work_dir, data_paths) = it
+            [ meta, dask_cluster_work_dir, data_paths ]
+        }
 
         // start scheduler
-        DASK_STARTMANAGER(dask_prepare_result.results, dask_prepare_result.data)
+        DASK_STARTMANAGER(dask_prepare_result)
 
         // wait for manager to start
-        DASK_WAITFORMANAGER(dask_prepare_result.results)
+        DASK_WAITFORMANAGER(dask_prepare_result.map {it[0..1]} )
 
         def nworkers = total_workers ?: 1
 
@@ -243,21 +245,16 @@ workflow DASK_START {
             def (meta, cluster_work_dir, scheduler_address, data_paths) = it
             def worker_list = 1..nworkers
             worker_list.collect { worker_id ->
-                [ meta, cluster_work_dir, scheduler_address, worker_id, data_paths ]
+                def r =[ meta, cluster_work_dir, scheduler_address, worker_id, data_paths ]
+                log.debug "Dask workers input: $r"
+                r
             }
-        }
-        | multiMap {
-            def (meta, cluster_work_dir, scheduler_address, worker_id, data_paths) = it
-            log.debug "Dask workers input: $it"
-            worker: [ meta, cluster_work_dir, scheduler_address, worker_id ]
-            data: data_paths ?: []
         }
 
         // start dask workers
-        DASK_STARTWORKER(dask_workers_input.worker, // meta, cluster_work_dir, scheduler_address, worker_id
-                         dask_workers_input.data,   // data
-                         dask_worker_cpus,          // cpus
-                         dask_worker_mem_gb,        // mem
+        DASK_STARTWORKER(dask_workers_input, // meta, cluster_work_dir, scheduler_address, worker_id, data
+                         dask_worker_cpus,   // cpus
+                         dask_worker_mem_gb, // mem
         )
 
         // check dask workers

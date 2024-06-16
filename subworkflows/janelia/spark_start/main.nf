@@ -1,5 +1,4 @@
 process SPARK_STARTMANAGER {
-    label 'process_single'
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
