@@ -1,4 +1,5 @@
 process SPARK_STARTMANAGER {
+    label 'process_long'
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
 
     input:
@@ -63,6 +64,7 @@ process SPARK_WAITFORMANAGER {
 }
 
 process SPARK_STARTWORKER {
+    label 'process_long'
     container 'ghcr.io/janeliascicomp/spark:3.1.3'
     cpus { spark.worker_cores }
     memory { spark.worker_memory }
