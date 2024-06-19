@@ -1,10 +1,10 @@
 {
     "channels": "c0,c1,c2,c3",
-    "input": "examples/mark_samplesheet_1_3.csv",
+    "input": "examples/mark_samplesheet.csv",
     "indir": "/nrs/scicompsoft/rokicki/flyefish/gel1_brain1",
     "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results",
     "flatfield_correction": false,
-    "skip_stitching": true,
+    "skip_stitching": false,
     "registration_fix_id": "t1",
     "reg_ch": "c3",
     "global_scale": "s3",
@@ -13,6 +13,6 @@
     "spark_workers": 1,
     "spark_worker_cores": 64,
     "local_align_workers": 80,
-    "local_align_worker_cpus": 40,
+    "local_align_worker_cpus": 30,
     "lsf_opts": "-P scicompsoft"
 }
