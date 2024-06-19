@@ -15,6 +15,8 @@ workflow STITCHING {
     flatfield_correction    // boolean: run flatfield correction
     with_spark_cluster      // boolean: use a distributed spark cluster
     stitching_dir           // string|file: directory holding intermediate stitching data
+    darkfield               // string|file: file containing the darkfield for flatfield correction
+    flatfield               // string|file: file containing the flatfield for flatfield correction
     stitching_result_dir    // string|file: directory where the final stitched results will be stored
     stitched_container_name // final stitched container name - defaults to export.n5
     id_for_stiched_dataset  // boolean: if true use id for stitched dataset otherwise no dataset is used 
@@ -27,6 +29,9 @@ workflow STITCHING {
     spark_driver_mem_gb     // int: number of GB of memory for the driver
 
     main:
+    def darkfield_file = darkfield ? file(darkfield) : []
+    def flatfield_file = flatfield ? file(flatfield) : []
+
     def prepared_data = acquisition_data
     | map {
         def (meta, files) = it
@@ -37,8 +42,10 @@ workflow STITCHING {
         meta.stitched_dataset = id_for_stiched_dataset ? meta.id : ''
         meta.stitching_container = stitched_container_name ?: "export.n5"
         // Add output dir here so that it will get mounted into the Spark processes
-        def data_files = files + [stitching_dir, stitching_result_dir]
-
+        def data_files = files +
+            [stitching_dir, stitching_result_dir] +
+            (darkfield_file ? [darkfield_file] : []) +
+            (flatfield_file ? [flatfield_file] : [])
         def r = [ meta, data_files ]
         log.debug "Input acquisitions to stitch: ${data_files} -> $r"
         r
@@ -80,14 +87,27 @@ workflow STITCHING {
 
         def flatfield_results
         if (flatfield_correction) {
-            flatfield_results = STITCHING_FLATFIELD(STITCHING_CZI2N5.out.acquisitions).acquisitions
+            flatfield_results = STITCHING_FLATFIELD(
+                STITCHING_CZI2N5.out.acquisitions,
+                darkfield_file,
+                flatfield_file,
+            )
+            .acquisitions
         } else {
             flatfield_results = STITCHING_CZI2N5.out.acquisitions
         }
 
-        STITCHING_STITCH(flatfield_results)
+        STITCHING_STITCH(
+            flatfield_results,
+            darkfield_file,
+            flatfield_file,
+        )
 
-        STITCHING_FUSE(STITCHING_STITCH.out.acquisitions)
+        STITCHING_FUSE(
+            STITCHING_STITCH.out.acquisitions,
+            darkfield_file,
+            flatfield_file,
+        )
 
         def spark_stop_input = STITCHING_FUSE.out.acquisitions
         | map {

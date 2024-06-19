@@ -6,6 +6,8 @@ process STITCHING_FLATFIELD {
 
     input:
     tuple val(meta), path(files), val(spark)
+    path(darkfield_file)
+    path(flatfield_file)
 
     output:
     tuple val(meta), path(files), val(spark), emit: acquisitions
@@ -15,9 +17,11 @@ process STITCHING_FLATFIELD {
     task.ext.when == null || task.ext.when
 
     script:
-    extra_args = task.ext.args ?: ''
-    executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
-    driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
+    def extra_args = task.ext.args ?: ''
+    def executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
+    def driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
+    def darkfield_file_arg = darkfield_file ? "--darkfield-file ${darkfield_file}" : ''
+    def flatfield_file_arg = flatfield_file ? "--flatfield-file ${flatfield_file}" : ''
     """
     # Remove previous flatfield results because the process will fail if it exists
     rm -r ${meta.stitching_dir}/*flatfield || true
@@ -30,7 +34,10 @@ process STITCHING_FLATFIELD {
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
         /app/app.jar org.janelia.flatfield.FlatfieldCorrection \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
-        \${app_args[@]} ${extra_args}
+        \${app_args[@]} \
+        ${darkfield_file_arg} \
+        ${flatfield_file_arg} \
+        ${extra_args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
