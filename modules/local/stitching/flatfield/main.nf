@@ -6,8 +6,8 @@ process STITCHING_FLATFIELD {
 
     input:
     tuple val(meta), path(files), val(spark)
-    path(darkfield_file)
-    path(flatfield_file)
+    path(darkfield_file, stageAs: 'ff/*')
+    path(flatfield_file, stageAs: 'df/*')
 
     output:
     tuple val(meta), path(files), val(spark), emit: acquisitions
