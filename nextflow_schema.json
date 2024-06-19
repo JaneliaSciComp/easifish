@@ -338,7 +338,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
