@@ -8,5 +8,6 @@
     "reg_ch": "c1",
     "global_scale": "s3",
     "local_scale": "s2",
-    "warped_scales": "s0,s1"
+    "warped_scales": "s0,s1",
+    "local_align_worker_memory": 30
 }
