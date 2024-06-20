@@ -89,8 +89,6 @@ workflow STITCHING {
         if (flatfield_correction) {
             flatfield_results = STITCHING_FLATFIELD(
                 STITCHING_CZI2N5.out.acquisitions,
-                darkfield_file,
-                flatfield_file,
             )
             .acquisitions
         } else {
