@@ -201,7 +201,8 @@
                 "bigstream_config": {
                     "type": "string",
                     "default": "conf/bigstream_config.yml",
-                    "description": "Location of the YAML bigstream configuration"
+                    "description": "Location of the YAML bigstream configuration",
+                    "hidden": true
                 },
                 "registration_fix_id": {
                     "type": "string",
@@ -285,7 +286,8 @@
                 "dask_config": {
                     "type": "string",
                     "default": "conf/dask_config.yml",
-                    "description": "Dask cluster configuration"
+                    "description": "Dask cluster configuration",
+                    "hidden": true
                 },
                 "warped_channels": {
                     "type": "string",
@@ -339,7 +341,8 @@
                 "local_align_worker_mem_gb": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Memory for each worker"
+                    "description": "Memory for each worker",
+                    "hidden": true
                 },
                 "bigstream_local_blocksize": {
                     "type": "string",
@@ -348,7 +351,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -376,7 +379,8 @@
                     "description": "Total number of concurrent dask tasks"
                 },
                 "dask_scheduler_port_binding": {
-                    "type": "string"
+                    "type": "string",
+                    "hidden": true
                 },
                 "registration_result_container": {
                     "type": "string",
