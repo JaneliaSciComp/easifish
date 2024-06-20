@@ -101,8 +101,8 @@ workflow EASIFISH {
         params.flatfield_correction,
         params.spark_cluster,
         stitching_dir,
-        params.darkfield_file,
-        params.flatfield_file,
+        params.darkfieldfile,
+        params.flatfieldfile,
         stitching_result_dir,
         params.stitching_result_container,
         true, // use ID for stitched dataset subpath
