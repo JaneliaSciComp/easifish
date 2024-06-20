@@ -112,6 +112,7 @@ workflow STITCHING {
         def spark_stop_input = STITCHING_FUSE.out.acquisitions
         | map {
             def (meta, files, spark) = it
+            log.debug "Finished stitching for $meta; prepare to stop $spark"
             // spark_stop only needs meta and spark
             [ meta, spark ]
         }
