@@ -30,8 +30,10 @@ workflow SPARK_STOP {
         done = ch_meta_and_spark
         | map {
             def (meta, spark) = it
+            log.debug "Stop spark: [$meta, $spark]"
             [ meta, spark, file(spark.work_dir) ]
-        } | SPARK_TERMINATE
+        }
+        | SPARK_TERMINATE
     } else {
         done = ch_meta_and_spark
     }
