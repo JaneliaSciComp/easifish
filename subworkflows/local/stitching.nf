@@ -93,6 +93,7 @@ workflow STITCHING {
         | map {
             def (meta, files, spark) = it
             // spark_stop only needs meta and spark
+            log.debug "Prepare to stop [${meta}, ${spark}"
             [ meta, spark ]
         }
 
@@ -100,7 +101,7 @@ workflow STITCHING {
         | map {
             // Only meta contains data relevant for the next steps
             def (meta, spark) = it
-            log.debug "Stitching result: $meta"
+            log.debug "Stopped spark ${spark} - stitching result: $meta"
             meta
         }
     } else {
