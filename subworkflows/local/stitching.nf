@@ -23,6 +23,7 @@ workflow STITCHING {
     workdir                 // string|file: spark work dir
     skip                    // boolean: if true skip stitching completely and just return the meta as if it ran
     spark_workers           // int: number of workers in the cluster (ignored if spark_cluster is false)
+    min_spark_workers       // int: min required spark workers
     spark_worker_cores      // int: number of cores per worker
     spark_gb_per_core       // int: number of GB of memory per worker core
     spark_driver_cores      // int: number of cores for the driver
@@ -65,6 +66,7 @@ workflow STITCHING {
             with_spark_cluster,
             workdir,
             spark_workers,
+            min_spark_workers,
             spark_worker_cores,
             spark_gb_per_core,
             spark_driver_cores,

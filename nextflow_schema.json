@@ -152,8 +152,14 @@
                 "spark_workers": {
                     "type": "integer",
                     "fa_icon": "fas fa-cogs",
-                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 4",
+                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 10",
                     "default": 10
+                },
+                "min_spark_workers": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cogs",
+                    "description": "Minimum number of Spark workers needed to start stitching pipeline. Default: 5",
+                    "default": 5
                 },
                 "spark_worker_cores": {
                     "type": "integer",
@@ -351,7 +357,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0,
+                    "default": 0.0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },

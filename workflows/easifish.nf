@@ -109,6 +109,7 @@ workflow EASIFISH {
         session_work_dir,
         params.skip_stitching,
         params.spark_workers as int,
+        params.min_spark_workers as int,
         params.spark_worker_cores as int,
         params.spark_gb_per_core as int,
         params.spark_driver_cores as int,

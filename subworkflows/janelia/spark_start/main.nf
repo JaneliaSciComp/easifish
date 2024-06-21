@@ -156,6 +156,7 @@ workflow SPARK_START {
     spark_cluster         // boolean: use a distributed cluster?
     working_dir           // path: shared storage path for worker communication
     spark_workers         // int: number of workers in the cluster (ignored if spark_cluster is false)
+    min_workers           // int: number of minimum required workers
     spark_worker_cpus     // int: number of cores per worker
     spark_gb_per_cpu      // int: number of GB of memory per worker core
     spark_driver_cpus     // int: number of cores for the driver
@@ -229,8 +230,11 @@ workflow SPARK_START {
         | SPARK_CLEANUP // when workers exit they should clean up after themselves
 
         // wait for all workers to start
+        def needed_workers = min_workers <= 0 || min_workers >= spark_workers
+                                ? spark_workers
+                                : min_workers
         spark_context = SPARK_WAITFORWORKER(meta_workers_with_data.worker)
-        | groupTuple(by: [0,1], size: spark_workers)
+        | groupTuple(by: [0,1], size: needed_workers)
         | map {
             def (meta, spark, spark_work_dir, worker_ids) = it
             log.debug "Create distributed Spark context: ${meta}, ${spark}"
