@@ -39,7 +39,7 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { EASIFISH } from './workflows/easifish'
+include { EASIFISH } from './workflows/measifish'
 
 //
 // WORKFLOW: Run main JaneliaSciComp/easifish analysis pipeline
