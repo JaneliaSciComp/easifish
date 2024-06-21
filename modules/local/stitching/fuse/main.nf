@@ -35,6 +35,11 @@ process STITCHING_FUSE {
     echo "Fuse args: \${app_args[@]}"
     if [[ ${meta.id} == "t3" ]] ; then
         echo "!!!!! THIS IS TESTING"
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        spark: \$(cat /opt/spark/VERSION)
+        stitching-spark: \$(cat /app/VERSION)
+    END_VERSIONS
         exit 0
     fi
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
