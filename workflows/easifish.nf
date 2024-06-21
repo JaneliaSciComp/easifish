@@ -120,7 +120,7 @@ workflow EASIFISH {
 
     def ref_volume = stitching_result
     | filter { meta ->
-        log.info "Check ${meta} if it is fixed image"
+        log.debug "Check ${meta} if it is fixed image"
         meta.id == params.registration_fix_id
     }
 
