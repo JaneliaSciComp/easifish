@@ -61,7 +61,7 @@ WorkflowEASIFISH.initialise(params, log)
 include { INPUT_CHECK            } from '../subworkflows/local/input_check'
 include { STITCHING              } from '../subworkflows/local/stitching'
 
-include { BIGSTREAM_GLOBALALIGN } from '../modules/janelia/globalalign/main'
+include { BIGSTREAM_GLOBALALIGN } from '../modules/janelia/bigstream/globalalign/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,7 +160,8 @@ workflow EASIFISH {
     }
 
     def global_registration_inputs = registration_inputs
-    | map { reg_meta, fix_meta, mov_meta ->
+    | map {
+        def (reg_meta, fix_meta, mov_meta) = it
 
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
@@ -197,22 +198,25 @@ workflow EASIFISH {
         params.global_align_mem_gb ?: params.default_mem_gb_per_cpu * params.global_align_cpus,
     )
 
-    global_align_results.subscribe {
+    global_registration_results.subscribe {
         log.debug "Completed global alignment -> $it"
     }
 
-    def cluster_files = global_align_results.toList()
+    def cluster_files = global_registration_results.toList()
     | map { global_bigstream_results ->
         global_bigstream_results
         .collect { reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
             [
-                reg_meta.fix_id: [ fix, mov, transform_dir, align_dir]
+                "${reg_meta.fix_id}": [ fix, mov, transform_dir, align_dir]
             ]
         }
         .inject([:]) { current, result ->
             result + current
         }
     }
+
+    global_registration_results | view
+    cluster_files | view
 
     emit:
     done = cluster_files
