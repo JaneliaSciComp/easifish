@@ -30,7 +30,7 @@ process STITCHING_PARSECZI {
     """
     /opt/scripts/runapp.sh "$workflow.containerEngine" "$spark.work_dir" "$spark.uri" \
         /app/app.jar org.janelia.stitching.ParseCZITilesMetadata \
-        $spark.parallelism $spark.worker_cores "$executor_memory" $spark.driver_cores "$driver_memory" \
+        ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
         -i ${mvl} -b ${meta.image_dir} -f ${pattern} -o ${meta.stitching_dir} ${extra_args}
 
     cat <<-END_VERSIONS > versions.yml
