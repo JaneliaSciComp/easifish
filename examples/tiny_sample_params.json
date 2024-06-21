@@ -6,7 +6,7 @@
     "flatfield_correction": true,
     "darkfieldfile": "./darkfield.tif",
     "flatfieldfile": "./flatfield.tif",
-    "registration_fix_id": "t3",
+    "registration_fix_id": "t1",
     "reg_ch": "c1",
     "global_scale": "s3",
     "local_scale": "s2",
