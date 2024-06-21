@@ -6,8 +6,8 @@ process STITCHING_FUSE {
 
     input:
     tuple val(meta), path(files), val(spark)
-    path(darkfield_file, stageAs: 'ff/*')
-    path(flatfield_file, stageAs: 'df/*')
+    path(darkfield_file, stageAs: 'df/*')
+    path(flatfield_file, stageAs: 'ff/*')
 
     output:
     tuple val(meta), path(files), val(spark), emit: acquisitions
