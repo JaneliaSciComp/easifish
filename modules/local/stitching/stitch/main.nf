@@ -30,19 +30,6 @@ process STITCHING_STITCH {
         app_args+=( -i "\$file" )
     done
     echo "Stitching args: \${app_args[@]}"
-    if [[ ${meta.id} == "t3" ]] ; then
-        echo "!!!!! THIS IS TESTING"
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        spark: \$(cat /opt/spark/VERSION)
-        stitching-spark: \$(cat /app/VERSION)
-    END_VERSIONS
-        exit 0
-    fi
-    if [[ ${meta.id} == "t2" ]] ; then
-        echo "!!!!! THIS IS TESTING"
-        sleep 60
-    fi
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
         /app/app.jar org.janelia.stitching.StitchingSpark \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
