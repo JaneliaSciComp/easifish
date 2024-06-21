@@ -384,10 +384,6 @@
                     "hidden": true,
                     "description": "Total number of concurrent dask tasks"
                 },
-                "dask_scheduler_port_binding": {
-                    "type": "string",
-                    "hidden": true
-                },
                 "registration_result_container": {
                     "type": "string",
                     "default": "registration.n5",
