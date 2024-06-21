@@ -164,17 +164,18 @@ workflow SPARK_START {
 
     main:
     // create a Spark context for each meta
+    def n_spark_workers = spark_workers ?: 1
     def meta_and_spark = ch_meta
     | map {
         def (meta, data_paths) = it // ch_meta
         def spark_work_dir = file("${working_dir}/spark/${meta.id}")
         def spark = [:]
         spark.work_dir = spark_work_dir
-        spark.workers = spark_workers ?: 1
+        spark.workers = n_spark_workers
         spark.worker_cores = spark_worker_cpus ?: 1
         spark.driver_cores = spark_driver_cpus ?: 1
         spark.driver_memory = "${spark_driver_mem_gb} GB"
-        spark.parallelism = (spark_workers * spark_worker_cpus)
+        spark.parallelism = (n_spark_workers * spark_worker_cpus)
         // 1 GB of overhead for Spark, the rest for executors
         spark.worker_memory = (spark_worker_cpus * spark_gb_per_cpu + 1)+" GB"
         spark.executor_memory = (spark_worker_cpus * spark_gb_per_cpu)+" GB"
@@ -220,8 +221,7 @@ workflow SPARK_START {
         // start workers
         // these run indefinitely until SPARK_TERMINATE is called
         SPARK_STARTWORKER(meta_workers_with_data.worker, meta_workers_with_data.data)
-
-        SPARK_STARTWORKER.out.groupTuple(by:[0,1,2], size: spark_workers)
+        SPARK_STARTWORKER.out.groupTuple(by:[0,1,2], size: n_spark_workers)
         | map {
             def (meta, spark, spark_work_dir, worker_ids) = it
             // worker_ids are not needed for cleanup process
@@ -230,8 +230,8 @@ workflow SPARK_START {
         | SPARK_CLEANUP // when workers exit they should clean up after themselves
 
         // wait for all workers to start
-        def needed_workers = min_workers <= 0 || min_workers >= spark_workers
-                                ? spark_workers
+        def needed_workers = min_workers <= 0 || min_workers > n_spark_workers
+                                ? n_spark_workers
                                 : min_workers
         spark_context = SPARK_WAITFORWORKER(meta_workers_with_data.worker)
         | groupTuple(by: [0,1], size: needed_workers)
