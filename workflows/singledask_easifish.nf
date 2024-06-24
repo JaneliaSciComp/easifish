@@ -178,6 +178,11 @@ workflow EASIFISH {
         bigstream_config,
     )
 
+    registration_inputs | view
+    global_registration_results.global_transforms | view
+
+    local_registration_results | view
+
     def local_deformation_results = RUN_LOCAL_DEFORMS(
         registration_inputs,
         global_registration_results.global_transforms,
@@ -253,10 +258,12 @@ workflow RUN_GLOBAL_REGISTRATION {
     global_transforms = global_registration_results
     | map {
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
-        log.debug "Completed global alignment: $it"
-        [
+        log.info "Completed global alignment: $it"
+        def r = [
            reg_meta, "${transform_dir}/${transform_name}",
         ]
+        log.info "Global transform $it -> $r"
+        r
     }
 
     emit:
