@@ -491,7 +491,6 @@ workflow RUN_LOCAL_DEFORMS {
 
     main:
     def deformation_inputs = registration_inputs
-    | join(global_transforms, by: 0)
     | join(local_registration_results, by: 0)
     | join(local_registrations_cluster, by: 0)
     | flatMap {
