@@ -58,10 +58,12 @@ WorkflowEASIFISH.initialise(params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { INPUT_CHECK            } from '../subworkflows/local/input_check'
-include { STITCHING              } from '../subworkflows/local/stitching'
+include { INPUT_CHECK           } from '../subworkflows/local/input_check'
+include { STITCHING             } from '../subworkflows/local/stitching'
 
 include { BIGSTREAM_GLOBALALIGN } from '../modules/janelia/bigstream/globalalign/main'
+
+include { DASK_START            } from '../subworkflows/janelia/dask_start/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
