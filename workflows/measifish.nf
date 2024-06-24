@@ -205,21 +205,29 @@ workflow EASIFISH {
     }
 
     def prepare_cluster_inputs = global_registration_results.toList()
-    | map { global_bigstream_results ->
+    | flatMap { global_bigstream_results ->
         def r = global_bigstream_results
         .collect { reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
             [
                 "${reg_meta.fix_id}": [ fix, mov, transform_dir, align_dir]
             ]
         }
-        .inject([:]) { current, result ->
-            current.collect { k, v ->
-                if (result[k]) {
+        .inject([:]) { result, current ->
+	    log.info "!!!!CURRENT: $current"
+	    log.info "!!!!RESULT BEFORE: $result"
+
+	    current.each { k, v ->
+	    	log.info "!!!!K: $k, V: $v"
+		log.info "!!!!BEFORE ADD $k: ${result[k]}"
+	        if (result[k] != null) {
                     result[k] = result[k] + v
+		    log.info "!!!!ADDED $k: ${result[k]}"
                 } else {
                     result[k] = v
                 }
             }
+	    log.info "!!!!RESULT AFTER: $result"
+	    result
         }
         .collect { k, v ->
             [
