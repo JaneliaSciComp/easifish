@@ -137,16 +137,6 @@ workflow EASIFISH {
 
     mov_volumes.subscribe { log.debug "Moving image: $it" }
 
-    def fix_global_subpath = params.fix_global_subpath
-        ? params.fix_global_subpath
-        : "${params.reg_ch}/${params.global_scale}"
-    def mov_global_subpath = params.mov_global_subpath
-        ? params.mov_global_subpath
-        : "${params.reg_ch}/${params.global_scale}"
-
-    def global_fix_mask_file = params.global_fix_mask ? file(params.global_fix_mask) : []
-    def global_mov_mask_file = params.global_mov_mask ? file(params.global_mov_mask) : []
-
     def bigstream_config = params.bigstream_config ? file(params.bigstream_config) : []
 
     def registration_inputs = ref_volume
@@ -161,6 +151,67 @@ workflow EASIFISH {
         ]
         [ reg_meta, fix_meta, mov_meta ]
     }
+
+    def global_registration_results = RUN_GLOBAL_REGISTRATION(
+        registration_inputs,
+        bigstream_config,
+    )
+
+    global_registration_results.global_registration_results.subscribe {
+        log.debug "Completed global alignment -> $it"
+    }
+
+
+    START_EASIFISH_DASK(
+        global_registration_results.global_registration_results,
+        get_params_as_list_of_files(
+            [
+                "${session_work_dir}/dask/",
+                params.dask_config,
+                params.local_fix_mask,
+                params.local_mov_mask,
+            ]
+        )
+    )
+
+    def local_registration_results = RUN_LOCAL_REGISTRATION(
+        registration_inputs,
+        bigstream_config,
+        local_registration_inputs.cluster,
+    )
+
+    local_registration_results.subscribe {
+        // [
+        //    meta, fix, fix_subpath, mov, mov_subpath,
+        //    local_transform_output,
+        //    local_deform, local_deform_subpath,
+        //    local_inv_deform, local_inv_deform_subpath
+        //    warped_output, warped_name_only, warped_subpath
+        //  ]
+        log.info "Completed local alignment -> $it"
+    }
+
+    local_registration_results | view
+
+    emit:
+    done = local_registration_results
+}
+
+workflow RUN_GLOBAL_REGISTRATION {
+    input:
+    registration_inputs
+    bigstream_config
+
+    main:
+    def fix_global_subpath = params.fix_global_subpath
+        ? params.fix_global_subpath
+        : "${params.reg_ch}/${params.global_scale}"
+    def mov_global_subpath = params.mov_global_subpath
+        ? params.mov_global_subpath
+        : "${params.reg_ch}/${params.global_scale}"
+
+    def global_fix_mask_file = params.global_fix_mask ? file(params.global_fix_mask) : []
+    def global_mov_mask_file = params.global_mov_mask ? file(params.global_mov_mask) : []
 
     def global_registration_inputs = registration_inputs
     | map {
@@ -192,31 +243,41 @@ workflow EASIFISH {
         log.debug "Global registration inputs: $it -> $ri"
         ri
     }
-
-    def global_registration_results = BIGSTREAM_GLOBALALIGN(
+    global_registration_results = BIGSTREAM_GLOBALALIGN(
         global_registration_inputs,
         bigstream_config,
         params.global_align_cpus,
         params.global_align_mem_gb ?: params.default_mem_gb_per_cpu * params.global_align_cpus,
     )
+
+    global_transforms = global_registration_results
+    | map {
+        def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
+        [
+           reg_meta, transform_dir, transform_name,
+        ]
+    }
+
+    emit:
+    global_transforms
+    global_registration_results
+}
+
+workflow START_EASIFISH_DASK {
+    input:
+    global_registration_results // ch: [reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath]
+    dask_work_dir
+    dask_config_file
+
+    main:
+    def prepare_cluster_inputs = global_registration_results
     | map {
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
         [
            reg_meta.fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath,
         ]
     }
-
-    global_registration_results.subscribe {
-        log.debug "Completed global alignment -> $it"
-    }
-
-    def dask_work_dir = file("${session_work_dir}/dask/")
-    def dask_config_file = params.dask_config ? file(params.dask_config) : ''
-
-    def local_fix_mask_file = params.local_fix_mask ? file(params.local_fix_mask) : []
-    def local_mov_mask_file = params.local_mov_mask ? file(params.local_mov_mask) : []
-
-    def prepare_cluster_inputs = global_registration_results.toList()
+    | toList() // wait for all global registrations to complete
     | flatMap { global_bigstream_results ->
         def r = global_bigstream_results
         .collect { fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
@@ -258,14 +319,7 @@ workflow EASIFISH {
         params.local_align_worker_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_worker_cpus,
     )
 
-    def fix_local_subpath = params.fix_local_subpath
-        ? params.fix_local_subpath
-        : "${params.reg_ch}/${params.local_scale}"
-    def mov_local_subpath = params.mov_local_subpath
-        ? params.mov_local_subpath
-        : "${params.reg_ch}/${params.local_scale}"
-
-    def global_transform_with_dask_cluster = cluster_info
+    def local_registrations_dask_cluster = cluster_info
     | map { dask_meta, dask_context ->
         log.info "Dask cluster -> ${dask_meta}, ${dask_context}"
         [
@@ -284,12 +338,26 @@ workflow EASIFISH {
              global_align_dir,
              global_align_name, global_align_subpath) = it
         [
-            reg_meta,
-            global_transform_dir,
-            global_transform_name,
-            dask_meta, dask_context,
+            reg_meta, dask_meta, dask_context,
         ]
     }
+
+    emit:
+    cluster = local_registrations_dask_cluster
+}
+
+workflow RUN_LOCAL_REGISTRATION {
+    input:
+    registration_inputs
+    bigstream_config
+
+    main:
+    def fix_local_subpath = params.fix_local_subpath
+        ? params.fix_local_subpath
+        : "${params.reg_ch}/${params.local_scale}"
+    def mov_local_subpath = params.mov_local_subpath
+        ? params.mov_local_subpath
+        : "${params.reg_ch}/${params.local_scale}"
 
     def local_registration_inputs = registration_inputs
     | map {
@@ -372,7 +440,6 @@ workflow EASIFISH {
         data: data
         cluster: cluster
     }
-
     def local_registration_results = BIGSTREAM_LOCALALIGN(
         local_registration_inputs.data,
         bigstream_config,
@@ -381,22 +448,12 @@ workflow EASIFISH {
         params.local_align_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_cpus,
     )
 
-    local_registration_results.subscribe {
-        // [
-        //    meta, fix, fix_subpath, mov, mov_subpath,
-        //    local_transform_output,
-        //    local_deform, local_deform_subpath,
-        //    local_inv_deform, local_inv_deform_subpath
-        //    warped_output, warped_name_only, warped_subpath
-        //  ]
-        log.info "Completed local alignment -> $it"
-    }
-
-    local_registration_results | view
-
     emit:
-    done = local_registration_results
+    def local_registration_results = BIGSTREAM_LOCALALIGN(
+    done_local = 
+
 }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -415,6 +472,11 @@ workflow.onComplete {
     }
 }
 
+def get_params_as_list_of_files(lparams) {
+    laparams
+        .findAll { it }
+        .collect { file(it) }
+}
 
 def get_warped_subpaths() {
     def warped_channels_param = params.warped_channels ?: params.channels
