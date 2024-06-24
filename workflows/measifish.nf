@@ -238,10 +238,10 @@ workflow EASIFISH {
             [
                 k,
                 v + // append dask_work_dir and the masks if they are set
-	        [ dask_work_dir ] +
-                ( dask_config_file ? [dask_config_file] : [] )
-	        ( local_fix_mask_file ? [local_fix_mask_file] : [] ) +
-	        ( local_mov_mask_file ? [local_mov_mask_file] : [] ),
+	            [ dask_work_dir ] +
+                ( dask_config_file    ? [ dask_config_file ] : [] ) +
+	            ( local_fix_mask_file ? [ local_fix_mask_file ] : [] ) +
+	            ( local_mov_mask_file ? [ local_mov_mask_file ] : [] ),
             ]
         }
         log.info "Collected files for dask: $r"
