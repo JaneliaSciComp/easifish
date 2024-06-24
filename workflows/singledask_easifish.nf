@@ -526,7 +526,7 @@ workflow RUN_LOCAL_DEFORMS {
 
                         "${warped_output}/${warped_name}", warped_subpath,
                     ]
-                    log.info "Deformation input: ${warped_subpath} -> ${deformation_input}"
+                    log.info "Deformation input: ${warped_subpath} -> ${deformation_input}, ${dask_context} "
                     [ deformation_input, dask_context ]
                 }
         log.info "!!!!!! ALL DEFORM INPUTS: $r"
