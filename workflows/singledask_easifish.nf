@@ -166,12 +166,12 @@ workflow EASIFISH {
         global_registration_results.global_registration_results,
         get_params_as_list_of_files(
             [
-                "${session_work_dir}/dask/",
                 params.dask_config,
                 params.local_fix_mask,
                 params.local_mov_mask,
             ]
-        )
+        ),
+        "${session_work_dir}/dask/",
     )
 
     def local_registration_results = RUN_LOCAL_REGISTRATION(
@@ -269,6 +269,7 @@ workflow START_EASIFISH_DASK {
     take:
     global_registration_results // ch: [reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath]
     additional_files_list
+    dask_work_dir
 
     main:
     def prepare_cluster_inputs = global_registration_results
@@ -298,7 +299,7 @@ workflow START_EASIFISH_DASK {
         }
         .collect { k, v ->
             [
-                k, v + additional_files_list
+                k, v + additional_files_list + [ dask_work_dir ]
             ]
         }
         log.info "Collected files for dask: $r"
