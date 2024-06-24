@@ -171,7 +171,7 @@ workflow EASIFISH {
                 params.local_mov_mask,
             ]
         ),
-        "${session_work_dir}/dask/",
+        file("${session_work_dir}/dask/"),
     )
 
     def local_registration_results = RUN_LOCAL_REGISTRATION(
