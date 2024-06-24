@@ -202,7 +202,7 @@ workflow EASIFISH {
         log.debug "Completed global alignment -> $it"
     }
 
-    def cluster_files = global_registration_results.toList()
+    def prepare_cluster_inputs = global_registration_results.toList()
     | map { global_bigstream_results ->
         global_bigstream_results
         .collect { reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
@@ -211,15 +211,43 @@ workflow EASIFISH {
             ]
         }
         .inject([:]) { current, result ->
-            result + current
+            current.collect { k, v ->
+                if (result[k]) {
+                    result[k] = result[k] + v
+                } else {
+                    result[k] = v
+                }
+            }
+        }
+        .collect { k, v ->
+            [
+                [id: k],
+                v,
+            ]
         }
     }
 
+    def dask_work_dir = file("${session_work_dir}/dask/")
+
+    def cluster_info = DASK_START(
+        prepare_cluster_inputs,
+        params.with_dask_cluster,
+        dask_work_dir,
+        params.local_align_workers,
+        params.local_align_min_workers,
+        params.local_align_worker_cpus,
+        params.local_align_worker_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_worker_cpus,
+    )
+
+    cluster_info.subscribe {
+        log.debug "Dask cluster -> $it"
+    }
+
     global_registration_results | view
-    cluster_files | view
+    prepare_cluster_inputs | view
 
     emit:
-    done = cluster_files
+    done = prepare_cluster_inputs
 }
 
 /*
