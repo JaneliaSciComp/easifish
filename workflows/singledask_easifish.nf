@@ -514,7 +514,7 @@ workflow RUN_LOCAL_DEFORMS {
             warped_output, warped_name, local_warped_subpath,
             dask_meta, dask_context
         ) = it
-        get_warped_subpaths()
+        def r = get_warped_subpaths()
 	        .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
 		.collect { warped_subpath ->
                     def deformation_input = [
@@ -529,22 +529,23 @@ workflow RUN_LOCAL_DEFORMS {
                     log.info "Deformation input: ${warped_subpath} -> ${deformation_input}"
                     [ deformation_input, dask_context ]
                 }
+	log.info "!!!!!! ALL DEFORM INPUTS: $r"
     }
     deformation_inputs | view
-/*
-    deformation_results = BIGSTREAM_DEFORM(
+
+    def deformation_results = BIGSTREAM_DEFORM(
         deformation_inputs.map { it[0] },
-        deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] }
+        deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] },
         params.local_deform_cpus,
         params.local_deform_mem_gb ?: params.default_mem_gb_per_cpu * params.local_deform_cpus,
     )
 
     deformation_results.subscribe {
-        log.debug "Completed deformation -> $it"
+        log.info "Completed deformation -> $it"
     }
-*/
+
     emit:
-    deformation_results = deformation_inputs
+    done = deformation_results
 }
 
 /*
