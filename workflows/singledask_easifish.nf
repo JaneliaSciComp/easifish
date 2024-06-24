@@ -158,14 +158,15 @@ workflow EASIFISH {
         bigstream_config,
     )
 
+    def additional_cluster_files = get_params_as_list_of_files(
+        [
+            params.local_fix_mask,
+            params.local_mov_mask,
+        ]
+    )
     def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
-        get_params_as_list_of_files(
-            [
-                params.local_fix_mask,
-                params.local_mov_mask,
-            ]
-        ),
+        additional_cluster_files,
         "${session_work_dir}/dask/",
         params.dask_config,
     )
@@ -177,7 +178,7 @@ workflow EASIFISH {
         bigstream_config,
     )
 
-    def local_deformation_results =RUN_LOCAL_DEFORMS(
+    def local_deformation_results = RUN_LOCAL_DEFORMS(
         registration_inputs,
         global_registration_results.global_transforms,
         local_registration_results,
@@ -333,11 +334,13 @@ workflow START_EASIFISH_DASK {
              global_transform_name,
              global_align_dir,
              global_align_name, global_align_subpath) = it
-        [
+        def registration_cluster = [
             reg_meta,
             dask_meta,
             dask_context + [ config: dask_config_file ],
         ]
+        log.debug "Started local registration cluster: ${registration_cluster}"
+        registration_cluster
     }
 
     emit:
