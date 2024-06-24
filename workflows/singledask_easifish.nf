@@ -268,13 +268,15 @@ workflow START_EASIFISH_DASK {
     def dask_work_dir_file = dask_work_dir ? file(dask_work_dir) : []
     def dask_config_file = dask_config ? file(dask_config) : []
 
-    def prepare_cluster_inputs = global_registration_results
+    def extended_global_registration_results = global_registration_results
     | map {
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
         [
            reg_meta.fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath,
         ]
     }
+
+    def prepare_cluster_inputs = extended_global_registration_results
     | toList() // wait for all global registrations to complete
     | flatMap { global_bigstream_results ->
         def r = global_bigstream_results
@@ -323,7 +325,7 @@ workflow START_EASIFISH_DASK {
             dask_meta.id /* fix_id */, dask_meta, dask_context, 
         ]
     }
-    | combine(global_registration_results, by:0)
+    | combine(extended_global_registration_results, by:0)
     | map {
         def (fix_id,
              dask_meta, dask_context,
@@ -339,7 +341,7 @@ workflow START_EASIFISH_DASK {
             dask_meta,
             dask_context + [ config: dask_config_file ],
         ]
-        log.debug "Started local registration cluster: ${registration_cluster}"
+        log.info "Started local registration cluster: ${registration_cluster}"
         registration_cluster
     }
 
