@@ -168,9 +168,8 @@ workflow EASIFISH {
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
 
-        def registration_working_dir = file("${outdir}/affine-registration/${reg_meta.id}")
-        def registration_output = file("${outdir}/aff")
-        def registration_dataset = mov_meta.id
+        def global_registration_working_dir = file("${outdir}/affine-registration/${reg_meta.id}")
+        def global_registration_output = file("${outdir}/aff")
 
         def ri =  [
             reg_meta,
@@ -183,9 +182,9 @@ workflow EASIFISH {
             global_mov_mask, params.global_mov_mask_subpath,
 
             params.global_steps,
-            registration_working_dir, // global_transform_output
+            global_registration_working_dir, // global_transform_output
             'affine.mat', // global_transform_name
-            registration_output, // global_align_output
+            global_registration_output, // global_align_output
             params.registration_result_container, // global_aligned_name
             '',    // global_alignment_subpath (defaults to mov_global_subpath)
         ]
@@ -199,40 +198,41 @@ workflow EASIFISH {
         params.global_align_cpus,
         params.global_align_mem_gb ?: params.default_mem_gb_per_cpu * params.global_align_cpus,
     )
+    | map {
+        def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
+        [
+           reg_meta.fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath,
+        ]
+    }
 
     global_registration_results.subscribe {
         log.debug "Completed global alignment -> $it"
     }
 
+    def dask_work_dir = file("${session_work_dir}/dask/")
+    def dask_config = params.dask_config ? file(params.dask_config) : ''
+
     def prepare_cluster_inputs = global_registration_results.toList()
     | flatMap { global_bigstream_results ->
         def r = global_bigstream_results
-        .collect { reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
+        .collect { fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
             [
-                "${reg_meta.fix_id}": [ fix, mov, transform_dir, align_dir]
+                [id: fix_id]: [ fix, mov, transform_dir]
             ]
         }
         .inject([:]) { result, current ->
-	    log.info "!!!!CURRENT: $current"
-	    log.info "!!!!RESULT BEFORE: $result"
-
-	    current.each { k, v ->
-	    	log.info "!!!!K: $k, V: $v"
-		log.info "!!!!BEFORE ADD $k: ${result[k]}"
-	        if (result[k] != null) {
+            current.each { k, v ->
+                if (result[k] != null) {
                     result[k] = result[k] + v
-		    log.info "!!!!ADDED $k: ${result[k]}"
                 } else {
                     result[k] = v
                 }
             }
-	    log.info "!!!!RESULT AFTER: $result"
-	    result
+    	    result
         }
         .collect { k, v ->
             [
-                [id: k],
-                v,
+                k, v + [ dask_work_dir ], // append dask_work_dir
             ]
         }
         log.info "Collected files for dask: $r"
@@ -242,7 +242,6 @@ workflow EASIFISH {
     global_registration_results | view
     prepare_cluster_inputs | view
 
-    def dask_work_dir = file("${session_work_dir}/dask/")
 
     def cluster_info = DASK_START(
         prepare_cluster_inputs,
@@ -254,9 +253,105 @@ workflow EASIFISH {
         params.local_align_worker_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_worker_cpus,
     )
 
-    cluster_info.subscribe {
-        log.debug "Dask cluster -> $it"
+    def fix_local_subpath = params.fix_local_subpath
+        ? params.fix_local_subpath
+        : "${params.reg_ch}/${params.local_scale}"
+    def mov_local_subpath = params.mov_local_subpath
+        ? params.mov_local_subpath
+        : "${params.reg_ch}/${params.local_scale}"
+
+    def local_fix_mask = params.local_fix_mask ? file(params.local_fix_mask) : []
+    def local_mov_mask = params.local_mov_mask ? file(params.local_mov_mask) : []
+
+    def global_transform_with_dask_cluster = cluster_info
+    | map { dask_meta, dask_context ->
+        log.info "Dask cluster -> ${dask_meta}, ${dask_context}"
+        [
+            dask_meta.id /* fix_id */, dask_meta, dask_context, 
+        ]
     }
+    | combine(global_registration_results, by:0)
+    | map {
+        def (fix_id,
+             dask_meta, dask_context,
+             reg_meta,
+             global_fix, global_fix_subpath, 
+             global_mov, global_mov_subpath,
+             global_transform_dir,
+             global_transform_name,
+             global_align_dir,
+             global_align_name, global_align_subpath) = it
+        [
+            reg_meta,
+            global_transform_dir,
+            global_transform_name,
+            dask_meta, dask_context,
+        ]
+    }
+
+    def local_registration_inputs = registration_inputs
+    | map {
+        def (reg_meta, fix_meta, mov_meta) = it
+
+        def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
+        def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
+
+        def local_registration_working_dir = file("${outdir}/local-registration/${reg_meta.id}")
+        def local_registration_output = file("${outdir}")
+
+        def ri =  [
+            reg_meta,
+
+            fix, // local_fixed
+            "${fix_meta.stitched_dataset}/${fix_local_subpath}", // local_fixed_subpath
+            mov, // local_moving
+            "${mov_meta.stitched_dataset}/${mov_local_subpath}", // local_moving_subpath
+            local_fix_mask, params.local_fix_mask_subpath,
+            local_mov_mask, params.local_mov_mask_subpath,
+
+            params.local_steps,
+            local_registration_working_dir, // local_transform_output
+            'transform', // local_transform_name
+            'invtransform', // local_inv_transform_name
+            local_registration_output, // local_align_output
+            params.registration_result_container, // local_aligned_name
+            '',    // local_alignment_subpath (defaults to mov_global_subpath)
+        ]
+        log.debug "Prepare local registration inputs: $it -> $ri"
+        ri
+    }
+    | join(global_transform_with_dask_cluster, by:0)
+    | map {
+        def (
+            reg_meta,
+
+            local_fix,
+            local_fix_subpath,
+            local_mov,
+            local_mov_subpath,
+            local_fix_mask, local_fix_mask_subpath,
+            local_mov_mask, local_mov_mask_subpath,
+
+            local_steps,
+            local_registration_working_dir, // local_transform_output
+            local_transform_name,
+            local_inv_transform_name,
+            local_registration_output, // local_align_output
+            local_align_name,
+            local_align_subpath,
+
+            global_transform_dir,
+            global_transform_name,
+
+            dask_meta, dask_context,
+
+        )
+        log.debug "Local registration inputs: $it"
+        it
+    }
+
+
+    local_registration_inputs | view
 
     emit:
     done = prepare_cluster_inputs
@@ -278,6 +373,7 @@ workflow.onComplete {
         NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
     }
 }
+
 
 def get_warped_subpaths() {
     def warped_channels_param = params.warped_channels ?: params.channels
