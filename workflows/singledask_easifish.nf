@@ -177,19 +177,13 @@ workflow EASIFISH {
         bigstream_config,
     )
 
-    local_registration_results.subscribe {
-        // [
-        //    meta, fix, fix_subpath, mov, mov_subpath,
-        //    local_transform_output,
-        //    local_deform, local_deform_subpath,
-        //    local_inv_deform, local_inv_deform_subpath
-        //    warped_output, warped_name_only, warped_subpath
-        //  ]
-        log.info "Completed local alignment -> $it"
-    }
-
-    local_registration_results | view
-
+    def local_deformation_results =RUN_LOCAL_DEFORMS(
+        registration_inputs,
+        global_registration_results.global_transforms,
+        local_registration_results,
+        local_registrations_cluster
+    )
+    
     emit:
     done = local_registration_results
 }
