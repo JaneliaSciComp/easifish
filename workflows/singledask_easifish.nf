@@ -157,21 +157,16 @@ workflow EASIFISH {
         bigstream_config,
     )
 
-    global_registration_results.global_registration_results.subscribe {
-        log.debug "Completed global alignment -> $it"
-    }
-
-
     def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
         get_params_as_list_of_files(
             [
-                params.dask_config,
                 params.local_fix_mask,
                 params.local_mov_mask,
             ]
         ),
-        file("${session_work_dir}/dask/"),
+        "${session_work_dir}/dask/",
+        params.dask_config,
     )
 
     def local_registration_results = RUN_LOCAL_REGISTRATION(
@@ -255,6 +250,7 @@ workflow RUN_GLOBAL_REGISTRATION {
     global_transforms = global_registration_results
     | map {
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
+        log.debug "Completed global alignment: $it"
         [
            reg_meta, "${transform_dir}/${transform_name}",
         ]
@@ -268,10 +264,14 @@ workflow RUN_GLOBAL_REGISTRATION {
 workflow START_EASIFISH_DASK {
     take:
     global_registration_results // ch: [reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath]
-    additional_files_list
-    dask_work_dir
+    additional_files_list // list of additional files to be mapped in the dask cluster
+    dask_work_dir // dask work dir
+    dask_config   // dask config
 
     main:
+    def dask_work_dir_file = dask_work_dir ? file(dask_work_dir) : []
+    def dask_config_file = dask_config ? file(dask_config) : []
+
     def prepare_cluster_inputs = global_registration_results
     | map {
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
@@ -299,7 +299,11 @@ workflow START_EASIFISH_DASK {
         }
         .collect { k, v ->
             [
-                k, v + additional_files_list + [ dask_work_dir ]
+                k, 
+                v +
+                additional_files_list +
+                (dask_work_dir_file ? [ dask_work_dir_file ] : []) +
+                (dask_config_file ? [ dask_config_file ] : [] )
             ]
         }
         log.info "Collected files for dask: $r"
@@ -309,7 +313,7 @@ workflow START_EASIFISH_DASK {
     def cluster_info = DASK_START(
         prepare_cluster_inputs,
         params.with_dask_cluster,
-        dask_work_dir,
+        dask_work_dir_file,
         params.local_align_workers,
         params.local_align_min_workers,
         params.local_align_worker_cpus,
@@ -335,7 +339,9 @@ workflow START_EASIFISH_DASK {
              global_align_dir,
              global_align_name, global_align_subpath) = it
         [
-            reg_meta, dask_meta, dask_context,
+            reg_meta,
+            dask_meta,
+            dask_context + [ config: dask_config_file ],
         ]
     }
 
@@ -360,8 +366,6 @@ workflow RUN_LOCAL_REGISTRATION {
 
     def local_fix_mask_file = params.local_fix_mask ? file(params.local_fix_mask) : []
     def local_mov_mask_file = params.local_mov_mask ? file(params.local_mov_mask) : []
-
-    def dask_config_file = params.dask_config ? file(params.dask_config) : []
 
     def local_registration_inputs = registration_inputs
     | join(global_transforms, by: 0)
@@ -441,13 +445,14 @@ workflow RUN_LOCAL_REGISTRATION {
         ]
         def cluster = [
             dask_context.scheduler_address,
-            dask_config_file,
+            dask_context.config,
         ]
         log.debug "Local registration inputs: $it -> $data, $cluster"
         data: data
         cluster: cluster
     }
-    def local_registration_results = BIGSTREAM_LOCALALIGN(
+
+    local_registration_results = BIGSTREAM_LOCALALIGN(
         local_registration_inputs.data,
         bigstream_config,
         local_registration_inputs.cluster,
@@ -455,10 +460,74 @@ workflow RUN_LOCAL_REGISTRATION {
         params.local_align_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_cpus,
     )
 
+    local_registration_results.subscribe {
+        // [
+        //    meta, fix, fix_subpath, mov, mov_subpath,
+        //    local_transform_output,
+        //    local_deform, local_deform_subpath,
+        //    local_inv_deform, local_inv_deform_subpath
+        //    warped_output, warped_name_only, warped_subpath
+        //  ]
+        log.info "Completed local alignment -> $it"
+    }
+
     emit:
-    done_local = local_registration_results
+    local_registration_results
 }
 
+workflow RUN_LOCAL_DEFORMS {
+    take:
+    registration_inputs
+    global_transforms
+    local_registration_results
+    local_registrations_cluster
+
+    main:
+    def deformation_inputs = registration_inputs
+    | join(global_transforms, by: 0)
+    | join(local_registration_results, by: 0)
+    | join(local_registrations_cluster, by: 0)
+    | flatMap {
+        def (
+            reg_meta,
+            fix_meta, mov_meta,
+            global_transform,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            local_transform_output,
+            local_deform, local_deform_subpath,
+            local_inv_deform, local_inv_deform_subpath
+            warped_output, warped_name, warped_subpath,
+            dask_meta, dask_context
+        ) = it
+        get_warped_subpaths().collect { warped_subpath ->
+            def deformation_input = [
+                fix, "${fix_meta.stitched_dataset}/${warped_subpath}", '',
+                mov, "${mov_meta.stitched_dataset}/${warped_subpath}", '',
+
+                global_transform,
+                "${local_transform_output}/${local_deform}", local_deform_subpath,
+
+                "${warped_output}/${warped_name}", warped_subpath,
+            ]
+            log.info "Deformation input: ${warped_subpath} -> ${deformation_input}"
+            [ deformation_input, dask_context ]
+        }
+    }
+    deformation_results = BIGSTREAM_DEFORM(
+        deformation_inputs.map { it[0] },
+        deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] }
+        params.local_deform_cpus,
+        params.local_deform_mem_gb ?: params.default_mem_gb_per_cpu * params.local_deform_cpus,
+    )
+
+    deformation_results.subscribe {
+        log.debug "Completed deformation -> $it"
+    }
+
+    emit:
+    deformation_results
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
