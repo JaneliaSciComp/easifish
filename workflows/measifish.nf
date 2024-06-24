@@ -62,6 +62,7 @@ include { INPUT_CHECK           } from '../subworkflows/local/input_check'
 include { STITCHING             } from '../subworkflows/local/stitching'
 
 include { BIGSTREAM_GLOBALALIGN } from '../modules/janelia/bigstream/globalalign/main'
+include { BIGSTREAM_LOCALALIGN  } from '../modules/janelia/bigstream/localalign/main'
 
 include { DASK_START            } from '../subworkflows/janelia/dask_start/main'
 
@@ -210,7 +211,7 @@ workflow EASIFISH {
     }
 
     def dask_work_dir = file("${session_work_dir}/dask/")
-    def dask_config = params.dask_config_file ? file(params.dask_config) : ''
+    def dask_config_file = params.dask_config ? file(params.dask_config) : ''
 
     def local_fix_mask_file = params.local_fix_mask ? file(params.local_fix_mask) : []
     def local_mov_mask_file = params.local_mov_mask ? file(params.local_mov_mask) : []
@@ -236,11 +237,11 @@ workflow EASIFISH {
         .collect { k, v ->
             [
                 k,
-		        v + // append dask_work_dir and the masks if they are set
-		        [ dask_work_dir ] +
+                v + // append dask_work_dir and the masks if they are set
+	        [ dask_work_dir ] +
                 ( dask_config_file ? [dask_config_file] : [] )
-		        ( local_fix_mask_file ? [local_fix_mask_file] : [] ) +
-		        ( local_mov_mask_file ? [local_mov_mask_file] : [] ),
+	        ( local_fix_mask_file ? [local_fix_mask_file] : [] ) +
+	        ( local_mov_mask_file ? [local_mov_mask_file] : [] ),
             ]
         }
         log.info "Collected files for dask: $r"
