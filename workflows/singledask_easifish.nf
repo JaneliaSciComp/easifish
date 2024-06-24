@@ -515,8 +515,8 @@ workflow RUN_LOCAL_DEFORMS {
             dask_meta, dask_context
         ) = it
         def r = get_warped_subpaths()
-	        .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
-		.collect { warped_subpath ->
+	            .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
+                .collect { warped_subpath ->
                     def deformation_input = [
                         fix, "${fix_meta.stitched_dataset}/${warped_subpath}", '',
                         mov, "${mov_meta.stitched_dataset}/${warped_subpath}", '',
@@ -529,7 +529,8 @@ workflow RUN_LOCAL_DEFORMS {
                     log.info "Deformation input: ${warped_subpath} -> ${deformation_input}"
                     [ deformation_input, dask_context ]
                 }
-	log.info "!!!!!! ALL DEFORM INPUTS: $r"
+        log.info "!!!!!! ALL DEFORM INPUTS: $r"
+        r
     }
     deformation_inputs | view
 
