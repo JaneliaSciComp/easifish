@@ -510,8 +510,9 @@ workflow RUN_LOCAL_DEFORMS {
 	            .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
                 .collect { warped_subpath ->
                     def deformation_input = [
-                        fix, "${fix_meta.stitched_dataset}/${warped_subpath}", '',
-                        mov, "${mov_meta.stitched_dataset}/${warped_subpath}", '',
+                        reg_meta,
+                        fix, "${fix_meta.stitched_dataset}/${warped_subpath}", ''/* fix_spacing */,
+                        mov, "${mov_meta.stitched_dataset}/${warped_subpath}", ''/* mov_spacing */,
 
                         affine_transform,
 
@@ -523,7 +524,6 @@ workflow RUN_LOCAL_DEFORMS {
                     log.info "Deformation input: ${warped_subpath} -> $r "
                     r
                 }
-        log.info "!!!!!! ALL DEFORM INPUTS: $r"
         r
     }
     deformation_inputs | view
