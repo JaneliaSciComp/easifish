@@ -206,7 +206,7 @@ workflow EASIFISH {
 
     def prepare_cluster_inputs = global_registration_results.toList()
     | map { global_bigstream_results ->
-        global_bigstream_results
+        def r = global_bigstream_results
         .collect { reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
             [
                 "${reg_meta.fix_id}": [ fix, mov, transform_dir, align_dir]
@@ -227,7 +227,12 @@ workflow EASIFISH {
                 v,
             ]
         }
+        log.info "Collected files for dask: $r"
+        r
     }
+
+    global_registration_results | view
+    prepare_cluster_inputs | view
 
     def dask_work_dir = file("${session_work_dir}/dask/")
 
@@ -244,9 +249,6 @@ workflow EASIFISH {
     cluster_info.subscribe {
         log.debug "Dask cluster -> $it"
     }
-
-    global_registration_results | view
-    prepare_cluster_inputs | view
 
     emit:
     done = prepare_cluster_inputs
