@@ -268,8 +268,7 @@ workflow RUN_GLOBAL_REGISTRATION {
 workflow START_EASIFISH_DASK {
     take:
     global_registration_results // ch: [reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath]
-    dask_work_dir
-    dask_config_file
+    additional_files_list
 
     main:
     def prepare_cluster_inputs = global_registration_results
@@ -299,12 +298,7 @@ workflow START_EASIFISH_DASK {
         }
         .collect { k, v ->
             [
-                k,
-                v + // append dask_work_dir and the masks if they are set
-	            [ dask_work_dir ] +
-                ( dask_config_file    ? [ dask_config_file ] : [] ) +
-	            ( local_fix_mask_file ? [ local_fix_mask_file ] : [] ) +
-	            ( local_mov_mask_file ? [ local_mov_mask_file ] : [] ),
+                k, v + additional_files_list
             ]
         }
         log.info "Collected files for dask: $r"
@@ -365,6 +359,8 @@ workflow RUN_LOCAL_REGISTRATION {
 
     def local_fix_mask_file = params.local_fix_mask ? file(params.local_fix_mask) : []
     def local_mov_mask_file = params.local_mov_mask ? file(params.local_mov_mask) : []
+
+    def dask_config_file = params.dask_config ? file(params.dask_config) : []
 
     def local_registration_inputs = registration_inputs
     | join(global_transforms, by: 0)
