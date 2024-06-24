@@ -185,8 +185,15 @@ workflow EASIFISH {
         local_registrations_cluster
     )
     
+    def cluster_to_destroy = local_deformation_results
+    | join(local_registrations_cluster, by: 0)
+    | map {
+        log.info "!!!! DESTROY $it"
+        it
+    }
+
     emit:
-    done = local_registration_results
+    done = cluster_to_destroy
 }
 
 workflow RUN_GLOBAL_REGISTRATION {
