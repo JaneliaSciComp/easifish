@@ -63,6 +63,7 @@ include { STITCHING             } from '../subworkflows/local/stitching'
 
 include { BIGSTREAM_GLOBALALIGN } from '../modules/janelia/bigstream/globalalign/main'
 include { BIGSTREAM_LOCALALIGN  } from '../modules/janelia/bigstream/localalign/main'
+include { BIGSTREAM_DEFORM      } from '../modules/janelia/bigstream/deform/main'
 
 include { DASK_START            } from '../subworkflows/janelia/dask_start/main'
 
@@ -496,24 +497,28 @@ workflow RUN_LOCAL_DEFORMS {
             mov, mov_subpath,
             local_transform_output,
             local_deform, local_deform_subpath,
-            local_inv_deform, local_inv_deform_subpath
-            warped_output, warped_name, warped_subpath,
+            local_inv_deform, local_inv_deform_subpath,
+            warped_output, warped_name, local_warped_subpath,
             dask_meta, dask_context
         ) = it
-        get_warped_subpaths().collect { warped_subpath ->
-            def deformation_input = [
-                fix, "${fix_meta.stitched_dataset}/${warped_subpath}", '',
-                mov, "${mov_meta.stitched_dataset}/${warped_subpath}", '',
+        get_warped_subpaths()
+	        .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
+		.collect { warped_subpath ->
+                    def deformation_input = [
+                        fix, "${fix_meta.stitched_dataset}/${warped_subpath}", '',
+                        mov, "${mov_meta.stitched_dataset}/${warped_subpath}", '',
 
-                global_transform,
-                "${local_transform_output}/${local_deform}", local_deform_subpath,
+                        global_transform,
+                        "${local_transform_output}/${local_deform}", local_deform_subpath,
 
-                "${warped_output}/${warped_name}", warped_subpath,
-            ]
-            log.info "Deformation input: ${warped_subpath} -> ${deformation_input}"
-            [ deformation_input, dask_context ]
-        }
+                        "${warped_output}/${warped_name}", warped_subpath,
+                    ]
+                    log.info "Deformation input: ${warped_subpath} -> ${deformation_input}"
+                    [ deformation_input, dask_context ]
+                }
     }
+    deformation_inputs | view
+/*
     deformation_results = BIGSTREAM_DEFORM(
         deformation_inputs.map { it[0] },
         deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] }
@@ -524,9 +529,9 @@ workflow RUN_LOCAL_DEFORMS {
     deformation_results.subscribe {
         log.debug "Completed deformation -> $it"
     }
-
+*/
     emit:
-    deformation_results
+    deformation_results = deformation_inputs
 }
 
 /*
