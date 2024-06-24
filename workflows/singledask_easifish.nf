@@ -481,7 +481,7 @@ workflow.onComplete {
 }
 
 def get_params_as_list_of_files(lparams) {
-    laparams
+    lparams
         .findAll { it }
         .collect { file(it) }
 }
