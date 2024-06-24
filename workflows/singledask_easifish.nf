@@ -162,7 +162,7 @@ workflow EASIFISH {
     }
 
 
-    START_EASIFISH_DASK(
+    def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
         get_params_as_list_of_files(
             [
@@ -176,8 +176,9 @@ workflow EASIFISH {
 
     def local_registration_results = RUN_LOCAL_REGISTRATION(
         registration_inputs,
+        global_registration_results.global_transforms,
+        local_registrations_cluster,
         bigstream_config,
-        local_registration_inputs.cluster,
     )
 
     local_registration_results.subscribe {
@@ -254,7 +255,7 @@ workflow RUN_GLOBAL_REGISTRATION {
     | map {
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
         [
-           reg_meta, transform_dir, transform_name,
+           reg_meta, "${transform_dir}/${transform_name}",
         ]
     }
 
@@ -348,7 +349,9 @@ workflow START_EASIFISH_DASK {
 
 workflow RUN_LOCAL_REGISTRATION {
     input:
-    registration_inputs
+    registration_inputs // ch: [ reg_meta, fix_meta, mov_meta]
+    global_transforms   // ch: [ reg_meta, global_transform ]
+    local_registrations_dask_cluster // ch: [ reg_meta, dask_meta, dask_context ]
     bigstream_config
 
     main:
@@ -359,9 +362,13 @@ workflow RUN_LOCAL_REGISTRATION {
         ? params.mov_local_subpath
         : "${params.reg_ch}/${params.local_scale}"
 
+    def local_fix_mask_file = params.local_fix_mask ? file(params.local_fix_mask) : []
+    def local_mov_mask_file = params.local_mov_mask ? file(params.local_mov_mask) : []
+
     def local_registration_inputs = registration_inputs
+    | join(global_transforms, by: 0)
     | map {
-        def (reg_meta, fix_meta, mov_meta) = it
+        def (reg_meta, fix_meta, mov_meta, global_transform) = it
 
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
@@ -376,13 +383,16 @@ workflow RUN_LOCAL_REGISTRATION {
             "${fix_meta.stitched_dataset}/${fix_local_subpath}", // local_fixed_subpath
             mov, // local_moving
             "${mov_meta.stitched_dataset}/${mov_local_subpath}", // local_moving_subpath
+
             local_fix_mask_file, params.local_fix_mask_subpath,
             local_mov_mask_file, params.local_mov_mask_subpath,
 
+            global_transform,
+
             params.local_steps,
             local_registration_working_dir, // local_transform_output
-            'transform', // local_transform_name
-            'invtransform', // local_inv_transform_name
+            'transform', '', // local_transform_name
+            'invtransform', '', // local_inv_transform_name
             local_registration_output, // local_align_output
             params.registration_result_container, // local_aligned_name
             '',    // local_alignment_subpath (defaults to mov_global_subpath)
@@ -401,15 +411,14 @@ workflow RUN_LOCAL_REGISTRATION {
 	        local_fix_mask, local_fix_mask_subpath,
             local_mov_mask, local_mov_mask_subpath,
 
+            global_transform,
+
             local_steps,
             local_registration_working_dir, // local_transform_output
-            local_transform_name, local_inv_transform_name,
+            local_transform_name, local_transform_subpath,
+            local_inv_transform_name, local_inv_transform_subpath,
             local_registration_output, // local_align_output
-            local_align_name,
-            local_align_subpath,
-
-            global_transform_dir,
-            global_transform_name,
+            local_align_name, local_align_subpath,
 
             dask_meta, dask_context
         ) = it
@@ -422,12 +431,12 @@ workflow RUN_LOCAL_REGISTRATION {
 	        local_fix_mask, local_fix_mask_subpath,
             local_mov_mask, local_mov_mask_subpath,
 
-            global_transform_name ? "${global_transform_dir}/${global_transform_name}" : [],
+            global_transform,
 
             local_steps,
             local_registration_working_dir, // local_transform_output
-            local_transform_name, '' /* local_transform_subpath */,
-            local_inv_transform_name, '' /* local_inv_transform_subpath */,
+            local_transform_name, local_transform_subpath,
+            local_inv_transform_name, local_inv_transform_subpath,
 
             local_registration_output, // local_align_output
             local_align_name, local_align_subpath,
@@ -449,9 +458,7 @@ workflow RUN_LOCAL_REGISTRATION {
     )
 
     emit:
-    def local_registration_results = BIGSTREAM_LOCALALIGN(
-    done_local = 
-
+    done_local = local_registration_results
 }
 
 
