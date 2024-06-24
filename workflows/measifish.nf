@@ -143,8 +143,8 @@ workflow EASIFISH {
         ? params.mov_global_subpath
         : "${params.reg_ch}/${params.global_scale}"
 
-    def global_fix_mask = params.global_fix_mask ? file(params.global_fix_mask) : []
-    def global_mov_mask = params.global_mov_mask ? file(params.global_mov_mask) : []
+    def global_fix_mask_file = params.global_fix_mask ? file(params.global_fix_mask) : []
+    def global_mov_mask_file = params.global_mov_mask ? file(params.global_mov_mask) : []
 
     def bigstream_config = params.bigstream_config ? file(params.bigstream_config) : []
 
@@ -178,8 +178,8 @@ workflow EASIFISH {
             "${fix_meta.stitched_dataset}/${fix_global_subpath}", // global_fixed_subpath
             mov, // global_moving
             "${mov_meta.stitched_dataset}/${mov_global_subpath}", // global_moving_subpath
-            global_fix_mask, params.global_fix_mask_subpath,
-            global_mov_mask, params.global_mov_mask_subpath,
+            global_fix_mask_file, params.global_fix_mask_subpath,
+            global_mov_mask_file, params.global_mov_mask_subpath,
 
             params.global_steps,
             global_registration_working_dir, // global_transform_output
@@ -212,6 +212,9 @@ workflow EASIFISH {
     def dask_work_dir = file("${session_work_dir}/dask/")
     def dask_config = params.dask_config ? file(params.dask_config) : ''
 
+    def local_fix_mask_file = params.local_fix_mask ? file(params.local_fix_mask) : []
+    def local_mov_mask_file = params.local_mov_mask ? file(params.local_mov_mask) : []
+
     def prepare_cluster_inputs = global_registration_results.toList()
     | flatMap { global_bigstream_results ->
         def r = global_bigstream_results
@@ -232,16 +235,16 @@ workflow EASIFISH {
         }
         .collect { k, v ->
             [
-                k, v + [ dask_work_dir ], // append dask_work_dir
+                k,
+		v + // append dask_work_dir and the masks if they are set
+		[ dask_work_dir ] +
+		(local_fix_mask_file ? [local_fix_mask_file] : [] ) +
+		(local_mov_mask_file ? [local_mov_mask_file] : [] ),
             ]
         }
         log.info "Collected files for dask: $r"
         r
     }
-
-    global_registration_results | view
-    prepare_cluster_inputs | view
-
 
     def cluster_info = DASK_START(
         prepare_cluster_inputs,
@@ -259,9 +262,6 @@ workflow EASIFISH {
     def mov_local_subpath = params.mov_local_subpath
         ? params.mov_local_subpath
         : "${params.reg_ch}/${params.local_scale}"
-
-    def local_fix_mask = params.local_fix_mask ? file(params.local_fix_mask) : []
-    def local_mov_mask = params.local_mov_mask ? file(params.local_mov_mask) : []
 
     def global_transform_with_dask_cluster = cluster_info
     | map { dask_meta, dask_context ->
@@ -306,8 +306,8 @@ workflow EASIFISH {
             "${fix_meta.stitched_dataset}/${fix_local_subpath}", // local_fixed_subpath
             mov, // local_moving
             "${mov_meta.stitched_dataset}/${mov_local_subpath}", // local_moving_subpath
-            local_fix_mask, params.local_fix_mask_subpath,
-            local_mov_mask, params.local_mov_mask_subpath,
+            local_fix_mask_file, params.local_fix_mask_subpath,
+            local_mov_mask_file, params.local_mov_mask_subpath,
 
             params.local_steps,
             local_registration_working_dir, // local_transform_output
@@ -329,13 +329,13 @@ workflow EASIFISH {
             local_fix_subpath,
             local_mov,
             local_mov_subpath,
-            local_fix_mask, local_fix_mask_subpath,
+
+	    local_fix_mask, local_fix_mask_subpath,
             local_mov_mask, local_mov_mask_subpath,
 
             local_steps,
             local_registration_working_dir, // local_transform_output
-            local_transform_name,
-            local_inv_transform_name,
+            local_transform_name, local_inv_transform_name,
             local_registration_output, // local_align_output
             local_align_name,
             local_align_subpath,
@@ -343,9 +343,8 @@ workflow EASIFISH {
             global_transform_dir,
             global_transform_name,
 
-            dask_meta, dask_context,
-
-        )
+            dask_meta, dask_context
+        ) = it
         log.debug "Local registration inputs: $it"
         it
     }
