@@ -178,14 +178,8 @@ workflow EASIFISH {
         bigstream_config,
     )
 
-    registration_inputs | view
-    global_registration_results.global_transforms | view
-
-    local_registration_results | view
-
     def local_deformation_results = RUN_LOCAL_DEFORMS(
         registration_inputs,
-        global_registration_results.global_transforms,
         local_registration_results,
         local_registrations_cluster
     )
@@ -492,7 +486,6 @@ workflow RUN_LOCAL_REGISTRATION {
 workflow RUN_LOCAL_DEFORMS {
     take:
     registration_inputs
-    global_transforms
     local_registration_results
     local_registrations_cluster
 
@@ -503,11 +496,10 @@ workflow RUN_LOCAL_DEFORMS {
     | join(local_registrations_cluster, by: 0)
     | flatMap {
         def (
-            reg_meta,
-            fix_meta, mov_meta,
-            global_transform,
+            reg_meta, fix_meta, mov_meta,
             fix, fix_subpath,
             mov, mov_subpath,
+            affine_transform,
             local_transform_output,
             local_deform, local_deform_subpath,
             local_inv_deform, local_inv_deform_subpath,
@@ -522,7 +514,8 @@ workflow RUN_LOCAL_DEFORMS {
                         fix, "${fix_meta.stitched_dataset}/${warped_subpath}", '',
                         mov, "${mov_meta.stitched_dataset}/${warped_subpath}", '',
 
-                        global_transform,
+                        affine_transform,
+
                         "${local_transform_output}/${local_deform}", local_deform_subpath,
 
                         "${warped_output}/${warped_name}", warped_subpath,
