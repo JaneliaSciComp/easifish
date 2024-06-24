@@ -398,7 +398,7 @@ workflow RUN_LOCAL_REGISTRATION {
         log.debug "Prepare local registration inputs: $it -> $ri"
         ri
     }
-    | join(global_transform_with_dask_cluster, by:0)
+    | join(local_registrations_dask_cluster, by:0)
     | multiMap {
         def (
             reg_meta,
