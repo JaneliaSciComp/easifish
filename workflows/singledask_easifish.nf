@@ -199,7 +199,8 @@ workflow EASIFISH {
 }
 
 workflow RUN_GLOBAL_REGISTRATION {
-    input:
+
+    take:
     registration_inputs
     bigstream_config
 
@@ -265,7 +266,7 @@ workflow RUN_GLOBAL_REGISTRATION {
 }
 
 workflow START_EASIFISH_DASK {
-    input:
+    take:
     global_registration_results // ch: [reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath]
     dask_work_dir
     dask_config_file
@@ -348,7 +349,7 @@ workflow START_EASIFISH_DASK {
 }
 
 workflow RUN_LOCAL_REGISTRATION {
-    input:
+    take:
     registration_inputs // ch: [ reg_meta, fix_meta, mov_meta]
     global_transforms   // ch: [ reg_meta, global_transform ]
     local_registrations_dask_cluster // ch: [ reg_meta, dask_meta, dask_context ]
