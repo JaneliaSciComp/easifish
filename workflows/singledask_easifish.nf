@@ -625,7 +625,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         params.multiscale_spark_driver_cores,
         params.multiscale_spark_driver_mem_gb,
     ) // ch: [ meta, spark ]
-    | join(multiscale_inputsm by: 0)
+    | join(multiscale_inputs, by: 0)
     | map {
         def (meta, spark, n5_container, fullscale_dataset) = it
         def r = [
