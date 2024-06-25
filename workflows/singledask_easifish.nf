@@ -581,7 +581,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         [ [id: reg_meta.mov_id], warped, warped_subpath ]
     }
 
-    MULTISCALE(
+    def multiscale_results = MULTISCALE(
         multiscale_inputs,
         params.multiscale_with_spark_cluster,
         multiscale_work_dir,
@@ -593,8 +593,11 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         params.multiscale_spark_driver_cores,
         params.multiscale_spark_driver_mem_gb,
     )
+
+    multiscale_results.subscribe { log.info "Complete multiscale $it" }
+
     emit:
-    done = multiscale_inputs
+    done = multiscale_results
 }
 
 /*
