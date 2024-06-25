@@ -386,7 +386,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -530,31 +530,43 @@
             "default": "",
             "properties": {
                 "skip_multiscale": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "If true skip multiscale"
                 },
                 "multiscale_with_spark_cluster": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "Use a spark cluster for multiscale"
                 },
                 "multiscale_min_spark_workers": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Minimum number of spark workers for multiscale"
                 },
                 "multiscale_spark_workers": {
                     "type": "integer",
-                    "default": 2
+                    "default": 1,
+                    "description": "Number of spark workers for multiscale"
                 },
                 "multiscale_spark_worker_cores": {
                     "type": "integer",
-                    "default": 1
+                    "default": 3,
+                    "description": "Number of cores for the multiscale spark workers"
                 },
                 "multiscale_spark_gb_per_core": {
                     "type": "integer",
-                    "default": 15
+                    "default": 15,
+                    "description": "Number of GB per cpu"
                 },
                 "multiscale_spark_driver_cores": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Number of cpus for the multiscale driver"
+                },
+                "multiscale_resolution": {
+                    "type": "string",
+                    "default": "0.23,0.23,0.42",
+                    "description": "Resolution used for multiscale"
                 }
             }
         },
