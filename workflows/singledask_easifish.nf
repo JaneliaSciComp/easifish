@@ -58,9 +58,10 @@ WorkflowEASIFISH.initialise(params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { MULTISCALE_PYRAMID    } from '../modules/local/multiscale/pyramid/main'
+
 include { INPUT_CHECK           } from '../subworkflows/local/input_check'
 include { STITCHING             } from '../subworkflows/local/stitching'
-include { MULTISCALE            } from '../subworkflows/local/multiscale'
 
 include { BIGSTREAM_GLOBALALIGN } from '../modules/janelia/bigstream/globalalign/main'
 include { BIGSTREAM_LOCALALIGN  } from '../modules/janelia/bigstream/localalign/main'
@@ -68,6 +69,8 @@ include { BIGSTREAM_DEFORM      } from '../modules/janelia/bigstream/deform/main
 
 include { DASK_START            } from '../subworkflows/janelia/dask_start/main'
 include { DASK_STOP             } from '../subworkflows/janelia/dask_stop/main'
+include { SPARK_START            } from '../subworkflows/janelia/spark_start/main'
+include { SPARK_STOP             } from '../subworkflows/janelia/spark_stop/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -305,7 +308,7 @@ workflow START_EASIFISH_DASK {
         ]
     }
 
-    def prepare_cluster_inputs = extended_global_registration_results
+    def cluster_files = extended_global_registration_results
     | toList() // wait for all global registrations to complete
     | flatMap { global_bigstream_results ->
         def r = global_bigstream_results
@@ -338,7 +341,7 @@ workflow START_EASIFISH_DASK {
     }
 
     def cluster_info = DASK_START(
-        prepare_cluster_inputs,
+        cluster_files,
         params.with_dask_cluster,
         dask_work_dir_file,
         params.local_align_workers,
@@ -578,26 +581,81 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             mov, mov_subpath,
             warped, warped_subpath
         ) = it
-        [ [id: reg_meta.mov_id], warped, warped_subpath ]
+        [
+            [id: reg_meta.fix_id], warped, warped_subpath,
+        ]
     }
 
-    def multiscale_results = MULTISCALE(
-        multiscale_inputs,
+    def multiscale_cluster_data = multiscale_inputs
+    | toList() // wait for all deformations to complete
+    | flatMap { all ->
+        all
+        .collect { meta, data_dir, data_subpath ->
+            [
+                meta, [ data_dir ]
+            ]
+        }
+        .inject([:]) { result, current ->
+            current.each { k, v ->
+                if (result[k] != null) {
+                    result[k] = result[k] + v
+                } else {
+                    result[k] = v
+                }
+            }
+    	    result
+        }
+        .collect { k, v ->
+            [ k, v ]
+        }
+    }
+    | map { meta, data_dirs ->
+        meta.session_work_dir = "${multiscale_work_dir}/${meta.id}"
+        [ meta, data_dirs ]
+    }
+
+    def downsample_input = SPARK_START(
+        multiscale_cluster_data,
         params.multiscale_with_spark_cluster,
         multiscale_work_dir,
-        params.skip_multiscale,
         params.multiscale_spark_workers,
         params.multiscale_min_spark_workers,
         params.multiscale_spark_worker_cores,
         params.multiscale_spark_gb_per_core,
         params.multiscale_spark_driver_cores,
         params.multiscale_spark_driver_mem_gb,
-    )
+    ) // ch: [ meta, spark ]
+    | join(multiscale_inputsm by: 0)
+    | map {
+        def (meta, spark, n5_container, fullscale_dataset) = it
+        def r = [
+            meta, n5_container, fullscale_dataset, spark,
+        ]
+        log.debug "Downsample input: $it -> $r"
+        r
+    }
 
-    multiscale_results.subscribe { log.info "Complete multiscale $it" }
+    MULTISCALE_PYRAMID(downsample_input)
+
+    def spark_cluster_to_stop = MULTISCALE_PYRAMID.out.data
+    | map {
+        def (meta, n5_container, fullscale_dataset, spark) = it
+        log.debug "Finished downsampling  $it"
+        // spark_stop only needs meta and spark
+        log.debug "Prepare to stop [${meta}, ${spark}]"
+        [ meta, spark ]
+    }
+    .groupTuple(by: [0, 1])
+
+    def completed_downsampling = SPARK_STOP(spark_cluster_to_stop, params.multiscale_with_spark_cluster)
+    | map {
+        def (meta, spark) = it
+        log.debug "Stopped multiscale spark ${spark} - downsampled result: $meta"
+        meta
+    }
 
     emit:
-    done = multiscale_results
+    done = completed_downsampling
 }
 
 /*
