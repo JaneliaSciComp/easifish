@@ -645,7 +645,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         log.debug "Prepare to stop [${meta}, ${spark}]"
         [ meta, spark ]
     }
-    .groupTuple(by: [0, 1])
+    | groupTuple(by: [0, 1])
 
     def completed_downsampling = SPARK_STOP(spark_cluster_to_stop, params.multiscale_with_spark_cluster)
     | map {
