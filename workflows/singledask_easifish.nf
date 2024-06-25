@@ -598,6 +598,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             ]
         }
         .inject([:]) { result, current ->
+            log.info "!!!!! RES1 $result, CURRENT $current"
             current.each { k, v ->
                 if (result[k] != null) {
                     result[k] = result[k] + v
@@ -605,6 +606,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
                     result[k] = v
                 }
             }
+            log.info "!!!!! RES2 $result"
     	    result
         }
         .collect { k, v ->
