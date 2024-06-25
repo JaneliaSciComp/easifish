@@ -3,7 +3,7 @@
     "input": "examples/local_tiny_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny/data",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
-    "skip_stitching": true,
+    "skip_stitching": false,
     "flatfield_correction": false,
     "darkfieldfile": "",
     "flatfieldfile": "",
