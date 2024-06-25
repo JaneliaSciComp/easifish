@@ -370,7 +370,7 @@ workflow START_EASIFISH_DASK {
             dask_meta,
             dask_context + [ config: dask_config_file ],
         ]
-        log.info "Started local registration cluster: ${registration_cluster}"
+        log.info "Use local registration cluster: ${registration_cluster}"
         registration_cluster
     }
 
