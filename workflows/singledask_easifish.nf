@@ -598,8 +598,9 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         .collect { meta, data_dir, data_subpath ->
             // convert to a map in which the
             // key = meta, value = a list containing data_dir
+            def data_dir_set = [ data_dir ].toSet()
             [
-                [id: meta.id]: [ data_dir ]
+                [id: meta.id]: data_dir_set
             ]
         }
         .inject([:]) { result, current ->
