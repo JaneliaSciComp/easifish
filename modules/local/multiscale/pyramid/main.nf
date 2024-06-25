@@ -1,6 +1,6 @@
 process MULTISCALE_PYRAMID {
     tag { meta.id }
-    container 'ghcr.io/janeliascicomp/n5-tools-spark:9097071'
+    container 'docker.io/janeliascicomp/n5-tools-spark:9097071'
     cpus { spark.driver_cores }
     memory { spark.driver_memory }
 
