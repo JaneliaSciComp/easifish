@@ -197,13 +197,13 @@ workflow EASIFISH {
             dask_meta, dask_context
         ) = it
         def r = [ dask_meta, dask_context, reg_meta ]
-        log.info "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
+        log.debug "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
         r
     }
     | groupTuple(by: [0, 1])
     | map {
         def (dask_meta, dask_context, reg_metas) = it
-        log.info "Completed $reg_metas -> [ ${dask_meta}, ${dask_context} ]"
+        log.debug "Prepare to stop dask cluster used for $reg_metas -> [ ${dask_meta}, ${dask_context} ]"
         [ dask_meta, dask_context]
     }
     | DASK_STOP
@@ -273,11 +273,11 @@ workflow RUN_GLOBAL_REGISTRATION {
     global_transforms = global_registration_results
     | map {
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
-        log.info "Completed global alignment: $it"
+        log.debug "Completed global alignment: $it"
         def r = [
            reg_meta, "${transform_dir}/${transform_name}",
         ]
-        log.info "Global transform $it -> $r"
+        log.debug "Global transform $it -> $r"
         r
     }
 
@@ -333,7 +333,7 @@ workflow START_EASIFISH_DASK {
                 (dask_config_file ? [ dask_config_file ] : [] )
             ]
         }
-        log.info "Collected files for dask: $r"
+        log.debug "Collected files for dask: $r"
         r
     }
 
@@ -349,7 +349,7 @@ workflow START_EASIFISH_DASK {
 
     def local_registrations_dask_cluster = cluster_info
     | map { dask_meta, dask_context ->
-        log.info "Dask cluster -> ${dask_meta}, ${dask_context}"
+        log.debug "Dask cluster -> ${dask_meta}, ${dask_context}"
         [
             dask_meta.id /* fix_id */, dask_meta, dask_context, 
         ]
@@ -370,7 +370,7 @@ workflow START_EASIFISH_DASK {
             dask_meta,
             dask_context + [ config: dask_config_file ],
         ]
-        log.info "Use local registration cluster: ${registration_cluster}"
+        log.debug "Use local registration cluster: ${registration_cluster}"
         registration_cluster
     }
 
@@ -497,7 +497,7 @@ workflow RUN_LOCAL_REGISTRATION {
         //    local_inv_deform, local_inv_deform_subpath
         //    warped_output, warped_name_only, warped_subpath
         //  ]
-        log.info "Completed local alignment -> $it"
+        log.debug "Completed local alignment -> $it"
     }
 
     emit:
@@ -526,7 +526,7 @@ workflow RUN_LOCAL_DEFORMS {
             warped_output, warped_name, local_warped_subpath,
             dask_meta, dask_context
         ) = it
-        log.info "Prepare deformation inputs: $it"
+        log.debug "Prepare deformation inputs: $it"
         def r = get_warped_subpaths()
 	            .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
                 .collect { warped_subpath ->
@@ -542,7 +542,7 @@ workflow RUN_LOCAL_DEFORMS {
                         "${warped_output}/${warped_name}", "${mov_meta.stitched_dataset}/${warped_subpath}",
                     ]
                     def r = [ deformation_input, dask_context ]
-                    log.info "Deformation input: ${warped_subpath} -> $r "
+                    log.debug "Deformation input: ${warped_subpath} -> $r "
                     r
                 }
         r
