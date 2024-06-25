@@ -594,7 +594,6 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
     def multiscale_cluster_data = multiscale_inputs
     | toList() // wait for all deformations to complete
     | flatMap { all ->
-        log.info "!!!!! ALL $all"
         all
         .collect { id, data_dir, data_subpath ->
             // convert to a map in which the
@@ -605,7 +604,6 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             ]
         }
         .inject([:]) { result, current ->
-            log.info "!!!!! RES1 $result, CURRENT $current"
             current.each { k, v ->
                 if (result[k] != null) {
                     result[k] = result[k] + v
@@ -613,7 +611,6 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
                     result[k] = v
                 }
             }
-            log.info "!!!!! RES2 $result"
     	    result
         }
         .collect { k, v ->

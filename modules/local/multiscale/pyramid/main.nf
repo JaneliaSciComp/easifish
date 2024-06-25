@@ -23,6 +23,15 @@ process MULTISCALE_PYRAMID {
     # Create command line parameters
     full_n5_container_path=\$(readlink -e ${n5_container})
     echo "Generate pyramid for \${full_n5_container_path}:${fullscale_dataset}"
+    for scale in \$(seq 1 20); do
+        tmp_scale_subpath = \$(echo "$fullscale_dataset" | sed s/s0$/s\$scale")
+        prev_scale_subpath = \$(echo "$fullscale_dataset" | sed s/s0$/prev-s\$scale")
+        echo "Check \$tmp_scale_subpath"
+        if [[ -d "\${full_n5_container_path}/\${tmp_scale_subpath}" ]] ; then
+            echo "mv \${full_n5_container_path}/\${tmp_scale_subpath} \${full_n5_container_path}/\${prev_scale_subpath}"
+            mv "\${full_n5_container_path}/\${tmp_scale_subpath}" "\${full_n5_container_path}/\${prev_scale_subpath}"
+        fi
+    done
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
         /app/app.jar org.janelia.saalfeldlab.n5.spark.downsample.scalepyramid.N5NonIsotropicScalePyramidSpark \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
