@@ -115,7 +115,7 @@ workflow EASIFISH {
         stitching_result_dir,
         params.stitching_result_container,
         true, // use ID for stitched dataset subpath
-        session_work_dir,
+        "${session_work_dir}/stitching",
         params.skip_stitching,
         params.spark_workers as int,
         params.min_spark_workers as int,
@@ -212,7 +212,8 @@ workflow EASIFISH {
     | DASK_STOP
 
     RUN_MULTISCALE_AFTER_DEFORMATIONS(
-        local_deformation_results
+        local_deformation_results,
+        "${session_work_dir}/multiscale",
     )
 
     emit:
@@ -571,11 +572,10 @@ workflow RUN_LOCAL_DEFORMS {
 
 workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
     take:
-    deformation_results // ch:
+    deformation_results // ch: [ mera, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath ]
+    multiscale_work_dir // string|file
 
     main:
-    def multiscale_work_dir = "${params.workdir}/${workflow.sessionId}"
-
     def multiscale_inputs = deformation_results
     | map {
         def (
