@@ -625,51 +625,60 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         r
     }
 
-    def downsample_input = SPARK_START(
-        multiscale_cluster_data,
-        params.multiscale_with_spark_cluster,
-        multiscale_work_dir,
-        params.multiscale_spark_workers,
-        params.multiscale_min_spark_workers,
-        params.multiscale_spark_worker_cores,
-        params.multiscale_spark_gb_per_core,
-        params.multiscale_spark_driver_cores,
-        params.multiscale_spark_driver_mem_gb,
-    ) // ch: [ meta, spark ]
-    | map { meta, spark ->
-        [ meta.id, meta, spark ]
-    }
-    | join(multiscale_inputs, by: 0)
-    | map {
-        def (id, meta, spark, n5_container, fullscale_dataset) = it
-        def r = [
-            meta, n5_container, fullscale_dataset, spark,
-        ]
-        log.info "Downsample input: $it -> $r"
-        r
-    }
+    if (!params.skip_multiscale) {
+        def downsample_input = SPARK_START(
+            multiscale_cluster_data,
+            params.multiscale_with_spark_cluster,
+            multiscale_work_dir,
+            params.multiscale_spark_workers,
+            params.multiscale_min_spark_workers,
+            params.multiscale_spark_worker_cores,
+            params.multiscale_spark_gb_per_core,
+            params.multiscale_spark_driver_cores,
+            params.multiscale_spark_driver_mem_gb,
+        ) // ch: [ meta, spark ]
+        | map { meta, spark ->
+            [ meta.id, meta, spark ]
+        }
+        | join(multiscale_inputs, by: 0)
+        | map {
+            def (id, meta, spark, n5_container, fullscale_dataset) = it
+            def r = [
+                meta, n5_container, fullscale_dataset, spark,
+            ]
+            log.info "Downsample input: $it -> $r"
+            r
+        }
 
-    MULTISCALE_PYRAMID(downsample_input)
+        MULTISCALE_PYRAMID(downsample_input)
 
-    def spark_cluster_to_stop = MULTISCALE_PYRAMID.out.data
-    | map {
-        def (meta, n5_container, fullscale_dataset, spark) = it
-        log.debug "Finished downsampling  $it"
-        // spark_stop only needs meta and spark
-        log.debug "Prepare to stop [${meta}, ${spark}]"
-        [ meta, spark ]
-    }
-    | groupTuple(by: [0, 1])
+        def spark_cluster_to_stop = MULTISCALE_PYRAMID.out.data
+        | map {
+            def (meta, n5_container, fullscale_dataset, spark) = it
+            log.debug "Finished downsampling  $it"
+            // spark_stop only needs meta and spark
+            log.debug "Prepare to stop [${meta}, ${spark}]"
+            [ meta, spark ]
+        }
+        | groupTuple(by: [0, 1])
 
-    def completed_downsampling = SPARK_STOP(spark_cluster_to_stop, params.multiscale_with_spark_cluster)
-    | map {
-        def (meta, spark) = it
-        log.debug "Stopped multiscale spark ${spark} - downsampled result: $meta"
-        meta
+        completed_downsampling = SPARK_STOP(spark_cluster_to_stop, params.multiscale_with_spark_cluster)
+        | map {
+            def (meta, spark) = it
+            log.debug "Stopped multiscale spark ${spark} - downsampled result: $meta"
+            meta
+        }
+    } else {
+        completed_downsampling = multiscale_cluster_data
+        | map {
+            def (meta) = it
+            log.debug "Skipped multiscale - returned result: $meta"
+            meta
+        }
     }
 
     emit:
-    done = completed_downsampling
+    completed_downsampling
 }
 
 /*
