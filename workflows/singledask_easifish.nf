@@ -591,10 +591,11 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
     def multiscale_cluster_data = multiscale_inputs
     | toList() // wait for all deformations to complete
     | flatMap { all ->
+        log.info "!!!!! ALL $all"
         all
         .collect { meta, data_dir, data_subpath ->
             [
-                meta, [ data_dir ]
+                meta: [ data_dir ]
             ]
         }
         .inject([:]) { result, current ->
