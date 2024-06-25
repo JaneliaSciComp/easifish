@@ -71,7 +71,7 @@ process SPARK_STARTWORKER {
 
     input:
     tuple val(meta), val(spark), path(spark_work_dir), val(worker_id)
-    path(data_paths)
+    path(data_paths, stageAs: '?/*')
 
     output:
     tuple val(meta), val(spark), env(full_spark_work_dir), val(worker_id)
