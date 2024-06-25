@@ -1,4 +1,4 @@
-PROCESS MULTISCALE_PYRAMID {
+process MULTISCALE_PYRAMID {
     tag { meta.id }
     container 'ghcr.io/janeliascicomp/n5-tools-spark:9097071'
     cpus { spark.driver_cores }
@@ -21,7 +21,7 @@ PROCESS MULTISCALE_PYRAMID {
 
     """
     # Create command line parameters
-    full_n5_container_path=$(readlink -e ${n5_container})
+    full_n5_container_path=\$(readlink -e ${n5_container})
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
         /app/app.jar org.janelia.saalfeldlab.n5.spark.downsample.scalepyramid.N5NonIsotropicScalePyramidSpark \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \

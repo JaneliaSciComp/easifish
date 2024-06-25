@@ -576,7 +576,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             reg_meta,
             fix, fix_subpath,
             mov, mov_subpath,
-            warped, warped_subpath,
+            warped, warped_subpath
         ) = it
         [ reg_meta, warped, warped_subpath ]
     }
