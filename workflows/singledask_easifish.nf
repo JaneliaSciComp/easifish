@@ -185,7 +185,7 @@ workflow EASIFISH {
         local_registrations_cluster
     )
     
-    local_deformation_results
+    def stopped_clusters = local_deformation_results
     | join(local_registrations_cluster, by: 0)
     | map {
         def (
@@ -209,7 +209,7 @@ workflow EASIFISH {
 
 
     emit:
-    done = clusters_to_stop
+    done = stopped_clusters
 }
 
 workflow RUN_GLOBAL_REGISTRATION {
