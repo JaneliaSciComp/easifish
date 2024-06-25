@@ -9,7 +9,7 @@ process MULTISCALE_PYRAMID {
 
     output:
     tuple val(meta), env(full_n5_container_path), val(fullscale_dataset), val(spark), emit: data
-    path "versions.yml", emit: versions
+    path "versions.yml"                                                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

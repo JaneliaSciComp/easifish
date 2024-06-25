@@ -57,7 +57,7 @@ workflow MULTISCALE {
 
         MULTISCALE_PYRAMID(downsample_input)
 
-        def spark_stop_input = MULTISCALE_PYRAMID.out.acquisitions
+        def spark_stop_input = MULTISCALE_PYRAMID.out.data
         | map {
             def (meta, n5_container, fullscale_dataset, spark) = it
             log.debug "Finished downsampling  $it"
