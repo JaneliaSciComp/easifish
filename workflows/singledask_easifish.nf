@@ -60,6 +60,7 @@ WorkflowEASIFISH.initialise(params, log)
 
 include { INPUT_CHECK           } from '../subworkflows/local/input_check'
 include { STITCHING             } from '../subworkflows/local/stitching'
+include { MULTISCALE            } from '../subworkflows/local/multiscale'
 
 include { BIGSTREAM_GLOBALALIGN } from '../modules/janelia/bigstream/globalalign/main'
 include { BIGSTREAM_LOCALALIGN  } from '../modules/janelia/bigstream/localalign/main'
@@ -196,17 +197,20 @@ workflow EASIFISH {
             dask_meta, dask_context
         ) = it
         def r = [ dask_meta, dask_context, reg_meta ]
-        log.info "Prepare to stop $r"
+        log.info "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
         r
     }
     | groupTuple(by: [0, 1])
     | map {
-        def (dask_meta, dask_context) = it
-        log.info "Ready to stop $it -> [ ${dask_meta}, ${dask_context} ]"
+        def (dask_meta, dask_context, reg_metas) = it
+        log.info "Completed $reg_metas -> [ ${dask_meta}, ${dask_context} ]"
         [ dask_meta, dask_context]
     }
     | DASK_STOP
 
+    RUN_MULTISCALE_AFTER_DEFORMATIONS(
+        local_deformation_results
+    )
 
     emit:
     done = stopped_clusters
@@ -557,6 +561,40 @@ workflow RUN_LOCAL_DEFORMS {
 
     emit:
     done = deformation_results
+}
+
+workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
+    take:
+    deformation_results // ch:
+
+    main:
+    def multiscale_work_dir = "${params.workdir}/${workflow.sessionId}"
+
+    def multiscale_inputs = deformation_results
+    | map {
+        def (
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+        ) = it
+        [ reg_meta, warped, warped_subpath ]
+    }
+
+    MULTISCALE(
+        multiscale_inputs,
+        params.multiscale_with_spark_cluster,
+        multiscale_work_dir,
+        params.skip_multiscale,
+        params.multiscale_spark_workers,
+        params.multiscale_min_spark_workers,
+        params.multiscale_spark_worker_cores,
+        params.multiscale_spark_gb_per_core,
+        params.multiscale_spark_driver_cores,
+        params.multiscale_spark_driver_mem_gb,
+    )
+    emit:
+    done = multiscale_inputs
 }
 
 /*
