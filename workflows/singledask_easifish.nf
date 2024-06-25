@@ -581,9 +581,11 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             mov, mov_subpath,
             warped, warped_subpath
         ) = it
-        [
+        def r = [
             [id: reg_meta.fix_id], warped, warped_subpath,
         ]
+        log.info "Multiscale input: $it -> $r"
+        r
     }
 
     def multiscale_cluster_data = multiscale_inputs
@@ -611,7 +613,9 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
     }
     | map { meta, data_dirs ->
         meta.session_work_dir = "${multiscale_work_dir}/${meta.id}"
-        [ meta, data_dirs ]
+        def r = [ meta, data_dirs ]
+        log.info "Multiscale cluster data: $r"
+        r
     }
 
     def downsample_input = SPARK_START(
@@ -631,7 +635,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         def r = [
             meta, n5_container, fullscale_dataset, spark,
         ]
-        log.debug "Downsample input: $it -> $r"
+        log.info "Downsample input: $it -> $r"
         r
     }
 
