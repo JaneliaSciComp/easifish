@@ -314,9 +314,10 @@ workflow START_EASIFISH_DASK {
         def r = global_bigstream_results
         .collect { fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
             // collect the data files into a map with
-            // key = meta and value is a list of files
+            // key = meta and value is a set of files
+            def data_dir_set = [ fix, mov, transform_dir].toSet()
             [
-                [id: fix_id]: [ fix, mov, transform_dir]
+                [id: fix_id]: data_dir_set,
             ]
         }
         .inject([:]) { result, current ->
@@ -584,7 +585,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             warped, warped_subpath
         ) = it
         def r = [
-            [id: reg_meta.fix_id], warped, warped_subpath,
+            reg_meta.fix_id, warped, warped_subpath,
         ]
         log.info "Multiscale input: $it -> $r"
         r
@@ -595,12 +596,12 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
     | flatMap { all ->
         log.info "!!!!! ALL $all"
         all
-        .collect { meta, data_dir, data_subpath ->
+        .collect { id, data_dir, data_subpath ->
             // convert to a map in which the
             // key = meta, value = a list containing data_dir
             def data_dir_set = [ data_dir ].toSet()
             [
-                [id: meta.id]: data_dir_set
+                [id: id]: data_dir_set,
             ]
         }
         .inject([:]) { result, current ->
@@ -638,9 +639,12 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         params.multiscale_spark_driver_cores,
         params.multiscale_spark_driver_mem_gb,
     ) // ch: [ meta, spark ]
+    | map { meta, spark ->
+        [ meta.id, meta, spark ]
+    }
     | join(multiscale_inputs, by: 0)
     | map {
-        def (meta, spark, n5_container, fullscale_dataset) = it
+        def (id, meta, spark, n5_container, fullscale_dataset) = it
         def r = [
             meta, n5_container, fullscale_dataset, spark,
         ]
