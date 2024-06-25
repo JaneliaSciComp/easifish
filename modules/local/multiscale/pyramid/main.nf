@@ -22,6 +22,7 @@ process MULTISCALE_PYRAMID {
     """
     # Create command line parameters
     full_n5_container_path=\$(readlink -e ${n5_container})
+    echo "Generate pyramid for \${full_n5_container_path}:${fullscale_dataset}"
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
         /app/app.jar org.janelia.saalfeldlab.n5.spark.downsample.scalepyramid.N5NonIsotropicScalePyramidSpark \
         ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \

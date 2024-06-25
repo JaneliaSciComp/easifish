@@ -578,7 +578,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             mov, mov_subpath,
             warped, warped_subpath
         ) = it
-        [ reg_meta, warped, warped_subpath ]
+        [ [id: reg_meta.mov_id], warped, warped_subpath ]
     }
 
     MULTISCALE(
