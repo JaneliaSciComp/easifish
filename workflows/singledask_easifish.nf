@@ -66,6 +66,7 @@ include { BIGSTREAM_LOCALALIGN  } from '../modules/janelia/bigstream/localalign/
 include { BIGSTREAM_DEFORM      } from '../modules/janelia/bigstream/deform/main'
 
 include { DASK_START            } from '../subworkflows/janelia/dask_start/main'
+include { DASK_STOP             } from '../subworkflows/janelia/dask_stop/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -184,15 +185,31 @@ workflow EASIFISH {
         local_registrations_cluster
     )
     
-    def cluster_to_destroy = local_deformation_results
+    local_deformation_results
     | join(local_registrations_cluster, by: 0)
     | map {
-        log.info "!!!! DESTROY $it"
-        it
+        def (
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            dask_meta, dask_context
+        ) = it
+        def r = [ dask_meta, dask_context, reg_meta ]
+        log.info "Prepare to stop $r"
+        r
     }
+    | groupTuple(by: [0, 1])
+    | map {
+        def (dask_meta, dask_context) = it
+        log.info "Ready to stop $it -> [ ${dask_meta}, ${dask_context} ]"
+        [ dask_meta, dask_context]
+    }
+    | DASK_STOP
+
 
     emit:
-    done = cluster_to_destroy
+    done = clusters_to_stop
 }
 
 workflow RUN_GLOBAL_REGISTRATION {
@@ -526,7 +543,6 @@ workflow RUN_LOCAL_DEFORMS {
                 }
         r
     }
-    deformation_inputs | view
 
     def deformation_results = BIGSTREAM_DEFORM(
         deformation_inputs.map { it[0] },
