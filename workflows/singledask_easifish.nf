@@ -313,6 +313,8 @@ workflow START_EASIFISH_DASK {
     | flatMap { global_bigstream_results ->
         def r = global_bigstream_results
         .collect { fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
+            // collect the data files into a map with
+            // key = meta and value is a list of files
             [
                 [id: fix_id]: [ fix, mov, transform_dir]
             ]
@@ -594,8 +596,10 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         log.info "!!!!! ALL $all"
         all
         .collect { meta, data_dir, data_subpath ->
+            // convert to a map in which the
+            // key = meta, value = a list containing data_dir
             [
-                meta: [ data_dir ]
+                [id: meta.id]: [ data_dir ]
             ]
         }
         .inject([:]) { result, current ->
@@ -611,6 +615,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
     	    result
         }
         .collect { k, v ->
+            // convert the key value back to a tuple
             [ k, v ]
         }
     }
