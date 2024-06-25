@@ -640,7 +640,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         | map { meta, spark ->
             [ meta.id, meta, spark ]
         }
-        | join(multiscale_inputs, by: 0)
+        | combine(multiscale_inputs, by: 0)
         | map {
             def (id, meta, spark, n5_container, fullscale_dataset) = it
             def r = [
