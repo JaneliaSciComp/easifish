@@ -26,12 +26,12 @@ process MULTISCALE_PYRAMID {
     # move existing scale levels because the downsampler 
     # fails if a downsample folder already exists
     for scale in \$(seq 1 20); do
-        tmp_scale_subpath = \$(echo "$fullscale_dataset" | sed s/s0$/s\$scale")
-        prev_scale_subpath = \$(echo "$fullscale_dataset" | sed s/s0$/prev-s\$scale")
-        echo "Check \$tmp_scale_subpath"
-        if [[ -d "\${full_n5_container_path}/\${tmp_scale_subpath}" ]] ; then
-            echo "mv \${full_n5_container_path}/\${tmp_scale_subpath} \${full_n5_container_path}/\${prev_scale_subpath}"
-            mv "\${full_n5_container_path}/\${tmp_scale_subpath}" "\${full_n5_container_path}/\${prev_scale_subpath}"
+        checked_dataset = \$(echo "$fullscale_dataset" | sed s/s0\$/s\${scale}")
+        renamed_dataset = \$(echo "$fullscale_dataset" | sed s/s0\$/prev-s\${scale}")
+        echo "Check \$checked_dataset"
+        if [[ -d "\${full_n5_container_path}/\${checked_dataset}" ]] ; then
+            echo "Rename \${checked_dataset} to \${renamed_dataset} -> mv ${n5_container}/\${checked_dataset} ${n5_container}/\${renamed_dataset}"
+            mv "\${full_n5_container_path}/\${checked_dataset}" "\${full_n5_container_path}/\${renamed_dataset}"
         fi
     done
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
