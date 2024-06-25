@@ -29,7 +29,7 @@ process MULTISCALE_PYRAMID {
         checked_dataset=\$(echo "$fullscale_dataset" | sed -e s/s0\$/s\${scale}/)
         renamed_dataset=\$(echo "$fullscale_dataset" | sed -e s/s0\$/prev-s\${scale}/)
         echo "Check \${full_n5_container_path}/\$checked_dataset"
-        if [[ -d "\${full_n5_container_path}/\${checked_dataset}" ]] ; then
+        if [[ -e "\${full_n5_container_path}/\${checked_dataset}" ]] ; then
             echo "Rename \${checked_dataset} to \${renamed_dataset} -> mv ${n5_container}/\${checked_dataset} ${n5_container}/\${renamed_dataset}"
             mv "\${full_n5_container_path}/\${checked_dataset}" "\${full_n5_container_path}/\${renamed_dataset}"
         fi
