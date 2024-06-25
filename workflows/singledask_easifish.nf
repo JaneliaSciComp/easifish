@@ -539,7 +539,7 @@ workflow RUN_LOCAL_DEFORMS {
 
                         "${local_transform_output}/${local_deform}", local_deform_subpath,
 
-                        "${warped_output}/${warped_name}", warped_subpath,
+                        "${warped_output}/${warped_name}", "${mov_meta.stitched_dataset}/${warped_subpath}",
                     ]
                     def r = [ deformation_input, dask_context ]
                     log.info "Deformation input: ${warped_subpath} -> $r "
