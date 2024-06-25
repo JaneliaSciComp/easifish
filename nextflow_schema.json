@@ -201,7 +201,7 @@
         "registration": {
             "title": "Registration",
             "type": "object",
-            "description": "",
+            "description": "Registration options",
             "default": "",
             "properties": {
                 "bigstream_config": {
@@ -262,6 +262,35 @@
                     "type": "string",
                     "hidden": true,
                     "description": "Moving dataset used for local registration"
+                },
+                "global_fix_mask_subpath": {
+                    "type": "string"
+                },
+                "global_mov_mask": {
+                    "type": "string"
+                },
+                "global_mov_mask_subpath": {
+                    "type": "string"
+                },
+                "local_fix_mask": {
+                    "type": "string"
+                },
+                "local_fix_mask_subpath": {
+                    "type": "string"
+                },
+                "local_mov_mask": {
+                    "type": "string"
+                },
+                "local_mov_mask_subpath": {
+                    "type": "string"
+                },
+                "local_deform_cpus": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "local_deform_mem_gb": {
+                    "type": "integer",
+                    "default": 0
                 },
                 "local_steps": {
                     "type": "string",
@@ -357,7 +386,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -378,6 +407,10 @@
                     "default": 5,
                     "hidden": true
                 },
+                "multiscale_spark_driver_mem_gb": {
+                    "type": "integer",
+                    "default": 1
+                },
                 "bigstream_dask_cluster_max_tasks": {
                     "type": "integer",
                     "default": 0,
@@ -388,8 +421,12 @@
                     "type": "string",
                     "default": "registration.n5",
                     "description": "Name of the final registration container"
+                },
+                "global_fix_mask": {
+                    "type": "string"
                 }
-            }
+            },
+            "help_text": "Registration parameters"
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -483,6 +520,41 @@
                     "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$",
                     "hidden": true,
                     "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
+                }
+            }
+        },
+        "multiscale": {
+            "title": "Multiscale",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_multiscale": {
+                    "type": "boolean"
+                },
+                "multiscale_with_spark_cluster": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "multiscale_min_spark_workers": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "multiscale_spark_workers": {
+                    "type": "integer",
+                    "default": 2
+                },
+                "multiscale_spark_worker_cores": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "multiscale_spark_gb_per_core": {
+                    "type": "integer",
+                    "default": 15
+                },
+                "multiscale_spark_driver_cores": {
+                    "type": "integer",
+                    "default": 1
                 }
             }
         },
@@ -625,6 +697,9 @@
         },
         {
             "$ref": "#/definitions/max_job_request_options"
+        },
+        {
+            "$ref": "#/definitions/multiscale"
         },
         {
             "$ref": "#/definitions/generic_options"
