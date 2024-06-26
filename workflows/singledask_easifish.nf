@@ -172,7 +172,7 @@ workflow EASIFISH {
     def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
         additional_cluster_files,
-        "${session_work_dir}/dask/",
+        "${session_work_dir}/bigstream-dask/",
         params.dask_config,
     )
 
@@ -563,7 +563,7 @@ workflow RUN_LOCAL_DEFORMS {
     )
 
     deformation_results.subscribe {
-        log.info "Completed deformation -> $it"
+        log.debug "Completed deformation -> $it"
     }
 
     emit:
@@ -587,7 +587,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         def r = [
             reg_meta.fix_id, warped, warped_subpath,
         ]
-        log.info "Multiscale input: $it -> $r"
+        log.debug "Multiscale input: $it -> $r"
         r
     }
 
@@ -621,7 +621,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
     | map { meta, data_dirs ->
         meta.session_work_dir = "${multiscale_work_dir}/${meta.id}"
         def r = [ meta, data_dirs ]
-        log.info "Multiscale cluster data: $r"
+        log.debug "Multiscale cluster data: $r"
         r
     }
 
@@ -646,7 +646,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             def r = [
                 meta, n5_container, fullscale_dataset, spark,
             ]
-            log.info "Downsample input: $it -> $r"
+            log.debug "Downsample input: $it -> $r"
             r
         }
 
