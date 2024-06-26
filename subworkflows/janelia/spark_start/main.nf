@@ -174,7 +174,8 @@ workflow SPARK_START {
         spark.workers = n_spark_workers
         spark.worker_cores = spark_worker_cpus ?: 1
         spark.driver_cores = spark_driver_cpus ?: 1
-        spark.driver_memory = "${spark_driver_mem_gb} GB"
+        def spark_driver_mem_gb_value = spark_driver_mem_gb ?: (spark.driver_cores * spark_gb_per_cpu)
+        spark.driver_memory = "${spark_driver_mem_gb_value} GB"
         spark.parallelism = (n_spark_workers * spark_worker_cpus)
         // 1 GB of overhead for Spark, the rest for executors
         spark.worker_memory = (spark_worker_cpus * spark_gb_per_cpu + 1)+" GB"

@@ -386,7 +386,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0,
+                    "default": 0.0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -407,9 +407,10 @@
                     "default": 5,
                     "hidden": true
                 },
-                "multiscale_spark_driver_mem_gb": {
-                    "type": "integer",
-                    "default": 1
+                "skip_deformations": {
+                    "type": "boolean",
+                    "hidden": true,
+                    "description": "If true skip deformations"
                 },
                 "bigstream_dask_cluster_max_tasks": {
                     "type": "integer",
@@ -562,6 +563,10 @@
                     "type": "integer",
                     "default": 1,
                     "description": "Number of cpus for the multiscale driver"
+                },
+                "multiscale_spark_driver_mem_gb": {
+                    "type": "integer",
+                    "default": 0
                 },
                 "multiscale_resolution": {
                     "type": "string",
