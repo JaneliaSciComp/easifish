@@ -196,15 +196,12 @@ workflow SPARK_START {
         // start a watcher that waits for the manager to be ready
         SPARK_WAITFORMANAGER(meta_and_spark)
 
-        SPARK_WAITFORMANAGER.out.subscribe {
-            log.debug "Spark manager available: $it"
-        }
-
         // prepare all arguments for all workers
         def meta_workers_with_data = SPARK_WAITFORMANAGER.out
         | join(ch_meta, by:0) // join with ch_meta to get the data files in order to mount them in the workers
         | flatMap {
             def (meta, spark, spark_work_dir, spark_uri, data_paths) = it
+            log.debug "Spark manager available: ${meta}: ${spark} using spark work dir: ${spark_work_dir}"
             spark.uri = spark_uri
             def worker_list = 1..spark.workers
             worker_list.collect { worker_id ->
