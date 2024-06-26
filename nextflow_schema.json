@@ -386,7 +386,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -411,6 +411,16 @@
                     "type": "boolean",
                     "hidden": true,
                     "description": "If true skip deformations"
+                },
+                "bigstream_dashboard_port": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Bigstream dask dashboard port - if 0 the scheduler will pick a port that is available. The typical port used by the dask dashboard is 8787"
+                },
+                "bigstream_scheduler_port": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Bigstream dask scheduler port - if 0 the scheduler will pick a port that is available. The typical port for the dask scheduler is 8786"
                 },
                 "bigstream_dask_cluster_max_tasks": {
                     "type": "integer",
@@ -566,7 +576,7 @@
                 },
                 "multiscale_spark_driver_mem_gb": {
                     "type": "integer",
-                    "default": 0
+                    "default": 1
                 },
                 "multiscale_resolution": {
                     "type": "string",
