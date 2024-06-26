@@ -556,19 +556,41 @@ workflow RUN_LOCAL_DEFORMS {
         r
     }
 
-    def deformation_results = BIGSTREAM_DEFORM(
-        deformation_inputs.map { it[0] },
-        deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] },
-        params.local_deform_cpus,
-        params.local_deform_mem_gb ?: params.default_mem_gb_per_cpu * params.local_deform_cpus,
-    )
+    if (!params.skip_deformations) {
+        deformation_results = BIGSTREAM_DEFORM(
+            deformation_inputs.map { it[0] },
+            deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] },
+            params.local_deform_cpus,
+            params.local_deform_mem_gb ?: params.default_mem_gb_per_cpu * params.local_deform_cpus,
+        )
 
-    deformation_results.subscribe {
-        log.debug "Completed deformation -> $it"
+        deformation_results.subscribe {
+            log.debug "Completed deformation -> $it"
+        }
+    } else {
+        deformation_results = deformation_inputs
+        | map {
+            def (
+                reg_meta,
+                fix, fix_subpath, fix_spacing,
+                mov, mov_subpath, mov_spacing,
+                affine_transform,
+                deform_transform, deform_transform_subpath,
+                warped, warped_subpath
+            ) = it[0]
+            def r = [
+                reg_meta,
+                fix, fix_subpath,
+                mov, mov_subpath,
+                warped, warped_subpath,
+            ]
+            log.debug "Skip deformation -> $r"
+            r
+        }
     }
 
     emit:
-    done = deformation_results
+    deformation_results
 }
 
 workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
