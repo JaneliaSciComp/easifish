@@ -499,7 +499,8 @@ workflow RUN_LOCAL_REGISTRATION {
     local_registration_results.subscribe {
         // [
         //    meta, fix, fix_subpath, mov, mov_subpath,
-        //    local_transform_output,
+        //    affine_transform,
+        //    local_deform_dir,
         //    local_deform, local_deform_subpath,
         //    local_inv_deform, local_inv_deform_subpath
         //    warped_output, warped_name_only, warped_subpath
