@@ -429,11 +429,11 @@ workflow RUN_LOCAL_REGISTRATION {
 
             params.local_steps,
             local_registration_working_dir, // local_transform_output
-            'transform', '', // local_transform_name
-            'invtransform', '', // local_inv_transform_name
-            local_registration_output, // local_align_output
-            params.registration_result_container, // local_aligned_name
-            '',    // local_alignment_subpath (defaults to mov_global_subpath)
+            'transform', '',                // local_transform_name
+            'invtransform', '',             // local_inv_transform_name
+            local_registration_output,      // local_align_output
+            '',                             // local_aligned_name - do not apply the deform transform
+            '',                             // local_alignment_subpath (defaults to mov_global_subpath)
         ]
         log.debug "Prepare local registration inputs: $it -> $ri"
         ri
@@ -531,10 +531,11 @@ workflow RUN_LOCAL_DEFORMS {
             local_transform_output,
             local_deform, local_deform_subpath,
             local_inv_deform, local_inv_deform_subpath,
-            warped_output, warped_name, local_warped_subpath,
+            warped_output, local_warped_name, local_warped_subpath,
             dask_meta, dask_context
         ) = it
         log.debug "Prepare deformation inputs: $it"
+        def warped_name = local_warped_name ?: params.registration_result_container
         def r = get_warped_subpaths()
 	            .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
                 .collect { warped_subpath ->
