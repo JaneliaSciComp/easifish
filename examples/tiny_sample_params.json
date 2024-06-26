@@ -14,5 +14,7 @@
     "warped_scales": "s0",
     "min_spark_workers": 2,
     "spark_gb_per_core": 10,
-    "local_align_worker_mem_gb": 10
+    "local_align_worker_mem_gb": 10,
+    "bigstream_scheduler_port": 8786,
+    "bigstream_dashboard_port": 8787
 }
