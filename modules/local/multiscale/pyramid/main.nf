@@ -31,7 +31,7 @@ process MULTISCALE_PYRAMID {
         echo "Check \${full_n5_container_path}/\$checked_dataset"
         if [[ -e "\${full_n5_container_path}/\${checked_dataset}" ]] ; then
             echo "Rename \${checked_dataset} to \${renamed_dataset} -> mv ${n5_container}/\${checked_dataset} ${n5_container}/\${renamed_dataset}"
-            mv "\${full_n5_container_path}/\${checked_dataset}" "\${full_n5_container_path}/\${renamed_dataset}"
+            mv -f "\${full_n5_container_path}/\${checked_dataset}" "\${full_n5_container_path}/\${renamed_dataset}"
         fi
     done
     /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
