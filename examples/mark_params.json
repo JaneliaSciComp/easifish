@@ -4,7 +4,7 @@
     "indir": "/nrs/scicompsoft/rokicki/flyefish/gel1_brain1",
     "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results",
     "flatfield_correction": false,
-    "skip_stitching": false,
+    "skip_stitching": true,
     "registration_fix_id": "t1",
     "reg_ch": "c3",
     "global_scale": "s3",
@@ -16,5 +16,6 @@
     "local_align_worker_cpus": 1,
     "bigstream_scheduler_port": 8786,
     "bigstream_dashboard_port": 8787,
-    "lsf_opts": "-P scicompsoft"
+    "lsf_opts": "-P scicompsoft",
+    "lsf_queue_size": 1000
 }
