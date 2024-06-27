@@ -430,7 +430,7 @@ workflow RUN_LOCAL_REGISTRATION {
             params.local_steps,
             local_registration_working_dir, // local_transform_output
             'transform', '',                // local_transform_name
-            'invtransform', '',             // local_inv_transform_name
+            params.inv_transform_name, '',             // local_inv_transform_name
             local_registration_output,      // local_align_output
             '',                             // local_aligned_name - do not apply the deform transform
             '',                             // local_alignment_subpath (defaults to mov_global_subpath)
