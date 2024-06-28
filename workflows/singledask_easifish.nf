@@ -62,19 +62,20 @@ WorkflowEASIFISH.initialise(params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MULTISCALE_PYRAMID    } from '../modules/local/multiscale/pyramid/main'
+include { MULTISCALE_PYRAMID       } from '../modules/local/multiscale/pyramid/main'
 
-include { INPUT_CHECK           } from '../subworkflows/local/input_check'
-include { STITCHING             } from '../subworkflows/local/stitching'
+include { INPUT_CHECK              } from '../subworkflows/local/input_check'
+include { STITCHING                } from '../subworkflows/local/stitching'
 
-include { BIGSTREAM_GLOBALALIGN } from '../modules/janelia/bigstream/globalalign/main'
-include { BIGSTREAM_LOCALALIGN  } from '../modules/janelia/bigstream/localalign/main'
-include { BIGSTREAM_DEFORM      } from '../modules/janelia/bigstream/deform/main'
+include { BIGSTREAM_GLOBALALIGN    } from '../modules/janelia/bigstream/globalalign/main'
+include { BIGSTREAM_LOCALALIGN     } from '../modules/janelia/bigstream/localalign/main'
+include { BIGSTREAM_COMPUTEINVERSE } from '../modules/janelia/bigstream/computeinverse/main'
+include { BIGSTREAM_DEFORM         } from '../modules/janelia/bigstream/deform/main'
 
-include { DASK_START            } from '../subworkflows/janelia/dask_start/main'
-include { DASK_STOP             } from '../subworkflows/janelia/dask_stop/main'
-include { SPARK_START            } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP             } from '../subworkflows/janelia/spark_stop/main'
+include { DASK_START               } from '../subworkflows/janelia/dask_start/main'
+include { DASK_STOP                } from '../subworkflows/janelia/dask_stop/main'
+include { SPARK_START              } from '../subworkflows/janelia/spark_start/main'
+include { SPARK_STOP               } from '../subworkflows/janelia/spark_stop/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -187,6 +188,12 @@ workflow EASIFISH {
         bigstream_config,
     )
 
+    def local_inverse_results = RUN_COMPUTE_INVERSE(
+        registration_inputs,
+        local_registration_results,
+        local_registrations_cluster
+    )
+
     def local_deformation_results = RUN_LOCAL_DEFORMS(
         registration_inputs,
         local_registration_results,
@@ -194,7 +201,8 @@ workflow EASIFISH {
     )
     
     def stopped_clusters = local_deformation_results
-    | join(local_registrations_cluster, by: 0)
+    | combine(local_registrations_cluster, by: 0)
+    | combine(local_inverse_results, by: 0)
     | map {
         def (
             reg_meta,
@@ -433,8 +441,8 @@ workflow RUN_LOCAL_REGISTRATION {
 
             params.local_steps,
             local_registration_working_dir,   // local_transform_output
-            params.local_deform_name, '',     // local_deform_name
-            params.local_inv_deform_name, '', // local_inv_deform_name
+            params.local_transform_name, '',     // local_deform_name
+            'inv-test.n5', '',                // local_inv_deform_name - we compute this separately
             local_registration_output,        // local_align_output
             '',                               // local_aligned_name - do not apply the deform transform
             '',                               // local_alignment_subpath (defaults to mov_global_subpath)
@@ -514,6 +522,62 @@ workflow RUN_LOCAL_REGISTRATION {
 
     emit:
     local_registration_results
+}
+
+workflow RUN_COMPUTE_INVERSE {
+    take:
+    registration_inputs
+    local_registration_results
+    local_registrations_cluster
+
+    main:
+    def compute_inv_inputs = registration_inputs
+    | join(local_registration_results, by: 0)
+    | join(local_registrations_cluster, by: 0)
+    | map {
+        def (
+            reg_meta, fix_meta, mov_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            affine_transform,
+            local_transform_output,
+            local_transform, local_transform_subpath,
+            local_inv_transform, local_inv_transform_subpath,
+            warped_output, local_warped_name, local_warped_subpath,
+            dask_meta, dask_context
+        ) = it
+        log.debug "Prepare compute inverse inputs: $it"
+        [
+            [
+                reg_meta,
+                local_transform_output,
+                local_transform, local_transform_subpath,
+                local_transform_output,
+                params.local_inv_transform_name ?: "inv-${local_transform}", local_transform_subpath,
+            ],
+            dask_context,
+        ]
+    }
+
+    if (!params.skip_inverse) {
+        inverse_results = BIGSTREAM_COMPUTEINVERSE(
+            compute_inv_inputs.map { it[0] },
+            compute_inv_inputs.map { [ it[1].scheduler_address, it[1].config ] },
+            params.local_inverse_cpus,
+            params.local_inverse_mem_gb ?: params.default_mem_gb_per_cpu * params.local_inverse_cpus,
+        )
+        inverse_results.subscribe {
+            log.debug "Completed inverse -> $it"
+        }
+    } else {
+        inverse_results = compute_inv_inputs.map { it[0] }
+        inverse_results.subscribe {
+            log.debug "Skipped inverse -> $it"
+        }
+    }
+
+    emit:
+    inverse_results
 }
 
 workflow RUN_LOCAL_DEFORMS {
