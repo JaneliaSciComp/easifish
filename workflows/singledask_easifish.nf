@@ -163,9 +163,11 @@ workflow EASIFISH {
         [ reg_meta, fix_meta, mov_meta ]
     }
 
+    def reg_outdir = file("${outdir}/${params.registration_subdir}")
     def global_registration_results = RUN_GLOBAL_REGISTRATION(
         registration_inputs,
         bigstream_config,
+        reg_outdir,
     )
 
     def additional_cluster_files = get_params_as_list_of_files(
@@ -186,6 +188,7 @@ workflow EASIFISH {
         global_registration_results.global_transforms,
         local_registrations_cluster,
         bigstream_config,
+        reg_outdir,
     )
 
     def local_inverse_results = RUN_COMPUTE_INVERSE(
@@ -237,6 +240,7 @@ workflow RUN_GLOBAL_REGISTRATION {
     take:
     registration_inputs
     bigstream_config
+    reg_outdir
 
     main:
     def fix_global_subpath = params.fix_global_subpath
@@ -256,8 +260,8 @@ workflow RUN_GLOBAL_REGISTRATION {
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
 
-        def global_registration_working_dir = file("${outdir}/global-registration/${reg_meta.id}")
-        def global_registration_output = file("${outdir}/${params.global_registration_subdir}")
+        def global_registration_working_dir = file("${reg_outdir}/global/${reg_meta.id}")
+        def global_registration_output = file("${reg_outdir}")
 
         def ri =  [
             reg_meta,
@@ -288,7 +292,11 @@ workflow RUN_GLOBAL_REGISTRATION {
 
     global_transforms = global_registration_results
     | map {
-        def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
+        def (reg_meta,
+             fix, fix_subpath,
+             mov, mov_subpath,
+             transform_dir, transform_name,
+             align_dir, align_name, align_subpath) = it
         log.debug "Completed global alignment: $it"
         def r = [
            reg_meta, "${transform_dir}/${transform_name}",
@@ -402,7 +410,8 @@ workflow RUN_LOCAL_REGISTRATION {
     registration_inputs // ch: [ reg_meta, fix_meta, mov_meta]
     global_transforms   // ch: [ reg_meta, global_transform ]
     local_registrations_dask_cluster // ch: [ reg_meta, dask_meta, dask_context ]
-    bigstream_config
+    bigstream_config    // string|file bigstream yaml config
+    reg_outdir
 
     main:
     def fix_local_subpath = params.fix_local_subpath
@@ -423,8 +432,8 @@ workflow RUN_LOCAL_REGISTRATION {
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
 
-        def local_registration_working_dir = file("${outdir}/local-registration/${reg_meta.id}")
-        def local_registration_output = file("${outdir}")
+        def local_registration_working_dir = file("${reg_outdir}/local/${reg_meta.id}")
+        def local_registration_output = file("${reg_outdir}")
 
         def ri =  [
             reg_meta,
@@ -441,8 +450,8 @@ workflow RUN_LOCAL_REGISTRATION {
 
             params.local_steps,
             local_registration_working_dir,   // local_transform_output
-            params.local_transform_name, '',     // local_deform_name
-            'inv-test.n5', '',                // local_inv_deform_name - we compute this separately
+            params.local_transform_name, '',  // local_deform_name
+            '', '',                           // local_inv_deform_name - no inverse - we compute this separately
             local_registration_output,        // local_align_output
             '',                               // local_aligned_name - do not apply the deform transform
             '',                               // local_alignment_subpath (defaults to mov_global_subpath)
@@ -603,7 +612,7 @@ workflow RUN_LOCAL_DEFORMS {
             dask_meta, dask_context
         ) = it
         log.debug "Prepare deformation inputs: $it"
-        def warped_name = local_warped_name ?: params.registration_result_container
+        def warped_name = local_warped_name ?: params.local_registration_container
         def r = get_warped_subpaths()
 	            .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
                 .collect { warped_subpath ->
