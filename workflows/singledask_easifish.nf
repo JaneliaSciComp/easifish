@@ -259,9 +259,9 @@ workflow RUN_GLOBAL_REGISTRATION {
 
             params.global_steps,
             global_registration_working_dir, // global_transform_output
-            'affine.mat', // global_transform_name
+            'global-affine.mat', // global_transform_name
             global_registration_output, // global_align_output
-            params.global_registration_result_container, // global_aligned_name
+            params.global_registration_container, // global_aligned_name
             '',    // global_alignment_subpath (defaults to mov_global_subpath)
         ]
         log.debug "Global registration inputs: $it -> $ri"
