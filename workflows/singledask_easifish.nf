@@ -244,8 +244,8 @@ workflow RUN_GLOBAL_REGISTRATION {
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
 
-        def global_registration_working_dir = file("${outdir}/affine-registration/${reg_meta.id}")
-        def global_registration_output = file("${outdir}/aff")
+        def global_registration_working_dir = file("${outdir}/global-registration/${reg_meta.id}")
+        def global_registration_output = file("${outdir}/${params.global_registration_subdir}")
 
         def ri =  [
             reg_meta,
@@ -261,7 +261,7 @@ workflow RUN_GLOBAL_REGISTRATION {
             global_registration_working_dir, // global_transform_output
             'affine.mat', // global_transform_name
             global_registration_output, // global_align_output
-            params.registration_result_container, // global_aligned_name
+            params.global_registration_result_container, // global_aligned_name
             '',    // global_alignment_subpath (defaults to mov_global_subpath)
         ]
         log.debug "Global registration inputs: $it -> $ri"
