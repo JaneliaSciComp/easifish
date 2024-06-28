@@ -8,7 +8,7 @@ process BIGSTREAM_COMPUTEINVERSE {
           path(deform_dir, stageAs: 'deform/*'), // location of the displacement vector
           val(deform_name),
           val(deform_subpath), // displacement vector subpath
-          path(inv_deformation_dir, stageAs: 'inv_deform/*'),
+          path(inv_deform_dir, stageAs: 'inv_deform/*'),
           val(inv_deform_name),
           val(inv_deform_subpath) // inverse displacement vector subpath
     tuple val(dask_scheduler),
@@ -19,8 +19,8 @@ process BIGSTREAM_COMPUTEINVERSE {
     output:
     tuple val(meta),
           env(full_deform_dir), val(deform_name), val(deform_subpath),
-          env(full_inv_deformation_dir), val(inv_deform_name), val(inv_deform_subpath), emit: results
-=
+          env(full_inv_deform_dir), val(inv_deform_name), val(inv_deform_subpath), emit: results
+
     when:
     task.ext.when == null || task.ext.when
 
@@ -30,7 +30,7 @@ process BIGSTREAM_COMPUTEINVERSE {
     def deform_name_arg = deform_name ? "--transform-name ${deform_name}" : ''
     def deform_subpath_arg = deform_subpath ? "--transform-subpath ${deform_subpath}" : ''
 
-    def inv_deform_dir_arg = inv_deformation_dir ? "--inv-transform-dir ${inv_deformation_dir}" : ''
+    def inv_deform_dir_arg = inv_deform_dir ? "--inv-transform-dir ${inv_deform_dir}" : ''
     def inv_deform_name_arg = inv_deform_name ? "--inv-transform-name ${inv_deform_name}" : ''
     def inv_deform_subpath_arg = inv_deform_subpath ? "--inv-transform-subpath ${inv_deform_subpath}" : ''
 
@@ -40,10 +40,10 @@ process BIGSTREAM_COMPUTEINVERSE {
     """
     full_deform_dir=\$(readlink ${deform_dir})
     if [[ "${inv_deform_dir_arg}" == "" ]]; then
-        full_inv_deformation_dir=\${full_deform_dir}
+        full_inv_deform_dir=\${full_deform_dir}
     else
-        full_inv_deformation_dir=\$(readlink -m ${inv_deformation_dir})
-        mkdir -p ${full_inv_deformation_dir}
+        full_inv_deform_dir=\$(readlink -m ${inv_deform_dir})
+        mkdir -p \${full_inv_deform_dir}
     fi
 
     python /app/bigstream/scripts/main_compute_local_inverse.py \

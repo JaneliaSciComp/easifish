@@ -7,22 +7,22 @@
                 "janelia": {
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "46c532065319d42df48eda1d40dbccbf408b2e97",
+                        "git_sha": "38e1c642e5f7f00a82214862f02649a8df663be5",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "039d3601b26390c3a91ce2b74d838bfbd083a446",
+                        "git_sha": "46c532065319d42df48eda1d40dbccbf408b2e97",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
+                        "git_sha": "71076aadf5c24b927ac2113d7fe5358e90ea6a6b",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
+                        "git_sha": "46c532065319d42df48eda1d40dbccbf408b2e97",
                         "installed_by": ["bigstream_registration"]
                     }
                 }
@@ -62,7 +62,7 @@
                 "nf-core": {
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "de45447d060b8c8b98575bc637a4a575fd0638e1",
+                        "git_sha": "82024cf6325d2ee194e7f056d841ecad2f6856e9",
                         "installed_by": ["modules"]
                     }
                 }
