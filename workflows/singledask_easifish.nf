@@ -428,12 +428,12 @@ workflow RUN_LOCAL_REGISTRATION {
             global_transform,
 
             params.local_steps,
-            local_registration_working_dir, // local_transform_output
-            'transform', '',                // local_transform_name
-            params.inv_transform_name, '',             // local_inv_transform_name
-            local_registration_output,      // local_align_output
-            '',                             // local_aligned_name - do not apply the deform transform
-            '',                             // local_alignment_subpath (defaults to mov_global_subpath)
+            local_registration_working_dir,   // local_transform_output
+            params.local_deform_name, '',     // local_deform_name
+            params.local_inv_deform_name, '', // local_inv_deform_name
+            local_registration_output,        // local_align_output
+            '',                               // local_aligned_name - do not apply the deform transform
+            '',                               // local_alignment_subpath (defaults to mov_global_subpath)
         ]
         log.debug "Prepare local registration inputs: $it -> $ri"
         ri
