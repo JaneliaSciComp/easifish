@@ -11,7 +11,7 @@
     "local_scale": "s2",
     "warped_scales": "s0",
     "spark_workers": 1,
-    "spark_worker_cores": 64,
+    "spark_worker_cores": 40,
     "local_align_workers": 200,
     "local_align_worker_cpus": 1,
     "bigstream_scheduler_port": 8786,

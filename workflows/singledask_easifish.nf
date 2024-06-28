@@ -41,6 +41,10 @@ for (param in checkPathParamList) {
     if (param) { file(param, checkIfExists: true) }
 }
 
+if (!params.reg_ch) {
+    exit 1, 'The registration channel (reg_ch) is required'
+}
+
 include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
 
 def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
