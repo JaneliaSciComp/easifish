@@ -1,6 +1,6 @@
 {
     "channels": "c0,c1",
-    "input": "examples/local_tiny_samplesheet.csv",
+    "input": "examples/local_samplesheets/tiny_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny/data",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
     "registration_subdir": "registration",
@@ -13,7 +13,6 @@
     "global_scale": "s3",
     "local_scale": "s2",
     "warped_scales": "s0",
-    "bigstream_aligned_blocksize": "512,512,512",
     "min_spark_workers": 2,
     "spark_gb_per_core": 10,
     "local_align_workers": 35,

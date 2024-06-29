@@ -1,6 +1,6 @@
 {
     "channels": "c0,c1,c2,c3",
-    "input": "examples/mark_samplesheet.csv",
+    "input": "examples/local_samplesheets/mark_samplesheet.csv",
     "indir": "/nrs/scicompsoft/rokicki/flyefish/gel1_brain1",
     "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results",
     "registration_subdir": "registration",
@@ -11,7 +11,6 @@
     "global_scale": "s3",
     "local_scale": "s2",
     "warped_scales": "s0",
-    "bigstream_aligned_blocksize": "512,512,512",
     "spark_workers": 1,
     "spark_worker_cores": 40,
     "local_align_workers": 26,
