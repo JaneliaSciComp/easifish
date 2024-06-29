@@ -1,6 +1,6 @@
 process STITCHING_CZI2N5 {
     tag "${meta.id}"
-    container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0'
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0' }
     cpus { spark.driver_cores }
     memory { spark.driver_memory }
 
