@@ -9,6 +9,7 @@
     "darkfieldfile": "",
     "flatfieldfile": "",
     "registration_fix_id": "t1",
+    "bigstream_local_blocksize": "512,512,512",
     "reg_ch": "c2",
     "global_scale": "s3",
     "local_scale": "s2",
