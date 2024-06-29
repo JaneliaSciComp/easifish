@@ -7,22 +7,22 @@
                 "janelia": {
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "38e1c642e5f7f00a82214862f02649a8df663be5",
+                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "46c532065319d42df48eda1d40dbccbf408b2e97",
+                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "71076aadf5c24b927ac2113d7fe5358e90ea6a6b",
+                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "46c532065319d42df48eda1d40dbccbf408b2e97",
+                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
                         "installed_by": ["bigstream_registration"]
                     }
                 }
@@ -31,17 +31,17 @@
                 "janelia": {
                     "bigstream_registration": {
                         "branch": "main",
-                        "git_sha": "7e31876916100799bc3925b6e9ef0a8a20127aae",
+                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "7229cc499c67cb18dfd96355294a2cae6529ac3a",
+                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
                         "installed_by": ["bigstream_registration"]
                     },
                     "dask_stop": {
                         "branch": "main",
-                        "git_sha": "980489d4eaecf85c69734445094d6917eab81532",
+                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
                         "installed_by": ["bigstream_registration"]
                     },
                     "spark_start": {
