@@ -22,6 +22,7 @@ ransac:
     winsorize_limits: [0.01, 0.02]
 
 global_align:
+  steps: [affine]
   affine:
     initial_condition: CENTER
     alignment_spacing: 2.0
@@ -34,6 +35,9 @@ global_align:
       numberOfIterations: 1000
 
 local_align:
+  steps: [affine, deform]
+  block_size: [128, 128, 128]
+  block_overlap: 0.5
   affine:
     alignment_spacing: 2.0
     shrink_factors: [1]
