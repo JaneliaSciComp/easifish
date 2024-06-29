@@ -5,6 +5,7 @@
     "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results",
     "registration_subdir": "registration",
     "flatfield_correction": false,
+    "stitching_channel": "c3",
     "skip_stitching": true,
     "registration_fix_id": "t1",
     "reg_ch": "c3",
