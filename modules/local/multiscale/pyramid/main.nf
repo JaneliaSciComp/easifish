@@ -26,9 +26,10 @@ process MULTISCALE_PYRAMID {
     # move existing scale levels because the downsampler 
     # fails if a downsample folder already exists
     intermediate_data=\$(echo "$fullscale_dataset" | sed -e s/s0\$/intermediate-downsampling-XY/)
+    renamed_intermediate_data=\$(echo "$fullscale_dataset" | sed -e s/s0\$/prev-intermediate-downsampling-XY/)
     if [[ -e "\${full_n5_container_path}/\${intermediate_data}" ]] ; then
-        echo "Rename \${intermediate_data}"
-        mv -f "\${full_n5_container_path}/\${intermediate_data}" "\${full_n5_container_path}/prev-\${intermediate_data}"
+        echo "Rename \${intermediate_data} -> \${renamed_intermediate_data}"
+        mv -f "\${full_n5_container_path}/\${intermediate_data}" "\${full_n5_container_path}/\${renamed_intermediate_data}"
     fi
     for scale in \$(seq 1 20) ; do
         checked_dataset=\$(echo "$fullscale_dataset" | sed -e s/s0\$/s\${scale}/)
