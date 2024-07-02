@@ -6,7 +6,13 @@
     "registration_subdir": "registration",
     "flatfield_correction": false,
     "stitching_channel": "c3",
+
     "skip_stitching": true,
+    "skip_local_align": true,
+    "skip_deformations": true,
+    "skip_inverse": true,
+    "skip_multiscale": true,
+
     "registration_fix_id": "t1",
     "reg_ch": "c3",
     "global_scale": "s3",
@@ -14,7 +20,7 @@
     "warped_scales": "s0",
     "spark_workers": 1,
     "spark_worker_cores": 40,
-    "local_align_workers": 200,
+    "local_align_workers": 20,
     "bigstream_scheduler_port": 8786,
     "bigstream_dashboard_port": 8787,
     "lsf_opts": "-P scicompsoft",
