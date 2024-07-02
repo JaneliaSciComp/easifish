@@ -210,6 +210,10 @@
                     "description": "Location of the YAML bigstream configuration",
                     "hidden": true
                 },
+                "skip_local_align": {
+                    "type": "boolean",
+                    "description": "If set skip local blockwise alignment"
+                },
                 "registration_fix_id": {
                     "type": "string",
                     "description": "ID of the fix image used for registration"
@@ -262,6 +266,9 @@
                     "type": "string",
                     "hidden": true,
                     "description": "Moving dataset used for local registration"
+                },
+                "global_fix_mask": {
+                    "type": "string"
                 },
                 "global_fix_mask_subpath": {
                     "type": "string"
@@ -432,9 +439,6 @@
                     "type": "string",
                     "default": "registration.n5",
                     "description": "Name of the final registration container"
-                },
-                "global_fix_mask": {
-                    "type": "string"
                 }
             },
             "help_text": "Registration parameters"

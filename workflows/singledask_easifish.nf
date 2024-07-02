@@ -509,24 +509,56 @@ workflow RUN_LOCAL_REGISTRATION {
         cluster: cluster
     }
 
-    local_registration_results = BIGSTREAM_LOCALALIGN(
-        local_registration_inputs.data,
-        bigstream_config,
-        local_registration_inputs.cluster,
-        params.local_align_cpus,
-        params.local_align_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_cpus,
-    )
+    if (!params.skip_local_align) {
+        local_registration_results = BIGSTREAM_LOCALALIGN(
+            local_registration_inputs.data,
+            bigstream_config,
+            local_registration_inputs.cluster,
+            params.local_align_cpus,
+            params.local_align_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_cpus,
+        )
 
-    local_registration_results.subscribe {
-        // [
-        //    meta, fix, fix_subpath, mov, mov_subpath,
-        //    affine_transform,
-        //    local_deform_dir,
-        //    local_deform, local_deform_subpath,
-        //    local_inv_deform, local_inv_deform_subpath
-        //    warped_output, warped_name_only, warped_subpath
-        //  ]
-        log.debug "Completed local alignment -> $it"
+        local_registration_results.subscribe {
+            // [
+            //    meta, fix, fix_subpath, mov, mov_subpath,
+            //    affine_transform,
+            //    local_deform_dir,
+            //    local_deform, local_deform_subpath,
+            //    local_inv_deform, local_inv_deform_subpath
+            //    warped_output, warped_name_only, warped_subpath
+            //  ]
+            log.debug "Completed local alignment -> $it"
+        }
+    } else {
+        local_registration_results = local_registration_inputs.data
+        | map {
+            def data = (
+                reg_meta,
+                local_fix, local_fix_subpath,
+                local_mov, local_mov_subpath,
+	            local_fix_mask, local_fix_mask_subpath,
+                local_mov_mask, local_mov_mask_subpath,
+                global_transform,
+                local_steps,
+                local_registration_working_dir, // local_transform_output
+                local_transform_name, local_transform_subpath,
+                local_inv_transform_name, local_inv_transform_subpath,
+                local_registration_output, // local_align_output
+                local_align_name, local_align_subpath
+            ) = it
+            log.debug "Skip local alignment $it"
+            [
+                reg_meta,
+                local_fix, local_fix_subpath,
+                local_mov, local_mov_subpath,
+                global_transform,
+                local_registration_working_dir,
+                local_transform_name, local_transform_subpath,
+                local_inv_transform_name, local_inv_transform_subpath,
+                local_registration_output,
+                local_align_name, local_align_subpath
+            ]
+        }
     }
 
     emit:
