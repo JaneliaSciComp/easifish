@@ -393,7 +393,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -435,10 +435,20 @@
                     "hidden": true,
                     "description": "Total number of concurrent dask tasks"
                 },
-                "registration_result_container": {
+                "global_registration_container": {
+                    "type": "string",
+                    "default": "global-registration.n5",
+                    "description": "Name of the global registration container"
+                },
+                "local_registration_container": {
                     "type": "string",
                     "default": "registration.n5",
                     "description": "Name of the final registration container"
+                },
+                "registration_subdir": {
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Subdirectory used for registration results"
                 }
             },
             "help_text": "Registration parameters"

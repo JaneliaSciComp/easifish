@@ -176,7 +176,7 @@ workflow EASIFISH {
             def deformation_input = [
                 fix, "${fix_meta.stitched_dataset}/${warped_subpath}", '',
                 mov, "${mov_meta.stitched_dataset}/${warped_subpath}", '',
-                "${registration_output}/${params.registration_result_container}", '',
+                "${registration_output}/${params.local_registration_container}", '',
             ]
             log.debug "Deformation input: warped_subpath -> ${deformation_input}"
             deformation_input
@@ -194,9 +194,9 @@ workflow EASIFISH {
 
             params.global_steps,
             registration_working_dir, // global_transform_output
-            'aff/affine.mat', // global_transform_name
+            'global/affine.mat', // global_transform_name
             registration_output, // global_align_output
-            "aff/${params.registration_result_container}", // global_aligned_name
+            "global/${params.global_registration_container}", // global_aligned_name
             '',    // global_alignment_subpath
 
             fix, // local_fixed
@@ -211,7 +211,7 @@ workflow EASIFISH {
             "transform", deform_subpath, // local_transform_name, local_transform_dataset
             "invtransform", deform_subpath, // local_inv_transform_name, local_inv_transform_dataset
             registration_output, // local_align_output
-            params.registration_result_container, // local_aligned_name
+            params.local_registration_container, // local_aligned_name
             '', // local_aligned_subpath
 
             deformations,
