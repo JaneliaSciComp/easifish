@@ -11,6 +11,7 @@
     "registration_fix_id": "t1",
     "stitching_channel": "c1",
     "reg_ch": "c1",
+    "global_steps": "ransac,affine",
     "global_scale": "s3",
     "local_scale": "s2",
     "warped_scales": "s0",
