@@ -315,6 +315,16 @@
                     "hidden": true,
                     "description": "subpath used for saving the deformation field"
                 },
+                "local_transform_name": {
+                    "type": "string",
+                    "default": "deform.n5",
+                    "description": "Name of the container for the local deform transformation"
+                },
+                "local_inv_transform_name": {
+                    "type": "string",
+                    "default": "inv-deform.n5",
+                    "description": "Name of the container for the local inverse deform transformation"
+                },
                 "warped_subpaths": {
                     "type": "string",
                     "description": "explicit datasets to be warped",
