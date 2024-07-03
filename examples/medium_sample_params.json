@@ -12,6 +12,7 @@
     "stitching_channel": "c2",
     "reg_ch": "c2",
     "global_steps": "ransac,affine",
+    "local_steps": "ransac,affine,deform",
     "global_scale": "s3",
     "local_scale": "s2",
     "warped_scales": "s0",
