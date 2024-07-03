@@ -1,6 +1,6 @@
 ransac:
-  blob_sizes: [10, 30]
-  nspots: 5000
+  blob_sizes: [6, 20]
+  nspots: 2000
   num_sigma_max: 7
   cc_radius: 20
   match_threshold: 0.6
