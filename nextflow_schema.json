@@ -297,11 +297,13 @@
                 },
                 "local_inverse_cpus": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Number of cpus used for the main compute inverse process"
                 },
                 "local_inverse_mem_gb": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Memory used by the main compute inverse process"
                 },
                 "local_deform_cpus": {
                     "type": "integer",
