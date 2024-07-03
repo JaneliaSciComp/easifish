@@ -214,6 +214,10 @@
                     "type": "boolean",
                     "description": "If set skip local blockwise alignment"
                 },
+                "skip_inverse": {
+                    "type": "boolean",
+                    "description": "If set skip computing the inverse transformation"
+                },
                 "registration_fix_id": {
                     "type": "string",
                     "description": "ID of the fix image used for registration"
@@ -290,6 +294,14 @@
                 },
                 "local_mov_mask_subpath": {
                     "type": "string"
+                },
+                "local_inverse_cpus": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "local_inverse_mem_gb": {
+                    "type": "integer",
+                    "default": 0
                 },
                 "local_deform_cpus": {
                     "type": "integer",
