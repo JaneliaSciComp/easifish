@@ -472,6 +472,7 @@
                 "registration_subdir": {
                     "type": "string",
                     "hidden": true,
+                    "default": "registration",
                     "description": "Subdirectory used for registration results"
                 }
             },
