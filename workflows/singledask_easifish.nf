@@ -168,6 +168,7 @@ workflow EASIFISH {
         registration_inputs,
         bigstream_config,
         reg_outdir,
+        params.skip_global_align || params.skip_registration,
     )
 
     def additional_cluster_files = get_params_as_list_of_files(
@@ -179,6 +180,7 @@ workflow EASIFISH {
     def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
         additional_cluster_files,
+        params.with_dask_cluster && !params.skip_registration,
         "${session_work_dir}/bigstream-dask/",
         params.dask_config,
     )
@@ -189,18 +191,21 @@ workflow EASIFISH {
         local_registrations_cluster,
         bigstream_config,
         reg_outdir,
+        params.skip_local_align || params.skip_registration,
     )
 
     def local_inverse_results = RUN_COMPUTE_INVERSE(
         registration_inputs,
         local_registration_results,
-        local_registrations_cluster
+        local_registrations_cluster,
+        params.skip_inverse || params.skip_registration,
     )
 
     def local_deformation_results = RUN_LOCAL_DEFORMS(
         registration_inputs,
         local_registration_results,
-        local_registrations_cluster
+        local_registrations_cluster,
+        params.skip_deformations || params.skip_registration,
     )
     
     def stopped_clusters = local_deformation_results
@@ -241,6 +246,7 @@ workflow RUN_GLOBAL_REGISTRATION {
     registration_inputs
     bigstream_config
     reg_outdir
+    skip_global_align
 
     main:
     def fix_global_subpath = params.fix_global_subpath
@@ -283,23 +289,48 @@ workflow RUN_GLOBAL_REGISTRATION {
         log.debug "Global registration inputs: $it -> $ri"
         ri
     }
-    global_registration_results = BIGSTREAM_GLOBALALIGN(
-        global_registration_inputs,
-        bigstream_config,
-        params.global_align_cpus,
-        params.global_align_mem_gb ?: params.default_mem_gb_per_cpu * params.global_align_cpus,
-    )
-
+    if (!skip_global_align) {
+        global_registration_results = BIGSTREAM_GLOBALALIGN(
+            global_registration_inputs,
+            bigstream_config,
+            params.global_align_cpus,
+            params.global_align_mem_gb ?: params.default_mem_gb_per_cpu * params.global_align_cpus,
+        )
+    } else {
+        global_registration_results = global_registration_inputs
+        | map {
+            def ri =(
+                reg_meta,
+                fix, fix_subpath,
+                mov, mov_subpath,
+                fix_mask, fix_mask_subpath,
+                mov_mask, mov_mask_subpath,
+                steps,
+                transform_dir,
+                transform_name,
+                align_dir, align_name, align_subpath
+            ) = it
+            log.debug "Skip global alignment $it"
+            [
+                reg_meta,
+                fix, fix_subpath,
+                mov, mov_subpath,
+                transform_dir, transform_name,
+                align_dir, align_name, align_subpath,
+            ]
+        }
+    }
+    // Prepare global transform output
     global_transforms = global_registration_results
     | map {
         def (reg_meta,
-             fix, fix_subpath,
-             mov, mov_subpath,
-             transform_dir, transform_name,
-             align_dir, align_name, align_subpath) = it
+            fix, fix_subpath,
+            mov, mov_subpath,
+            transform_dir, transform_name,
+            align_dir, align_name, align_subpath) = it
         log.debug "Completed global alignment: $it"
         def r = [
-           reg_meta, "${transform_dir}/${transform_name}",
+        reg_meta, "${transform_dir}/${transform_name}",
         ]
         log.debug "Global transform $it -> $r"
         r
@@ -314,6 +345,7 @@ workflow START_EASIFISH_DASK {
     take:
     global_registration_results // ch: [reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath]
     additional_files_list // list of additional files to be mapped in the dask cluster
+    start_dask_cluster
     dask_work_dir // dask work dir
     dask_config   // dask config
 
@@ -366,7 +398,7 @@ workflow START_EASIFISH_DASK {
 
     def cluster_info = DASK_START(
         cluster_files,
-        params.with_dask_cluster,
+        start_dask_cluster,
         dask_work_dir_file,
         params.local_align_workers,
         params.local_align_min_workers,
@@ -412,6 +444,7 @@ workflow RUN_LOCAL_REGISTRATION {
     local_registrations_dask_cluster // ch: [ reg_meta, dask_meta, dask_context ]
     bigstream_config    // string|file bigstream yaml config
     reg_outdir
+    skip_local_registration
 
     main:
     def fix_local_subpath = params.fix_local_subpath
@@ -509,7 +542,7 @@ workflow RUN_LOCAL_REGISTRATION {
         cluster: cluster
     }
 
-    if (!params.skip_local_align) {
+    if (!skip_local_registration) {
         local_registration_results = BIGSTREAM_LOCALALIGN(
             local_registration_inputs.data,
             bigstream_config,
@@ -570,6 +603,7 @@ workflow RUN_COMPUTE_INVERSE {
     registration_inputs
     local_registration_results
     local_registrations_cluster
+    skip_inverse
 
     main:
     def compute_inv_inputs = registration_inputs
@@ -600,7 +634,7 @@ workflow RUN_COMPUTE_INVERSE {
         ]
     }
 
-    if (!params.skip_inverse) {
+    if (!skip_inverse) {
         inverse_results = BIGSTREAM_COMPUTEINVERSE(
             compute_inv_inputs.map { it[0] },
             compute_inv_inputs.map { [ it[1].scheduler_address, it[1].config ] },
@@ -626,6 +660,7 @@ workflow RUN_LOCAL_DEFORMS {
     registration_inputs
     local_registration_results
     local_registrations_cluster
+    skip_deformations
 
     main:
     def deformation_inputs = registration_inputs
@@ -666,7 +701,7 @@ workflow RUN_LOCAL_DEFORMS {
         r
     }
 
-    if (!params.skip_deformations) {
+    if (!skip_deformations) {
         deformation_results = BIGSTREAM_DEFORM(
             deformation_inputs.map { it[0] },
             deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] },

@@ -4,7 +4,15 @@
     "indir": "/nrs/multifish/Pipeline/Examples/subset",
     "outdir": "/nrs/scicompsoft/goinac/multifish/medium/results",
     "registration_subdir": "registration",
+
     "skip_stitching": true,
+    "skip_registration": true,
+    "skip_global_align": false,
+    "skip_local_align": false,
+    "skip_deformations": false,
+    "skip_inverse": true,
+    "skip_multiscale": false,
+
     "flatfield_correction": false,
     "darkfieldfile": "",
     "flatfieldfile": "",

@@ -210,6 +210,14 @@
                     "description": "Location of the YAML bigstream configuration",
                     "hidden": true
                 },
+                "skip_registration": {
+                    "type": "boolean",
+                    "description": "If set skip the entire registration, i.e., global alignment, local alignment, deformations and inverse"
+                },
+                "skip_global_align": {
+                    "type": "boolean",
+                    "description": "If set skip global alignment"
+                },
                 "skip_local_align": {
                     "type": "boolean",
                     "description": "If set skip local blockwise alignment"
