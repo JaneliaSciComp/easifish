@@ -1,0 +1,7 @@
+id,filename,pattern,checksum,uri
+t1,G1_B2_M_R1_Gpb5_488_Eh_546_CCAP_669_1x.czi,,,http://e03u06/SCSW/JADEServices/v1//storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/022724_PPS_Atlas_R1/Gel1/G1_B2_M_R1_Gpb5_488_Eh_546_CCAP_669_1x.czi
+t1,G1B2_R1_3x5.mvl,,,http://e03u06/SCSW/JADEServices/v1//storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/022724_PPS_Atlas_R1/Gel1/G1B2_R1_3x5.mvl
+t2,G1_B2_M_R2_CCHa1_488_ILP7_546_RyA_669_1x.czi,,,http://e03u06/SCSW/JADEServices/v1//storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/030524_PPS_Atlas_R2/Gel1/G1_B2_M_R2_CCHa1_488_ILP7_546_RyA_669_1x.czi
+t2,G1B2_R2_3x5.mvl,,,http://e03u06/SCSW/JADEServices/v1//storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/030524_PPS_Atlas_R2/Gel1/G1B2_R2_3x5.mvl
+t3,G1_B2_M_R3_SiFA_488_CNMa_546_Crz_669_1x.czi,,,http://e03u06/SCSW/JADEServices/v1//storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/031224_PPS_Atlas_R3/Gel1/G1_B2_M_R3_SiFA_488_CNMa_546_Crz_669_1x.czi
+t3,G1B2_R3_3x5.mvl,,,http://e03u06/SCSW/JADEServices/v1//storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/031224_PPS_Atlas_R3/Gel1/G1B2_R3_3x5.mvl

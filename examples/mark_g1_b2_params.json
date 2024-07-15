@@ -1,0 +1,29 @@
+{
+    "channels": "c0,c1,c2,c3",
+    "input": "examples/remote_samplesheets/mark_g1_b2_samplesheet.csv",
+    "indir": "/nrs/scicompsoft/goinac/multifish/mark",
+    "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results/g1-b2",
+    "registration_subdir": "registration",
+    "flatfield_correction": false,
+    "stitching_channel": "c3",
+
+    "skip_stitching": false,
+    "skip_registration": true,
+    "skip_local_align": false,
+    "skip_deformations": false,
+    "skip_inverse": true,
+    "skip_multiscale": true,
+
+    "registration_fix_id": "t1",
+    "reg_ch": "c3",
+    "global_scale": "s3",
+    "local_scale": "s2",
+    "warped_scales": "s0",
+    "spark_workers": 1,
+    "spark_worker_cores": 40,
+    "local_align_workers": 20,
+    "bigstream_scheduler_port": 8786,
+    "bigstream_dashboard_port": 8787,
+    "lsf_opts": "-P scicompsoft",
+    "lsf_queue_size": 1000
+}
