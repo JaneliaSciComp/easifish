@@ -1,8 +1,8 @@
 {
     "channels": "c0,c1,c2,c3",
-    "input": "examples/remote_samplesheets/mark_g1_b1_samplesheet.csv",
+    "input": "examples/remote_samplesheets/mark_g2_b1_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/mark",
-    "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results/g1-b1",
+    "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results/g2-b1",
     "registration_subdir": "registration",
     "flatfield_correction": false,
     "stitching_channel": "c3",

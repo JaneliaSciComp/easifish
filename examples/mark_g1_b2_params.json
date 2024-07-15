@@ -22,8 +22,8 @@
     "spark_workers": 1,
     "spark_worker_cores": 40,
     "local_align_workers": 20,
-    "bigstream_scheduler_port": 8786,
-    "bigstream_dashboard_port": 8787,
+    "bigstream_scheduler_port": 0,
+    "bigstream_dashboard_port": 0,
     "lsf_opts": "-P scicompsoft",
     "lsf_queue_size": 1000
 }
