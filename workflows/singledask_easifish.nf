@@ -102,6 +102,7 @@ workflow EASIFISH {
         samplesheet_file,
         indir,
         stitching_dir,
+        params.skip_stitching,
     )
     .acquisitions
 
