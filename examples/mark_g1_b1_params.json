@@ -7,12 +7,12 @@
     "flatfield_correction": false,
     "stitching_channel": "c3",
 
-    "skip_stitching": false,
-    "skip_registration": true,
+    "skip_stitching": true,
+    "skip_registration": false,
     "skip_local_align": false,
     "skip_deformations": false,
     "skip_inverse": true,
-    "skip_multiscale": true,
+    "skip_multiscale": false,
 
     "registration_fix_id": "t1",
     "reg_ch": "c3",
