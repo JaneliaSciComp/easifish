@@ -799,10 +799,10 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             multiscale_cluster_data,
             params.multiscale_with_spark_cluster,
             multiscale_work_dir,
-            params.multiscale_spark_workers,
+            params.multiscale_spark_workers ?: params.spark_workers,
             params.multiscale_min_spark_workers,
-            params.multiscale_spark_worker_cores,
-            params.multiscale_spark_gb_per_core,
+            params.multiscale_spark_worker_cores ?: params.spark_worker_cores,
+            params.multiscale_spark_gb_per_core ?: params.spark_gb_per_core,
             params.multiscale_spark_driver_cores,
             params.multiscale_spark_driver_mem_gb,
         ) // ch: [ meta, spark ]
