@@ -26,21 +26,24 @@ workflow INPUT_CHECK {
     }
     .set { tiles }
 
-    def downloaded_tiles = DOWNLOAD(tiles.remote, output_image_dir).tiles
-    def linked_tiles = LINK(tiles.local, input_image_dir, output_image_dir).tiles
     def prepare_acq
     if (skip) {
         // take the tiles and prepare the output as if it was downloaded
         prepare_acq = tiles.remote
             .mix(tiles.local)
             .map { row ->
+                log.debug "Skipped downloading ${row}"
                 create_acq_channel(row, output_image_dir)
             }
     } else {
         // download remote tiles
+        def downloaded_tiles = DOWNLOAD(tiles.remote, output_image_dir).tiles
+        def linked_tiles = LINK(tiles.local, input_image_dir, output_image_dir).tiles
+
         prepare_acq = downloaded_tiles
             .mix(linked_tiles)
             .map { row, image_dir ->
+                log.debug "Completed download/link for ${row}"
                 create_acq_channel(row, image_dir)
             }
     }
