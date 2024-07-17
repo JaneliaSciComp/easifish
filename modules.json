@@ -7,22 +7,22 @@
                 "janelia": {
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
+                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
+                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
+                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
+                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
                         "installed_by": ["bigstream_registration"]
                     }
                 }
