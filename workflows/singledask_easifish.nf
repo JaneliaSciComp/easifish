@@ -587,8 +587,8 @@ workflow RUN_LOCAL_REGISTRATION {
                 local_mov, local_mov_subpath,
                 global_transform,
                 local_registration_working_dir,
-                local_transform_name, local_transform_subpath,
-                local_inv_transform_name, local_inv_transform_subpath,
+                local_transform_name, local_transform_subpath ?: local_mov_subpath,
+                local_inv_transform_name, local_inv_transform_subpath ?: local_mov_subpath,
                 local_registration_output,
                 local_align_name, local_align_subpath
             ]
