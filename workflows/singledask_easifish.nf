@@ -824,7 +824,7 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
         def spark_cluster_to_stop = MULTISCALE_PYRAMID.out.data
         | map {
             def (meta, n5_container, fullscale_dataset, spark) = it
-            log.debug "Finished downsampling  $it"
+            log.debug "Completed downsampling  $it"
             // spark_stop only needs meta and spark
             log.debug "Prepare to stop [${meta}, ${spark}]"
             [ meta, spark ]
