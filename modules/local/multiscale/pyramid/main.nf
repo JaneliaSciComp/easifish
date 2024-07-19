@@ -29,6 +29,10 @@ process MULTISCALE_PYRAMID {
     renamed_intermediate_data=\$(echo "$fullscale_dataset" | sed -e s/s0\$/prev-intermediate-downsampling-XY/)
     if [[ -e "\${full_n5_container_path}/\${intermediate_data}" ]] ; then
         echo "Rename \${intermediate_data} -> \${renamed_intermediate_data}"
+        if [[ -e "\${full_n5_container_path}/\${renamed_intermediate_data}" ]] ; then
+            echo "Remove first existing prev intermediate dataset: \${full_n5_container_path}/\${renamed_intermediate_data}"
+            rm -rf \${full_n5_container_path}/\${renamed_intermediate_data}
+        fi
         mv -f "\${full_n5_container_path}/\${intermediate_data}" "\${full_n5_container_path}/\${renamed_intermediate_data}"
     fi
     for scale in \$(seq 1 20) ; do
@@ -37,6 +41,10 @@ process MULTISCALE_PYRAMID {
         echo "Check \${full_n5_container_path}/\$checked_dataset"
         if [[ -e "\${full_n5_container_path}/\${checked_dataset}" ]] ; then
             echo "Rename \${checked_dataset} to \${renamed_dataset} -> mv ${n5_container}/\${checked_dataset} ${n5_container}/\${renamed_dataset}"
+            if [[ -e "\${full_n5_container_path}/\${renamed_dataset}" ]] ; then
+                echo "Remove first existing prev dataset: \${full_n5_container_path}/\${renamed_dataset}"
+                rm -rf \${full_n5_container_path}/\${renamed_dataset}
+            fi
             mv -f "\${full_n5_container_path}/\${checked_dataset}" "\${full_n5_container_path}/\${renamed_dataset}"
         fi
     done
