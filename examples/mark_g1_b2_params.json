@@ -7,7 +7,7 @@
     "flatfield_correction": false,
     "stitching_channel": "c3",
 
-    "skip_stitching": true,
+    "skip_stitching": false,
     "skip_registration": true,
     "skip_global_align": true,
     "skip_local_align": true,
