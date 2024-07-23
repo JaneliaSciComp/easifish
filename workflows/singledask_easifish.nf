@@ -65,6 +65,7 @@ WorkflowEASIFISH.initialise(params, log)
 include { MULTISCALE_PYRAMID       } from '../modules/local/multiscale/pyramid/main'
 
 include { INPUT_CHECK              } from '../subworkflows/local/input_check'
+include { MULTISCALE               } from '../subworkflows/local/multiscale'
 include { STITCHING                } from '../subworkflows/local/stitching'
 
 include { BIGSTREAM_GLOBALALIGN    } from '../modules/janelia/bigstream/globalalign/main'
@@ -232,7 +233,7 @@ workflow EASIFISH {
     }
     | DASK_STOP
 
-    RUN_MULTISCALE_AFTER_DEFORMATIONS(
+    RUN_MULTISCALE_WITH_CLUSTER_PER_TASK(
         local_deformation_results,
         "${session_work_dir}/multiscale",
     )
@@ -739,9 +740,9 @@ workflow RUN_LOCAL_DEFORMS {
     deformation_results
 }
 
-workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
+workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
     take:
-    deformation_results // ch: [ mera, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath ]
+    deformation_results // ch: [ meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath ]
     multiscale_work_dir // string|file
 
     main:
@@ -845,6 +846,47 @@ workflow RUN_MULTISCALE_AFTER_DEFORMATIONS {
             meta
         }
     }
+
+    emit:
+    completed_downsampling
+}
+
+workflow RUN_MULTISCALE_WITH_CLUSTER_PER_TASK {
+    take:
+    deformation_results // ch: [ meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath ]
+    multiscale_work_dir // string|file
+
+    main:
+    def multiscale_inputs = deformation_results
+    | map {
+        def (
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath
+        ) = it
+        def multiscale_meta = [
+            id: reg_meta.mov_id,
+        ]
+        def r = [
+            multiscale_meta, warped, warped_subpath,
+        ]
+        log.debug "Multiscale input: $it -> $r"
+        r
+    }
+
+    completed_downsampling = MULTISCALE(
+        multiscale_inputs,
+        params.multiscale_with_spark_cluster,
+        multiscale_work_dir,
+        params.skip_multiscale,
+        params.multiscale_spark_workers ?: params.spark_workers,
+        params.multiscale_min_spark_workers,
+        params.multiscale_spark_worker_cores ?: params.spark_worker_cores,
+        params.multiscale_spark_gb_per_core ?: params.spark_gb_per_core,
+        params.multiscale_spark_driver_cores,
+        params.multiscale_spark_driver_mem_gb,
+    )
 
     emit:
     completed_downsampling
