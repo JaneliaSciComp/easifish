@@ -233,7 +233,7 @@ workflow EASIFISH {
     }
     | DASK_STOP
 
-    RUN_MULTISCALE_WITH_CLUSTER_PER_TASK(
+    RUN_MULTISCALE_WITH_SINGLE_CLUSTER(
         local_deformation_results,
         "${session_work_dir}/multiscale",
     )
@@ -755,7 +755,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
             warped, warped_subpath
         ) = it
         def r = [
-            reg_meta.fix_id, warped, warped_subpath,
+            reg_meta.mov_id, warped, warped_subpath,
         ]
         log.debug "Multiscale input: $it -> $r"
         r
