@@ -41,7 +41,7 @@ for (param in checkPathParamList) {
     if (param) { file(param, checkIfExists: true) }
 }
 
-if (!params.reg_ch) {
+if (!params.skip_registration && !params.reg_ch) {
     exit 1, 'The registration channel (reg_ch) is required'
 }
 

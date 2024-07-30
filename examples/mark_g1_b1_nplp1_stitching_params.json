@@ -15,6 +15,8 @@
     "skip_inverse": true,
     "skip_multiscale": true,
 
+    "reg_ch": "c1",
+
     "lsf_opts": "-P flynp",
     "lsf_queue_size": 1000
 }
