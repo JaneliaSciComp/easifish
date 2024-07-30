@@ -27,8 +27,7 @@
     "bigstream_scheduler_port": 0,
     "bigstream_dashboard_port": 8787,
     "multiscale_spark_workers": 1,
-    "multiscale_spark_worker_cores": 50,
-    "multiscale_spark_gb_per_core": 9,
+    "multiscale_spark_worker_cores": 30,
     "lsf_opts": "-P flynp",
     "lsf_queue_size": 1000
 }
