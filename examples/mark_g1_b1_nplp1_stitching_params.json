@@ -7,6 +7,9 @@
     "flatfield_correction": false,
     "stitching_channel": "c1",
 
+    "spark_workers": 1,
+    "spark_worker_cores": 30,
+
     "skip_stitching": false,
     "skip_registration": true,
     "skip_global_align": true,
