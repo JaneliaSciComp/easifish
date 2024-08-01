@@ -1,0 +1,25 @@
+{
+    "channels": "c0,c1",
+    "input": "examples/remote_samplesheets/mark_g2_b2_nplp1_samplesheet.csv",
+    "indir": "/nrs/scicompsoft/goinac/multifish/mark",
+    "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results/g2-b2",
+    "registration_subdir": "registration",
+    "flatfield_correction": false,
+    "stitching_channel": "c1",
+
+    "spark_workers": 1,
+    "spark_worker_cores": 30,
+
+    "skip_stitching": false,
+    "skip_registration": true,
+    "skip_global_align": true,
+    "skip_local_align": true,
+    "skip_deformations": true,
+    "skip_inverse": true,
+    "skip_multiscale": true,
+
+    "reg_ch": "c1",
+
+    "lsf_opts": "-P flynp",
+    "lsf_queue_size": 1000
+}
