@@ -683,11 +683,11 @@ workflow RUN_LOCAL_DEFORMS {
         log.debug "Prepare deformation inputs: $it"
         def warped_name = local_warped_name ?: params.local_registration_container
         def r = get_warped_subpaths()
-	            .findAll { fix_subpath, warped_subpath -> warped_subpath != local_warped_subpath }
-                .collect { fix_subpath, warped_subpath ->
+	            .findAll { fix_warped_subpath, warped_subpath -> warped_subpath != local_warped_subpath }
+                .collect { fix_warped_subpath, warped_subpath ->
                     def deformation_input = [
                         reg_meta,
-                        fix, "${fix_meta.stitched_dataset}/${fix_subpath}", ''/* fix_spacing */,
+                        fix, "${fix_meta.stitched_dataset}/${fix_warped_subpath}", ''/* fix_spacing */,
                         mov, "${mov_meta.stitched_dataset}/${warped_subpath}", ''/* mov_spacing */,
 
                         affine_transform,
