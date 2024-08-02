@@ -31,6 +31,7 @@
     "local_align_worker_cpus": 1,
     "local_align_worker_mem_gb": 8,
     "bigstream_scheduler_port": 0,
+    "bigstream_dashboard_port": 8787,
 
     "lsf_opts": "-P flynp",
     "lsf_queue_size": 1000
