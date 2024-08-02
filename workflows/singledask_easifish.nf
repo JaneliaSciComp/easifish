@@ -683,11 +683,11 @@ workflow RUN_LOCAL_DEFORMS {
         log.debug "Prepare deformation inputs: $it"
         def warped_name = local_warped_name ?: params.local_registration_container
         def r = get_warped_subpaths()
-	            .findAll { warped_subpath -> warped_subpath != local_warped_subpath }
-                .collect { warped_subpath ->
+	            .findAll { fix_subpath, warped_subpath -> warped_subpath != local_warped_subpath }
+                .collect { fix_subpath, warped_subpath ->
                     def deformation_input = [
                         reg_meta,
-                        fix, "${fix_meta.stitched_dataset}/${warped_subpath}", ''/* fix_spacing */,
+                        fix, "${fix_meta.stitched_dataset}/${fix_subpath}", ''/* fix_spacing */,
                         mov, "${mov_meta.stitched_dataset}/${warped_subpath}", ''/* mov_spacing */,
 
                         affine_transform,
@@ -921,13 +921,23 @@ def get_warped_subpaths() {
 
     if (params.warped_subpaths) {
         as_list(params.warped_subpaths)
+        .collect { warped_subpath_param ->
+            def (fix_subpath, warped_subpath) = warped_subpath_param.tokenize(':')
+            [
+                fix_supath,
+                warped_subpath ?: fix_subpath,
+            ]
+        }
     } else if (warped_channels_param && warped_scales_param) {
         warped_scales = as_list(warped_scales_param)
         warped_channels = as_list(warped_channels_param)
         [warped_channels, warped_scales]
             .combinations()
             .collect { warped_ch, warped_scale ->
-                "${warped_ch}/${warped_scale}"
+                [ 
+                    "${warped_ch}/${warped_scale}", // fixed subpath
+                    "${warped_ch}/${warped_scale}", // warped subpath
+                ]
 	    }
     } else {
         []
