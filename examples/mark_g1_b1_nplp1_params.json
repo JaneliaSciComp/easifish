@@ -18,6 +18,7 @@
     "skip_inverse": true,
     "skip_multiscale": true,
 
+    "registration_fix_id": "t1",
     "reg_ch": "c1",
     "fix_global_subpath": "c3/s3",
     "mov_global_subpath": "c1/s3",
