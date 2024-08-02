@@ -19,6 +19,15 @@
     "skip_multiscale": true,
 
     "reg_ch": "c1",
+    "fix_global_subpath": "c3/s3",
+    "mov_global_subpath": "c1/s3",
+    "fix_local_subpath": "c3/s2",
+    "mov_local_subpath": "c1/s2",
+
+    "local_align_workers": 50,
+    "local_align_worker_cpus": 1,
+    "local_align_worker_mem_gb": 8,
+    "bigstream_scheduler_port": 0,
 
     "lsf_opts": "-P flynp",
     "lsf_queue_size": 1000

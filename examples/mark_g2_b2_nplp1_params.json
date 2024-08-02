@@ -1,8 +1,8 @@
 {
     "channels": "c0,c1",
-    "input": "examples/remote_samplesheets/mark_g2_b1_nplp1_samplesheet.csv",
+    "input": "examples/remote_samplesheets/mark_g2_b2_nplp1_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/mark",
-    "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results/g2-b1",
+    "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results/g2-b2",
     "registration_subdir": "registration",
     "flatfield_correction": false,
     "stitching_channel": "c1",
@@ -19,6 +19,10 @@
     "skip_multiscale": true,
 
     "reg_ch": "c1",
+    "fix_global_subpath": "c3/s3",
+    "mov_global_subpath": "c1/s3",
+    "fix_local_subpath": "c3/s2",
+    "mov_local_subpath": "c1/s2",
 
     "lsf_opts": "-P flynp",
     "lsf_queue_size": 1000
