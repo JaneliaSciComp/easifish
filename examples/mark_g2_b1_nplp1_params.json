@@ -10,19 +10,27 @@
     "spark_workers": 1,
     "spark_worker_cores": 30,
 
-    "skip_stitching": false,
-    "skip_registration": true,
-    "skip_global_align": true,
-    "skip_local_align": true,
+    "skip_stitching": true,
+    "skip_registration": false,
+    "skip_global_align": false,
+    "skip_local_align": false,
     "skip_deformations": true,
     "skip_inverse": true,
     "skip_multiscale": true,
 
+    "registration_fix_id": "t1",
     "reg_ch": "c1",
     "fix_global_subpath": "c3/s3",
     "mov_global_subpath": "c1/s3",
     "fix_local_subpath": "c3/s2",
     "mov_local_subpath": "c1/s2",
+
+    "warped_subpaths": "c1/s0:c0/s0,c3/s0:c1/s0",
+
+    "local_align_workers": 50,
+    "local_align_worker_cpus": 1,
+    "local_align_worker_mem_gb": 8,
+    "bigstream_scheduler_port": 0,
 
     "lsf_opts": "-P flynp",
     "lsf_queue_size": 1000
