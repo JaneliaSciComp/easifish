@@ -921,13 +921,13 @@ def get_warped_subpaths() {
 
     if (params.warped_subpaths) {
         as_list(params.warped_subpaths)
-        .collect { warped_subpath_param ->
-            def (fix_subpath, warped_subpath) = warped_subpath_param.tokenize(':')
-            [
-                fix_supath,
-                warped_subpath ?: fix_subpath,
-            ]
-        }
+            .collect { warped_subpath_param ->
+                def (fix_subpath, warped_subpath) = warped_subpath_param.tokenize(':')
+                [
+                    fix_subpath,
+                    warped_subpath ?: fix_subpath,
+                ]
+            }
     } else if (warped_channels_param && warped_scales_param) {
         warped_scales = as_list(warped_scales_param)
         warped_channels = as_list(warped_channels_param)
