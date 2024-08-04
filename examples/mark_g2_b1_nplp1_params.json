@@ -12,11 +12,11 @@
 
     "skip_stitching": true,
     "skip_registration": false,
-    "skip_global_align": false,
-    "skip_local_align": false,
-    "skip_deformations": true,
+    "skip_global_align": true,
+    "skip_local_align": true,
+    "skip_deformations": false,
     "skip_inverse": true,
-    "skip_multiscale": true,
+    "skip_multiscale": false,
 
     "registration_fix_id": "t1",
     "reg_ch": "c1",
