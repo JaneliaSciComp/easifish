@@ -401,6 +401,7 @@ workflow START_EASIFISH_DASK {
     def cluster_info = DASK_START(
         cluster_files,
         start_dask_cluster,
+        dask_config_file,
         dask_work_dir_file,
         params.local_align_workers,
         params.local_align_min_workers,
