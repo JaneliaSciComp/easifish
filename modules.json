@@ -24,6 +24,11 @@
                         "branch": "main",
                         "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
                         "installed_by": ["bigstream_registration"]
+                    },
+                    "cellpose": {
+                        "branch": "main",
+                        "git_sha": "171ed72a92141f64bfcef2ade915331fd5bbcbda",
+                        "installed_by": ["modules"]
                     }
                 }
             },
@@ -31,17 +36,17 @@
                 "janelia": {
                     "bigstream_registration": {
                         "branch": "main",
-                        "git_sha": "f47e72f74251cba922d48b5c7f76ad13b137a154",
+                        "git_sha": "7b3815539f9c5d71255cb01f1ddf1143965cb5e2",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "3b40cd61a13711d0bd16bebf4b22cd9759cbf2b5",
+                        "git_sha": "7b3815539f9c5d71255cb01f1ddf1143965cb5e2",
                         "installed_by": ["bigstream_registration"]
                     },
                     "dask_stop": {
                         "branch": "main",
-                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
+                        "git_sha": "7b3815539f9c5d71255cb01f1ddf1143965cb5e2",
                         "installed_by": ["bigstream_registration"]
                     },
                     "spark_start": {
