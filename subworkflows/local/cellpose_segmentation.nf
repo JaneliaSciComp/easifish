@@ -28,6 +28,7 @@ workflow CELLPOSE_SEGMENTATION {
         def segmentation_prep_inputs = ch_meta
         | multiMap {
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container, segmentation_dataset) = it
+            log.debug "Start to prepare inputs for cellpose segmentation: $it"
             def segmentation_work_dir = work_dir 
                 ? "${work_dir}/${meta.id}"
                 : "${output_dir}/${meta.id}"
