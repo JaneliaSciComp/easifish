@@ -36,6 +36,7 @@ workflow SEGMENTATION {
             : "${params.segmentation_ch}/${params.segmentation_scale}"
 
         [
+            meta,
             input_img_container,
             "${input_dataset}/${segmentation_subpath}", // segmentation dataset
             "${outdir}/${params.segmentation_subdir}", // output dir
