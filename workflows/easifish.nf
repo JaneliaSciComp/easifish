@@ -55,7 +55,7 @@ def validate_params() {
     def outdir_d = file(params.outdir)
 
     // Make outdir absolute
-    outdir = outdir_d.toAbsolutePath().normalize().toString()
+    def outdir = outdir_d.toAbsolutePath().normalize().toString()
     log.info "Using absolute path for outdir: "+outdir
 
     // Check input path parameters to see if they exist
@@ -79,6 +79,8 @@ def validate_params() {
     log.info logo + paramsSummaryLog(workflow) + citation
 
     WorkflowEASIFISH.initialise(params, log)
+
+    [ indir, outdir ]
 }
 
 /*
@@ -89,7 +91,7 @@ def validate_params() {
 
 workflow EASIFISH {
 
-    validate_params()
+    def (indir, outdir) = validate_params()
 
 
     def ch_versions = Channel.empty()
