@@ -6,6 +6,8 @@
 
 include { CELLPOSE_SEGMENTATION } from '../subworkflows/local/cellpose_segmentation'
 
+include { as_list               } from './util_functions'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN SEGMENTATION
@@ -15,23 +17,39 @@ include { CELLPOSE_SEGMENTATION } from '../subworkflows/local/cellpose_segmentat
 workflow SEGMENTATION {
     take:
     ch_meta         // channel: [ meta ] - metadata containing stitching results
-    outdir
+    outdir          // file|string - output directory
 
     main:
     def session_work_dir = "${params.workdir}/${workflow.sessionId}"
+    def segmentation_ids = as_list(params.segmentation_ids)
 
     // get volumes to segment
     def seg_volume = ch_meta
     | filter { meta ->
-        meta.id == params.segmentation_id
+        meta.id in segmentation_ids
+    }
+    | map { meta ->
+        def input_img_container = "${meta.stitching_result_dir}/${meta.stitching_container}"
+        def input_dataset = meta.stitched_dataset
+        def segmentation_subpath = params.segmentation_subpath
+            ? params.segmentation_subpath
+            : "${params.segmentation_ch}/${params.segmentation_scale}"
+
+        [
+            input_img_container,
+            "${input_dataset}/${segmentation_subpath}", // segmentation dataset
+            "${outdir}/${params.segmentation_subdir}", // output dir
+            params.segmentation_container,
+            "${input_dataset}/${segmentation_subpath}", // segmentation dataset
+        ]
     }
 
-    seg_volume.subscribe { log.debug "Input image for segmentation: $it" }
+    seg_volume.subscribe { log.debug "Segmentation input: $it" }
 
     CELLPOSE_SEGMENTATION(
         seg_volume,
-        params.models_dir,
-        params.log_config,
+        params.cellpose_models_dir,
+        params.cellpose_log_config,
         params.distributed_cellpose,
         params.dask_config,
         session_work_dir,

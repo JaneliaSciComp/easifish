@@ -1,17 +1,18 @@
 {
     "channels": "c0,c1",
     "input": "examples/remote_samplesheets/tiny_samplesheet.csv",
-    "indir": "/nrs/scicompsoft/goinac/multifish/tiny/data",
+    "indir": "/nrs/scicompsoft/goinac/multifish/tiny",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
     "registration_subdir": "registration",
 
-    "skip_stitching": false,
-    "skip_registration": false,
+    "skip_stitching": true,
+    "skip_registration": true,
     "skip_global_align": false,
     "skip_local_align": false,
     "skip_deformations": false,
     "skip_inverse": false,
-    "skip_multiscale": false,
+    "skip_multiscale": true,
+    "skip_segmentation": false,
 
     "flatfield_correction": false,
     "darkfieldfile": "",
@@ -33,5 +34,8 @@
     "local_align_workers": 10,
     "local_align_worker_mem_gb": 10,
     "bigstream_scheduler_port": 0,
-    "bigstream_dashboard_port": 0
+    "bigstream_dashboard_port": 0,
+
+    "multiscale_spark_workers": 1,
+    "multiscale_spark_worker_cores": 30
 }

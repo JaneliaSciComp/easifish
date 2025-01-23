@@ -18,6 +18,8 @@ include { DASK_STOP                } from '../subworkflows/janelia/dask_stop/mai
 include { SPARK_START              } from '../subworkflows/janelia/spark_start/main'
 include { SPARK_STOP               } from '../subworkflows/janelia/spark_stop/main'
 
+include { as_list                  } from './util_functions'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN REGISTRATION WORKFLOW
@@ -130,6 +132,8 @@ workflow REGISTRATION {
         [ dask_meta, dask_context ]
     }
     | DASK_STOP
+
+    stopped_clusters.subscribe { log.debug "Stopped dask cluster $it" }
 
     RUN_MULTISCALE_WITH_SINGLE_CLUSTER(
         local_deformation_results,
@@ -747,7 +751,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
     }
 
     emit:
-    completed_downsampling
+    completed_downsampling // ch: [ meta ]
 }
 
 workflow RUN_MULTISCALE_WITH_CLUSTER_PER_TASK {
@@ -824,16 +828,4 @@ def get_warped_subpaths() {
     } else {
         []
     }
-}
-
-def as_list(v) {
-    def vlist
-    if (v instanceof Collection) {
-        vlist = deformation_entries
-    } else if (v) {
-        vlist = v.tokenize(', ')
-    } else {
-        vlist = []
-    }
-    vlist
 }

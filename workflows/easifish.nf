@@ -28,6 +28,7 @@ include { SEGMENTATION } from './segmentation'
 def validate_params() {
 
     // Check mandatory parameters
+    def samplesheet_file
     if (params.input) {
         samplesheet_file = file(params.input)
     } else {
@@ -80,7 +81,7 @@ def validate_params() {
 
     WorkflowEASIFISH.initialise(params, log)
 
-    [ indir, outdir ]
+    [ indir, samplesheet_file, outdir ]
 }
 
 /*
@@ -91,7 +92,7 @@ def validate_params() {
 
 workflow EASIFISH {
 
-    def (indir, outdir) = validate_params()
+    def (indir, samplesheet_file, outdir) = validate_params()
 
 
     def ch_versions = Channel.empty()
@@ -133,14 +134,21 @@ workflow EASIFISH {
         params.spark_driver_mem_gb as int,
     )
 
-    stitching_results.subscribe { log.debug "Stitched image ready for the next step: $it " }
+    stitching_results.subscribe { log.debug "Stitching result: $it " }
 
     def registration_results = REGISTRATION(
         stitching_results,
         outdir
     )
 
-    registration_results.subscribe { log.debug "Registered image ready for the next step: $it " }
+    registration_results.subscribe { log.debug "Registration result: $it " }
+
+    def segmentation_results = SEGMENTATION(
+        stitching_results,
+        outdir
+    )
+
+    segmentation_results.subscribe { log.debug "Segmentation result: $it " }
 
 }
 
