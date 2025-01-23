@@ -48,6 +48,7 @@ workflow SEGMENTATION {
 
     CELLPOSE_SEGMENTATION(
         seg_volume,
+        params.skip_segmentation,
         params.cellpose_models_dir,
         params.cellpose_log_config,
         params.distributed_cellpose,
