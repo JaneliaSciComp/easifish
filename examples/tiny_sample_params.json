@@ -1,6 +1,6 @@
 {
     "channels": "c0,c1",
-    "input": "examples/local_samplesheets/tiny_samplesheet.csv",
+    "input": "examples/remote_samplesheets/tiny_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny/data",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
     "registration_subdir": "registration",
