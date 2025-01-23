@@ -23,6 +23,7 @@ workflow CELLPOSE_SEGMENTATION {
     segmentation_mem_gb    // int: number of GB of memory to use for segmentation main process
 
     main:
+    def final_segmentation_results
     if (!skip) {
         def segmentation_prep_inputs = ch_meta
         | multiMap {
@@ -110,8 +111,12 @@ workflow CELLPOSE_SEGMENTATION {
         | groupTuple
         | DASK_STOP
 
-        emit:
-        results = segmentation_results.results
+        final_segmentation_results = segmentation_results.results
+    } else {
+        // FIXME:
+        final_segmentation_results = ch_meta
     }
 
+    emit:
+    done = final_segmentation_results
 }

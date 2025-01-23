@@ -46,7 +46,7 @@ workflow SEGMENTATION {
 
     seg_volume.subscribe { log.debug "Segmentation input: $it" }
 
-    CELLPOSE_SEGMENTATION(
+    def cellpose_results = CELLPOSE_SEGMENTATION(
         seg_volume,
         params.skip_segmentation,
         params.cellpose_models_dir,
@@ -61,4 +61,7 @@ workflow SEGMENTATION {
         params.cellpose_segmentation_cpus,
         params.cellpose_segmentation_mem_gb
     )
+
+    emit:
+    done = cellpose_results
 }
