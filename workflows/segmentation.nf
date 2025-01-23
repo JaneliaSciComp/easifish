@@ -29,19 +29,20 @@ workflow SEGMENTATION {
         meta.id in segmentation_ids
     }
     | map { meta ->
-        def input_img_container = "${meta.stitching_result_dir}/${meta.stitching_container}"
-        def input_dataset = meta.stitched_dataset
+        def input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
         def segmentation_subpath = params.segmentation_subpath
             ? params.segmentation_subpath
             : "${params.segmentation_ch}/${params.segmentation_scale}"
 
+        def input_img_dataset = "${meta.stitched_dataset}/${segmentation_subpath}"
+
         [
             meta,
-            input_img_container,
-            "${input_dataset}/${segmentation_subpath}", // segmentation dataset
+            input_img_dir,
+            input_img_dataset,
             "${outdir}/${params.segmentation_subdir}", // output dir
-            params.segmentation_container,
-            "${input_dataset}/${segmentation_subpath}", // segmentation dataset
+            params.segmentation_imgname,
+            input_img_dataset,
         ]
     }
 
