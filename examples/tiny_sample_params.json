@@ -4,10 +4,19 @@
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny/data",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
     "registration_subdir": "registration",
-    "skip_stitching": true,
+
+    "skip_stitching": false,
+    "skip_registration": false,
+    "skip_global_align": false,
+    "skip_local_align": false,
+    "skip_deformations": false,
+    "skip_inverse": false,
+    "skip_multiscale": false,
+
     "flatfield_correction": false,
     "darkfieldfile": "",
     "flatfieldfile": "",
+
     "registration_fix_id": "t1",
     "stitching_channel": "c1",
     "reg_ch": "c1",
@@ -18,8 +27,8 @@
     "warped_scales": "s0",
     "min_spark_workers": 2,
     "spark_gb_per_core": 10,
-    "local_align_workers": 35,
+    "local_align_workers": 10,
     "local_align_worker_mem_gb": 10,
-    "bigstream_scheduler_port": 8786,
-    "bigstream_dashboard_port": 8787
+    "bigstream_scheduler_port": 0,
+    "bigstream_dashboard_port": 0
 }
