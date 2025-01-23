@@ -20,9 +20,9 @@ include {
 
 
 include { INPUT_CHECK  } from '../subworkflows/local/input_check'
-include { MULTISCALE   } from '../subworkflows/local/multiscale'
 include { STITCHING    } from '../subworkflows/local/stitching'
 include { REGISTRATION } from './registration'
+include { SEGMENTATION } from './segmentation'
 
 
 def validate_params() {
