@@ -25,7 +25,7 @@ workflow SEGMENTATION {
 
     // get volumes to segment
     def seg_volume = ch_meta
-    | filter { meta flatMap
+    | filter { meta ->
         meta.id in segmentation_ids
     }
     | flatMap { meta ->
