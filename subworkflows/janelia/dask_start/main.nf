@@ -4,7 +4,7 @@ workflow DASK_START {
     meta_and_files // channel: [val(meta), files...]
     distributed // bool: if true create distributed cluster
     dask_config // dask config
-    dask_work_dir // dask work directory
+    dask_work_path // dask work directory
     total_workers // int: number of total workers in the cluster
     required_workers // int: number of required workers in the cluster
     dask_worker_cpus // int: number of cores per worker
@@ -13,9 +13,19 @@ workflow DASK_START {
     main:
     if (distributed) {
         // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
+        def dask_work_dir
+        if (dask_work_path) {
+            dask_work_dir = file(dask_work_path)
+            def dask_work_dirname = dask_work_dir.name
+            if (dask_work_dirname != "${workflow.sessionId}") {
+                dask_work_dir = file("${dask_work_path}/${workflow.sessionId}")
+            }
+        } else {
+            dask_work_dir = []
+        }
         def dask_prepare_result = DASK_PREPARE(
             meta_and_files,
-            dask_work_dir ? file("${dask_work_dir}/${workflow.sessionId}") : [],
+            dask_work_dir,
         )
         | join(meta_and_files, by: 0)
         | map {

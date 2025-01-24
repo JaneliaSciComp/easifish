@@ -46,7 +46,7 @@
                     },
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "76861148be681f6748722747074d52ba4c54f8ab",
+                        "git_sha": "49c642fe81272afaaf2dedf87743afc690ce409d",
                         "installed_by": ["bigstream_registration"]
                     },
                     "dask_stop": {
