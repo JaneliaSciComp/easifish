@@ -33,12 +33,14 @@ workflow CELLPOSE_SEGMENTATION {
                 ? file("${work_dir}/${meta.id}")
                 : file("${output_dir}/${meta.id}")
 
+            def cellpose_models_dir = models_dir ? file(models_dir) : "${segmentation_work_dir}/cellpose-models"
+
             def segmentation_meta = meta + [segmentation_work_dir: segmentation_work_dir]
             def cellpose_data = [
                 segmentation_meta,
                 img_container_dir,
                 img_dataset,
-                models_dir,
+                cellpose_models_dir,
                 "${output_dir}/${segmentation_container}",
                 segmentation_dataset,
                 segmentation_work_dir,
@@ -73,12 +75,12 @@ workflow CELLPOSE_SEGMENTATION {
         def segmentation_inputs = dask_cluster
         | join(segmentation_prep_inputs.cellpose_data, by: 0)
         | multiMap {
-            def (meta, cluster_context, img_container_dir, img_dataset, models_dir_param, segmentation_container_dir, segmentation_dataset, segmentation_work_dir) = it
+            def (meta, cluster_context, img_container_dir, img_dataset, cellpose_models_dir, segmentation_container_dir, segmentation_dataset, segmentation_work_dir) = it
             def cellpose_data = [
                 meta,
                 img_container_dir,
                 img_dataset,
-                models_dir_param ? file(models_dir_param) : [],
+                cellpose_models_dir,
                 segmentation_container_dir,
                 segmentation_dataset,
                 segmentation_work_dir,
