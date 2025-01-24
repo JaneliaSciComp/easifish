@@ -30,8 +30,8 @@ workflow CELLPOSE_SEGMENTATION {
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container, segmentation_dataset) = it
             log.debug "Start to prepare inputs for cellpose segmentation: $it"
             def segmentation_work_dir = work_dir 
-                ? "${work_dir}/${meta.id}"
-                : "${output_dir}/${meta.id}"
+                ? file("${work_dir}/${meta.id}")
+                : file("${output_dir}/${meta.id}")
 
             def segmentation_meta = meta + [segmentation_work_dir: segmentation_work_dir]
             def cellpose_data = [
