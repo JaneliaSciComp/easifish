@@ -15,16 +15,16 @@ workflow DASK_START {
         // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
         def dask_prepare_result = DASK_PREPARE(
             meta_and_files,
-            dask_work_dir ?: [],
+            dask_work_dir ? file(dask_work_dir) : [],
         )
-            | join(meta_and_files, by: 0)
-            | map {
-                def (meta, dask_cluster_work_dir, data_paths) = it
-                def dask_config_path = dask_config ? file(dask_config) : []
-                def r = [meta, dask_config_path, dask_cluster_work_dir, data_paths]
-                log.debug("Dask prepare result: ${r}")
-                r
-            }
+        | join(meta_and_files, by: 0)
+        | map {
+            def (meta, dask_cluster_work_dir, data_paths) = it
+            def dask_config_path = dask_config ? file(dask_config) : []
+            def r = [meta, dask_config_path, dask_cluster_work_dir, data_paths]
+            log.debug("Dask prepare result: ${r}")
+            r
+        }
 
         // start scheduler
         DASK_STARTMANAGER(dask_prepare_result)
