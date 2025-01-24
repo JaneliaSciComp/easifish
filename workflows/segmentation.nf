@@ -42,7 +42,6 @@ workflow SEGMENTATION {
             input_img_dataset,
             "${outdir}/${params.segmentation_subdir}", // output dir
             params.segmentation_imgname,
-            input_img_dataset,
         ]
     }
 

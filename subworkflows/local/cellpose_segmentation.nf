@@ -8,7 +8,7 @@ workflow CELLPOSE_SEGMENTATION {
     ch_meta                // channel: [ meta, 
                            //            img_container_dir, img_dataset,
                            //            output_dir, 
-                           //            segmentation_container, segmentation_dataset ]
+                           //            segmentation_container ]
     skip                   // boolean: if true skip segmentation completely and just return the meta as if it ran
     models_dir             // string|file: directory
     log_config             // string|file: log configuration file
@@ -27,7 +27,7 @@ workflow CELLPOSE_SEGMENTATION {
     if (!skip) {
         def segmentation_prep_inputs = ch_meta
         | multiMap {
-            def (meta, img_container_dir, img_dataset, output_dir, segmentation_container, segmentation_dataset) = it
+            def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
             log.debug "Start to prepare inputs for cellpose segmentation: $it"
             def segmentation_work_dir = work_dir 
                 ? file("${work_dir}/${meta.id}")
@@ -41,8 +41,8 @@ workflow CELLPOSE_SEGMENTATION {
                 img_container_dir,
                 img_dataset,
                 cellpose_models_dir,
-                "${output_dir}/${segmentation_container}",
-                segmentation_dataset,
+                output_dir,
+                segmentation_container,
                 segmentation_work_dir,
             ]
             def cluster_data = [
@@ -90,7 +90,7 @@ workflow CELLPOSE_SEGMENTATION {
                 dask_config ? file(dask_config) : [],
 
             ]
-            log.debug "cellpose segmentation input: $it -> {cellpose: ${cellpose_data}, cluster: ${cluster_info}}"
+            log.debug "Cellpose segmentation input: $it -> {cellpose: ${cellpose_data}, cluster: ${cluster_info}}"
             cellpose_data: cellpose_data
             cluster_info: cluster_info
         }
