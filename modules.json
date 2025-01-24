@@ -46,7 +46,7 @@
                     },
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "9cd8877e52d9ce42c66fa506162632789b661951",
+                        "git_sha": "76861148be681f6748722747074d52ba4c54f8ab",
                         "installed_by": ["bigstream_registration"]
                     },
                     "dask_stop": {
@@ -72,7 +72,7 @@
                 "nf-core": {
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "82024cf6325d2ee194e7f056d841ecad2f6856e9",
+                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
                         "installed_by": ["modules"]
                     }
                 }

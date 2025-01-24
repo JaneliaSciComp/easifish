@@ -15,7 +15,7 @@ workflow DASK_START {
         // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
         def dask_prepare_result = DASK_PREPARE(
             meta_and_files,
-            dask_work_dir ? file(dask_work_dir) : [],
+            dask_work_dir ? file("${dask_work_dir}/${workflow.sessionId}") : [],
         )
         | join(meta_and_files, by: 0)
         | map {
