@@ -40,8 +40,6 @@ workflow SEGMENTATION {
             segmentation_subpaths = [seg_channels, seg_scales].combinations().collect { it.join('/') }
         }
 
-
-
         segmentation_subpaths.collect { seg_subpath ->
             def input_img_dataset = "${meta.stitched_dataset}/${seg_subpath}"
 
