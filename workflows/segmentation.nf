@@ -25,24 +25,34 @@ workflow SEGMENTATION {
 
     // get volumes to segment
     def seg_volume = ch_meta
-    | filter { meta ->
+    | filter { meta flatMap
         meta.id in segmentation_ids
     }
-    | map { meta ->
+    | flatMap { meta ->
         def input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
-        def segmentation_subpath = params.segmentation_subpath
-            ? params.segmentation_subpath
-            : "${params.segmentation_ch}/${params.segmentation_scale}"
+        def segmentation_subpaths
+        if (params.segmentation_subpath) {
+            segmentation_subpaths = as_list(params.segmentation_subpath)
+        } else {
+            def seg_channels = as_list(params.seg_channels)
+            def seg_scales = as_list(params.seg_scales)
 
-        def input_img_dataset = "${meta.stitched_dataset}/${segmentation_subpath}"
+            segmentation_subpaths = [seg_channels, seg_scales].combinations().collect { it.join('/') }
+        }
 
-        [
-            meta,
-            input_img_dir,
-            input_img_dataset,
-            "${outdir}/${params.segmentation_subdir}", // output dir
-            params.segmentation_imgname,
-        ]
+
+
+        segmentation_subpaths.collect { seg_subpath ->
+            def input_img_dataset = "${meta.stitched_dataset}/${seg_subpath}"
+
+            [
+                meta,
+                input_img_dir,
+                input_img_dataset,
+                "${outdir}/${params.segmentation_subdir}", // output dir
+                params.segmentation_imgname,
+            ]
+        }
     }
 
     seg_volume.subscribe { log.debug "Segmentation input: $it" }
