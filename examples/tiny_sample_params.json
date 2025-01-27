@@ -3,9 +3,11 @@
     "input": "examples/remote_samplesheets/tiny_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
-    "registration_subdir": "registration",
 
-    "skip_stitching": true,
+    "registration_subdir": "registration",
+    "segmentation_subdir": "seg-gf",
+
+    "skip_stitching": false,
     "skip_registration": true,
     "skip_global_align": false,
     "skip_local_align": false,
@@ -26,6 +28,8 @@
     "global_scale": "s3",
     "local_scale": "s2",
     "warped_scales": "s0",
+
+    "cellpose_shrink_labels_to_merge": true,
 
     "spark_workers": 5,
     "min_spark_workers": 2,
