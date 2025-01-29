@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/JaneliaSciComp/easifish/master/nextflow_schema.json",
     "title": "JaneliaSciComp/easifish pipeline parameters",
     "description": "Lightsheet microscopy image reconstruction",
@@ -206,7 +206,7 @@
             "properties": {
                 "bigstream_config": {
                     "type": "string",
-                    "default": "conf/bigstream_config.yml",
+                    "default": "${projectDir}/conf/bigstream_config.yml",
                     "description": "Location of the YAML bigstream configuration",
                     "hidden": true
                 },
@@ -359,7 +359,7 @@
                 },
                 "dask_config": {
                     "type": "string",
-                    "default": "conf/dask_config.yml",
+                    "default": "${projectDir}/conf/dask_config.yml",
                     "description": "Dask cluster configuration",
                     "hidden": true
                 },
@@ -425,7 +425,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0,
+                    "default": 0.0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -632,6 +632,145 @@
                 }
             }
         },
+        "segmentation": {
+            "title": "Segmentation options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "segmentation_ids": {
+                    "type": "string",
+                    "default": "t1"
+                },
+                "segmentation_subpath": {
+                    "type": "string"
+                },
+                "seg_channels": {
+                    "type": "string",
+                    "default": "c1"
+                },
+                "seg_scales": {
+                    "type": "string",
+                    "default": "s2"
+                },
+                "segmentation_subdir": {
+                    "type": "string",
+                    "default": "segmentation"
+                },
+                "segmentation_imgname": {
+                    "type": "string",
+                    "default": "segmentation.n5"
+                },
+                "skip_segmentation": {
+                    "type": "boolean"
+                },
+                "distributed_cellpose": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "cellpose_model": {
+                    "type": "string",
+                    "default": "cyto3"
+                },
+                "cellpose_models_dir": {
+                    "type": "string"
+                },
+                "cellpose_log_config": {
+                    "type": "string",
+                    "default": "${projectDir}/conf/cellpose_logging_config.ini"
+                },
+                "cellpose_dask_config": {
+                    "type": "string",
+                    "default": "${projectDir}/conf/dask_config.yml"
+                },
+                "distributed_cellpose_blocksize": {
+                    "type": "string",
+                    "default": "128,128,128"
+                },
+                "cellpose_blocks_overlap": {
+                    "type": "string",
+                    "default": "30,30,30"
+                },
+                "cellpose_use_gpu": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "cellpose_device": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "cellpose_test": {
+                    "type": "boolean"
+                },
+                "cellpose_diameter": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "cellpose_eval_channels": {
+                    "type": "string",
+                    "default": "0,0"
+                },
+                "cellpose_min_size": {
+                    "type": "integer",
+                    "default": 5
+                },
+                "cellprob_threshold": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "cellpose_iou_threshold": {
+                    "type": "number",
+                    "default": 0.05
+                },
+                "cellpose_save_intermediate_labels": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "cellpose_shrink_labels_to_merge": {
+                    "type": "boolean"
+                },
+                "cellpose_merge_iou_depth": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "cellpose_segmentation_cpus": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "cellpose_segmentation_mem_gb": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "cellpose_dask_workers": {
+                    "type": "integer",
+                    "default": 10
+                },
+                "cellpose_dask_min_workers": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "cellpose_dask_worker_cpus": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "cellpose_dask_worker_mem_gb": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "max_cellpose_tasks": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "cellpose_scheduler_port": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "cellpose_dashboard_port": {
+                    "type": "integer",
+                    "default": 0
+                }
+            }
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
@@ -776,7 +915,11 @@
             "$ref": "#/definitions/multiscale"
         },
         {
+            "$ref": "#/definitions/segmentation"
+        },
+        {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {}
 }
