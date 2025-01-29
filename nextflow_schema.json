@@ -702,8 +702,8 @@
                     "default": true
                 },
                 "cellpose_device": {
-                    "type": "integer",
-                    "default": 0
+                    "type": "string",
+                    "default": "0"
                 },
                 "cellpose_test": {
                     "type": "boolean"
@@ -721,8 +721,8 @@
                     "default": 5
                 },
                 "cellprob_threshold": {
-                    "type": "integer",
-                    "default": 1
+                    "type": "number",
+                    "default": 1.0
                 },
                 "cellpose_iou_threshold": {
                     "type": "number",
