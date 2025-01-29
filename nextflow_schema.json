@@ -640,10 +640,12 @@
             "properties": {
                 "segmentation_ids": {
                     "type": "string",
+                    "description": "Round id to be segmented",
                     "default": "t1"
                 },
                 "segmentation_subpath": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Segmentation dataset",
                 },
                 "seg_channels": {
                     "type": "string",
@@ -662,14 +664,17 @@
                     "default": "segmentation.n5"
                 },
                 "skip_segmentation": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "If set skip segmentation"
                 },
                 "distributed_cellpose": {
                     "type": "boolean",
+                    "description": "Use a distributed dask cluster to run segmentation",
                     "default": true
                 },
                 "cellpose_model": {
                     "type": "string",
+                    "description": "Cellpose model name",
                     "default": "cyto3"
                 },
                 "cellpose_models_dir": {
@@ -677,6 +682,7 @@
                 },
                 "cellpose_log_config": {
                     "type": "string",
+                    "description": "Cellpose logging configuration",
                     "default": "${projectDir}/conf/cellpose_logging_config.ini"
                 },
                 "cellpose_dask_config": {
