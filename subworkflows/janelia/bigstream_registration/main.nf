@@ -237,6 +237,7 @@ workflow BIGSTREAM_REGISTRATION {
         cluster_input_files,
         // all the other args must come as simple values or value channel
         with_dask,
+        dask_config,
         dask_work_dir,
         dask_total_workers,
         dask_min_workers,

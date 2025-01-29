@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: bigstream_registration
+description: Runs a registration pipeline using Bigstream on a Dask cluster
+keywords:
+  - registration
+  - bigstream
+  - dask
+components:
+  - bigstream_globalalign
+  - bigstream_localalign
+  - bigstream_deform
+  - dask_cluster

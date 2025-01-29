@@ -31,17 +31,17 @@
                 "janelia": {
                     "bigstream_registration": {
                         "branch": "main",
-                        "git_sha": "f47e72f74251cba922d48b5c7f76ad13b137a154",
+                        "git_sha": "d7d82538cad8fc7edc2ae3bc6449c33a614d7b86",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "3b40cd61a13711d0bd16bebf4b22cd9759cbf2b5",
+                        "git_sha": "49c642fe81272afaaf2dedf87743afc690ce409d",
                         "installed_by": ["bigstream_registration"]
                     },
                     "dask_stop": {
                         "branch": "main",
-                        "git_sha": "fe7923a12127d6d1f88201045cb15741b688008e",
+                        "git_sha": "d7d82538cad8fc7edc2ae3bc6449c33a614d7b86",
                         "installed_by": ["bigstream_registration"]
                     },
                     "spark_start": {
@@ -62,7 +62,7 @@
                 "nf-core": {
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "82024cf6325d2ee194e7f056d841ecad2f6856e9",
+                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
                         "installed_by": ["modules"]
                     }
                 }
