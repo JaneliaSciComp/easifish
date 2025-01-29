@@ -5,10 +5,10 @@
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
 
     "registration_subdir": "registration",
-    "segmentation_subdir": "seg-gf-test",
+    "segmentation_subdir": "segmentation",
 
-    "skip_stitching": true,
-    "skip_registration": true,
+    "skip_stitching": false,
+    "skip_registration": false,
     "skip_global_align": false,
     "skip_local_align": false,
     "skip_deformations": false,
@@ -29,7 +29,7 @@
     "local_scale": "s2",
     "warped_scales": "s0",
 
-    "cellpose_test": true,
+    "cellpose_test": false,
     "cellpose_shrink_labels_to_merge": true,
 
     "spark_workers": 5,
