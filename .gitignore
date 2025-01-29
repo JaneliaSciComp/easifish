@@ -7,3 +7,5 @@ testing/
 testing*
 *.pyc
 mylocal
+lint_log.txt
+
