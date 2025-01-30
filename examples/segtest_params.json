@@ -18,6 +18,6 @@
 
     "reg_ch": "c1",
 
-    "cellpose_test": false,
+    "cellpose_verbose": true,
     "cellpose_shrink_labels_to_merge": true,
 }
