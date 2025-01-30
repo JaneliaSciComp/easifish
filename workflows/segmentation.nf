@@ -29,8 +29,13 @@ workflow SEGMENTATION {
         meta.id in segmentation_ids
     }
     | flatMap { meta ->
-        def input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
+        def input_img_dir
         def segmentation_subpaths
+        if (params.segmentation_input) {
+            input_img_dir = file(params.segmentation_input)
+        } else {
+            input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
+        }
         if (params.segmentation_subpaths) {
             // in this case the subpaths parameters must match exactly the container datasets
             segmentation_subpaths = as_list(params.segmentation_subpaths)
