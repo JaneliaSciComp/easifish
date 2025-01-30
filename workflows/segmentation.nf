@@ -31,22 +31,26 @@ workflow SEGMENTATION {
     | flatMap { meta ->
         def input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
         def segmentation_subpaths
-        if (params.segmentation_subpath) {
-            segmentation_subpaths = as_list(params.segmentation_subpath)
+        if (params.segmentation_subpaths) {
+            // in this case the subpaths parameters must match exactly the container datasets
+            segmentation_subpaths = as_list(params.segmentation_subpaths)
         } else {
             def seg_channels = as_list(params.seg_channels)
             def seg_scales = as_list(params.seg_scales)
 
-            segmentation_subpaths = [seg_channels, seg_scales].combinations().collect { it.join('/') }
+            segmentation_subpaths = [seg_channels, seg_scales].combinations()
+                .collect {
+                    // when channel and scale is used we also prepend the stitched dataset
+                    def dataset = it.join('/')
+                    "${meta.stitched_dataset}/${dataset}"
+            }
         }
 
-        segmentation_subpaths.collect { seg_subpath ->
-            def input_img_dataset = "${meta.stitched_dataset}/${seg_subpath}"
-
+        segmentation_subpaths.collect { input_seg_subpath ->
             [
                 meta,
                 input_img_dir,
-                input_img_dataset,
+                input_seg_subpath,
                 "${outdir}/${params.segmentation_subdir}", // output dir
                 params.segmentation_imgname,
             ]

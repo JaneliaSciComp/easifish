@@ -5,7 +5,7 @@
     "outdir": "/nrs/scicompsoft/goinac/multifish/segtest",
 
     "segmentation_subdir": "segmentation",
-    "segmentation_subpath": ".",
+    "segmentation_subpaths": ".",
 
     "skip_stitching": true,
     "skip_registration": true,

@@ -643,9 +643,9 @@
                     "description": "Round id to be segmented",
                     "default": "t1"
                 },
-                "segmentation_subpath": {
+                "segmentation_subpaths": {
                     "type": "string",
-                    "description": "Segmentation dataset",
+                    "description": "Comma delimited list of segmentation datasets",
                 },
                 "seg_channels": {
                     "type": "string",
