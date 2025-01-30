@@ -19,5 +19,7 @@
     "reg_ch": "c1",
 
     "cellpose_verbose": true,
+    "cellpose_model": "cyto2",
+
     "cellpose_shrink_labels_to_merge": true,
 }
