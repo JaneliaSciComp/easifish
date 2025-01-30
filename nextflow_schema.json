@@ -643,6 +643,10 @@
                     "description": "Round id to be segmented",
                     "default": "t1"
                 },
+                "segmentation_input": {
+                    "type": "string",
+                    "description": "Segmentation input image - if set this will be the segmentation input",
+                },
                 "segmentation_subpaths": {
                     "type": "string",
                     "description": "Comma delimited list of segmentation datasets",
