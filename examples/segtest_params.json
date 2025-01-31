@@ -9,8 +9,8 @@
 
     "segmentation_subdir": "segmentation",
 
-    "sample_anisotropy": 1.83,
     "sample_expansion_factor": 2,
+    "sample_voxel_spacing": "0.232961,0.232961,0.425892",
 
     "skip_stitching": true,
     "skip_registration": true,
