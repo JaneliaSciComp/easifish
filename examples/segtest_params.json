@@ -25,6 +25,7 @@
 
     "cellpose_verbose": true,
     "cellpose_model": "cyto2",
+    "cellpose_diameter": 40,
     "cellpose_min_size": 15000,
     "cellpose_preprocessing_steps": "unshard",
 
