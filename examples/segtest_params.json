@@ -26,6 +26,8 @@
     "cellpose_verbose": true,
     "cellpose_model": "cyto2",
     "cellpose_min_size": 15000,
+    "cellpose_preprocessing_steps": "unshard",
+
     "distributed_cellpose_blocksize": "256,256,256",
 
     "cellpose_shrink_labels_to_merge": true,
