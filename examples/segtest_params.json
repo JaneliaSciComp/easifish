@@ -27,7 +27,7 @@
     "cellpose_model": "cyto2",
     "cellpose_diameter": 40,
     "cellpose_min_size": 15000,
-    "cellpose_preprocessing_steps": "unshard",
+    "cellpose_preprocessing_steps": "unsharp",
 
     "distributed_cellpose_blocksize": "256,256,256",
 
