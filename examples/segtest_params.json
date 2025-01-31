@@ -9,6 +9,9 @@
 
     "segmentation_subdir": "segmentation",
 
+    "sample_anisotropy": 1.83,
+    "sample_expansion_factor": 2,
+
     "skip_stitching": true,
     "skip_registration": true,
     "skip_global_align": false,
@@ -22,6 +25,8 @@
 
     "cellpose_verbose": true,
     "cellpose_model": "cyto2",
+    "cellpose_min_size": 15000,
+    "distributed_cellpose_blocksize": "256,256,256",
 
     "cellpose_shrink_labels_to_merge": true,
 }
