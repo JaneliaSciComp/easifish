@@ -280,28 +280,36 @@
                     "description": "Moving dataset used for local registration"
                 },
                 "global_fix_mask": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Mask used for the global fix image"
                 },
                 "global_fix_mask_subpath": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Subpath of the global fix mask"
                 },
                 "global_mov_mask": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Mask used for the global moving image"
                 },
                 "global_mov_mask_subpath": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Subpath of the global moving mask"
                 },
                 "local_fix_mask": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Mask used for the local fix image"
                 },
                 "local_fix_mask_subpath": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Subpath of the local fix mask"
                 },
                 "local_mov_mask": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Mask used for the local moving image"
                 },
                 "local_mov_mask_subpath": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Subpath of the local moving mask"
                 },
                 "local_inverse_cpus": {
                     "type": "integer",
@@ -315,11 +323,13 @@
                 },
                 "local_deform_cpus": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Number of cpus used for local deform driver"
                 },
                 "local_deform_mem_gb": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Max memory in GB allowed for local deform driver"
                 },
                 "local_steps": {
                     "type": "string",
@@ -425,7 +435,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -444,7 +454,8 @@
                 "bigstream_inv_sqrt_iterations": {
                     "type": "integer",
                     "default": 5,
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Number of iterations used for generating the inverse transformation"
                 },
                 "skip_deformations": {
                     "type": "boolean",
@@ -623,7 +634,8 @@
                 },
                 "multiscale_spark_driver_mem_gb": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Max memory allocated for the multi-scale spark driver"
                 },
                 "multiscale_resolution": {
                     "type": "string",
@@ -645,27 +657,31 @@
                 },
                 "segmentation_input": {
                     "type": "string",
-                    "description": "Segmentation input image - if set this will be the segmentation input",
+                    "description": "Segmentation input image - if set this will be the segmentation input"
                 },
                 "segmentation_subpaths": {
                     "type": "string",
-                    "description": "Comma delimited list of segmentation datasets",
+                    "description": "Comma delimited list of segmentation datasets"
                 },
                 "seg_channels": {
                     "type": "string",
-                    "default": "c1"
+                    "default": "c1",
+                    "description": "Channels used for segmentation"
                 },
                 "seg_scales": {
                     "type": "string",
-                    "default": "s2"
+                    "default": "s2",
+                    "description": "Scale of the segmented image"
                 },
                 "segmentation_subdir": {
                     "type": "string",
-                    "default": "segmentation"
+                    "default": "segmentation",
+                    "description": "Relative path of the segmentation result"
                 },
                 "segmentation_imgname": {
                     "type": "string",
-                    "default": "segmentation.n5"
+                    "default": "segmentation.n5",
+                    "description": "Name of the segmentation image"
                 },
                 "skip_segmentation": {
                     "type": "boolean",
@@ -682,7 +698,8 @@
                     "default": "cyto3"
                 },
                 "cellpose_models_dir": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Location of the cellpose models"
                 },
                 "cellpose_log_config": {
                     "type": "string",
@@ -691,93 +708,116 @@
                 },
                 "cellpose_dask_config": {
                     "type": "string",
-                    "default": "${projectDir}/conf/dask_config.yml"
+                    "default": "${projectDir}/conf/dask_config.yml",
+                    "description": "Dask configuration used for distributed cellpose"
                 },
                 "distributed_cellpose_blocksize": {
                     "type": "string",
-                    "default": "128,128,128"
+                    "default": "128,128,128",
+                    "description": "Cellpose blocksize used for parallelizing the distributed segmentation"
                 },
                 "cellpose_blocks_overlap": {
                     "type": "string",
-                    "default": "30,30,30"
+                    "default": "30,30,30",
+                    "description": "Blocks overlap used for distributed segmentation"
                 },
                 "cellpose_use_gpu": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "Use GPU for cellpose segmentation"
                 },
                 "cellpose_device": {
                     "type": "string",
-                    "default": "0"
+                    "default": "0",
+                    "description": "GPU device used for cellpose segmentation"
                 },
                 "cellpose_test": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Flag used to ouput intermediate segmentation results before inter-block label merging process"
                 },
                 "cellpose_diameter": {
                     "type": "integer",
-                    "default": 30
+                    "default": 30,
+                    "description": "Default cellpose cell size"
                 },
                 "cellpose_eval_channels": {
                     "type": "string",
-                    "default": "0,0"
+                    "default": "0,0",
+                    "description": "Cellpose eval channels"
                 },
                 "cellpose_min_size": {
                     "type": "integer",
-                    "default": 5
+                    "default": 5,
+                    "description": "Minimum number of pixels per mask, can turn off with -1"
                 },
                 "cellprob_threshold": {
                     "type": "number",
-                    "default": 1.0
+                    "default": 1,
+                    "description": "Probabilty threshold to control cellpose mask size."
                 },
                 "cellpose_iou_threshold": {
                     "type": "number",
-                    "default": 0.05
+                    "default": 0.05,
+                    "description": "Intersection over union threshold for merging labels from adjacent blocks"
                 },
                 "cellpose_save_intermediate_labels": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks"
                 },
                 "cellpose_shrink_labels_to_merge": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use shrink regions from adjacent faces before finding a possible mapping."
                 },
                 "cellpose_merge_iou_depth": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Parameter that controls the depth considered for merging the neighboring regions of the adjacent blocks"
                 },
                 "cellpose_segmentation_cpus": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Number of CPUs allocated for the segmentation driver"
                 },
                 "cellpose_segmentation_mem_gb": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Max memory allocated for the segmentation driver"
                 },
                 "cellpose_dask_workers": {
                     "type": "integer",
-                    "default": 10
+                    "default": 10,
+                    "description": "Number of cellpose Dask workers"
                 },
                 "cellpose_dask_min_workers": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Minimum number of Dask workers required for segmentation"
                 },
                 "cellpose_dask_worker_cpus": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "CPUs allocated for a cellpose Dask worker"
                 },
                 "cellpose_dask_worker_mem_gb": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Memory allocated for a cellpose Dask worker"
                 },
                 "max_cellpose_tasks": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Number of parallel segmentation tasks running on the Dask cluster. If 0, there's no limit."
                 },
                 "cellpose_scheduler_port": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Default scheduler's port of the Dask segmentation cluster"
                 },
                 "cellpose_dashboard_port": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Default dashboards port of the Dask segmentation cluster"
                 }
             }
         },
@@ -930,6 +970,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {}
+    ]
 }
