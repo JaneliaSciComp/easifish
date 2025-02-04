@@ -106,11 +106,19 @@ with `params.yaml` containing:
 ```yaml
 input: './samplesheet.csv'
 outdir: './results/'
-genome: 'GRCh37'
 <...>
 ```
 
 You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
+
+## Pipeline steps
+The pipeline currently supports the following steps:
+* Volume Reconstruction
+* Image Registration
+* Image Segmentation
+
+The parameters for these steps are defined in the corresponding group section from the [Nextflow schema file](../nextflow_schema.json).
+The user has options to skip any of the above steps or even some sub-steps provided that the data for sub-sequent steps is available.
 
 ### Updating the pipeline
 

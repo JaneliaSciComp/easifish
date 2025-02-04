@@ -5,7 +5,9 @@
     "outdir": "/nrs/scicompsoft/goinac/multifish/segtest",
 
     "segmentation_input": "/nrs/ahrensraverfish/fleishmang/F71/expanded/R0/segmentation_refactor_testing/dapi_zarr_small.zarr",
-    "segmentation_subpaths": ".",
+    "segmentation_subpaths": "",
+    "seg_channels": "",
+    "seg_scales": "",
 
     "segmentation_subdir": "segmentation",
 

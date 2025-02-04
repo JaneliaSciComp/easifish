@@ -212,19 +212,19 @@
                 },
                 "skip_registration": {
                     "type": "boolean",
-                    "description": "If set skip the entire registration, i.e., global alignment, local alignment, deformations and inverse"
+                    "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse"
                 },
                 "skip_global_align": {
                     "type": "boolean",
-                    "description": "If set skip global alignment"
+                    "description": "If true skip global alignment"
                 },
                 "skip_local_align": {
                     "type": "boolean",
-                    "description": "If set skip local blockwise alignment"
+                    "description": "If true skip local blockwise alignment"
                 },
                 "skip_inverse": {
                     "type": "boolean",
-                    "description": "If set skip computing the inverse transformation"
+                    "description": "If true skip computing the inverse transformation"
                 },
                 "registration_fix_id": {
                     "type": "string",
@@ -685,7 +685,7 @@
                 },
                 "skip_segmentation": {
                     "type": "boolean",
-                    "description": "If set skip segmentation"
+                    "description": "If true skip segmentation"
                 },
                 "distributed_cellpose": {
                     "type": "boolean",

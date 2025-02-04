@@ -6,7 +6,7 @@
 
 ## Introduction
 
-**JaneliaSciComp/easifish** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes flatfield correction and tile stitching, and outputs a multi-resolution image pyramid in N5 format. In the future this pipeline will support additional input formats as well as deconvolution and other image processing methods.
+**JaneliaSciComp/easifish** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes flatfield correction and tile stitching, and outputs a multi-resolution image pyramid in N5 format. The pipeline also supports registration to a reference round as well as segmentation of selected rounds.  In the future this pipeline will support additional input formats as well as deconvolution and other image processing methods.
 
 ![EASI-FISH metro map](docs/images/JaneliaSciComp-easifish_metro_map.png)
 
@@ -17,6 +17,11 @@
 5. Compute stitching ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/PipelineStitchingStepExecutor.java))
 6. Fuse files and export to N5 ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/PipelineFusionStepExecutor.java))
 7. Stop Spark cluster if configured
+8. Register low resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
+9. Spin up a [Dask cluster](https://github.com/dask) for the fine grain registration.
+10. Register high resolution moving rounds with respect to the corresponding high resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
+11. Generate the [multiscale pyramid](https://github.com/saalfeldlab/n5-spark/tree/master/src/main/java/org/janelia/saalfeldlab/n5/spark/downsample) for the aligned moving rounds
+12. Generate the segmentation for the selected round(s) using [Cellpose](https://github.com/MouseLand/cellpose).
 
 ## Usage
 
