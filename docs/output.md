@@ -44,4 +44,29 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 </details>
 
+### Registration output
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `registration/`
+  - Coarse alignment: `global_registration.n5`
+  - Final alignment: `registration.n5`
+  - Global affine transformation: `global/<id>/global-affine.mat`
+  - Local deformation vectors: `local/<id>/deform.n5`
+  - Local inverse deformation vectors - `local/<id/>/inv-deform.n5`
+
+</details>
+
+### Segmentation output
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `segmentation/`
+  - Segmentation labels: `segmentation.n5`
+
+</details>
+
+
 [Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
