@@ -30,6 +30,7 @@
     "warped_scales": "s0",
 
     "cellpose_test": false,
+    "cellpose_verbose": true,
     "cellpose_shrink_labels_to_merge": true,
 
     "spark_workers": 5,
@@ -42,5 +43,7 @@
     "bigstream_dashboard_port": 0,
 
     "multiscale_spark_workers": 1,
-    "multiscale_spark_worker_cores": 30
+    "multiscale_spark_worker_cores": 20,
+    "multiscale_spark_gb_per_core": 5
+
 }
