@@ -13,7 +13,7 @@
     "skip_local_align": false,
     "skip_deformations": false,
     "skip_inverse": false,
-    "skip_multiscale": true,
+    "skip_multiscale": false,
     "skip_segmentation": false,
 
     "flatfield_correction": false,
