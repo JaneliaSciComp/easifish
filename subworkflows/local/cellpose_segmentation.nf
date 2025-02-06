@@ -49,12 +49,15 @@ workflow CELLPOSE_SEGMENTATION {
                 segmentation_container,
                 segmentation_work_dir,
             ]
+
+            def cluster_dirs = [
+                img_container_dir,
+                output_dir,
+            ] + (cellpose_models_dir ? [ cellpose_models_dir ] : [])
+
             def cluster_data = [
                 segmentation_meta,
-                [ 
-                    img_container_dir,
-                    output_dir,
-                ],
+                cluster_dirs,
             ]
 
             log.debug "Prepare input to cellpose segmentation: $it -> {cellpose: ${cellpose_data}, cluster: ${cluster_data}}"
@@ -84,7 +87,7 @@ workflow CELLPOSE_SEGMENTATION {
                 meta,
                 img_container_dir,
                 img_dataset,
-                cellpose_models_dir,
+                cellpose_models_dir ?: [],
                 segmentation_container_dir,
                 segmentation_dataset,
                 segmentation_work_dir,
