@@ -31,7 +31,7 @@
 
     "cellpose_test": false,
     "cellpose_verbose": true,
-    "cellpose_shrink_labels_to_merge": true,
+    "cellpose_merge_labels_with_dt": true,
 
     "spark_workers": 5,
     "min_spark_workers": 2,

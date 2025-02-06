@@ -766,15 +766,20 @@
                     "default": 0.05,
                     "description": "Intersection over union threshold for merging labels from adjacent blocks"
                 },
+                "cellpose_labels_distance_th": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "Across labels distance transform threshold for merging labels from adjacent blocks"
+                },
                 "cellpose_save_intermediate_labels": {
                     "type": "boolean",
                     "default": true,
                     "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks",
                     "hidden": true
                 },
-                "cellpose_shrink_labels_to_merge": {
+                "cellpose_merge_labels_with_dt": {
                     "type": "boolean",
-                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use shrink regions from adjacent faces before finding a possible mapping.",
+                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use a distance transform for adjacent faces and merge across labels that are located above a specified threshold.",
                     "default": true,
                     "hidden": true
                 },

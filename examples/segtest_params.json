@@ -33,5 +33,5 @@
 
     "distributed_cellpose_blocksize": "256,256,256",
 
-    "cellpose_shrink_labels_to_merge": true,
+    "cellpose_merge_labels_with_dt": true
 }
