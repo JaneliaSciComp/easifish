@@ -749,7 +749,7 @@
                 "cellpose_eval_channels": {
                     "type": "string",
                     "default": "0,0",
-                    "description": "Cellpose eval channels"
+                    "description": "Cellpose eval channels - <cytoplasm channel>,<nucleus channel>. Channel values are typically for grayscale=0, Red=1, Green=2, Blue=3. If the nucleus channel does not exist - set it to 0"
                 },
                 "cellpose_min_size": {
                     "type": "integer",
