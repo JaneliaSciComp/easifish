@@ -783,6 +783,12 @@
                     "default": true,
                     "hidden": true
                 },
+                "cellpose_use_model_and_size": {
+                    "type": "boolean",
+                    "description": "If true use both CellposeModel and SizeModel to segment the volume, otherwise only use CellposeModel",
+                    "default": false,
+                    "hidden": true
+                },
                 "cellpose_merge_iou_depth": {
                     "type": "integer",
                     "default": 1,
