@@ -690,7 +690,8 @@
                 "distributed_cellpose": {
                     "type": "boolean",
                     "description": "Use a distributed dask cluster to run segmentation",
-                    "default": true
+                    "default": true,
+                    "hidden": true
                 },
                 "cellpose_model": {
                     "type": "string",
@@ -704,12 +705,14 @@
                 "cellpose_log_config": {
                     "type": "string",
                     "description": "Cellpose logging configuration",
-                    "default": "${projectDir}/conf/cellpose_logging_config.ini"
+                    "default": "${projectDir}/conf/cellpose_logging_config.ini",
+                    "hidden": true
                 },
                 "cellpose_dask_config": {
                     "type": "string",
                     "default": "${projectDir}/conf/dask_config.yml",
-                    "description": "Dask configuration used for distributed cellpose"
+                    "description": "Dask configuration used for distributed cellpose",
+                    "hidden": true
                 },
                 "distributed_cellpose_blocksize": {
                     "type": "string",
@@ -724,16 +727,19 @@
                 "cellpose_use_gpu": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Use GPU for cellpose segmentation"
+                    "description": "Use GPU for cellpose segmentation",
+                    "hidden": true
                 },
                 "cellpose_device": {
                     "type": "string",
                     "default": "0",
-                    "description": "GPU device used for cellpose segmentation"
+                    "description": "GPU device used for cellpose segmentation",
+                    "hidden": true
                 },
                 "cellpose_test": {
                     "type": "boolean",
-                    "description": "Flag used to ouput intermediate segmentation results before inter-block label merging process"
+                    "description": "Flag used to ouput intermediate segmentation results before inter-block label merging process",
+                    "hidden": true
                 },
                 "cellpose_diameter": {
                     "type": "integer",
@@ -763,16 +769,20 @@
                 "cellpose_save_intermediate_labels": {
                     "type": "boolean",
                     "default": true,
-                    "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks"
+                    "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks",
+                    "hidden": true
                 },
                 "cellpose_shrink_labels_to_merge": {
                     "type": "boolean",
-                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use shrink regions from adjacent faces before finding a possible mapping."
+                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use shrink regions from adjacent faces before finding a possible mapping.",
+                    "default": true,
+                    "hidden": true
                 },
                 "cellpose_merge_iou_depth": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Parameter that controls the depth considered for merging the neighboring regions of the adjacent blocks"
+                    "description": "Parameter that controls the depth considered for merging the neighboring regions of the adjacent blocks",
+                    "hidden": true
                 },
                 "cellpose_segmentation_cpus": {
                     "type": "integer",
@@ -807,17 +817,20 @@
                 "max_cellpose_tasks": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Number of parallel segmentation tasks running on the Dask cluster. If 0, there's no limit."
+                    "description": "Number of parallel segmentation tasks running on the Dask cluster. If 0, there's no limit.",
+                    "hidden": true
                 },
                 "cellpose_scheduler_port": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Default scheduler's port of the Dask segmentation cluster"
+                    "description": "Default scheduler's port of the Dask segmentation cluster",
+                    "hidden": true
                 },
                 "cellpose_dashboard_port": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Default dashboards port of the Dask segmentation cluster"
+                    "description": "Default dashboards port of the Dask segmentation cluster",
+                    "hidden": true
                 }
             }
         },
