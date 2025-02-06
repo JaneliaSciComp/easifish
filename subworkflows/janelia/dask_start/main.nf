@@ -53,7 +53,12 @@ workflow DASK_START {
         def dask_workers_input = DASK_WAITFORMANAGER.out.cluster_info
             | join(meta_and_files, by: 0)
             | flatMap {
-                def (meta, cluster_work_dir, scheduler_address, data_paths) = it
+                def (meta, cluster_work_dir, scheduler_address, dashboard_port, data_paths) = it
+                def dashboard_address_parts = scheduler_address.split(':')
+                dashboard_address_parts[0] = 'http'
+                dashboard_address_parts[-1] = dashboard_port
+
+                log.info "Scheduler address: ${scheduler_address} -> ${dashboard_address_parts.join(':')}"
                 def dask_config_path = dask_config ? file(dask_config) : []
                 def worker_list = 1..nworkers
                 worker_list.collect { worker_id ->
@@ -242,7 +247,10 @@ process DASK_WAITFORMANAGER {
     tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*')
 
     output:
-    tuple val(meta), env(cluster_work_fullpath), env(scheduler_address), emit: cluster_info
+    tuple val(meta),
+          env(cluster_work_fullpath),
+          env(scheduler_address), 
+          env(dashboard_port), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -263,9 +271,11 @@ process DASK_WAITFORMANAGER {
     if [[ -e "${dask_scheduler_info_file}" ]] ; then
         echo "\$(date): Get cluster info from ${dask_scheduler_info_file}"
         scheduler_address=\$(jq ".address" ${dask_scheduler_info_file})
+        dashboard_port=\$(jq ".services.dashboard" ${dask_scheduler_info_file})
     else
         echo "\$(date): Cluster info file ${dask_scheduler_info_file} not found"
         scheduler_address=
+        dashboard_port=
     fi
 
     dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//" )
@@ -280,7 +290,7 @@ process DASK_WAITFORWORKERS {
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2024.12.1-py11-ol9' }
 
     input:
-    tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*'), val(scheduler_address)
+    tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*'), val(scheduler_address), val(dashboard_port)
     val total_workers
     val required_workers
 
