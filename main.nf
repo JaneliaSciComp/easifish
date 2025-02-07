@@ -7,24 +7,17 @@
 ----------------------------------------------------------------------------------------
 */
 
-nextflow.enable.dsl = 2
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     VALIDATE & PRINT PARAMETER SUMMARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { validateParameters; paramsHelp } from 'plugin/nf-validation'
+include {
+          validateParameters; 
+          paramsHelp          } from 'plugin/nf-validation'
+include { EASIFISH            } from './workflows/easifish'
 
-// Print help message if needed
-if (params.help) {
-    def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
-    def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
-    def String command = "nextflow run ${workflow.manifest.name} --input samplesheet.csv --outdir ./output -profile docker"
-    log.info logo + paramsHelp(command) + citation + NfcoreTemplate.dashedLine(params.monochrome_logs)
-    System.exit(0)
-}
 
 // Validate input parameters
 if (params.validate_params) {
@@ -39,13 +32,21 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { EASIFISH } from './workflows/easifish'
 
 //
 // WORKFLOW: Run main JaneliaSciComp/easifish analysis pipeline
 //
 workflow {
-    EASIFISH ()
+    // Print help message if needed
+    if (params.help) {
+        def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
+        def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
+        def String command = "nextflow run ${workflow.manifest.name} --input samplesheet.csv --outdir ./output -profile docker"
+        log.info logo + paramsHelp(command) + citation + NfcoreTemplate.dashedLine(params.monochrome_logs)
+        System.exit(0)
+    }
+
+    EASIFISH()
 }
 
 /*

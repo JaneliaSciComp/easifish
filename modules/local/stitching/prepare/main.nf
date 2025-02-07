@@ -1,6 +1,6 @@
 process STITCHING_PREPARE {
     tag "${meta.id}"
-    container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0'
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0' }
     label 'process_single'
 
     input:

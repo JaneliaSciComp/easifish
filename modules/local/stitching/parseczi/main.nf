@@ -1,6 +1,6 @@
 process STITCHING_PARSECZI {
     tag "${meta.id}"
-    container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0'
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0' }
     cpus { spark.driver_cores }
     memory { spark.driver_memory }
 
@@ -30,25 +30,8 @@ process STITCHING_PARSECZI {
     """
     /opt/scripts/runapp.sh "$workflow.containerEngine" "$spark.work_dir" "$spark.uri" \
         /app/app.jar org.janelia.stitching.ParseCZITilesMetadata \
-        $spark.parallelism $spark.worker_cores "$executor_memory" $spark.driver_cores "$driver_memory" \
+        ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
         -i ${mvl} -b ${meta.image_dir} -f ${pattern} -o ${meta.stitching_dir} ${extra_args}
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        spark: \$(cat /opt/spark/VERSION)
-        stitching-spark: \$(cat /app/VERSION)
-    END_VERSIONS
-    """
-
-    stub:
-    """
-    # Create the output metadata
-    touch ${meta.stitching_dir}/tiles.json
-
-    # Create output N5 container (assume 2 channels for stub testing purposes)
-    mkdir -p ${meta.stitching_dir}/tiles.n5/c0
-    mkdir -p ${meta.stitching_dir}/tiles.n5/c1
-    echo "{\"n5\":\"2.2.0\"}" > ${meta.stitching_dir}/tiles.n5/attributes.json
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

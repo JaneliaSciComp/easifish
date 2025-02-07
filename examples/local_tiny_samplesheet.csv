@@ -1,7 +1,0 @@
-id,filename,pattern
-t3,LHA3_R3_tiny_V01.czi,LHA3_R3_tiny_V%02d.czi
-t3,LHA3_R3_tiny_V02.czi,LHA3_R3_tiny_V%02d.czi
-t3,LHA3_R3_tiny.mvl,
-t5,LHA3_R5_tiny_V01.czi,LHA3_R5_tiny_V%02d.czi
-t5,LHA3_R5_tiny_V02.czi,LHA3_R5_tiny_V%02d.czi
-t5,LHA3_R5_tiny.mvl,

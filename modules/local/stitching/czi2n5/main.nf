@@ -1,6 +1,6 @@
 process STITCHING_CZI2N5 {
     tag "${meta.id}"
-    container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0'
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0' }
     cpus { spark.driver_cores }
     memory { spark.driver_memory }
 
@@ -34,12 +34,10 @@ process STITCHING_CZI2N5 {
 
     stub:
     """
-    # Verify the input exists
-    test -f ${meta.stitching_dir}/tiles.json
-
-    # Create the output metadata file for each channel
-    touch ${meta.stitching_dir}/c0-n5.json
-    touch ${meta.stitching_dir}/c1-n5.json
+    /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
+        /app/app.jar org.janelia.stitching.fake.FakeCZITilesToN5Spark \
+        ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
+        ${app_args} ${extra_args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

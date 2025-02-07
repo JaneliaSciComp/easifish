@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/JaneliaSciComp/easifish/master/nextflow_schema.json",
     "title": "JaneliaSciComp/easifish pipeline parameters",
     "description": "Lightsheet microscopy image reconstruction",
@@ -88,6 +88,16 @@
                     "fa_icon": "fas fa-cube",
                     "description": "Apply flatfield correction before stitching? Default: false"
                 },
+                "darkfieldfile": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cube",
+                    "description": "Path to the precomputed darkfield file used for flatfield correction?"
+                },
+                "flatfieldfile": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cube",
+                    "description": "Path to the precomputed flatfield file used for flatfield correction"
+                },
                 "axis_mapping": {
                     "type": "string",
                     "fa_icon": "fas fa-chart-line",
@@ -142,8 +152,14 @@
                 "spark_workers": {
                     "type": "integer",
                     "fa_icon": "fas fa-cogs",
-                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 4",
+                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 10",
                     "default": 10
+                },
+                "min_spark_workers": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cogs",
+                    "description": "Minimum number of Spark workers needed to start stitching pipeline. Default: 5",
+                    "default": 5
                 },
                 "spark_worker_cores": {
                     "type": "integer",
@@ -156,7 +172,7 @@
                     "fa_icon": "fas fa-cog",
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
                     "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. ",
-                    "default": 12
+                    "default": 15
                 },
                 "spark_driver_cores": {
                     "type": "integer",
@@ -185,13 +201,30 @@
         "registration": {
             "title": "Registration",
             "type": "object",
-            "description": "",
+            "description": "Registration options",
             "default": "",
             "properties": {
                 "bigstream_config": {
                     "type": "string",
-                    "default": "conf/bigstream_config.yml",
-                    "description": "Location of the YAML bigstream configuration"
+                    "default": "${projectDir}/conf/bigstream_config.yml",
+                    "description": "Location of the YAML bigstream configuration",
+                    "hidden": true
+                },
+                "skip_registration": {
+                    "type": "boolean",
+                    "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse"
+                },
+                "skip_global_align": {
+                    "type": "boolean",
+                    "description": "If true skip global alignment"
+                },
+                "skip_local_align": {
+                    "type": "boolean",
+                    "description": "If true skip local blockwise alignment"
+                },
+                "skip_inverse": {
+                    "type": "boolean",
+                    "description": "If true skip computing the inverse transformation"
                 },
                 "registration_fix_id": {
                     "type": "string",
@@ -246,6 +279,58 @@
                     "hidden": true,
                     "description": "Moving dataset used for local registration"
                 },
+                "global_fix_mask": {
+                    "type": "string",
+                    "description": "Mask used for the global fix image"
+                },
+                "global_fix_mask_subpath": {
+                    "type": "string",
+                    "description": "Subpath of the global fix mask"
+                },
+                "global_mov_mask": {
+                    "type": "string",
+                    "description": "Mask used for the global moving image"
+                },
+                "global_mov_mask_subpath": {
+                    "type": "string",
+                    "description": "Subpath of the global moving mask"
+                },
+                "local_fix_mask": {
+                    "type": "string",
+                    "description": "Mask used for the local fix image"
+                },
+                "local_fix_mask_subpath": {
+                    "type": "string",
+                    "description": "Subpath of the local fix mask"
+                },
+                "local_mov_mask": {
+                    "type": "string",
+                    "description": "Mask used for the local moving image"
+                },
+                "local_mov_mask_subpath": {
+                    "type": "string",
+                    "description": "Subpath of the local moving mask"
+                },
+                "local_inverse_cpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of cpus used for the main compute inverse process"
+                },
+                "local_inverse_mem_gb": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Memory used by the main compute inverse process"
+                },
+                "local_deform_cpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of cpus used for local deform driver"
+                },
+                "local_deform_mem_gb": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Max memory in GB allowed for local deform driver"
+                },
                 "local_steps": {
                     "type": "string",
                     "default": "affine,deform",
@@ -262,6 +347,16 @@
                     "hidden": true,
                     "description": "subpath used for saving the deformation field"
                 },
+                "local_transform_name": {
+                    "type": "string",
+                    "default": "deform.n5",
+                    "description": "Name of the container for the local deform transformation"
+                },
+                "local_inv_transform_name": {
+                    "type": "string",
+                    "default": "inv-deform.n5",
+                    "description": "Name of the container for the local inverse deform transformation"
+                },
                 "warped_subpaths": {
                     "type": "string",
                     "description": "explicit datasets to be warped",
@@ -274,8 +369,9 @@
                 },
                 "dask_config": {
                     "type": "string",
-                    "default": "conf/dask_config.yml",
-                    "description": "Dask cluster configuration"
+                    "default": "${projectDir}/conf/dask_config.yml",
+                    "description": "Dask cluster configuration",
+                    "hidden": true
                 },
                 "warped_channels": {
                     "type": "string",
@@ -289,13 +385,13 @@
                 },
                 "global_align_cpus": {
                     "type": "integer",
-                    "default": 6,
+                    "default": 3,
                     "hidden": true,
                     "description": "Number of CPUs used for global registration"
                 },
                 "global_align_mem_gb": {
                     "type": "integer",
-                    "default": 15,
+                    "default": 0,
                     "description": "Memory for global alignment",
                     "hidden": true
                 },
@@ -307,7 +403,7 @@
                 },
                 "local_align_mem_gb": {
                     "type": "integer",
-                    "default": 15,
+                    "default": 0,
                     "description": "Memory (GB) used for local alignment driver",
                     "hidden": true
                 },
@@ -329,7 +425,8 @@
                 "local_align_worker_mem_gb": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Memory for each worker"
+                    "description": "Memory for each worker",
+                    "hidden": true
                 },
                 "bigstream_local_blocksize": {
                     "type": "string",
@@ -338,7 +435,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -357,7 +454,23 @@
                 "bigstream_inv_sqrt_iterations": {
                     "type": "integer",
                     "default": 5,
-                    "hidden": true
+                    "hidden": true,
+                    "description": "Number of iterations used for generating the inverse transformation"
+                },
+                "skip_deformations": {
+                    "type": "boolean",
+                    "hidden": true,
+                    "description": "If true skip deformations"
+                },
+                "bigstream_dashboard_port": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Bigstream dask dashboard port - if 0 the scheduler will pick a port that is available. The typical port used by the dask dashboard is 8787"
+                },
+                "bigstream_scheduler_port": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Bigstream dask scheduler port - if 0 the scheduler will pick a port that is available. The typical port for the dask scheduler is 8786"
                 },
                 "bigstream_dask_cluster_max_tasks": {
                     "type": "integer",
@@ -365,15 +478,24 @@
                     "hidden": true,
                     "description": "Total number of concurrent dask tasks"
                 },
-                "dask_scheduler_port_binding": {
-                    "type": "string"
+                "global_registration_container": {
+                    "type": "string",
+                    "default": "global-registration.n5",
+                    "description": "Name of the global registration container"
                 },
-                "registration_result_container": {
+                "local_registration_container": {
                     "type": "string",
                     "default": "registration.n5",
                     "description": "Name of the final registration container"
+                },
+                "registration_subdir": {
+                    "type": "string",
+                    "hidden": true,
+                    "default": "registration",
+                    "description": "Subdirectory used for registration results"
                 }
-            }
+            },
+            "help_text": "Registration parameters"
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -467,6 +589,259 @@
                     "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$",
                     "hidden": true,
                     "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
+                }
+            }
+        },
+        "multiscale": {
+            "title": "Multiscale",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_multiscale": {
+                    "type": "boolean",
+                    "description": "If true skip multiscale"
+                },
+                "multiscale_with_spark_cluster": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use a spark cluster for multiscale"
+                },
+                "multiscale_min_spark_workers": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Minimum number of spark workers for multiscale"
+                },
+                "multiscale_spark_workers": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of spark workers for multiscale"
+                },
+                "multiscale_spark_worker_cores": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Number of cores for the multiscale spark workers"
+                },
+                "multiscale_spark_gb_per_core": {
+                    "type": "integer",
+                    "default": 15,
+                    "description": "Number of GB per cpu"
+                },
+                "multiscale_spark_driver_cores": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of cpus for the multiscale driver"
+                },
+                "multiscale_spark_driver_mem_gb": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Max memory allocated for the multi-scale spark driver"
+                },
+                "multiscale_resolution": {
+                    "type": "string",
+                    "default": "0.23,0.23,0.42",
+                    "description": "Resolution used for multiscale"
+                }
+            }
+        },
+        "segmentation": {
+            "title": "Segmentation options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "segmentation_ids": {
+                    "type": "string",
+                    "description": "Round id to be segmented",
+                    "default": "t1"
+                },
+                "segmentation_input": {
+                    "type": "string",
+                    "description": "Segmentation input image - if set this will be the segmentation input"
+                },
+                "segmentation_subpaths": {
+                    "type": "string",
+                    "description": "Comma delimited list of segmentation datasets"
+                },
+                "seg_channels": {
+                    "type": "string",
+                    "default": "c1",
+                    "description": "Channels used for segmentation"
+                },
+                "seg_scales": {
+                    "type": "string",
+                    "default": "s2",
+                    "description": "Scale of the segmented image"
+                },
+                "segmentation_subdir": {
+                    "type": "string",
+                    "default": "segmentation",
+                    "description": "Relative path of the segmentation result"
+                },
+                "segmentation_imgname": {
+                    "type": "string",
+                    "default": "segmentation.n5",
+                    "description": "Name of the segmentation image"
+                },
+                "skip_segmentation": {
+                    "type": "boolean",
+                    "description": "If true skip segmentation"
+                },
+                "distributed_cellpose": {
+                    "type": "boolean",
+                    "description": "Use a distributed dask cluster to run segmentation",
+                    "default": true,
+                    "hidden": true
+                },
+                "cellpose_model": {
+                    "type": "string",
+                    "description": "Cellpose model name",
+                    "default": "cyto3"
+                },
+                "cellpose_models_dir": {
+                    "type": "string",
+                    "description": "Location of the cellpose models"
+                },
+                "cellpose_log_config": {
+                    "type": "string",
+                    "description": "Cellpose logging configuration",
+                    "default": "${projectDir}/conf/cellpose_logging_config.ini",
+                    "hidden": true
+                },
+                "cellpose_dask_config": {
+                    "type": "string",
+                    "default": "${projectDir}/conf/dask_config.yml",
+                    "description": "Dask configuration used for distributed cellpose",
+                    "hidden": true
+                },
+                "distributed_cellpose_blocksize": {
+                    "type": "string",
+                    "default": "128,128,128",
+                    "description": "Cellpose blocksize used for parallelizing the distributed segmentation"
+                },
+                "cellpose_blocks_overlap": {
+                    "type": "string",
+                    "default": "30,30,30",
+                    "description": "Blocks overlap used for distributed segmentation"
+                },
+                "cellpose_use_gpu": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use GPU for cellpose segmentation",
+                    "hidden": true
+                },
+                "cellpose_device": {
+                    "type": "string",
+                    "default": "0",
+                    "description": "GPU device used for cellpose segmentation",
+                    "hidden": true
+                },
+                "cellpose_test": {
+                    "type": "boolean",
+                    "description": "Flag used to ouput intermediate segmentation results before inter-block label merging process",
+                    "hidden": true
+                },
+                "cellpose_diameter": {
+                    "type": "integer",
+                    "default": 30,
+                    "description": "Default cellpose cell size"
+                },
+                "cellpose_eval_channels": {
+                    "type": "string",
+                    "default": "0,0",
+                    "description": "Cellpose eval channels - <cytoplasm channel>,<nucleus channel>. Channel values are typically for grayscale=0, Red=1, Green=2, Blue=3. If the nucleus channel does not exist - set it to 0"
+                },
+                "cellpose_min_size": {
+                    "type": "integer",
+                    "default": 5,
+                    "description": "Minimum number of pixels per mask, can turn off with -1"
+                },
+                "cellprob_threshold": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Probabilty threshold to control cellpose mask size."
+                },
+                "cellpose_iou_threshold": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "Intersection over union threshold for merging labels from adjacent blocks"
+                },
+                "cellpose_labels_distance_th": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "Across labels distance transform threshold for merging labels from adjacent blocks"
+                },
+                "cellpose_save_intermediate_labels": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks",
+                    "hidden": true
+                },
+                "cellpose_merge_labels_with_dt": {
+                    "type": "boolean",
+                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use a distance transform for adjacent faces and merge across labels that are located above a specified threshold.",
+                    "default": true,
+                    "hidden": true
+                },
+                "cellpose_use_model_and_size": {
+                    "type": "boolean",
+                    "description": "If true use both CellposeModel and SizeModel to segment the volume, otherwise only use CellposeModel",
+                    "default": false,
+                    "hidden": true
+                },
+                "cellpose_merge_iou_depth": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Parameter that controls the depth considered for merging the neighboring regions of the adjacent blocks",
+                    "hidden": true
+                },
+                "cellpose_segmentation_cpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of CPUs allocated for the segmentation driver"
+                },
+                "cellpose_segmentation_mem_gb": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Max memory allocated for the segmentation driver"
+                },
+                "cellpose_dask_workers": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Number of cellpose Dask workers"
+                },
+                "cellpose_dask_min_workers": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Minimum number of Dask workers required for segmentation"
+                },
+                "cellpose_dask_worker_cpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "CPUs allocated for a cellpose Dask worker"
+                },
+                "cellpose_dask_worker_mem_gb": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Memory allocated for a cellpose Dask worker"
+                },
+                "max_cellpose_tasks": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Number of parallel segmentation tasks running on the Dask cluster. If 0, there's no limit.",
+                    "hidden": true
+                },
+                "cellpose_scheduler_port": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Default scheduler's port of the Dask segmentation cluster",
+                    "hidden": true
+                },
+                "cellpose_dashboard_port": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Default dashboards port of the Dask segmentation cluster",
+                    "hidden": true
                 }
             }
         },
@@ -609,6 +984,12 @@
         },
         {
             "$ref": "#/definitions/max_job_request_options"
+        },
+        {
+            "$ref": "#/definitions/multiscale"
+        },
+        {
+            "$ref": "#/definitions/segmentation"
         },
         {
             "$ref": "#/definitions/generic_options"

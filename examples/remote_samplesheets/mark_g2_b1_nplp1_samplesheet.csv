@@ -1,0 +1,5 @@
+id,filename,pattern,checksum,uri
+t1,G2_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x.czi,,,http://e03u06/SCSW/JADEServices/v1/storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/022724_PPS_Atlas_R1/Gel2/G2_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x.czi
+t1,G2_B1_R1_3x5.mvl,,,http://e03u06/SCSW/JADEServices/v1/storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/022724_PPS_Atlas_R1/Gel2/G2_B1_R1_3x5.mvl
+t8.nplp1,G2_B1_F_R8_Nplp1_546_10p_1x.czi,,,http://e03u06/SCSW/JADEServices/v1/storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/041624_PPS_Atlas_R8/G2R8/NPLP1_10%25/G2_B1_F_R8_Nplp1_546_10p_1x.czi
+t8.nplp1,G2B1_R8_Nplp1_3x5.mvl,,,http://e03u06/SCSW/JADEServices/v1/storage_content/storage_path_redirect/nearline/flynp/EASI-FISH_NP_Atlas_Mark_Z1/041624_PPS_Atlas_R8/G2R8/NPLP1_10%25/G2B1_R8_Nplp1_3x5.mvl

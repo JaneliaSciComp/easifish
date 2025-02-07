@@ -5,20 +5,35 @@
         "git@github.com:JaneliaSciComp/nextflow-modules.git": {
             "modules": {
                 "janelia": {
+                    "bigstream/computeinverse": {
+                        "branch": "main",
+                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
+                        "installed_by": ["modules"]
+                    },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "039d3601b26390c3a91ce2b74d838bfbd083a446",
+                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
+                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
+                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
                         "installed_by": ["bigstream_registration"]
+                    },
+                    "cellpose": {
+                        "branch": "main",
+                        "git_sha": "171ed72a92141f64bfcef2ade915331fd5bbcbda",
+                        "installed_by": ["modules"]
+                    },
+                    "cellpose/tests": {
+                        "branch": "main",
+                        "git_sha": "171ed72a92141f64bfcef2ade915331fd5bbcbda",
+                        "installed_by": ["modules"]
                     }
                 }
             },
@@ -26,22 +41,22 @@
                 "janelia": {
                     "bigstream_registration": {
                         "branch": "main",
-                        "git_sha": "7e31876916100799bc3925b6e9ef0a8a20127aae",
+                        "git_sha": "d7d82538cad8fc7edc2ae3bc6449c33a614d7b86",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "7229cc499c67cb18dfd96355294a2cae6529ac3a",
+                        "git_sha": "797ac8b4e5c377691b76cb04378902c8aa1d7c5d",
                         "installed_by": ["bigstream_registration"]
                     },
                     "dask_stop": {
                         "branch": "main",
-                        "git_sha": "980489d4eaecf85c69734445094d6917eab81532",
+                        "git_sha": "d7d82538cad8fc7edc2ae3bc6449c33a614d7b86",
                         "installed_by": ["bigstream_registration"]
                     },
                     "spark_start": {
                         "branch": "main",
-                        "git_sha": "7229cc499c67cb18dfd96355294a2cae6529ac3a",
+                        "git_sha": "ce27f00338affaed60cbb37b4dc060f145297c23",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_stop": {
@@ -57,7 +72,7 @@
                 "nf-core": {
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "de45447d060b8c8b98575bc637a4a575fd0638e1",
+                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
                         "installed_by": ["modules"]
                     }
                 }

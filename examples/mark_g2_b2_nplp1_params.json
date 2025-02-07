@@ -1,0 +1,38 @@
+{
+    "channels": "c0,c1",
+    "input": "examples/remote_samplesheets/mark_g2_b2_nplp1_samplesheet.csv",
+    "indir": "/nrs/scicompsoft/goinac/multifish/mark",
+    "outdir": "/nrs/scicompsoft/goinac/multifish/mark/results/g2-b2",
+    "registration_subdir": "registration",
+    "flatfield_correction": false,
+    "stitching_channel": "c1",
+
+    "spark_workers": 1,
+    "spark_worker_cores": 30,
+
+    "skip_stitching": true,
+    "skip_registration": false,
+    "skip_global_align": true,
+    "skip_local_align": true,
+    "skip_deformations": false,
+    "skip_inverse": true,
+    "skip_multiscale": false,
+
+    "registration_fix_id": "t1",
+    "reg_ch": "c1",
+    "fix_global_subpath": "c3/s3",
+    "mov_global_subpath": "c1/s3",
+    "fix_local_subpath": "c3/s2",
+    "mov_local_subpath": "c1/s2",
+
+    "warped_subpaths": "c1/s0:c0/s0,c3/s0:c1/s0",
+
+    "local_align_workers": 50,
+    "local_align_worker_cpus": 1,
+    "local_align_worker_mem_gb": 8,
+    "bigstream_scheduler_port": 0,
+    "bigstream_dashboard_port": 8787,
+
+    "lsf_opts": "-P flynp",
+    "lsf_queue_size": 1000
+}
