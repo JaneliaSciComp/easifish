@@ -7,22 +7,22 @@
                 "janelia": {
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "e20fa09c885ead4ce86ea235faebe47114a18b92",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "e20fa09c885ead4ce86ea235faebe47114a18b92",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "e20fa09c885ead4ce86ea235faebe47114a18b92",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "e20fa09c885ead4ce86ea235faebe47114a18b92",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["bigstream_registration"]
                     },
                     "cellpose": {
@@ -41,7 +41,7 @@
                 "janelia": {
                     "bigstream_registration": {
                         "branch": "main",
-                        "git_sha": "185134a28160bdc9b5deb35b4d6b3c9839fddbe6",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_start": {
