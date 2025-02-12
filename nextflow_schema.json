@@ -242,7 +242,6 @@
                 },
                 "reg_ch": {
                     "type": "string",
-                    "default": "c1",
                     "description": "Reference channel used for registration"
                 },
                 "reuse_global_affine": {
@@ -435,7 +434,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0,
+                    "default": 0.125,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
@@ -447,7 +446,7 @@
                 },
                 "bigstream_inv_iterations": {
                     "type": "string",
-                    "default": "20",
+                    "default": 5,
                     "hidden": true,
                     "description": "Iterations for generating the inverse deformation field. This can be a comma separated list for using multiple iteration levels."
                 },
@@ -495,12 +494,6 @@
                     "type": "integer",
                     "default": 0,
                     "description": "Bigstream dask scheduler port - if 0 the scheduler will pick a port that is available. The typical port for the dask scheduler is 8786"
-                },
-                "bigstream_dask_cluster_max_tasks": {
-                    "type": "integer",
-                    "default": 0,
-                    "hidden": true,
-                    "description": "Total number of concurrent dask tasks"
                 },
                 "global_registration_container": {
                     "type": "string",
@@ -745,7 +738,6 @@
                 },
                 "cellpose_blocks_overlap": {
                     "type": "string",
-                    "default": "30,30,30",
                     "description": "Blocks overlap used for distributed segmentation"
                 },
                 "cellpose_use_gpu": {
@@ -782,7 +774,7 @@
                 },
                 "cellprob_threshold": {
                     "type": "number",
-                    "default": 1,
+                    "default": 1.0,
                     "description": "Probabilty threshold to control cellpose mask size."
                 },
                 "cellpose_iou_threshold": {
