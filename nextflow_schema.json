@@ -439,23 +439,47 @@
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
+                "bigstream_inv_step": {
+                    "type": "number",
+                    "default": 1.0,
+                    "hidden": true,
+                    "description": "Step used for generating inverse displacement vector"
+                },
                 "bigstream_inv_iterations": {
-                    "type": "integer",
-                    "default": 5,
+                    "type": "string",
+                    "default": "20",
                     "hidden": true,
-                    "description": "Iterations for generating the inverse deformation field"
+                    "description": "Iterations for generating the inverse deformation field. This can be a comma separated list for using multiple iteration levels."
                 },
-                "bigstream_inv_order": {
-                    "type": "integer",
-                    "default": 2,
+                "bigstream_inv_shrink_spacings": {
+                    "type": "string",
+                    "default": "",
                     "hidden": true,
-                    "description": "Parameter for generating the inverse deformation field"
+                    "description": "Comma separated list of shrink spacing values per level. The number of values here must equal the number of iteration levels defined by `bigstream_inv_iterations`."
                 },
-                "bigstream_inv_sqrt_iterations": {
-                    "type": "integer",
-                    "default": 5,
+                "bigstream_inv_smooth_sigmas": {
+                    "type": "string",
+                    "default": "0.",
                     "hidden": true,
-                    "description": "Number of iterations used for generating the inverse transformation"
+                    "description": "Comma separated list of smooth sigmas per level"
+                },
+                "bigstream_inv_step_cut_factor": {
+                    "type": "number",
+                    "default": 0.5,
+                    "hidden": true,
+                    "description": "Step cut factor used for generated inverse displacement vector"
+                },
+                "bigstream_inv_pad": {
+                    "type": "number",
+                    "default": 0.1,
+                    "hidden": true,
+                    "description": "Padding used for generated inverse displacement vector"
+                },
+                "bigstream_inv_use_root": {
+                    "type": "boolean",
+                    "default": true,
+                    "hidden": true,
+                    "description": "Use root for generating the inverse displacement vector"
                 },
                 "skip_deformations": {
                     "type": "boolean",
@@ -777,10 +801,10 @@
                     "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks",
                     "hidden": true
                 },
-                "cellpose_merge_labels_with_dt": {
+                "cellpose_merge_with_iou_only": {
                     "type": "boolean",
-                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use a distance transform for adjacent faces and merge across labels that are located above a specified threshold.",
-                    "default": true,
+                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use only IOU of the labels across adjacent faces.",
+                    "default": false,
                     "hidden": true
                 },
                 "cellpose_use_model_and_size": {
@@ -824,12 +848,6 @@
                     "type": "integer",
                     "default": 0,
                     "description": "Memory allocated for a cellpose Dask worker"
-                },
-                "max_cellpose_tasks": {
-                    "type": "integer",
-                    "default": 0,
-                    "description": "Number of parallel segmentation tasks running on the Dask cluster. If 0, there's no limit.",
-                    "hidden": true
                 },
                 "cellpose_scheduler_port": {
                     "type": "integer",

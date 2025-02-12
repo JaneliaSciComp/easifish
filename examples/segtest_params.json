@@ -29,11 +29,15 @@
     "cellpose_model": "cyto2",
     "cellpose_diameter": 40,
     "cellpose_min_size": 15000,
-    "cellpose_preprocessing_steps": "unsharp",
+    "cellpose_preprocessing_steps": "",
     "cellpose_use_model_and_size": false,
 
     "distributed_cellpose_blocksize": "256,256,256",
     "cellpose_blocks_overlap": "60,60,60",
 
-    "cellpose_merge_labels_with_dt": true
+    "cellpose_merge_with_iou_only": false,
+
+    "cellpose_worker_runtime_opts": "--nv",
+    "lsf_opts": "",
+    "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"
 }

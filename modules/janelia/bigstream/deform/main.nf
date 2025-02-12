@@ -1,6 +1,6 @@
 process BIGSTREAM_DEFORM {
     tag "${meta.id}"
-    container { task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:1.3.2-dask2024.4.1-py11' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:5.0.1-dask2025.1.0-py12' }
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
 

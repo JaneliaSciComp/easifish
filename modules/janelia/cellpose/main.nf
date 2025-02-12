@@ -1,5 +1,5 @@
 process CELLPOSE {
-    container { task.ext.container ?: 'janeliascicomp/cellpose:3.1.0-dask2024.12.1-py11' }
+    container { task.ext.container ?: 'janeliascicomp/cellpose:3.1.0-dask2025.1.0-py12' }
     cpus { cellpose_cpus }
     memory "${cellpose_mem_in_gb} GB"
 
