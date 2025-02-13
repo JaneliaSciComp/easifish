@@ -36,7 +36,7 @@ process CELLPOSE {
            export CELLPOSE_LOCAL_MODELS_PATH=\${models_fullpath}"
         : ''
     def logging_config_arg = logging_config ? "--logging-config ${logging_config}" : ''
-    def models_path_arg = models_path ? "--models-dir ${models_path}" : ''
+    def models_path_arg = models_path ? "--models-dir \${models_fullpath}" : ''
     def working_dir_arg = working_dir ?: output_dir
     def output_image_name = output_name ?: ''
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
