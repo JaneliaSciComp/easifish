@@ -446,7 +446,7 @@
                 },
                 "bigstream_inv_iterations": {
                     "type": "string",
-                    "default": 5,
+                    "default": "20",
                     "hidden": true,
                     "description": "Iterations for generating the inverse deformation field. This can be a comma separated list for using multiple iteration levels."
                 },
@@ -784,7 +784,7 @@
                 },
                 "cellpose_labels_distance_th": {
                     "type": "number",
-                    "default": 0.05,
+                    "default": 1,
                     "description": "Across labels distance transform threshold for merging labels from adjacent blocks"
                 },
                 "cellpose_save_intermediate_labels": {
@@ -796,13 +796,11 @@
                 "cellpose_merge_with_iou_only": {
                     "type": "boolean",
                     "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use only IOU of the labels across adjacent faces.",
-                    "default": false,
                     "hidden": true
                 },
                 "cellpose_use_model_and_size": {
                     "type": "boolean",
                     "description": "If true use both CellposeModel and SizeModel to segment the volume, otherwise only use CellposeModel",
-                    "default": false,
                     "hidden": true
                 },
                 "cellpose_merge_iou_depth": {
@@ -1004,5 +1002,38 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "sample_anisotropy": {
+            "type": "integer",
+            "default": 1
+        },
+        "sample_expansion_factor": {
+            "type": "integer",
+            "default": 1
+        },
+        "sample_voxel_spacing": {
+            "type": "string"
+        },
+        "sample_z_axis": {
+            "type": "integer",
+            "default": 0
+        },
+        "cellpose_verbose": {
+            "type": "boolean"
+        },
+        "cellpose_preprocessing_steps": {
+            "type": "string"
+        },
+        "cellpose_preprocessing_params_file": {
+            "type": "string"
+        },
+        "cellpose_worker_runtime_opts": {
+            "type": "string"
+        },
+        "cellpose_worker_lsf_opts": {
+            "type": "string",
+            "default": "-q gpu_l4 -gpu \"num=1"
+        }
+    }
 }
