@@ -31,7 +31,7 @@
 
     "cellpose_test": false,
     "cellpose_verbose": true,
-    "cellpose_dask_workers": 4,
+    "cellpose_dask_workers": 3,
     "cellpose_merge_with_iou_only": false,
     "cellpose_worker_runtime_opts": "--nv",
 
