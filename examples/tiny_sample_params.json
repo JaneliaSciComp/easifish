@@ -31,7 +31,8 @@
 
     "cellpose_test": false,
     "cellpose_verbose": true,
-    "cellpose_merge_labels_with_dt": true,
+    "cellpose_merge_with_iou_only": false,
+    "cellpose_worker_runtime_opts": "--nv",
 
     "spark_workers": 5,
     "min_spark_workers": 2,
@@ -44,6 +45,8 @@
 
     "multiscale_spark_workers": 1,
     "multiscale_spark_worker_cores": 20,
-    "multiscale_spark_gb_per_core": 5
+    "multiscale_spark_gb_per_core": 5,
 
+    "lsf_opts": "-P scicompsoft",
+    "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"
 }
