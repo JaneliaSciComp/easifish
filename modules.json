@@ -7,32 +7,32 @@
                 "janelia": {
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "f72a36570f93d11f0e82067020ac18b474ed4d53",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["bigstream_registration"]
                     },
                     "cellpose": {
                         "branch": "main",
-                        "git_sha": "171ed72a92141f64bfcef2ade915331fd5bbcbda",
+                        "git_sha": "8232ff68e737a6788759d1f0f0cf50fd82580ea5",
                         "installed_by": ["modules"]
                     },
                     "cellpose/tests": {
                         "branch": "main",
-                        "git_sha": "171ed72a92141f64bfcef2ade915331fd5bbcbda",
+                        "git_sha": "8232ff68e737a6788759d1f0f0cf50fd82580ea5",
                         "installed_by": ["modules"]
                     }
                 }
@@ -41,7 +41,7 @@
                 "janelia": {
                     "bigstream_registration": {
                         "branch": "main",
-                        "git_sha": "d7d82538cad8fc7edc2ae3bc6449c33a614d7b86",
+                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_start": {
@@ -72,7 +72,7 @@
                 "nf-core": {
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     }
                 }

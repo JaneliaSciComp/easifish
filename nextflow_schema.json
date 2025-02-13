@@ -242,7 +242,6 @@
                 },
                 "reg_ch": {
                     "type": "string",
-                    "default": "c1",
                     "description": "Reference channel used for registration"
                 },
                 "reuse_global_affine": {
@@ -435,27 +434,51 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
-                    "default": 0,
+                    "default": 0.125,
                     "hidden": true,
                     "description": "Block overlap used for local alignment"
                 },
+                "bigstream_inv_step": {
+                    "type": "number",
+                    "default": 1.0,
+                    "hidden": true,
+                    "description": "Step used for generating inverse displacement vector"
+                },
                 "bigstream_inv_iterations": {
-                    "type": "integer",
-                    "default": 5,
+                    "type": "string",
+                    "default": "20",
                     "hidden": true,
-                    "description": "Iterations for generating the inverse deformation field"
+                    "description": "Iterations for generating the inverse deformation field. This can be a comma separated list for using multiple iteration levels."
                 },
-                "bigstream_inv_order": {
-                    "type": "integer",
-                    "default": 2,
+                "bigstream_inv_shrink_spacings": {
+                    "type": "string",
+                    "default": "",
                     "hidden": true,
-                    "description": "Parameter for generating the inverse deformation field"
+                    "description": "Comma separated list of shrink spacing values per level. The number of values here must equal the number of iteration levels defined by `bigstream_inv_iterations`."
                 },
-                "bigstream_inv_sqrt_iterations": {
-                    "type": "integer",
-                    "default": 5,
+                "bigstream_inv_smooth_sigmas": {
+                    "type": "string",
+                    "default": "0.",
                     "hidden": true,
-                    "description": "Number of iterations used for generating the inverse transformation"
+                    "description": "Comma separated list of smooth sigmas per level"
+                },
+                "bigstream_inv_step_cut_factor": {
+                    "type": "number",
+                    "default": 0.5,
+                    "hidden": true,
+                    "description": "Step cut factor used for generated inverse displacement vector"
+                },
+                "bigstream_inv_pad": {
+                    "type": "number",
+                    "default": 0.1,
+                    "hidden": true,
+                    "description": "Padding used for generated inverse displacement vector"
+                },
+                "bigstream_inv_use_root": {
+                    "type": "boolean",
+                    "default": true,
+                    "hidden": true,
+                    "description": "Use root for generating the inverse displacement vector"
                 },
                 "skip_deformations": {
                     "type": "boolean",
@@ -471,12 +494,6 @@
                     "type": "integer",
                     "default": 0,
                     "description": "Bigstream dask scheduler port - if 0 the scheduler will pick a port that is available. The typical port for the dask scheduler is 8786"
-                },
-                "bigstream_dask_cluster_max_tasks": {
-                    "type": "integer",
-                    "default": 0,
-                    "hidden": true,
-                    "description": "Total number of concurrent dask tasks"
                 },
                 "global_registration_container": {
                     "type": "string",
@@ -687,6 +704,30 @@
                     "type": "boolean",
                     "description": "If true skip segmentation"
                 },
+                "sample_anisotropy": {
+                    "type": "number",
+                    "default": 1.0
+                },
+                "sample_expansion_factor": {
+                    "type": "number",
+                    "default": 1.0
+                },
+                "sample_voxel_spacing": {
+                    "type": "string"
+                },
+                "sample_z_axis": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "cellpose_verbose": {
+                    "type": "boolean"
+                },
+                "cellpose_preprocessing_steps": {
+                    "type": "string"
+                },
+                "cellpose_preprocessing_params_file": {
+                    "type": "string"
+                },
                 "distributed_cellpose": {
                     "type": "boolean",
                     "description": "Use a distributed dask cluster to run segmentation",
@@ -721,7 +762,6 @@
                 },
                 "cellpose_blocks_overlap": {
                     "type": "string",
-                    "default": "30,30,30",
                     "description": "Blocks overlap used for distributed segmentation"
                 },
                 "cellpose_use_gpu": {
@@ -758,7 +798,7 @@
                 },
                 "cellprob_threshold": {
                     "type": "number",
-                    "default": 1,
+                    "default": 1.0,
                     "description": "Probabilty threshold to control cellpose mask size."
                 },
                 "cellpose_iou_threshold": {
@@ -768,7 +808,7 @@
                 },
                 "cellpose_labels_distance_th": {
                     "type": "number",
-                    "default": 0.05,
+                    "default": 1,
                     "description": "Across labels distance transform threshold for merging labels from adjacent blocks"
                 },
                 "cellpose_save_intermediate_labels": {
@@ -777,16 +817,14 @@
                     "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks",
                     "hidden": true
                 },
-                "cellpose_merge_labels_with_dt": {
+                "cellpose_merge_with_iou_only": {
                     "type": "boolean",
-                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use a distance transform for adjacent faces and merge across labels that are located above a specified threshold.",
-                    "default": true,
+                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use only IOU of the labels across adjacent faces.",
                     "hidden": true
                 },
                 "cellpose_use_model_and_size": {
                     "type": "boolean",
                     "description": "If true use both CellposeModel and SizeModel to segment the volume, otherwise only use CellposeModel",
-                    "default": false,
                     "hidden": true
                 },
                 "cellpose_merge_iou_depth": {
@@ -825,12 +863,6 @@
                     "default": 0,
                     "description": "Memory allocated for a cellpose Dask worker"
                 },
-                "max_cellpose_tasks": {
-                    "type": "integer",
-                    "default": 0,
-                    "description": "Number of parallel segmentation tasks running on the Dask cluster. If 0, there's no limit.",
-                    "hidden": true
-                },
                 "cellpose_scheduler_port": {
                     "type": "integer",
                     "default": 0,
@@ -842,6 +874,13 @@
                     "default": 0,
                     "description": "Default dashboards port of the Dask segmentation cluster",
                     "hidden": true
+                },
+                "cellpose_worker_runtime_opts": {
+                    "type": "string"
+                },
+                "cellpose_worker_lsf_opts": {
+                    "type": "string",
+                    "default": "-q gpu_l4 -gpu \"num=1"
                 }
             }
         },

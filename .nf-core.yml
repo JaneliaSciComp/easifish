@@ -1,28 +1,20 @@
+repository_type: pipeline
+
+nf_core_version: 3.2.0
+
 lint:
   files_exist:
     - CODE_OF_CONDUCT.md
-    - assets/nf-core-janeliascicomp-easifish_logo_light.png
-    - docs/images/nf-core-janeliascicomp-easifish_logo_light.png
-    - docs/images/nf-core-janeliascicomp-easifish_logo_dark.png
     - .github/ISSUE_TEMPLATE/config.yml
-    - .github/workflows/awstest.yml
-    - .github/workflows/awsfulltest.yml
-    - conf/igenomes.config
   files_unchanged:
     - LICENSE
     - CODE_OF_CONDUCT.md
-    - assets/nf-core-janeliascicomp-easifish_logo_light.png
-    - docs/images/nf-core-janeliascicomp-easifish_logo_light.png
-    - docs/images/nf-core-janeliascicomp-easifish_logo_dark.png
     - .github/ISSUE_TEMPLATE/bug_report.yml
   nextflow_config:
     - manifest.name
     - manifest.homePage
-  multiqc_config: False
   readme:
     - nextflow_badge
-nf_core_version: 2.14.1
-repository_type: pipeline
 template:
   prefix: JaneliaSciComp
   skip:

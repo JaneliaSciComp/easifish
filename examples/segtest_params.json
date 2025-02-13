@@ -1,15 +1,15 @@
 {
     "channels": "",
     "input": "examples/local_samplesheets/segtest_samplesheet.csv",
-    "indir": "/nrs/ahrensraverfish/fleishmang/F71/expanded/R0/segmentation_refactor_testing",
-    "outdir": "/nrs/scicompsoft/goinac/multifish/segtest",
+    "indir": "/nrs/scicompsoft/goinac/multifish/segtest/data",
+    "outdir": "/nrs/scicompsoft/goinac/multifish/segtest/results",
 
-    "segmentation_input": "/nrs/ahrensraverfish/fleishmang/F71/expanded/R0/segmentation_refactor_testing/dapi_zarr_small.zarr",
+    "segmentation_input": "/nrs/scicompsoft/goinac/multifish/segtest/data/dapi_zarr_small.zarr",
     "segmentation_subpaths": "",
     "seg_channels": "",
     "seg_scales": "",
 
-    "segmentation_subdir": "segmentation",
+    "segmentation_subdir": "seg-gf",
 
     "sample_expansion_factor": 2,
     "sample_voxel_spacing": "0.232961,0.232961,0.425892",
@@ -29,11 +29,18 @@
     "cellpose_model": "cyto2",
     "cellpose_diameter": 40,
     "cellpose_min_size": 15000,
-    "cellpose_preprocessing_steps": "unsharp",
+    "cellpose_preprocessing_steps": "",
     "cellpose_use_model_and_size": false,
 
     "distributed_cellpose_blocksize": "256,256,256",
     "cellpose_blocks_overlap": "60,60,60",
 
-    "cellpose_merge_labels_with_dt": true
+    "cellpose_merge_with_iou_only": false,
+
+    "cellpose_worker_runtime_opts": "--nv",
+
+    "cellpose_dask_workers": 8,
+    "runtime_opts": "",
+    "lsf_opts": "-P scicompsoft",
+    "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"
 }
