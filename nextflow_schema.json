@@ -704,6 +704,30 @@
                     "type": "boolean",
                     "description": "If true skip segmentation"
                 },
+                "sample_anisotropy": {
+                    "type": "number",
+                    "default": 1.0
+                },
+                "sample_expansion_factor": {
+                    "type": "number",
+                    "default": 1.0
+                },
+                "sample_voxel_spacing": {
+                    "type": "string"
+                },
+                "sample_z_axis": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "cellpose_verbose": {
+                    "type": "boolean"
+                },
+                "cellpose_preprocessing_steps": {
+                    "type": "string"
+                },
+                "cellpose_preprocessing_params_file": {
+                    "type": "string"
+                },
                 "distributed_cellpose": {
                     "type": "boolean",
                     "description": "Use a distributed dask cluster to run segmentation",
@@ -850,6 +874,13 @@
                     "default": 0,
                     "description": "Default dashboards port of the Dask segmentation cluster",
                     "hidden": true
+                },
+                "cellpose_worker_runtime_opts": {
+                    "type": "string"
+                },
+                "cellpose_worker_lsf_opts": {
+                    "type": "string",
+                    "default": "-q gpu_l4 -gpu \"num=1"
                 }
             }
         },
@@ -1002,38 +1033,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {
-        "sample_anisotropy": {
-            "type": "integer",
-            "default": 1
-        },
-        "sample_expansion_factor": {
-            "type": "integer",
-            "default": 1
-        },
-        "sample_voxel_spacing": {
-            "type": "string"
-        },
-        "sample_z_axis": {
-            "type": "integer",
-            "default": 0
-        },
-        "cellpose_verbose": {
-            "type": "boolean"
-        },
-        "cellpose_preprocessing_steps": {
-            "type": "string"
-        },
-        "cellpose_preprocessing_params_file": {
-            "type": "string"
-        },
-        "cellpose_worker_runtime_opts": {
-            "type": "string"
-        },
-        "cellpose_worker_lsf_opts": {
-            "type": "string",
-            "default": "-q gpu_l4 -gpu \"num=1"
-        }
-    }
+    ]
 }

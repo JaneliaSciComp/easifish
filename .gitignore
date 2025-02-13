@@ -6,6 +6,5 @@ results/
 testing/
 testing*
 *.pyc
+null/
 mylocal
-lint_log.txt
-
