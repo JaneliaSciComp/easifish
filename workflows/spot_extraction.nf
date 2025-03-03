@@ -4,13 +4,15 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { RS_FISH } from '../modules/janelia/rs_fish/main'
-include { as_list } from './util_functions'
+include { RS_FISH     } from '../modules/janelia/rs_fish/main'
+include { SPARK_START } from '../subworkflows/janelia/spark_start/main'
+include { SPARK_STOP  } from '../subworkflows/janelia/spark_stop/main'
+include { as_list     } from './util_functions'
 
 workflow SPOT_EXTRACTION {
     take:
     ch_meta         // channel: [ meta ] - metadata containing stitching results
-    outdir          // file|string - output directory
+    workdir         // file|string - work directory
 
     main:
     def spot_volume_ids = as_list(params.spot_extraction_ids)
@@ -31,31 +33,47 @@ workflow SPOT_EXTRACTION {
             def spot_channels = as_list(params.spot_channels)
             def spot_scales = as_list(params.spot_scales)
 
-            log.info "!!!!!!!! SPOT EXTRACTION CHANNELS: ${spot_channels}"
-            log.info "!!!!!!!! SPOT EXTRACTION SCALES: ${spot_scales}"
-
             spot_subpaths = [spot_channels, spot_scales].combinations()
                 .collect {
                     // when channel and scale is used we also prepend the stitched dataset
                     def dataset = it.join('/')
-                    log.info "!!!!!!!! SPOT EXTRACTION DATASET: ${dataset}"
                     "${meta.stitched_dataset}/${dataset}"
             }
         }
-
+        rsfish_spark = {
+            driver_cores: params.rsfish_spark_driver_cores,
+            driver_memory: params.rsfish_spark_driver_mem_gb + "g",
+        }
         spot_subpaths.collect { input_spot_subpath ->
             [
                 meta,
                 input_img_dir,
                 input_spot_subpath,
-                "${outdir}/${params.spot_extraction_subdir}", // output dir
-                params.spot_extraction_imgname,
+                rsfish_spark,
             ]
         }
     }
 
     spots_input_volume.subscribe { log.debug "Spot extraction input volume: $it" }
 
+    def rsfish_input = SPARK_START(
+        spots_input_volume,
+        params.distributed_spot_extraction,
+        workdir,
+        params.rsfish_spark_workers,
+        params.rsfish_min_spark_workers,
+        params.rsfish_spark_worker_cores,
+        params.rsfish_spark_gb_per_core,
+        params.rsfish_spark_driver_cores,
+        params.rsfish_spark_driver_mem_gb,
+    )
+
+    rsfish_input.subscribe { log.info "!!!!!!!!!!!!! RS_FISH input: $it" }
+
+    // def rsfish_results = RS_FISH(rsfish_input)
+
+    SPARK_STOP(rsfish_input, params.distributed_spot_extraction)
+
     emit:
-    done = spots_input_volume
+    done = rsfish_results
 }
