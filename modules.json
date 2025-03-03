@@ -34,6 +34,11 @@
                         "branch": "main",
                         "git_sha": "8232ff68e737a6788759d1f0f0cf50fd82580ea5",
                         "installed_by": ["modules"]
+                    },
+                    "rs_fish": {
+                        "branch": "main",
+                        "git_sha": "959adfff0862410b9753faa492906aa5655b611d",
+                        "installed_by": ["modules"]
                     }
                 }
             },

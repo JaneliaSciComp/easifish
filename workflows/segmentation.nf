@@ -5,7 +5,6 @@
 */
 
 include { CELLPOSE_SEGMENTATION } from '../subworkflows/local/cellpose_segmentation'
-
 include { as_list               } from './util_functions'
 
 /*
@@ -26,7 +25,7 @@ workflow SEGMENTATION {
     // get volumes to segment
     def seg_volume = ch_meta
     | filter { meta ->
-        meta.id in segmentation_ids
+        params.segmentation_input || meta.id in segmentation_ids
     }
     | flatMap { meta ->
         def input_img_dir
