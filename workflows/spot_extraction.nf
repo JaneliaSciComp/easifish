@@ -40,10 +40,12 @@ workflow SPOT_EXTRACTION {
                     "${meta.stitched_dataset}/${dataset}"
             }
         }
-        rsfish_spark = {
+
+        def rsfish_spark = [
             driver_cores: params.rsfish_spark_driver_cores,
-            driver_memory: params.rsfish_spark_driver_mem_gb + "g",
-        }
+            driver_memory: "${params.rsfish_spark_driver_mem_gb}g",
+        ]
+
         spot_subpaths.collect { input_spot_subpath ->
             [
                 meta,
@@ -75,5 +77,5 @@ workflow SPOT_EXTRACTION {
     SPARK_STOP(rsfish_input, params.distributed_spot_extraction)
 
     emit:
-    done = rsfish_results
+    done = spots_input_volume
 }
