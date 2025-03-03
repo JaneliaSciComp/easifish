@@ -154,7 +154,7 @@ workflow EASIFISH {
 
     def spot_extraction_results = SPOT_EXTRACTION(
         stitching_results,
-        outdir
+        "${session_work_dir}/spot_extraction",
     )
 
     spot_extraction_results.subscribe { log.debug "Spot extraction result: $it " }
