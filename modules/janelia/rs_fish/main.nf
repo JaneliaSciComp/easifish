@@ -16,8 +16,8 @@ process RS_FISH {
           val(input_dataset),
           val(spark), 
           emit: params
-    path output_filename, emit: csv
-    path "versions.yml", emit: versions
+    path output_filename,     emit: csv
+    path "versions.yml",      emit: versions
 
     when:
     task.ext.when == null || task.ext.when

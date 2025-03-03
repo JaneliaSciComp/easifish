@@ -76,20 +76,40 @@ workflow SPOT_EXTRACTION {
         }
     }
 
+    rsfish_input.subscribe { log.debug "RS_FISH input: $it" }
 
-    rsfish_input.subscribe { log.info "!!!!!!!!!!!!! RS_FISH input: $it" }
-/*
     def rsfish_results = RS_FISH(rsfish_input)
 
-    rsfish_results.subscribe { log.info "!!!!!!!!!!!!! RS_FISH input: $it" }
-*/
+    def rsfish_results = RS_FISH.out.params
+    | combine(RS_FISH.out.csv)
+    | map {
+        def (meta, input_image, input_dataset, spark, output_filename) = it
+        [
+            meta,
+            input_image,
+            input_dataset,
+            spark,
+            output_filename,
+        ]
+    }
+    rsfish_results.subscribe { log.info "!!!!!!!!!!!!! RS_FISH results: $it" }
+
+    def prepare_spark_stop = rsfish_results
+    | groupTuple(by: [0, 3]) // group by meta and spark
+    | map {
+        def (meta, input_image, input_dataset, spark, output_filename) = it
+        [
+            meta, spark,
+        ]
+    }
+
     SPARK_STOP(
-        rsfish_input.map { [ it[0], it[-1] ] },
+        prepare_spark_stop,
         params.distributed_spot_extraction,
     )
 
     emit:
-    done = rsfish_input
+    done = rsfish_results
 }
 
 def get_spot_extraction_input_volume(meta) {
