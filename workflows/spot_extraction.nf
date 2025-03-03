@@ -17,13 +17,42 @@ workflow SPOT_EXTRACTION {
     main:
     def spot_volume_ids = as_list(params.spot_extraction_ids)
 
-    def spots_input_volume = ch_meta
+    def spots_spark_input = ch_meta
     | filter { meta ->
         spot_volume_ids.empty || meta.id in spot_volume_ids
     }
-    | flatMap { meta ->
-        def input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
+    | map { meta ->
+        def input_img_dir = get_spot_extraction_input_volume(meta)
+        [
+            meta,
+            [ input_img_dir ],
+        ]
+    }
+
+    spots_spark_input.subscribe { log.debug "Spot extraction spark input: $it" }
+
+    def rsfish_input = SPARK_START(
+        spots_spark_input,
+        params.distributed_spot_extraction,
+        workdir,
+        params.rsfish_spark_workers,
+        params.rsfish_min_spark_workers,
+        params.rsfish_spark_worker_cores,
+        params.rsfish_spark_gb_per_core,
+        params.rsfish_spark_driver_cores,
+        params.rsfish_spark_driver_mem_gb,
+    ) // ch: [ meta, spark ]
+    | join(ch_meta, by: 0) // join to add the files
+    | flatMap {
+        def (meta, spark) = it
         def spot_subpaths
+
+        def input_img_dir = get_spot_extraction_input_volume(meta)
+        def rsfish_spark = [
+            driver_cores: params.rsfish_spark_driver_cores,
+            driver_memory: "${params.rsfish_spark_driver_mem_gb}g",
+        ]
+
         if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
             spot_subpaths = [ '' ] // empty subpath - the input image container contains the array data
         } else if (params.spot_subpaths) {
@@ -41,14 +70,9 @@ workflow SPOT_EXTRACTION {
             }
         }
 
-        def rsfish_spark = [
-            driver_cores: params.rsfish_spark_driver_cores,
-            driver_memory: "${params.rsfish_spark_driver_mem_gb}g",
-        ]
-
         spot_subpaths.collect { input_spot_subpath ->
             [
-                meta,
+                spark,
                 input_img_dir,
                 input_spot_subpath,
                 rsfish_spark,
@@ -56,19 +80,6 @@ workflow SPOT_EXTRACTION {
         }
     }
 
-    spots_input_volume.subscribe { log.debug "Spot extraction input volume: $it" }
-
-    def rsfish_input = SPARK_START(
-        spots_input_volume,
-        params.distributed_spot_extraction,
-        workdir,
-        params.rsfish_spark_workers,
-        params.rsfish_min_spark_workers,
-        params.rsfish_spark_worker_cores,
-        params.rsfish_spark_gb_per_core,
-        params.rsfish_spark_driver_cores,
-        params.rsfish_spark_driver_mem_gb,
-    )
 
     rsfish_input.subscribe { log.info "!!!!!!!!!!!!! RS_FISH input: $it" }
 
@@ -78,4 +89,8 @@ workflow SPOT_EXTRACTION {
 
     emit:
     done = spots_input_volume
+}
+
+def get_spot_extraction_input_volume(meta) {
+    return "${meta.stitching_result_dir}/${meta.stitching_container}"
 }
