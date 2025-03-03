@@ -18,7 +18,8 @@ workflow SPOT_EXTRACTION {
     def spots_input_volume = ch_meta
     | filter { meta ->
         spot_volume_ids.empty || meta.id in spot_volume_ids
-    } flatMap { meta ->
+    }
+    | flatMap { meta ->
         def input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
         def spot_subpaths
         if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
