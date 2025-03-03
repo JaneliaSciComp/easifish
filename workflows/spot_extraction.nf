@@ -31,10 +31,14 @@ workflow SPOT_EXTRACTION {
             def spot_channels = as_list(params.spot_channels)
             def spot_scales = as_list(params.spot_scales)
 
+            log.info "!!!!!!!! SPOT EXTRACTION CHANNELS: ${spot_channels}"
+            log.info "!!!!!!!! SPOT EXTRACTION SCALES: ${spot_scales}"
+
             spot_subpaths = [spot_channels, spot_scales].combinations()
                 .collect {
                     // when channel and scale is used we also prepend the stitched dataset
                     def dataset = it.join('/')
+                    log.info "!!!!!!!! SPOT EXTRACTION DATASET: ${dataset}"
                     "${meta.stitched_dataset}/${dataset}"
             }
         }
