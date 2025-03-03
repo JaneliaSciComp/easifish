@@ -44,14 +44,10 @@ workflow SPOT_EXTRACTION {
     ) // ch: [ meta, spark ]
     | join(ch_meta, by: 0) // join to add the files
     | flatMap {
-        def (meta, spark) = it
+        def (meta, rsfish_spark) = it
         def spot_subpaths
 
         def input_img_dir = get_spot_extraction_input_volume(meta)
-        def rsfish_spark = [
-            driver_cores: params.rsfish_spark_driver_cores,
-            driver_memory: "${params.rsfish_spark_driver_mem_gb}g",
-        ]
 
         if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
             spot_subpaths = [ '' ] // empty subpath - the input image container contains the array data
@@ -72,7 +68,7 @@ workflow SPOT_EXTRACTION {
 
         spot_subpaths.collect { input_spot_subpath ->
             [
-                spark,
+                meta,
                 input_img_dir,
                 input_spot_subpath,
                 rsfish_spark,
@@ -82,13 +78,18 @@ workflow SPOT_EXTRACTION {
 
 
     rsfish_input.subscribe { log.info "!!!!!!!!!!!!! RS_FISH input: $it" }
+/*
+    def rsfish_results = RS_FISH(rsfish_input)
 
-    // def rsfish_results = RS_FISH(rsfish_input)
-
-    SPARK_STOP(rsfish_input, params.distributed_spot_extraction)
+    rsfish_results.subscribe { log.info "!!!!!!!!!!!!! RS_FISH input: $it" }
+*/
+    SPARK_STOP(
+        rsfish_input.map { [ it[0], it[-1] ] },
+        params.distributed_spot_extraction,
+    )
 
     emit:
-    done = spots_input_volume
+    done = rsfish_input
 }
 
 def get_spot_extraction_input_volume(meta) {
