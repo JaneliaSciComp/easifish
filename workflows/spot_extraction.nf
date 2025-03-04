@@ -87,25 +87,27 @@ workflow SPOT_EXTRACTION {
     def rsfish_results = RS_FISH.out.params
     | combine(RS_FISH.out.csv)
     | map {
-        def (meta, input_image, input_dataset, spots_output_dir, spark, output_filename) = it
+        def (meta, input_image, input_dataset, spots_output_dir, spark, full_output_filename) = it
         [
             meta,
             input_image,
             input_dataset,
-            output_filename,
+            full_output_filename,
             spark,
         ]
     }
-    rsfish_results.subscribe { log.info "!!!!!!!!!!!!! RS_FISH results: $it" }
+    rsfish_results.subscribe { log.debug "RS_FISH results: $it" }
 
     def prepare_spark_stop = rsfish_results
     | groupTuple(by: [0, -1]) // group by meta and spark
     | map {
+        log.info "!!!!!!!!!!!Preparing spark stop: $it"
         def (meta, input_image, input_dataset, output_filename, spark) = it
         [
             meta, spark,
         ]
     }
+
 
     SPARK_STOP(
         prepare_spark_stop,
