@@ -65,6 +65,8 @@ workflow SPOT_EXTRACTION {
         | join(ch_meta, by: 0) // join to add the files
         | flatMap {
             def (meta, rsfish_spark) = it
+            def input_img_dir = get_spot_extraction_input_volume(meta)
+            def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
 
             get_spot_subpaths(meta).collect { input_spot_subpath ->
                 [
