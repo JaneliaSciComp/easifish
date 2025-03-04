@@ -37,7 +37,8 @@ workflow SPOT_EXTRACTION {
 
         final_rsfish_results = spots_spark_input
         | map {
-            def (meta, [ input_img_dir, spots_output_dir ]) = it
+            def (meta, spots_inout_dirs) = it
+            def (input_img_dir, spots_output_dir) = spots_inout_dirs
             get_spot_subpaths(meta).collect { input_spot_subpath ->
                 [
                     meta,
@@ -122,7 +123,6 @@ def get_spot_extraction_input_volume(meta) {
 
 def get_spot_subpaths(meta) {
     def input_img_dir = get_spot_extraction_input_volume(meta)
-    def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
 
     if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
         return [ '' ] // empty subpath - the input image container contains the array data
