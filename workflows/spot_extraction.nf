@@ -12,6 +12,7 @@ include { as_list     } from './util_functions'
 workflow SPOT_EXTRACTION {
     take:
     ch_meta         // channel: [ meta ] - metadata containing stitching results
+    outputdir       // file|string - output directory
     workdir         // file|string - work directory
 
     main:
@@ -23,9 +24,10 @@ workflow SPOT_EXTRACTION {
     }
     | map { meta ->
         def input_img_dir = get_spot_extraction_input_volume(meta)
+        def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
         [
             meta,
-            [ input_img_dir ],
+            [ input_img_dir, spots_output_dir ],
         ]
     }
 
@@ -48,6 +50,7 @@ workflow SPOT_EXTRACTION {
         def spot_subpaths
 
         def input_img_dir = get_spot_extraction_input_volume(meta)
+        def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
 
         if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
             spot_subpaths = [ '' ] // empty subpath - the input image container contains the array data
@@ -71,6 +74,7 @@ workflow SPOT_EXTRACTION {
                 meta,
                 input_img_dir,
                 input_spot_subpath,
+                spots_output_dir,
                 rsfish_spark,
             ]
         }
@@ -83,21 +87,21 @@ workflow SPOT_EXTRACTION {
     def rsfish_results = RS_FISH.out.params
     | combine(RS_FISH.out.csv)
     | map {
-        def (meta, input_image, input_dataset, spark, output_filename) = it
+        def (meta, input_image, input_dataset, spots_output_dir, spark, output_filename) = it
         [
             meta,
             input_image,
             input_dataset,
-            spark,
             output_filename,
+            spark,
         ]
     }
     rsfish_results.subscribe { log.info "!!!!!!!!!!!!! RS_FISH results: $it" }
 
     def prepare_spark_stop = rsfish_results
-    | groupTuple(by: [0, 3]) // group by meta and spark
+    | groupTuple(by: [0, -1]) // group by meta and spark
     | map {
-        def (meta, input_image, input_dataset, spark, output_filename) = it
+        def (meta, input_image, input_dataset, output_filename, spark) = it
         [
             meta, spark,
         ]
