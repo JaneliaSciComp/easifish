@@ -84,7 +84,7 @@ workflow SPOT_EXTRACTION {
         RS_FISH(rsfish_input)
 
         def rsfish_results = RS_FISH.out.params
-        | combine(RS_FISH.out.csv)
+        | join(RS_FISH.out.csv, by:0)
         | map {
             def (meta, input_image, input_dataset, spots_output_dir, spark, full_output_filename) = it
             [
