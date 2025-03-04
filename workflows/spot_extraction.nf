@@ -99,15 +99,13 @@ workflow SPOT_EXTRACTION {
     rsfish_results.subscribe { log.debug "RS_FISH results: $it" }
 
     def prepare_spark_stop = rsfish_results
-    | groupTuple(by: [0, -1]) // group by meta and spark
+    | groupTuple(by: [0, 4]) // group by meta and spark
     | map {
-        log.info "!!!!!!!!!!!Preparing spark stop: $it"
         def (meta, input_image, input_dataset, output_filename, spark) = it
         [
             meta, spark,
         ]
     }
-
 
     SPARK_STOP(
         prepare_spark_stop,
