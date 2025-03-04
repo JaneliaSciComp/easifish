@@ -78,7 +78,7 @@ workflow SPOT_EXTRACTION {
 
     rsfish_input.subscribe { log.debug "RS_FISH input: $it" }
 
-    def rsfish_results = RS_FISH(rsfish_input)
+    RS_FISH(rsfish_input)
 
     def rsfish_results = RS_FISH.out.params
     | combine(RS_FISH.out.csv)
