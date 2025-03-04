@@ -39,12 +39,12 @@ workflow SPOT_EXTRACTION {
         | map {
             def (meta, spots_inout_dirs) = it
             def (input_img_dir, spots_output_dir) = spots_inout_dirs
-            get_spot_subpaths(meta).collect { input_spot_subpath ->
+            get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
                 [
                     meta,
                     input_img_dir,
                     input_spot_subpath,
-                    "${spots_output_dir}/${meta.id}-points.csv",
+                    "${spots_output_dir}/${spots_result_name}",
                 ]
             }
         }
@@ -68,12 +68,13 @@ workflow SPOT_EXTRACTION {
             def input_img_dir = get_spot_extraction_input_volume(meta)
             def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
 
-            get_spot_subpaths(meta).collect { input_spot_subpath ->
+            get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
                 [
                     meta,
                     input_img_dir,
                     input_spot_subpath,
                     spots_output_dir,
+                    spots_result_name,
                     rsfish_spark,
                 ]
             }
@@ -86,7 +87,7 @@ workflow SPOT_EXTRACTION {
         def rsfish_results = RS_FISH.out.params
         | join(RS_FISH.out.csv, by:0)
         | map {
-            def (meta, input_image, input_dataset, spots_output_dir, spark, full_output_filename) = it
+            def (meta, input_image, input_dataset, spots_output_dir, spots_result_name, spark, full_output_filename) = it
             [
                 meta,
                 input_image,
@@ -127,19 +128,28 @@ def get_spot_subpaths(meta) {
     def input_img_dir = get_spot_extraction_input_volume(meta)
 
     if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
-        return [ '' ] // empty subpath - the input image container contains the array data
+        return [ 
+            ['', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
+        ]
     } else if (params.spot_subpaths) {
         // in this case the subpaths parameters must match exactly the container datasets
         return as_list(params.spot_subpaths)
+            .collect { subpath ->
+                def spots_result_name = "spots-${subpath.replace('/', '-')}.csv"
+                [ subpath, spots_result_name ]
+            }
     } else {
         def spot_channels = as_list(params.spot_channels)
         def spot_scales = as_list(params.spot_scales)
 
         return [spot_channels, spot_scales].combinations()
-            .collect {
+            .collect { ch, scale ->
                 // when channel and scale is used we also prepend the stitched dataset
-                def dataset = it.join('/')
-                "${meta.stitched_dataset}/${dataset}"
+                def dataset = "${ch}/${scale}"
+                [
+                    "${meta.stitched_dataset}/${dataset}",
+                    "spots-${ch}.csv"
+                ]
         }
     }
 }
