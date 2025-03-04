@@ -37,7 +37,7 @@
                     },
                     "rs_fish": {
                         "branch": "main",
-                        "git_sha": "c6e14219aec57d0faaca9236d6b49236b5a7514e",
+                        "git_sha": "0bd7606cfb191286509a3f457bb60c3d50f99a47",
                         "installed_by": ["modules"]
                     }
                 }
