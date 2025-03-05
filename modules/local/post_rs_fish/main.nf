@@ -19,14 +19,15 @@ process POST_RS_FISH {
     task.ext.when == null || task.ext.when
 
     script:
-    def spots_filename = file(voxel_spots_csv_file).name
+    def rsfish_spots_filename = file(voxel_spots_csv_file).name
+    def spots_filename = rsfish_spots_filename.replace('rsfish-', '').replace('.csv', '-coord.csv')
 
     """
     # Create command line parameters
     full_input_container_path=\$(readlink -e ${input_container})
     voxel_spots_csv_file=\$(readlink -e ${voxel_spots_csv_file})
     voxel_spots_csv_dir=\$(dirname \${voxel_spots_csv_file})
-    coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename.replace(".csv", "-coord.csv")}
+    coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
 
     python /opt/scripts/post_rs_fish.py \
         --image-container \${full_input_container_path} \

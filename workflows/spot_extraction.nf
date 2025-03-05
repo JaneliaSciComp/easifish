@@ -148,7 +148,7 @@ def get_spot_subpaths(meta) {
         // in this case the subpaths parameters must match exactly the container datasets
         return as_list(params.spot_subpaths)
             .collect { subpath ->
-                def spots_result_name = "spots-${subpath.replace('/', '-')}.csv"
+                def spots_result_name = "spots-rsfish-${subpath.replace('/', '-')}.csv"
                 [ subpath, spots_result_name ]
             }
     } else {
@@ -161,7 +161,7 @@ def get_spot_subpaths(meta) {
                 def dataset = "${ch}/${scale}"
                 [
                     "${meta.stitched_dataset}/${dataset}",
-                    "spots-${ch}.csv"
+                    "spots-rsfish-${ch}.csv"
                 ]
         }
     }
