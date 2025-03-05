@@ -122,6 +122,7 @@ workflow REGISTRATION {
             dask_meta, dask_context
         ) = it
         def r = [ dask_meta, dask_context, reg_meta ]
+        log.debug "The dask cluster $r ($it) can be stopped"
         log.debug "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
         r
     }
