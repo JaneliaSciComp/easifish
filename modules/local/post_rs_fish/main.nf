@@ -29,7 +29,7 @@ process POST_RS_FISH {
     voxel_spots_csv_dir=\$(dirname \${voxel_spots_csv_file})
     coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
 
-    python /opt/scripts/post_rs_fish.py \
+    python /opt/scripts/post-rs-fish/post-rs-fish.py \
         --image-container \${full_input_container_path} \
         --image-subpath ${input_dataset} \
         --input \${voxel_spots_csv_file} \
