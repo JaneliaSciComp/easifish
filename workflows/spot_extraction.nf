@@ -152,7 +152,17 @@ def get_spot_subpaths(meta) {
                 [ subpath, spots_result_name ]
             }
     } else {
-        def spot_channels = as_list(params.spot_channels)
+        def spot_channels;
+        if (params.spot_channels) {
+            spot_channels = as_list(params.spot_channels)
+            log.debug "Use specified spot channels: $spot_channels"
+        } else {
+            // all but the last channel whcih typically is DAPI
+            def all_channels = as_list(params.channels)
+            // this may throw an exception if the channel list is empty or a singleton
+            spot_channels = all_channels[0..-2]
+            log.debug "Spot channels: $spot_channels (all from ${params.channels} except the last one)"
+        }
         def spot_scales = as_list(params.spot_scales)
 
         return [spot_channels, spot_scales].combinations()
