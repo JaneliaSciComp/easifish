@@ -99,7 +99,7 @@ workflow SPOT_EXTRACTION {
         }
         rsfish_results.subscribe { log.debug "RS_FISH results: $it" }
 
-        final_rsfish_results = rsfish_results
+        rsfish_results
         | map {
             def (meta, input_image, input_dataset, output_filename, spark) = it
             [
@@ -110,6 +110,8 @@ workflow SPOT_EXTRACTION {
             ]
         }
         | POST_RS_FISH
+
+        final_rsfish_results = POST_RS_FISH.out.results
 
         def prepare_spark_stop = rsfish_results
         | groupTuple(by: [0, 4]) // group by meta and spark

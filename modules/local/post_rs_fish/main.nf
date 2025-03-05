@@ -12,9 +12,8 @@ process POST_RS_FISH {
     tuple val(meta), 
           path(input_container), 
           val(input_dataset), 
-          env(coord_spots_csv_file),
-          emit: params
-    path "versions.yml"                                                             , emit: versions
+          env(coord_spots_csv_file), emit: results
+    path "versions.yml"            , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
