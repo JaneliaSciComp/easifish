@@ -4,10 +4,11 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { RS_FISH     } from '../modules/janelia/rs_fish/main'
-include { SPARK_START } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP  } from '../subworkflows/janelia/spark_stop/main'
-include { as_list     } from './util_functions'
+include { POST_RS_FISH } from '../modules/local/post_rs_fish/main'
+include { RS_FISH      } from '../modules/janelia/rs_fish/main'
+include { SPARK_START  } from '../subworkflows/janelia/spark_start/main'
+include { SPARK_STOP   } from '../subworkflows/janelia/spark_stop/main'
+include { as_list      } from './util_functions'
 
 workflow SPOT_EXTRACTION {
     take:
@@ -98,7 +99,17 @@ workflow SPOT_EXTRACTION {
         }
         rsfish_results.subscribe { log.debug "RS_FISH results: $it" }
 
-        final_rsfish_results = rsfish_results.map { it[0 .. -1] }
+        final_rsfish_results = rsfish_results
+        | map {
+            def (meta, input_image, input_dataset, output_filename, spark) = it
+            [
+                meta,
+                input_image,
+                input_dataset,
+                output_filename,
+            ]
+        }
+        | POST_RS_FISH
 
         def prepare_spark_stop = rsfish_results
         | groupTuple(by: [0, 4]) // group by meta and spark
