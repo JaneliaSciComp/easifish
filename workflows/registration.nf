@@ -110,7 +110,7 @@ workflow REGISTRATION {
         params.skip_deformations || params.skip_registration,
     )
 
-    def stopped_clusters = local_deformation_results
+    def all_registration_results = local_deformation_results
     | combine(local_registrations_cluster, by: 0)
     | combine(local_inverse_results, by: 0)
     | map {
@@ -119,11 +119,43 @@ workflow REGISTRATION {
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
+            dask_meta, dask_context,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath
+        ) = it
+        def r = [
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath,
+            dask_meta, dask_context,
+        ]
+        log.debug "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
+        log.debug "All registration results: $r"
+        r
+    }
+
+    def stopped_clusters = all_registration_results
+    | map {
+        def (
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath,
             dask_meta, dask_context
         ) = it
         def r = [ dask_meta, dask_context, reg_meta ]
-        log.debug "The dask cluster $r ($it) can be stopped"
-        log.debug "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
+        log.debug "Prepare to stop dask cluster $reg_meta"
         r
     }
     | groupTuple(by: [0, 1])
@@ -136,13 +168,41 @@ workflow REGISTRATION {
 
     stopped_clusters.subscribe { log.debug "Stopped dask cluster $it" }
 
-    RUN_MULTISCALE_WITH_SINGLE_CLUSTER(
+    def multiscale_results = RUN_MULTISCALE_WITH_SINGLE_CLUSTER(
         local_deformation_results,
         "${session_work_dir}/multiscale",
     )
 
+    def final_results = all_registration_results
+    | join (multiscale_results, by: 0)
+    | map {
+        def (
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath,
+            dask_meta, dask_context
+        ) = it
+        def r = [
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath,
+        ]
+        log.debug "Final registration results: $it -> $r"
+        r
+    }
+
     emit:
-    done = stopped_clusters
+    done = final_results
 }
 
 workflow RUN_GLOBAL_REGISTRATION {
