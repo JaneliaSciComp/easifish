@@ -721,7 +721,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
             warped, warped_subpath
         ) = it
         def r = [
-            reg_meta.mov_id, warped, warped_subpath,
+            reg_meta.mov_id, reg_meta, warped, warped_subpath,
         ]
         log.debug "Multiscale input: $it -> $r"
         r
@@ -731,7 +731,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
     | toList() // wait for all deformations to complete
     | flatMap { all ->
         all
-        .collect { id, data_dir, data_subpath ->
+        .collect { id, reg_meta, data_dir, data_subpath ->
             // convert to a map in which the
             // key = meta, value = a list containing data_dir
             def data_dir_set = [ data_dir ].toSet()
@@ -761,6 +761,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
         r
     }
 
+    def completed_downsampling
     if (!params.skip_multiscale) {
         def downsample_input = SPARK_START(
             multiscale_cluster_data,
@@ -778,7 +779,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
         }
         | combine(multiscale_inputs, by: 0)
         | map {
-            def (id, meta, spark, n5_container, fullscale_dataset) = it
+            def (id, meta, spark, reg_meta, n5_container, fullscale_dataset) = it
             def r = [
                 meta, n5_container, fullscale_dataset, spark,
             ]
@@ -813,49 +814,22 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
         }
     }
 
-    emit:
-    completed_downsampling // ch: [ meta ]
-}
-
-workflow RUN_MULTISCALE_WITH_CLUSTER_PER_TASK {
-    take:
-    deformation_results // ch: [ meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath ]
-    multiscale_work_dir // string|file
-
-    main:
-    def multiscale_inputs = deformation_results
+    downsampling_results = completed_downsampling
+    | map { meta ->
+        [ meta.id ]
+    }
+    | join(multiscale_inputs, by: 0)
     | map {
-        def (
-            reg_meta,
-            fix, fix_subpath,
-            mov, mov_subpath,
-            warped, warped_subpath
-        ) = it
-        def multiscale_meta = [
-            id: reg_meta.mov_id,
-        ]
+        def (id, reg_meta, warped, warped_subpath) = it
         def r = [
-            multiscale_meta, warped, warped_subpath,
+            reg_meta, warped, warped_subpath,
         ]
-        log.debug "Multiscale input: $it -> $r"
+        log.debug "Final downsampling results $it -> $r"
         r
     }
 
-    completed_downsampling = MULTISCALE(
-        multiscale_inputs,
-        params.multiscale_with_spark_cluster,
-        multiscale_work_dir,
-        params.skip_multiscale,
-        params.multiscale_spark_workers ?: params.spark_workers,
-        params.multiscale_min_spark_workers,
-        params.multiscale_spark_worker_cores ?: params.spark_worker_cores,
-        params.multiscale_spark_gb_per_core ?: params.spark_gb_per_core,
-        params.multiscale_spark_driver_cores,
-        params.multiscale_spark_driver_mem_gb,
-    )
-
     emit:
-    completed_downsampling
+    downsampling_results // ch: [ reg_meta, warped, warped_subpath ]
 }
 
 def get_params_as_list_of_files(lparams) {
