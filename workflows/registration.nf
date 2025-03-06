@@ -173,6 +173,8 @@ workflow REGISTRATION {
         "${session_work_dir}/multiscale",
     )
 
+    multiscale_results.subscribe { log.debug "Multiscale results: $it" }
+
     def final_results = all_registration_results
     | join (multiscale_results, by: 0)
     | map {
