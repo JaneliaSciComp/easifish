@@ -11,10 +11,8 @@ workflow WARP_SPOTS {
     outdir                      // file|string - output dir
 
     main:
-    registration_results | view
+    registration_results.subscribe { log.info " !!!!!!! REG $it" }
 
-    spot_extraction_results | view
-
-    emit:
+    spot_extraction_results.subscribe { log.info " !!!!!! SPOT $it" }
 
 }
