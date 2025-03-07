@@ -4,6 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { BIGSTREAM_TRANSFORMCOORDS } from '../modules/janelia/bigstream/transformcoords/main'
+
 workflow WARP_SPOTS {
     take:
     registration_results        // channel:
@@ -25,7 +27,7 @@ workflow WARP_SPOTS {
         ) = it
 
         def id = reg_meta.mov_id
-        [ id, inv_transform_output, inv_transform_name, inv_transform_subpath ]
+        [ id, reg_meta, inv_transform_output, inv_transform_name, inv_transform_subpath ]
     }
 
     def spots = spot_extraction_results
@@ -38,7 +40,11 @@ workflow WARP_SPOTS {
         ) = it
 
         def id = meta.id
-        [ id, spots_file ]
+        [ 
+            id,
+            spots_file,
+            image_container, image_dataset,
+        ]
     }
 
     def spots_warp_input = spots
@@ -47,20 +53,53 @@ workflow WARP_SPOTS {
         def (
             id,
             spots_file,
+            image_container, image_dataset,
+            reg_meta,
             inv_transform_output,
             inv_transform_name,
             inv_transform_subpath
         ) = it
 
+        def warped_spots_output_dir = file("${outdir}/${params.warped_spots_subdir}/${id}")
+        def spots_filename = file(spots_file).name
         [
-            id,
-            "${inv_transform_output}/${inv_transform_name}",
-            inv_transform_subpath
+            [
+                reg_meta, spots_file, warped_spots_output_dir, "warped-${spots_filename}",
+            ],
+            [
+                image_container, image_dataset,
+            ],
+            [
+                '' /* resolution */, '' /* downsampling factors */
+            ],
+            [], // affine transform
+            [
+
+                "${inv_transform_output}/${inv_transform_name}",
+                inv_transform_subpath,
+            ],
+            [
+                '' /* dask scheduler */, '' /* dask config */
+            ],
         ]
     }
 
     spots_warp_input.subscribe { log.info "!!!!! WARP INPUTS $it " }
 
+    BIGSTREAM_TRANSFORMCOORDS(
+        spots_warp_input.map { it[0] },
+        spots_warp_input.map { it[1] },
+        spots_warp_input.map { it[2] },
+        spots_warp_input.map { it[3] },
+        spots_warp_input.map { it[4] },
+        spots_warp_input.map { it[5] },
+        params.warp_spots_cpus,
+        params.warp_spots_mem_in_gb,
+    )
+
+    def bigstream_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
+
     emit:
-    done = spots_warp_input
+    done = bigstream_warp_results
+
 }

@@ -73,6 +73,8 @@ workflow REGISTRATION {
         params.skip_global_align || params.skip_registration,
     )
 
+    global_registration_results.subscribe { log.debug "Global registration results $it" }
+
     def additional_cluster_files = get_params_as_list_of_files(
         [
             params.local_fix_mask,
