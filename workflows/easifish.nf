@@ -24,7 +24,7 @@ include { STITCHING       } from '../subworkflows/local/stitching'
 include { REGISTRATION    } from './registration'
 include { SEGMENTATION    } from './segmentation'
 include { SPOT_EXTRACTION } from './spot_extraction'
-include { WARP_SPOTS      } from './spot_extraction'
+include { WARP_SPOTS      } from './warp_spots'
 
 
 def validate_params() {
