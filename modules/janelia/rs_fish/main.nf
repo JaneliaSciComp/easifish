@@ -1,6 +1,6 @@
 process RS_FISH {
     tag "${meta.id}"
-    container "ghcr.io/janeliascicomp/rs-fish-spark:8f8954f"
+    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/rs-fish-spark:8f8954f' }
     cpus { spark.driver_cores }
     memory { spark.driver_memory }
 

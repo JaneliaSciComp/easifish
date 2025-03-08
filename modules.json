@@ -7,32 +7,32 @@
                 "janelia": {
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
+                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
+                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
+                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
+                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "3e13f7aa0d56327bdb65491c105452980289d867",
+                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
                         "installed_by": ["modules"]
                     },
                     "cellpose": {
                         "branch": "main",
-                        "git_sha": "10b06e81af86bf4a625f7ed65151e9806a540253",
+                        "git_sha": "5619a98c3ea6062e65490fc972545eb182810da6",
                         "installed_by": ["modules"]
                     },
                     "cellpose/tests": {
@@ -42,7 +42,7 @@
                     },
                     "rs_fish": {
                         "branch": "main",
-                        "git_sha": "65657df4b3870354a3885bfd0d08d4096ff7ad3c",
+                        "git_sha": "5619a98c3ea6062e65490fc972545eb182810da6",
                         "installed_by": ["modules"]
                     }
                 }
