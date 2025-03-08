@@ -79,7 +79,7 @@ workflow WARP_SPOTS {
                 inv_transform_subpath,
             ],
             [
-                '' /* dask scheduler */, '' /* dask config */
+                '' /* dask scheduler */, [] /* dask config */
             ],
         ]
     }
