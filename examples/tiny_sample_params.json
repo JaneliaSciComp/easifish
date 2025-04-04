@@ -16,6 +16,7 @@
     "skip_multiscale": false,
     "skip_segmentation": false,
     "skip_spot_extraction": false,
+    "skip_warp_spots": false,
 
     "flatfield_correction": false,
     "darkfieldfile": "",
