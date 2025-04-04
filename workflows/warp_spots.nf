@@ -86,20 +86,36 @@ workflow WARP_SPOTS {
 
     spots_warp_input.subscribe { log.debug "Warp spots input: $it " }
 
-    BIGSTREAM_TRANSFORMCOORDS(
-        spots_warp_input.map { it[0] },
-        spots_warp_input.map { it[1] },
-        spots_warp_input.map { it[2] },
-        spots_warp_input.map { it[3] },
-        spots_warp_input.map { it[4] },
-        spots_warp_input.map { it[5] },
-        params.warp_spots_cpus,
-        params.warp_spots_mem_in_gb,
-    )
+    def spots_warp_results
+    if (!params.skip_warp_spots) {
+        BIGSTREAM_TRANSFORMCOORDS(
+            spots_warp_input.map { it[0] },
+            spots_warp_input.map { it[1] },
+            spots_warp_input.map { it[2] },
+            spots_warp_input.map { it[3] },
+            spots_warp_input.map { it[4] },
+            spots_warp_input.map { it[5] },
+            params.warp_spots_cpus,
+            params.warp_spots_mem_in_gb,
+        )
 
-    def spots_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
+        spots_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
 
-    spots_warp_results.subscribe { log.debug "Warp spots results: $it " }
+        spots_warp_results.subscribe { log.debug "Warp spots results: $it " }
+    } else {
+        // skip warp spots
+        spots_warp_results = spots_warp_input.map {
+            def (reg_meta, spots_file, warped_spots_output_dir, warped_spots_filename) = it[0]
+
+            def r = [
+                reg_meta,
+                spots_file,
+                "${warped_spots_output_dir}/${warped_spots_filename}",
+            ]
+
+            log.debug "Skipping warp spots and return: $r"
+        }
+    }
 
     emit:
     done = spots_warp_results
