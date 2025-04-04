@@ -102,6 +102,5 @@ workflow WARP_SPOTS {
     spots_warp_results.subscribe { log.debug "Warp spots results: $it " }
 
     emit:
-    done = bigstream_warp_results
-
+    done = spots_warp_results
 }
