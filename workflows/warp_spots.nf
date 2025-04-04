@@ -84,7 +84,7 @@ workflow WARP_SPOTS {
         ]
     }
 
-    spots_warp_input.subscribe { log.info "!!!!! WARP INPUTS $it " }
+    spots_warp_input.subscribe { log.debug "Warp spots input: $it " }
 
     BIGSTREAM_TRANSFORMCOORDS(
         spots_warp_input.map { it[0] },
@@ -97,7 +97,9 @@ workflow WARP_SPOTS {
         params.warp_spots_mem_in_gb,
     )
 
-    def bigstream_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
+    def spots_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
+
+    spots_warp_results.subscribe { log.debug "Warp spots results: $it " }
 
     emit:
     done = bigstream_warp_results
