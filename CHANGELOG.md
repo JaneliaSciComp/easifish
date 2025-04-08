@@ -1,5 +1,9 @@
 # JaneliaSciComp/easifish: Changelog
 
+* Added spots warping using Bigstream
+
+* Added RS-FISH module for spot extraction
+
 * Support two methods to merge labels from neighboring regions from adjacent blocks that were segmented indenpendently using a distributed segmentation.
 
 * Run volume segmentation using distributed Cellpose.

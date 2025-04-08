@@ -73,6 +73,9 @@ workflow REGISTRATION {
         params.skip_global_align || params.skip_registration,
     )
 
+    global_registration_results.global_transforms.subscribe { log.debug "Global affine transforms: $it" }
+    global_registration_results.global_registration_results.subscribe { log.debug "Global transformed results: $it" }
+
     def additional_cluster_files = get_params_as_list_of_files(
         [
             params.local_fix_mask,
@@ -110,7 +113,7 @@ workflow REGISTRATION {
         params.skip_deformations || params.skip_registration,
     )
 
-    def stopped_clusters = local_deformation_results
+    def all_registration_results = local_deformation_results
     | combine(local_registrations_cluster, by: 0)
     | combine(local_inverse_results, by: 0)
     | map {
@@ -119,10 +122,43 @@ workflow REGISTRATION {
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
+            dask_meta, dask_context,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath
+        ) = it
+        def r = [
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath,
+            dask_meta, dask_context,
+        ]
+        log.debug "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
+        log.debug "All registration results: $r"
+        r
+    }
+
+    def stopped_clusters = all_registration_results
+    | map {
+        def (
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath,
             dask_meta, dask_context
         ) = it
         def r = [ dask_meta, dask_context, reg_meta ]
-        log.debug "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
+        log.debug "Prepare to stop dask cluster $reg_meta"
         r
     }
     | groupTuple(by: [0, 1])
@@ -135,13 +171,43 @@ workflow REGISTRATION {
 
     stopped_clusters.subscribe { log.debug "Stopped dask cluster $it" }
 
-    RUN_MULTISCALE_WITH_SINGLE_CLUSTER(
+    def multiscale_results = RUN_MULTISCALE_WITH_SINGLE_CLUSTER(
         local_deformation_results,
         "${session_work_dir}/multiscale",
     )
 
+    multiscale_results.subscribe { log.debug "Multiscale results: $it" }
+
+    def final_results = all_registration_results
+    | join (multiscale_results, by: 0)
+    | map {
+        def (
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath,
+            dask_meta, dask_context
+        ) = it
+        def r = [
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output,
+            transform_name, transform_subpath,
+            inv_transform_output,
+            inv_transform_name, inv_transform_subpath,
+        ]
+        log.debug "Final registration results: $it -> $r"
+        r
+    }
+
     emit:
-    done = stopped_clusters
+    done = final_results
 }
 
 workflow RUN_GLOBAL_REGISTRATION {
@@ -658,7 +724,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
             warped, warped_subpath
         ) = it
         def r = [
-            reg_meta.mov_id, warped, warped_subpath,
+            reg_meta.mov_id, reg_meta, warped, warped_subpath,
         ]
         log.debug "Multiscale input: $it -> $r"
         r
@@ -668,7 +734,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
     | toList() // wait for all deformations to complete
     | flatMap { all ->
         all
-        .collect { id, data_dir, data_subpath ->
+        .collect { id, reg_meta, data_dir, data_subpath ->
             // convert to a map in which the
             // key = meta, value = a list containing data_dir
             def data_dir_set = [ data_dir ].toSet()
@@ -698,6 +764,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
         r
     }
 
+    def completed_downsampling
     if (!params.skip_multiscale) {
         def downsample_input = SPARK_START(
             multiscale_cluster_data,
@@ -715,7 +782,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
         }
         | combine(multiscale_inputs, by: 0)
         | map {
-            def (id, meta, spark, n5_container, fullscale_dataset) = it
+            def (id, meta, spark, reg_meta, n5_container, fullscale_dataset) = it
             def r = [
                 meta, n5_container, fullscale_dataset, spark,
             ]
@@ -750,49 +817,22 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
         }
     }
 
-    emit:
-    completed_downsampling // ch: [ meta ]
-}
-
-workflow RUN_MULTISCALE_WITH_CLUSTER_PER_TASK {
-    take:
-    deformation_results // ch: [ meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath ]
-    multiscale_work_dir // string|file
-
-    main:
-    def multiscale_inputs = deformation_results
+    downsampling_results = completed_downsampling
+    | map { meta ->
+        [ meta.id ]
+    }
+    | join(multiscale_inputs, by: 0)
     | map {
-        def (
-            reg_meta,
-            fix, fix_subpath,
-            mov, mov_subpath,
-            warped, warped_subpath
-        ) = it
-        def multiscale_meta = [
-            id: reg_meta.mov_id,
-        ]
+        def (id, reg_meta, warped, warped_subpath) = it
         def r = [
-            multiscale_meta, warped, warped_subpath,
+            reg_meta, warped, warped_subpath,
         ]
-        log.debug "Multiscale input: $it -> $r"
+        log.debug "Final downsampling results $it -> $r"
         r
     }
 
-    completed_downsampling = MULTISCALE(
-        multiscale_inputs,
-        params.multiscale_with_spark_cluster,
-        multiscale_work_dir,
-        params.skip_multiscale,
-        params.multiscale_spark_workers ?: params.spark_workers,
-        params.multiscale_min_spark_workers,
-        params.multiscale_spark_worker_cores ?: params.spark_worker_cores,
-        params.multiscale_spark_gb_per_core ?: params.spark_gb_per_core,
-        params.multiscale_spark_driver_cores,
-        params.multiscale_spark_driver_mem_gb,
-    )
-
     emit:
-    completed_downsampling
+    downsampling_results // ch: [ reg_meta, warped, warped_subpath ]
 }
 
 def get_params_as_list_of_files(lparams) {

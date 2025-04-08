@@ -19,10 +19,12 @@ include {
 */
 
 
-include { INPUT_CHECK  } from '../subworkflows/local/input_check'
-include { STITCHING    } from '../subworkflows/local/stitching'
-include { REGISTRATION } from './registration'
-include { SEGMENTATION } from './segmentation'
+include { INPUT_CHECK     } from '../subworkflows/local/input_check'
+include { STITCHING       } from '../subworkflows/local/stitching'
+include { REGISTRATION    } from './registration'
+include { SEGMENTATION    } from './segmentation'
+include { SPOT_EXTRACTION } from './spot_extraction'
+include { WARP_SPOTS      } from './warp_spots'
 
 
 def validate_params() {
@@ -149,6 +151,20 @@ workflow EASIFISH {
     )
 
     segmentation_results.subscribe { log.debug "Segmentation result: $it " }
+
+    def spot_extraction_results = SPOT_EXTRACTION(
+        stitching_results,
+        outdir,
+        "${session_work_dir}/spot_extraction",
+    )
+
+    spot_extraction_results.subscribe { log.debug "Spot extraction result: $it " }
+
+    WARP_SPOTS(
+        registration_results,
+        spot_extraction_results,
+        outdir,
+    )
 
 }
 
