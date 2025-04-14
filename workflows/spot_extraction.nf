@@ -49,8 +49,8 @@ workflow SPOT_EXTRACTION {
                     "${spots_output_dir}/${spots_result_name}",
                 ]
             }
-            | POST_RS_FISH
         }
+        | POST_RS_FISH
     } else {
         spots_spark_input.subscribe { log.debug "Spot extraction spark input: $it" }
 
