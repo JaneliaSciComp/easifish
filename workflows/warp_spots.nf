@@ -32,6 +32,7 @@ workflow WARP_SPOTS {
 
     def spots = spot_extraction_results
     | map {
+        log.debug "Prepare warp spot inputs: $it"
         def (
             meta,
             image_container,
