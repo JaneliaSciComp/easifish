@@ -35,7 +35,8 @@ workflow SPOT_EXTRACTION {
     def final_rsfish_results
     if (params.skip_spot_extraction) {
         log.info "Skipping spot extraction"
-
+        // even if we skip spot extraction 
+        // we assume we have the csv file and we apply the post processing
         final_rsfish_results = spots_spark_input
         | flatMap {
             def (meta, spots_inout_dirs) = it
@@ -46,9 +47,9 @@ workflow SPOT_EXTRACTION {
                     input_img_dir,
                     input_spot_subpath,
                     "${spots_output_dir}/${spots_result_name}",
-                    spots_result_name,
                 ]
             }
+            | POST_RS_FISH
         }
     } else {
         spots_spark_input.subscribe { log.debug "Spot extraction spark input: $it" }
@@ -102,7 +103,7 @@ workflow SPOT_EXTRACTION {
 
         rsfish_results
         | map {
-            def (meta, input_image, input_dataset, output_filename, spark) = it
+            def (meta, input_image, input_dataset, output_filename) = it
             [
                 meta,
                 input_image,
