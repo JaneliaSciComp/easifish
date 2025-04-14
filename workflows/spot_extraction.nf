@@ -37,7 +37,7 @@ workflow SPOT_EXTRACTION {
         log.info "Skipping spot extraction"
 
         final_rsfish_results = spots_spark_input
-        | map {
+        | flatMap {
             def (meta, spots_inout_dirs) = it
             def (input_img_dir, spots_output_dir) = spots_inout_dirs
             get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
@@ -46,6 +46,7 @@ workflow SPOT_EXTRACTION {
                     input_img_dir,
                     input_spot_subpath,
                     "${spots_output_dir}/${spots_result_name}",
+                    spots_result_name,
                 ]
             }
         }
