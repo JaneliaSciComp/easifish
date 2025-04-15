@@ -62,7 +62,8 @@ workflow STITCHING {
 
     if (!skip) {
         def stitching_input = SPARK_START(
-            prepared_data, // [meta, data_paths]
+            prepared_data,      // [meta, data_paths]
+            [:],                // spark default config
             with_spark_cluster,
             workdir,
             spark_workers,
