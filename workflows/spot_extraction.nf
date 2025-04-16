@@ -58,6 +58,7 @@ workflow SPOT_EXTRACTION {
 
         def rsfish_input = SPARK_START(
             spots_spark_input,
+            [:],                                // spark default config
             params.distributed_spot_extraction,
             workdir,
             params.rsfish_spark_workers,

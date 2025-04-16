@@ -768,6 +768,7 @@ workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
     if (!params.skip_multiscale) {
         def downsample_input = SPARK_START(
             multiscale_cluster_data,
+            [:],                                                               // spark default config
             params.multiscale_with_spark_cluster,
             multiscale_work_dir,
             params.multiscale_spark_workers ?: params.spark_workers,
