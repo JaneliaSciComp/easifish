@@ -30,6 +30,10 @@ workflow WARP_SPOTS {
         [ id, reg_meta, inv_transform_output, inv_transform_name, inv_transform_subpath ]
     }
 
+    def all_moving_rounds = transform
+    | map { it[0] /* id */ }
+    | toList()
+
     def spots = spot_extraction_results
     | map {
         log.debug "Prepare warp spot inputs: $it"
@@ -41,11 +45,25 @@ workflow WARP_SPOTS {
         ) = it
 
         def id = meta.id
-        [ 
+        [
             id,
+            meta,
             spots_file,
             image_container, image_dataset,
         ]
+    }
+
+    def fixed_spots = spots
+    | filter { !(it]0] in all_moving_rounds)  }
+    | map {
+        def (id, meta, spots_file) = it
+        def r = [
+            meta,
+            spots_file,
+            spots,
+        ]
+        log.debug "Fixed spots: $id -> $r"
+        r
     }
 
     def spots_warp_input = spots
@@ -53,6 +71,7 @@ workflow WARP_SPOTS {
     | map {
         def (
             id,
+            meta,
             spots_file,
             image_container, image_dataset,
             reg_meta,
@@ -65,7 +84,7 @@ workflow WARP_SPOTS {
         def spots_filename = file(spots_file).name
         [
             [
-                reg_meta, spots_file, warped_spots_output_dir, "warped-${spots_filename}",
+                meta, spots_file, warped_spots_output_dir, "warped-${spots_filename}",
             ],
             [
                 image_container, image_dataset,
@@ -106,10 +125,10 @@ workflow WARP_SPOTS {
     } else {
         // skip warp spots
         spots_warp_results = spots_warp_input.map {
-            def (reg_meta, spots_file, warped_spots_output_dir, warped_spots_filename) = it[0]
+            def (meta, spots_file, warped_spots_output_dir, warped_spots_filename) = it[0]
 
             def r = [
-                reg_meta,
+                meta,
                 spots_file,
                 "${warped_spots_output_dir}/${warped_spots_filename}",
             ]
@@ -119,5 +138,5 @@ workflow WARP_SPOTS {
     }
 
     emit:
-    done = spots_warp_results
+    done = fixed_spots.mix(spots_warp_results)
 }

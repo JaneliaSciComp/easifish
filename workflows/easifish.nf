@@ -160,12 +160,13 @@ workflow EASIFISH {
 
     spot_extraction_results.subscribe { log.debug "Spot extraction result: $it " }
 
-    WARP_SPOTS(
+    def final_spot_results = WARP_SPOTS(
         registration_results,
         spot_extraction_results,
         outdir,
-    )
+    ) // final_spot_results includes spots for fixed and warped spots from the moving rounds
 
+    final_spot_results.subscribe { log.debug "Final spot results: $it " }
 }
 
 workflow.onComplete {
