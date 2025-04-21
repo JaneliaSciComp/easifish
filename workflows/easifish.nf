@@ -167,6 +167,7 @@ workflow EASIFISH {
     ) // final_spot_results includes spots for fixed and warped spots from the moving rounds
 
     final_spot_results.subscribe { log.debug "Final spot results: $it " }
+
 }
 
 workflow.onComplete {

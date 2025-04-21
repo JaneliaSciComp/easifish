@@ -24,6 +24,7 @@ workflow SPOT_EXTRACTION {
         spot_volume_ids.empty || meta.id in spot_volume_ids
     }
     | map { meta ->
+        // Spot extraction is typically done for all cell (no DAPI) channels from all rounds
         def input_img_dir = get_spot_extraction_input_volume(meta)
         def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
         [
@@ -35,7 +36,7 @@ workflow SPOT_EXTRACTION {
     def final_rsfish_results
     if (params.skip_spot_extraction) {
         log.info "Skipping spot extraction"
-        // even if we skip spot extraction 
+        // even if we skip spot extraction
         // we assume we have the csv file and we apply the post processing
         spots_spark_input
         | flatMap {
@@ -146,7 +147,7 @@ def get_spot_subpaths(meta) {
     def input_img_dir = get_spot_extraction_input_volume(meta)
 
     if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
-        return [ 
+        return [
             ['', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
         ]
     } else if (params.spot_subpaths) {
@@ -162,7 +163,7 @@ def get_spot_subpaths(meta) {
             spot_channels = as_list(params.spot_channels)
             log.debug "Use specified spot channels: $spot_channels"
         } else {
-            // all but the last channel whcih typically is DAPI
+            // all but the last channel which typically is DAPI
             def all_channels = as_list(params.channels)
             // this may throw an exception if the channel list is empty or a singleton
             spot_channels = all_channels[0..-2]

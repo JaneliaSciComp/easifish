@@ -23,6 +23,7 @@ workflow SEGMENTATION {
     def segmentation_ids = as_list(params.segmentation_ids)
 
     // get volumes to segment
+    // typically this is done for the DAPI channel of the fixed round
     def seg_volume = ch_meta
     | filter { meta ->
         params.segmentation_input || meta.id in segmentation_ids

@@ -136,7 +136,19 @@ workflow WARP_SPOTS {
             log.debug "Skipping warp spots and return: $r"
         }
     }
+    def final_spot_results = fixed_spots.mix(spots_warp_results)
+    | join(spot_extraction_results, by: 0)
+    | map {
+        def (meta, spots_file, warped_spots_file, image_container, image_dataset) = it
+        def r = [
+            meta,
+            image_container, image_dataset, // include the image used for spot extraction in the results
+            spots_file, warped_spots_file,
+        ]
+        log.debug "Final spot results: $it -> $r"
+        r
+    }
 
     emit:
-    done = fixed_spots.mix(spots_warp_results)
+    done = final_spot_results
 }
