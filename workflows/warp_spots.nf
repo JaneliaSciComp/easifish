@@ -151,5 +151,5 @@ workflow WARP_SPOTS {
     }
 
     emit:
-    done = final_spot_results
+    done = final_spot_results // [ meta, image_container, image_dataset, spots_file, warped_spots_file ]
 }

@@ -5,9 +5,9 @@ include { DASK_STOP  } from '../janelia/dask_stop/main.nf'
 
 workflow CELLPOSE_SEGMENTATION {
     take:
-    ch_meta                // channel: [ meta, 
+    ch_meta                // channel: [ meta,
                            //            img_container_dir, img_dataset,
-                           //            output_dir, 
+                           //            output_dir,
                            //            segmentation_container ]
     skip                   // boolean: if true skip segmentation completely and just return the meta as if it ran
     models_dir             // string|file: directory
@@ -29,7 +29,7 @@ workflow CELLPOSE_SEGMENTATION {
         | multiMap {
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
             log.debug "Start to prepare inputs for cellpose segmentation: $it"
-            def segmentation_work_dir = work_dir 
+            def segmentation_work_dir = work_dir
                 ? file("${work_dir}/${meta.id}/${workflow.sessionId}/${img_dataset}")
                 : file("${output_dir}/${meta.id}/${workflow.sessionId}/${img_dataset}")
 
@@ -108,12 +108,12 @@ workflow CELLPOSE_SEGMENTATION {
             log_config ? file(log_config) : [],
             segmentation_cpus,
             segmentation_mem_gb,
-        )
-        segmentation_results.results.subscribe {
+        ).results
+        segmentation_results.subscribe {
             log.debug "Segmentation results: $it"
         }
 
-        dask_cluster.join(segmentation_results.results, by:0)
+        dask_cluster.join(segmentation_results, by:0)
         | map {
             def (meta, cluster_context) = it
             [ meta, cluster_context ]
@@ -125,6 +125,15 @@ workflow CELLPOSE_SEGMENTATION {
     } else {
         // FIXME:
         final_segmentation_results = ch_meta
+        | map {
+            def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
+            log.debug "Skip segmentation: $it"
+            [
+                meta,
+                img_container_dir,
+                "${output_dir}/${segmentation_container}",
+            ]
+        }
     }
 
     emit:
