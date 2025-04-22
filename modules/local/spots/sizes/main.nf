@@ -12,7 +12,7 @@ process SPOTS_SIZES {
           val(labels_dataset),
           path(spots_input_dir, stageAs: 'spots/*'),
           val(input_pattern),
-          path(output_dir, stageAs: 'output/*'),
+          path(output_dir, stageAs: 'output/*')
     val(ncpus)
     val(mem_in_gb)
 
