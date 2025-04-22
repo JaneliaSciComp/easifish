@@ -123,7 +123,6 @@ workflow CELLPOSE_SEGMENTATION {
 
         final_segmentation_results = segmentation_results.results
     } else {
-        // FIXME:
         final_segmentation_results = ch_meta
         | map {
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
