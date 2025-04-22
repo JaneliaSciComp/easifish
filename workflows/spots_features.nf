@@ -39,5 +39,5 @@ workflow SPOTS_FEATURES {
     )
 
     emit:
-    done = spots_sizes_results.results
+    done = spots_sizes_outputs.results
 }
