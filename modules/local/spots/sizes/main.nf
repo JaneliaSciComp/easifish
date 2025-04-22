@@ -38,13 +38,18 @@ process SPOTS_SIZES {
 
     output_csv_file="\${full_output_dir}/count.csv"
 
-    python /opt/scripts/spots-utils/labeled-spots-sizes.py \
-        --image-container \${full_input_image_path} \
-        --image-subpath ${input_dataset} \
-        --labels-container \${full_labels_path} \
-        --labels-subpath ${labels_dataset} \
-        --spots-pattern \"\${full_spots_input_dir}/${input_pattern}\" \
+    CMD=(
+        python
+        /opt/scripts/spots-utils/labeled-spots-sizes.py
+        --image-container \${full_input_image_path}
+        --image-subpath ${input_dataset}
+        --labels-container \${full_labels_path}
+        --labels-subpath ${labels_dataset}
+        --spots-pattern \"\${full_spots_input_dir}/${input_pattern}\"
         --output \${output_csv_file}
+    )
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

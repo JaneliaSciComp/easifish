@@ -28,7 +28,7 @@ workflow SPOTS_FEATURES {
             seg_labels,
             seg_input_dataset,
             spots_input_dir,
-            'spots-*-coord.csv',
+            '*coord.csv',
             spots_sizes_output_dir,
         ]
         log.debug "Spots sizes input: $r"
