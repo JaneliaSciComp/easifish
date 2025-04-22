@@ -102,26 +102,27 @@ workflow CELLPOSE_SEGMENTATION {
             cluster_info: cluster_info
         }
 
-        def segmentation_results = CELLPOSE(
+        def cellpose_outputs = CELLPOSE(
             segmentation_inputs.cellpose_data,
             segmentation_inputs.cluster_info,
             log_config ? file(log_config) : [],
             segmentation_cpus,
             segmentation_mem_gb,
-        ).results
-        segmentation_results.subscribe {
+        )
+
+        final_segmentation_results = cellpose_outputs.results
+
+        final_segmentation_results.subscribe {
             log.debug "Segmentation results: $it"
         }
 
-        dask_cluster.join(segmentation_results, by:0)
+        dask_cluster.join(final_segmentation_results, by:0)
         | map {
             def (meta, cluster_context) = it
             [ meta, cluster_context ]
         }
         | groupTuple
         | DASK_STOP
-
-        final_segmentation_results = segmentation_results.results
     } else {
         final_segmentation_results = ch_meta
         | map {
