@@ -54,7 +54,7 @@ workflow WARP_SPOTS {
     }
 
     def fixed_spots = spots
-    | filter { !(it]0] in all_moving_rounds)  }
+    | filter { !(it[0] in all_moving_rounds)  }
     | map {
         def (id, meta, spots_file) = it
         def r = [
@@ -136,6 +136,7 @@ workflow WARP_SPOTS {
             log.debug "Skipping warp spots and return: $r"
         }
     }
+
     def final_spot_results = fixed_spots.mix(spots_warp_results)
     | join(spot_extraction_results, by: 0)
     | map {
