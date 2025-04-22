@@ -171,6 +171,23 @@ workflow EASIFISH {
 
     def spots_features_inputs = final_spot_results
     | combine(segmentation_results)
+    | map {
+        def (meta_spots,
+             spots_image_container, spots_dataset,
+             source_spots, warped_spots,
+             meta_seg, seg_input_image, seg_input_dataset, seg_labels) = it
+        log.debug "Combined spots and segmentation results: $it"
+        [
+            meta_spots,
+            spots_image_container,
+            spots_dataset,
+            source_spots,
+            warped_spots,
+            seg_input_image,
+            seg_input_dataset,
+            seg_labels,
+        ]
+    }
 
     spots_features_inputs.subscribe { log.debug "Spots for features input: $it " }
 
