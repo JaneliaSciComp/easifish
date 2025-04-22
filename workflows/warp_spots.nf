@@ -62,7 +62,7 @@ workflow WARP_SPOTS {
         def r = [
             meta,
             spots_file,
-            spots,
+            spots_file, // no warping for fixed spots
         ]
         log.debug "Fixed spots: $id - $it -> $r"
         r
