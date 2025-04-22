@@ -4,7 +4,7 @@ include { SPOTS_SIZES       } from '../modules/local/spots/sizes/main'
 workflow SPOTS_FEATURES {
     take:
     ch_spots_inputs        // channel: [ meta, input_image, input_dataset, spots, warped_spots, seg_input_image, seg_input_dataset, seg_labels ]
-    outdir
+    outputdir
 
     main:
 
