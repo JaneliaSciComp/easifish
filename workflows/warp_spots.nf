@@ -57,7 +57,7 @@ workflow WARP_SPOTS {
         log.debug "Extracted spot candidate: $id: $r"
         r
     }
-    | unique(by: 0) // unique by id
+    | unique { it[0] } // unique by id
 
     def fixed_spots = spots
     | join(registration_fix, by: 0)
