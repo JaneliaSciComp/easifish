@@ -6,13 +6,13 @@ process SPOTS_SIZES {
 
     input:
     tuple val(meta),
-          path(input_image_path),
+          path(input_image_path, stageAs: 'image/*'),
           val(input_dataset),
-          path(labels_path),
+          path(labels_path, stageAs: 'labels/*'),
           val(labels_dataset),
-          path(spots_input_dir),
+          path(spots_input_dir, stageAs: 'spots/*'),
           val(input_pattern),
-          path(output_dir)
+          path(output_dir, stageAs: 'output/*'),
     val(ncpus)
     val(mem_in_gb)
 
