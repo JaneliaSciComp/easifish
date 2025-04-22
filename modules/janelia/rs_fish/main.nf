@@ -1,6 +1,6 @@
 process RS_FISH {
     tag "${meta.id}"
-    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/rs-fish-spark:4d1b901' }
+    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/rs-fish-spark:8f8954f' }
     cpus { spark.driver_cores }
     memory { spark.driver_memory }
 
@@ -14,7 +14,7 @@ process RS_FISH {
 
     output:
     tuple val(meta),
-          path(input_image),
+          env(INPUT_N5),
           val(input_dataset),
           path(spots_output_dir),
           val(spots_result_name),
