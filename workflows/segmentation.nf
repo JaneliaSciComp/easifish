@@ -83,5 +83,5 @@ workflow SEGMENTATION {
     )
 
     emit:
-    done = cellpose_results
+    done = cellpose_results // [ meta, input_image, input_dataset, output_segmentation_file ]
 }

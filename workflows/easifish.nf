@@ -25,6 +25,7 @@ include { REGISTRATION    } from './registration'
 include { SEGMENTATION    } from './segmentation'
 include { SPOT_EXTRACTION } from './spot_extraction'
 include { WARP_SPOTS      } from './warp_spots'
+include { SPOTS_FEATURES  } from './spots_features'
 
 
 def validate_params() {
@@ -168,6 +169,12 @@ workflow EASIFISH {
 
     final_spot_results.subscribe { log.debug "Final spot results: $it " }
 
+    def spots_features_inputs = final_spot_results
+    | join(segmentation_results, by: 0)
+
+    def spots_features_results = SPOTS_FEATURES(spots_features_inputs)
+
+    spots_features_results.subscribe { log.debug "Spots features result: $it " }
 }
 
 workflow.onComplete {

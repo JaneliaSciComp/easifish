@@ -18,9 +18,9 @@ process CELLPOSE {
     val(cellpose_mem_in_gb)
 
     output:
-    tuple val(meta), env(input_image_fullpath), val(image_subpath), path("${output_dir}/${output_name_noext}*${output_name_ext}"), emit: results
-    tuple val(meta), val(output_name_noext), val(output_name_ext)                                                                , emit: result_names
-    path('versions.yml')                                                                                                         , emit: versions
+    tuple val(meta), env(input_image_fullpath), val(image_subpath), env(output_segmentation_results), emit: results
+    tuple val(meta), val(output_name_noext), val(output_name_ext)                                   , emit: result_names
+    path('versions.yml')                                                                            , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -80,6 +80,11 @@ process CELLPOSE {
         ${dask_config_arg} \
         ${logging_config_arg} \
         ${args}
+
+    output_segmentation_results=()
+    for sr in \$(ls \${output_fullpath} | grep "${output_name_noext}.*${output_name_ext}") ; do
+        output_segmentation_results+=("\${output_fullpath}/\${sr}")
+    done
 
     cellpose_version=\$(python /opt/scripts/cellpose/main_distributed_cellpose.py \
                         --version | \

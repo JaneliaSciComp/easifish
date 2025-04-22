@@ -1,4 +1,4 @@
-process MEASURE_SPOTS {
+process SPOTS_REGIONPROPS {
     tag { meta.id }
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1' }
     cpus { ncpus }
@@ -39,7 +39,7 @@ process MEASURE_SPOTS {
 
     output_csv_file="\${full_output_dir}/${output_name}"
 
-    python /opt/scripts/spots-utils/measure-spots.py \
+    python /opt/scripts/spots-utils/labeled-spots-regionprops.py \
         --image-container \${full_input_container_path} \
         --image-subpath ${input_dataset} \
         --labels-container \${full_labels_path} \

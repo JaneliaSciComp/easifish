@@ -32,12 +32,12 @@
                     },
                     "cellpose": {
                         "branch": "main",
-                        "git_sha": "9551bf8f81326aca1ee01fb8e664533177a7a779",
+                        "git_sha": "9b06bebf0b46ad077a8d73d488921f0dbf3262a9",
                         "installed_by": ["modules"]
                     },
                     "cellpose/tests": {
                         "branch": "main",
-                        "git_sha": "8232ff68e737a6788759d1f0f0cf50fd82580ea5",
+                        "git_sha": "9b06bebf0b46ad077a8d73d488921f0dbf3262a9",
                         "installed_by": ["modules"]
                     },
                     "rs_fish": {

@@ -1,4 +1,4 @@
-process ASSIGN_SPOTS {
+process SPOTS_SIZES {
     tag { meta.id }
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1' }
     cpus { ncpus }
@@ -38,7 +38,7 @@ process ASSIGN_SPOTS {
 
     output_csv_file="\${full_output_dir}/count.csv"
 
-    python /opt/scripts/spots-utils/assign-spots.py \
+    python /opt/scripts/spots-utils/labeled-spots-sizes.py \
         --image-container \${full_input_image_path} \
         --image-subpath ${input_dataset} \
         --labels-container \${full_labels_path} \
