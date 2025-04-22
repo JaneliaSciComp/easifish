@@ -36,7 +36,7 @@ workflow WARP_SPOTS {
 
     def spots = spot_extraction_results
     | map {
-        log.debug "Prepare warp spot inputs: $it"
+        log.debug "Extracted spot: $it"
         def (
             meta,
             image_container,
@@ -51,12 +51,15 @@ workflow WARP_SPOTS {
             spots_file,
             image_container, image_dataset,
         ]
-        log.debug "Spots to warp: $id - $it -> $r"
+        log.debug "Extracted spot candidate: $id: $r"
         r
     }
 
     def fixed_spots = spots
-    | filter { !(it[0] in all_moving_rounds)  }
+    | filter {
+        log.debug "Check if ${it[0]} is a fixed spot - should not be in ${all_moving_rounds}"
+        !(it[0] in all_moving_rounds)
+    }
     | map {
         def (id, meta, spots_file) = it
         def r = [
