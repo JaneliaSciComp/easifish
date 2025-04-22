@@ -45,12 +45,14 @@ workflow WARP_SPOTS {
         ) = it
 
         def id = meta.id
-        [
+        def r = [
             id,
             meta,
             spots_file,
             image_container, image_dataset,
         ]
+        log.debug "Spots to warp: $id - $it -> $r"
+        r
     }
 
     def fixed_spots = spots
@@ -62,7 +64,7 @@ workflow WARP_SPOTS {
             spots_file,
             spots,
         ]
-        log.debug "Fixed spots: $id -> $r"
+        log.debug "Fixed spots: $id - $it -> $r"
         r
     }
 
