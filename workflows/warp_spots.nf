@@ -33,6 +33,7 @@ workflow WARP_SPOTS {
     def all_moving_rounds = transform
     | map { it[0] /* id */ }
     | toList()
+    | first()
 
     def spots = spot_extraction_results
     | map {
@@ -62,12 +63,13 @@ workflow WARP_SPOTS {
     }
     | map {
         def (id, meta, spots_file) = it
+        log.debug "Extract only fixed spots from $it"
         def r = [
             meta,
             spots_file,
             spots_file, // no warping for fixed spots
         ]
-        log.debug "Fixed spots: $id - $it -> $r"
+        log.debug "Fixed spots: $id: $r"
         r
     }
 
