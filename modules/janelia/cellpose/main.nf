@@ -18,9 +18,9 @@ process CELLPOSE {
     val(cellpose_mem_in_gb)
 
     output:
-    tuple val(meta), env(input_image_fullpath), path("${output_dir}/${output_name_noext}*${output_name_ext}"), emit: results
-    tuple val(meta), val(output_name_noext), val(output_name_ext)                                            , emit: result_names
-    path('versions.yml')                                                                                     , emit: versions
+    tuple val(meta), env(input_image_fullpath), val(image_subpath), path("${output_dir}/${output_name_noext}*${output_name_ext}"), emit: results
+    tuple val(meta), val(output_name_noext), val(output_name_ext)                                                                , emit: result_names
+    path('versions.yml')                                                                                                         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
