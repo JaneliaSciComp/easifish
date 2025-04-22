@@ -4,6 +4,7 @@ include { SPOTS_SIZES       } from '../modules/local/spots/sizes/main'
 workflow SPOTS_FEATURES {
     take:
     ch_spots_inputs        // channel: [ meta, input_image, input_dataset, spots, warped_spots, seg_input_image, seg_input_dataset, seg_labels ]
+    outdir
 
     main:
 
@@ -20,7 +21,8 @@ workflow SPOTS_FEATURES {
         log.debug "Prepare spots sizes input from $it"
 
         def spots_input_dir = file(warped_spots_file).parent
-        def spots_sizes_output_dir = spots_input_dir
+        def spots_sizes_output_dir = file("${outputdir}/${params.spots_features_subdir}/${meta.id}")
+
         def r = [
             meta,
             image,

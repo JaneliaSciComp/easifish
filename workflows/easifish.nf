@@ -191,7 +191,10 @@ workflow EASIFISH {
 
     spots_features_inputs.subscribe { log.debug "Spots for features input: $it " }
 
-    def spots_features_results = SPOTS_FEATURES(spots_features_inputs)
+    def spots_features_results = SPOTS_FEATURES(
+        spots_features_inputs,
+        outdir,
+    )
 
     spots_features_results.subscribe { log.debug "Spots features result: $it " }
 }
