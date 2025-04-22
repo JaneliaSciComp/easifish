@@ -170,7 +170,7 @@ workflow EASIFISH {
     final_spot_results.subscribe { log.debug "Final spot results: $it " }
 
     def spots_features_inputs = final_spot_results
-    | join(segmentation_results, by: 0)
+    | combine(segmentation_results, by: 0)
 
     def spots_features_results = SPOTS_FEATURES(spots_features_inputs)
 
