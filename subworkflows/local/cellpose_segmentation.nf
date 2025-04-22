@@ -35,13 +35,8 @@ workflow CELLPOSE_SEGMENTATION {
 
             def cellpose_models_dir = models_dir ? file(models_dir) : "${output_dir}/cellpose-models"
 
-            def segmentation_meta = meta + [
-                segmentation_work_dir: segmentation_work_dir,
-                cellpose_models_dir: cellpose_models_dir,
-            ]
-
             def cellpose_data = [
-                segmentation_meta,
+                meta,
                 img_container_dir,
                 img_dataset,
                 cellpose_models_dir,
@@ -56,7 +51,7 @@ workflow CELLPOSE_SEGMENTATION {
             ] + (cellpose_models_dir ? [ cellpose_models_dir ] : [])
 
             def cluster_data = [
-                segmentation_meta,
+                meta,
                 cluster_dirs,
             ]
 
