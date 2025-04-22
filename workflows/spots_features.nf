@@ -17,8 +17,10 @@ workflow SPOTS_FEATURES {
              seg_input_image,
              seg_input_dataset,
              seg_labels) = it
+        log "Prepare spots sizes input from $it"
+
         def spots_input_dir = file(warped_spots_file).parent
-        def spots_sizes_output_dir =spots_input_dir
+        def spots_sizes_output_dir = spots_input_dir
         def r = [
             meta,
             image,
@@ -29,7 +31,8 @@ workflow SPOTS_FEATURES {
             'spots-*-coord.csv',
             spots_sizes_output_dir,
         ]
-        log "Prepare spots sizes input: $it -> $r"
+        log "Spots sizes input: $r"
+        r
     }
 
     def spots_sizes_outputs = SPOTS_SIZES(
