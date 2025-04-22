@@ -23,10 +23,18 @@ workflow SPOTS_FEATURES {
         def spots_input_dir = file(warped_spots_file).parent
         def spots_sizes_output_dir = file("${outputdir}/${params.spots_features_subdir}/${meta.id}")
 
+        def image_dataset_comps = image_dataset.split('/')
+        def labels_dataset_comps = seg_input_dataset.split('/')
+        def  =
+        if (labels_dataset_comps && labels_dataset_comps[-1] != image_dataset_comps[-1]) {
+            log.debug "Use labels scale for input image: ${labels_dataset_comps[-1]}"
+            image_dataset_comps[-1] = labels_dataset_comps[-1]
+        }
+
         def r = [
             meta,
             image,
-            image_dataset,
+            image_dataset_comps.join('/'),
             seg_labels,
             seg_input_dataset,
             spots_input_dir,
