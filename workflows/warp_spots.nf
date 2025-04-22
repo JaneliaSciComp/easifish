@@ -139,7 +139,7 @@ workflow WARP_SPOTS {
         }
     }
 
-    def final_spot_results = fixed_spots.mix(spots_warp_results)
+    def final_spot_results = fixed_spots.concat(spots_warp_results)
     | join(spot_extraction_results, by: 0)
     | map {
         def (meta, spots_file, warped_spots_file, image_container, image_dataset) = it

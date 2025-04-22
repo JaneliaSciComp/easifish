@@ -10,7 +10,7 @@ process POST_RS_FISH {
 
     output:
     tuple val(meta),
-          path(input_path),
+          env(full_input_path),
           val(input_dataset),
           env(coord_spots_csv_file), emit: results
     path "versions.yml"            , emit: versions

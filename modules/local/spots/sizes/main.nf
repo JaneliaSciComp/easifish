@@ -43,7 +43,7 @@ process SPOTS_SIZES {
         --image-subpath ${input_dataset} \
         --labels-container \${full_labels_path} \
         --labels-subpath ${labels_dataset} \
-        --spots-pattern "\"\${full_spots_input_dir}/${input_pattern}\"" \
+        --spots-pattern \"\${full_spots_input_dir}/${input_pattern}\" \
         --output \${output_csv_file}
 
     cat <<-END_VERSIONS > versions.yml
