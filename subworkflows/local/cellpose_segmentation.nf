@@ -113,7 +113,7 @@ workflow CELLPOSE_SEGMENTATION {
         final_segmentation_results = cellpose_outputs.results
 
         final_segmentation_results.subscribe {
-            log.debug "Segmentation results: $it"
+            log.debug "Cellpose results: $it"
         }
 
         dask_cluster.join(final_segmentation_results, by:0)
@@ -127,10 +127,10 @@ workflow CELLPOSE_SEGMENTATION {
         final_segmentation_results = ch_meta
         | map {
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
-            log.debug "Skip segmentation: $it"
+            log.debug "Skip cellpose segmentation: $it"
             [
                 meta,
-                img_container_dir,
+                img_container_dir, img_dataset,
                 "${output_dir}/${segmentation_container}",
             ]
         }

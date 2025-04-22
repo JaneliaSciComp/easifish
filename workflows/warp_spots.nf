@@ -121,7 +121,7 @@ workflow WARP_SPOTS {
 
         spots_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
 
-        spots_warp_results.subscribe { log.debug "Warp spots results: $it " }
+        spots_warp_results.subscribe { log.debug "Bigstream transform coords results: $it " }
     } else {
         // skip warp spots
         spots_warp_results = spots_warp_input.map {
@@ -146,7 +146,7 @@ workflow WARP_SPOTS {
             image_container, image_dataset, // include the image used for spot extraction in the results
             spots_file, warped_spots_file,
         ]
-        log.debug "Final spot results: $it -> $r"
+        log.debug "All (warped and unwarped) spot results: $it -> $r"
         r
     }
 
