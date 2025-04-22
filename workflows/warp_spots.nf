@@ -30,10 +30,12 @@ workflow WARP_SPOTS {
         [ id, reg_meta, inv_transform_output, inv_transform_name, inv_transform_subpath ]
     }
 
-    def all_moving_rounds = transform
-    | map { it[0] /* id */ }
-    | toList()
-    | first()
+    def registration_fix = registration_results
+    | map {
+        def (reg_meta) = it
+        def id = reg_meta.fix_id
+        [ id ]
+    }
 
     def spots = spot_extraction_results
     | map {
@@ -55,12 +57,10 @@ workflow WARP_SPOTS {
         log.debug "Extracted spot candidate: $id: $r"
         r
     }
+    | unique(by: 0) // unique by id
 
     def fixed_spots = spots
-    | filter {
-        log.debug "Check if ${it[0]} is a fixed spot - should not be in ${all_moving_rounds}"
-        !(it[0] in all_moving_rounds)
-    }
+    | join(registration_fix, by: 0)
     | map {
         def (id, meta, spots_file) = it
         log.debug "Extract only fixed spots from $it"
@@ -148,12 +148,13 @@ workflow WARP_SPOTS {
     | join(spot_extraction_results, by: 0)
     | map {
         def (meta, spots_file, warped_spots_file, image_container, image_dataset) = it
+        log.debug "add image info to spot results: $it"
         def r = [
             meta,
             image_container, image_dataset, // include the image used for spot extraction in the results
             spots_file, warped_spots_file,
         ]
-        log.debug "All (warped and unwarped) spot results: $it -> $r"
+        log.debug "All (fixed and warped) spot results: $r"
         r
     }
 
