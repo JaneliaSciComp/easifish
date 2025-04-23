@@ -137,9 +137,14 @@ workflow EXTRACT_CELL_REGIONPROPS {
         r
     }
 
-    emit:
-    done = regionprops_inputs
+    SPOTS_REGIONPROPS(
+        regionprops_inputs,
+        params.cells_regionprops_cores,
+        params.cells_regionprops_mem_gb,
+    )
 
+    emit:
+    done = SPOTS_REGIONPROPS.out.results
 }
 
 

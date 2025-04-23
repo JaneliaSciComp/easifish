@@ -51,6 +51,9 @@
     "multiscale_spark_worker_cores": 20,
     "multiscale_spark_gb_per_core": 5,
 
+    "dapi_channel": "c1",
+    "bleeding_channel": "c0",
+
     "lsf_opts": "-P scicompsoft",
     "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"
 }
