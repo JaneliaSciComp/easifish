@@ -159,7 +159,7 @@ workflow WARP_SPOTS {
     | join(spot_extraction_results, by: 0)
     | map {
         def (meta_spots, meta_reg, source_spots, final_spots,
-             image_container, image_dataset) = it
+             spots_image_container, spots_dataset) = it
         log.debug "Add source spots image to spot results: $it"
         def r = [
             meta_spots,
