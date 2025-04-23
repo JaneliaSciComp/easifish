@@ -103,7 +103,7 @@ workflow WARP_SPOTS {
             [], // affine transform
             [
 
-                "${inv_transform_output}/${inv_transform_name}",
+                "${inv_transform_path}/${inv_transform_name}",
                 inv_transform_subpath,
             ],
             [
