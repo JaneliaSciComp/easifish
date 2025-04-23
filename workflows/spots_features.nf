@@ -64,7 +64,7 @@ workflow EXTRACT_CELL_REGIONPROPS {
     outdir
 
     main:
-    def registered_images = registration_results
+    def registered_images = ch_registration
     | map {
         def (reg_meta,
              fix, fix_subpath,
@@ -77,7 +77,7 @@ workflow EXTRACT_CELL_REGIONPROPS {
         [ reg_meta.fix_id, warped, warped_subpath ]
     }
 
-    def fixed_images = registration_results
+    def fixed_images = ch_registration
     | map {
         def (reg_meta,
              fix, fix_subpath,
