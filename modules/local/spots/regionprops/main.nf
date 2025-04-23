@@ -39,14 +39,19 @@ process SPOTS_REGIONPROPS {
 
     output_csv_file="\${full_output_dir}/${output_name}"
 
-    python /opt/scripts/spots-utils/labeled-spots-regionprops.py \
-        --image-container \${full_input_container_path} \
-        --image-subpath ${input_dataset} \
-        --labels-container \${full_labels_path} \
-        --labels-subpath ${labels_dataset} \
-        ${dapi_dataset_arg} \
-        ${bleed_dataset_arg} \
+    CMD=(
+        python
+        /opt/scripts/spots-utils/labeled-cells-regionprops.py
+        --image-container \${full_input_image_path}
+        --image-subpath ${input_dataset}
+        --labels-container \${full_labels_path}
+        --labels-subpath ${labels_dataset}
+        ${dapi_dataset_arg}
+        ${bleed_dataset_arg}
         --output \${output_csv_file}
+    )
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
