@@ -61,7 +61,7 @@ workflow EXTRACT_CELL_REGIONPROPS {
     take:
     ch_registration
     ch_segmentation
-    outdir,
+    outdir
 
     main:
     def registered_images = registration_results
