@@ -33,11 +33,11 @@ workflow MEASURE_SPOTS {
         def spots_dir = file(warped_spots).parent
         def spots_sizes_output_dir = file("${outputdir}/${params.spots_sizes_subdir}/${meta_spots.id}")
 
-        def spots_dataset = sync_image_scale_with_labels_scale(spots_dataset, seg_input_dataset)
+        adjusted_spots_dataset = sync_image_scale_with_labels_scale(spots_dataset, seg_input_dataset)
 
         def r = [
             meta_spots,
-            spots_image_container, spots_dataset_comps,
+            spots_image_container, adjusted_spots_dataset,
             seg_labels, seg_input_dataset,
             spots_dir,
             '*coord.csv',
@@ -108,21 +108,21 @@ workflow EXTRACT_CELL_REGIONPROPS {
              seg_input_image, seg_input_dataset, seg_labels) = it
         log.debug "Combined cell images with segmentation: $it"
 
-
         def regionprops_output_dir = file("${outdir}/${params.cells_regionprops_subdir}/${meta.id}")
-        def image_dataset = sync_image_scale_with_labels_scale(image_dataset, seg_input_dataset)
+        def adjusted_image_dataset = sync_image_scale_with_labels_scale(image_dataset, seg_input_dataset)
 
         def dapi_dataset = params.dapi_channel
-            ? change_dataset_channel(image_dataset, params.dapi_channel)
+            ? change_dataset_channel(adjusted_image_dataset, params.dapi_channel)
             : ''
         def bleeding_dataset = params.bleeding_channel
-            ? change_dataset_channel(image_dataset, params.bleeding_channel)
+            ? change_dataset_channel(adjusted_image_dataset, params.bleeding_channel)
             : ''
 
-        def dataset_ch = get_dataset_channel(image_dataset)
+        def dataset_ch = get_dataset_channel(adjusted_image_dataset)
+
         def r = [
             meta,
-            image_container, image_dataset,
+            image_container, adjusted_image_dataset,
             seg_labels, seg_input_dataset,
             dapi_dataset,
             bleeding_dataset,
