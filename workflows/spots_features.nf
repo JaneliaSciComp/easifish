@@ -34,7 +34,7 @@ workflow MEASURE_SPOTS {
              meta_seg, seg_input_image, seg_input_dataset, seg_labels) = it
         log.debug "Combined spots and segmentation results: $it"
 
-        def spots_dir = file(warped_spots).parent
+        def spots_dir = file(final_spots).parent
         def spots_sizes_output_dir = file("${outputdir}/${params.spots_sizes_subdir}/${meta_spots.id}")
 
         adjusted_spots_dataset = sync_image_scale_with_labels_scale(spots_dataset, seg_input_dataset)
