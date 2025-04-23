@@ -12,16 +12,20 @@ workflow MEASURE_SPOTS {
     | map {
         def (meta, seg_input_image, seg_input_dataset, seg_labels) = it
         def id = meta.id
-        [ id, meta, seg_input_image, seg_input_dataset, seg_labels ]
+        def r = [ id, meta, seg_input_image, seg_input_dataset, seg_labels ]
+        log.debug "Segmentation data for spots sizes: $r"
+        r
     }
 
     def spots_sizes_input = ch_spots
     | map {
         def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
         def id = meta_reg.fix_id
-        [ id, meta_spots, spots_input_image, spots_input_dataset, source_spots, final_spots ]
+        def r = [ id, meta_spots, spots_input_image, spots_input_dataset, source_spots, final_spots ]
+        log.debug "Spots data for spots sizes: $r"
+        r
     }
-    | combine(ch_segmentation, by: 0)
+    | combine(ch_segmentation_with_id, by: 0)
     | map {
         def (id,
              meta_spots,
