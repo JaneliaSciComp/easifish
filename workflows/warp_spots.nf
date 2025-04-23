@@ -146,15 +146,26 @@ workflow WARP_SPOTS {
     }
 
     def final_spot_results = fixed_spots.concat(spots_warp_results)
-    | join(spot_extraction_results, by: 0)
     | map {
-        def (meta, spots_file, warped_spots_file, image_container, image_dataset) = it
-        log.debug "add image info to spot results: $it"
+        def (meta, source_spots, final_spots) = it
         def r = [
             meta.meta_spots,
             meta.meta_reg,
+            source_spots, final_spots,
+        ]
+        log.debug "All (fixed and warped) spot results: $r"
+        r
+    }
+    | join(spot_extraction_results, by: 0)
+    | map {
+        def (meta_spots, meta_reg, source_spots, final_spots,
+             image_container, image_dataset) = it
+        log.debug "Add source spots image to spot results: $it"
+        def r = [
+            meta_spots,
+            meta_reg,
             spots_image_container, spots_dataset, // include the image used for spot extraction in the results
-            spots_file, warped_spots_file,
+            source_spots, final_spots,
         ]
         log.debug "All (fixed and warped) spot results: $r"
         r
