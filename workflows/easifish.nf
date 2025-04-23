@@ -19,13 +19,14 @@ include {
 */
 
 
-include { INPUT_CHECK     } from '../subworkflows/local/input_check'
-include { STITCHING       } from '../subworkflows/local/stitching'
-include { REGISTRATION    } from './registration'
-include { SEGMENTATION    } from './segmentation'
-include { SPOT_EXTRACTION } from './spot_extraction'
-include { WARP_SPOTS      } from './warp_spots'
-include { SPOTS_FEATURES  } from './spots_features'
+include { INPUT_CHECK              } from '../subworkflows/local/input_check'
+include { STITCHING                } from '../subworkflows/local/stitching'
+include { REGISTRATION             } from './registration'
+include { SEGMENTATION             } from './segmentation'
+include { SPOT_EXTRACTION          } from './spot_extraction'
+include { WARP_SPOTS               } from './warp_spots'
+include { MEASURE_SPOTS            } from './spots_features'
+include { EXTRACT_CELL_REGIONPROPS } from './spots_features'
 
 
 def validate_params() {
@@ -161,43 +162,31 @@ workflow EASIFISH {
 
     spot_extraction_results.subscribe { log.debug "Spot extraction result: $it " }
 
-    def final_spot_results = WARP_SPOTS(
+    def warped_spots_results = WARP_SPOTS(
         registration_results,
         spot_extraction_results,
         outdir,
     ) // final_spot_results includes spots for fixed and warped spots from the moving rounds
 
-    final_spot_results.subscribe { log.debug "Final spot results: $it " }
+    warped_spots_results.subscribe { log.debug "Warped spots results: $it " }
 
-    def spots_features_inputs = final_spot_results
-    | combine(segmentation_results)
-    | map {
-        def (meta_spots,
-             spots_image_container, spots_dataset,
-             source_spots, warped_spots,
-             meta_seg, seg_input_image, seg_input_dataset, seg_labels) = it
-        log.debug "Combined spots and segmentation results: $it"
-        [
-            meta_spots,
-            spots_image_container,
-            spots_dataset,
-            source_spots,
-            warped_spots,
-            seg_input_image,
-            seg_input_dataset,
-            seg_labels,
-        ]
-    }
-
-    spots_features_inputs.subscribe { log.debug "Spots for features input: $it " }
-
-    def spots_features_results = SPOTS_FEATURES(
-        spots_features_inputs,
+    def sized_spots_results = MEASURE_SPOTS(
+        warped_spots_results,
+        segmentation_results,
         outdir,
     )
 
-    spots_features_results.subscribe { log.debug "Spots features result: $it " }
+    sized_spots_results.subscribe { log.debug "Spots sizes: $it " }
+
+    def cell_regionprops = EXTRACT_CELL_REGIONPROPS(
+        registration_results,
+        segmentation_results,
+        outdir,
+    )
+
+    cell_regionprops.subscribe { log.debug "Cell regionprops: $it " }
 }
+
 
 workflow.onComplete {
     if (params.email || params.email_on_fail) {

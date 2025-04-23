@@ -16,34 +16,35 @@ workflow WARP_SPOTS {
     def transform = registration_results
     | map {
         def (
-            reg_meta,
+            meta_reg,
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
             transform_output,
             transform_name, transform_subpath,
-            inv_transform_output,
+            inv_transform_path,
             inv_transform_name, inv_transform_subpath
         ) = it
 
-        def id = reg_meta.mov_id
-        [ id, reg_meta, inv_transform_output, inv_transform_name, inv_transform_subpath ]
+        def id = meta_reg.mov_id
+        [ id, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath ]
     }
 
     def registration_fix = registration_results
     | map {
-        def (reg_meta) = it
-        def id = reg_meta.fix_id
-        [ id ]
+        def (meta_reg) = it
+        def id = meta_reg.fix_id
+        [ id, meta_reg ]
     }
+    | unique { it[0] } // unique by id
 
     def spots = spot_extraction_results
     | map {
         log.debug "Extracted spot: $it"
         def (
             meta,
-            image_container,
-            image_dataset,
+            spots_image_container,
+            spots_dataset,
             spots_file
         ) = it
 
@@ -52,20 +53,19 @@ workflow WARP_SPOTS {
             id,
             meta,
             spots_file,
-            image_container, image_dataset,
+            spots_image_container, spots_dataset,
         ]
         log.debug "Extracted spot candidate: $id: $r"
         r
     }
-    | unique { it[0] } // unique by id
 
-    def fixed_spots = spots
-    | join(registration_fix, by: 0)
+    def fixed_spots = registration_fix
+    | join(spots, by: 0)
     | map {
-        def (id, meta, spots_file) = it
+        def (id, meta_reg, meta_spots, spots_file) = it
         log.debug "Extract only fixed spots from $it"
         def r = [
-            meta,
+            [ meta_spots:meta_spots, meta_reg:meta_reg ],
             spots_file,
             spots_file, // no warping for fixed spots
         ]
@@ -78,23 +78,24 @@ workflow WARP_SPOTS {
     | map {
         def (
             id,
-            meta,
+            meta_spots,
             spots_file,
-            image_container, image_dataset,
-            reg_meta,
-            inv_transform_output,
+            spots_image_container, spots_dataset,
+            meta_reg,
+            inv_transform_path,
             inv_transform_name,
             inv_transform_subpath
         ) = it
 
         def warped_spots_output_dir = file("${outdir}/${params.warped_spots_subdir}/${id}")
+        def meta = [ meta_spots:meta_spots, meta_reg:meta_reg ]
         def spots_filename = file(spots_file).name
         [
             [
                 meta, spots_file, warped_spots_output_dir, "warped-${spots_filename}",
             ],
             [
-                image_container, image_dataset,
+                spots_image_container, spots_dataset,
             ],
             [
                 '' /* resolution */, '' /* downsampling factors */
@@ -150,8 +151,9 @@ workflow WARP_SPOTS {
         def (meta, spots_file, warped_spots_file, image_container, image_dataset) = it
         log.debug "add image info to spot results: $it"
         def r = [
-            meta,
-            image_container, image_dataset, // include the image used for spot extraction in the results
+            meta.meta_spots,
+            meta.meta_reg,
+            spots_image_container, spots_dataset, // include the image used for spot extraction in the results
             spots_file, warped_spots_file,
         ]
         log.debug "All (fixed and warped) spot results: $r"
@@ -159,5 +161,5 @@ workflow WARP_SPOTS {
     }
 
     emit:
-    done = final_spot_results // [ meta, image_container, image_dataset, spots_file, warped_spots_file ]
+    done = final_spot_results // [ meta_spots, meta_reg, image_container, image_dataset, spots_file, warped_spots_file ]
 }
