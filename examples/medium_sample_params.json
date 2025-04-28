@@ -3,7 +3,9 @@
     "input": "examples/local_samplesheets/medium_samplesheet.csv",
     "indir": "/nrs/multifish/Pipeline/Examples/subset",
     "outdir": "/nrs/scicompsoft/goinac/multifish/medium/results",
+
     "registration_subdir": "registration",
+    "segmentation_subdir": "segmentation",
 
     "skip_stitching": false,
     "skip_registration": false,
@@ -12,22 +14,45 @@
     "skip_deformations": false,
     "skip_inverse": false,
     "skip_multiscale": false,
+    "skip_segmentation": false,
+    "skip_spot_extraction": false,
+    "skip_warp_spots": false,
 
     "flatfield_correction": false,
     "darkfieldfile": "",
     "flatfieldfile": "",
+
     "registration_fix_id": "t1",
-    "stitching_channel": "c2",
-    "reg_ch": "c2",
+    "stitching_channel": "c3",
+    "reg_ch": "c3",
     "global_steps": "ransac,affine",
     "local_steps": "ransac,affine,deform",
     "global_scale": "s3",
     "local_scale": "s2",
     "warped_scales": "s0",
+
+    "cellpose_test": false,
+    "cellpose_verbose": true,
+    "cellpose_dask_workers": 1,
+    "cellpose_dask_worker_cpus": 4,
+    "cellpose_worker_runtime_opts": "--nv",
+
+    "spark_workers": 5,
     "min_spark_workers": 2,
     "spark_gb_per_core": 10,
-    "local_align_workers": 35,
+
+    "local_align_workers": 10,
     "local_align_worker_mem_gb": 10,
-    "bigstream_scheduler_port": 8786,
-    "bigstream_dashboard_port": 8787
+    "bigstream_scheduler_port": 0,
+    "bigstream_dashboard_port": 0,
+
+    "multiscale_spark_workers": 1,
+    "multiscale_spark_worker_cores": 20,
+    "multiscale_spark_gb_per_core": 5,
+
+    "dapi_channel": "c1",
+    "bleeding_channel": "c0",
+
+    "lsf_opts": "-P scicompsoft",
+    "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"
 }
