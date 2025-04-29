@@ -25,30 +25,40 @@ workflow MEASURE_SPOTS {
         log.debug "Spots data for spots sizes: $r"
         r
     }
-    | combine(ch_segmentation_with_id, by: 0)
-    | map {
+    | groupTuple(by: 0)
+    | join(ch_segmentation_with_id, by: 0)
+    | flatMap {
         def (id,
-             meta_spots,
-             spots_image_container, spots_dataset,
-             source_spots, final_spots,
-             meta_seg, seg_input_image, seg_input_dataset, seg_labels) = it
-        log.debug "Combined spots and segmentation results: $it"
+             all_meta_spots,
+             all_spots_image_containers, all_spots_datasets,
+             all_source_spots, all_final_spots,
+             meta_seg,
+             seg_input_image,
+             seg_input_dataset,
+             seg_labels) = it
 
         def spots_dir = file(final_spots).parent
-        def spots_sizes_output_dir = file("${outputdir}/${params.spots_sizes_subdir}/${meta_spots.id}")
 
-        adjusted_spots_dataset = sync_image_scale_with_labels_scale(spots_dataset, seg_input_dataset)
+        [all_meta_spots,
+         all_spots_image_containers,
+         all_spots_datasets,
+         all_source_spots,
+         all_final_spots].transpose().collect {
+            def (meta_spots, spots_image_container, spots_dataset, source_spots, final_spots) = it
+            def spots_sizes_output_dir = file("${outputdir}/${params.spots_sizes_subdir}/${meta_spots.id}")
+            def adjusted_spots_dataset = sync_image_scale_with_labels_scale(spots_dataset, seg_input_dataset)
 
-        def r = [
-            meta_spots,
-            spots_image_container, adjusted_spots_dataset,
-            seg_labels, seg_input_dataset,
-            spots_dir,
-            '*coord.csv',
-            spots_sizes_output_dir,
-        ]
-        log.debug "Spots sizes input: $r"
-        r
+            def r = [
+                meta_spots,
+                spots_image_container, adjusted_spots_dataset,
+                seg_labels, seg_input_dataset,
+                spots_dir,
+                '*coord.csv',
+                spots_sizes_output_dir,
+            ]
+            log.debug "Spots sizes input: $r"
+            r
+         }
     }
 
     def spots_sizes_outputs = SPOTS_SIZES(
