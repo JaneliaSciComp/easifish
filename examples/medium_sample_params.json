@@ -33,8 +33,8 @@
 
     "cellpose_test": false,
     "cellpose_verbose": true,
-    "cellpose_dask_workers": 1,
-    "cellpose_dask_worker_cpus": 4,
+    "cellpose_dask_workers": 8,
+    "cellpose_dask_worker_cpus": 1,
     "cellpose_merge_with_iou_only": true,
     "cellpose_worker_runtime_opts": "--nv",
 
