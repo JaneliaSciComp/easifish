@@ -7,7 +7,7 @@
     "registration_subdir": "registration",
     "segmentation_subdir": "segmentation",
 
-    "skip_stitching": false,
+    "skip_stitching": true,
     "skip_registration": false,
     "skip_global_align": false,
     "skip_local_align": false,
@@ -35,6 +35,7 @@
     "cellpose_verbose": true,
     "cellpose_dask_workers": 1,
     "cellpose_dask_worker_cpus": 4,
+    "cellpose_merge_with_iou_only": true,
     "cellpose_worker_runtime_opts": "--nv",
 
     "spark_workers": 5,
