@@ -25,19 +25,19 @@ process POST_RS_FISH {
     """
     # Create command line parameters
     full_input_path=\$(readlink -e ${input_path})
-    voxel_spots_csv_file=\$(readlink ${voxel_spots_csv_file})
+    full_voxel_spots_csv_file=\$(readlink ${voxel_spots_csv_file})
 
-    if [[ -f \${voxel_spots_csv_file} ]]; then
-        echo "Voxel spots CSV file not found: \${voxel_spots_csv_file}"
+    if [[ -f \${full_voxel_spots_csv_file} ]]; then
+        echo "Voxel spots CSV file not found: \${full_voxel_spots_csv_file}"
         coord_spots_csv_file=
     else
-        voxel_spots_csv_dir=\$(dirname \${voxel_spots_csv_file})
+        voxel_spots_csv_dir=\$(dirname \${full_voxel_spots_csv_file})
         coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
 
         python /opt/scripts/spots-utils/post-rs-fish.py \
             --image-container \${full_input_path} \
             --image-subpath ${input_dataset} \
-            --input \${voxel_spots_csv_file} \
+            --input \${full_voxel_spots_csv_file} \
             --output \${coord_spots_csv_file}
     fi
 
