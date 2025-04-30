@@ -25,7 +25,13 @@ process POST_RS_FISH {
     """
     # Create command line parameters
     full_input_path=\$(readlink -e ${input_path})
-    voxel_spots_csv_file=\$(readlink -e ${voxel_spots_csv_file})
+    voxel_spots_csv_file=\$(readlink ${voxel_spots_csv_file})
+
+    if [[ -f \${voxel_spots_csv_file} ]]; then
+        echo "Voxel spots CSV file not found: \${voxel_spots_csv_file}"
+        exit 0
+    fi
+
     voxel_spots_csv_dir=\$(dirname \${voxel_spots_csv_file})
     coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
 

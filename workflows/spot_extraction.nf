@@ -4,12 +4,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { POST_RS_FISH                    } from '../modules/local/post_rs_fish/main'
-include { RS_FISH                         } from '../modules/janelia/rs_fish/main'
-include { RS_FISH as VERIFY_RS_FISH_SPOTS } from '../modules/janelia/rs_fish/main'
-include { SPARK_START                     } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP                      } from '../subworkflows/janelia/spark_stop/main'
-include { as_list                         } from './util_functions'
+include { POST_RS_FISH                         } from '../modules/local/post_rs_fish/main'
+include { POST_RS_FISH as VERIFY_RS_FISH_SPOTS } from '../modules/local/post_rs_fish/main'
+include { RS_FISH                              } from '../modules/janelia/rs_fish/main'
+include { SPARK_START                          } from '../subworkflows/janelia/spark_start/main'
+include { SPARK_STOP                           } from '../subworkflows/janelia/spark_stop/main'
+include { as_list                              } from './util_functions'
 
 workflow SPOT_EXTRACTION {
     take:
@@ -56,7 +56,7 @@ workflow SPOT_EXTRACTION {
         }
         | VERIFY_RS_FISH_SPOTS
 
-        final_rsfish_results = verify_spot_results
+        final_rsfish_results = verify_spot_results.results
     } else {
         spots_spark_input.subscribe { log.debug "Spot extraction spark input: $it" }
 
