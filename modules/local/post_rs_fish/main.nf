@@ -30,17 +30,17 @@ process POST_RS_FISH {
     if [[ -f \${voxel_spots_csv_file} ]]; then
         echo "Voxel spots CSV file not found: \${voxel_spots_csv_file}"
         coord_spots_csv_file=
-        exit 0
+    else
+        voxel_spots_csv_dir=\$(dirname \${voxel_spots_csv_file})
+        coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
+
+        python /opt/scripts/spots-utils/post-rs-fish.py \
+            --image-container \${full_input_path} \
+            --image-subpath ${input_dataset} \
+            --input \${voxel_spots_csv_file} \
+            --output \${coord_spots_csv_file}
     fi
 
-    voxel_spots_csv_dir=\$(dirname \${voxel_spots_csv_file})
-    coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
-
-    python /opt/scripts/spots-utils/post-rs-fish.py \
-        --image-container \${full_input_path} \
-        --image-subpath ${input_dataset} \
-        --input \${voxel_spots_csv_file} \
-        --output \${coord_spots_csv_file}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
