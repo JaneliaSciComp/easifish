@@ -29,6 +29,7 @@ process POST_RS_FISH {
 
     if [[ -f \${voxel_spots_csv_file} ]]; then
         echo "Voxel spots CSV file not found: \${voxel_spots_csv_file}"
+        coord_spots_csv_file=
         exit 0
     fi
 
