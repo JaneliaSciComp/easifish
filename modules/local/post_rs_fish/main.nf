@@ -6,7 +6,7 @@ process POST_RS_FISH {
     tuple val(meta),
           path(input_path),
           val(input_dataset),
-          val(voxel_spots_csv_file)
+          path(voxel_spots_csv_file)
 
     output:
     tuple val(meta),
@@ -25,12 +25,12 @@ process POST_RS_FISH {
     """
     # Create command line parameters
     full_input_path=\$(readlink -e ${input_path})
+    echo "Input volume: \${full_input_path}"
     full_voxel_spots_csv_file=\$(readlink ${voxel_spots_csv_file})
+    echo "Input spots CSV file: \${full_voxel_spots_csv_file}"
 
-    if [[ -f \${full_voxel_spots_csv_file} ]]; then
-        echo "Voxel spots CSV file not found: \${full_voxel_spots_csv_file}"
-        coord_spots_csv_file=
-    else
+    if [[ -f \${full_voxel_spots_csv_file} && ! -L \${full_voxel_spots_csv_file} ]]; then
+        echo "Found voxel spots CSV file: \${full_voxel_spots_csv_file}"
         voxel_spots_csv_dir=\$(dirname \${full_voxel_spots_csv_file})
         coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
 
@@ -39,6 +39,9 @@ process POST_RS_FISH {
             --image-subpath ${input_dataset} \
             --input \${full_voxel_spots_csv_file} \
             --output \${coord_spots_csv_file}
+    else
+        echo "Voxel spots CSV file not found: \${full_voxel_spots_csv_file}"
+        coord_spots_csv_file=
     fi
 
 
