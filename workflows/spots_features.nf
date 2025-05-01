@@ -22,9 +22,9 @@ workflow MEASURE_SPOTS {
         def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
         if (!final_spots) {
             log.debug "Filter out spots input for: $it"
-            false
+            return false
         }
-        true
+        return true
     }
     | map {
         def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it

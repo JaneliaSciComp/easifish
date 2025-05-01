@@ -21,8 +21,8 @@ process SPOTS_REGIONPROPS {
     tuple val(meta),
           env(full_input_image_path),
           val(input_dataset),
-          env(output_csv_file),      emit: results
-    path "versions.yml"            , emit: versions
+          env(output_csv_file)      , emit: results
+    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
