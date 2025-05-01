@@ -37,14 +37,13 @@ workflow MEASURE_SPOTS {
              seg_input_dataset,
              seg_labels) = it
 
-        def spots_dir = file(final_spots).parent
-
         [all_meta_spots,
          all_spots_image_containers,
          all_spots_datasets,
          all_source_spots,
          all_final_spots].transpose().collect {
             def (meta_spots, spots_image_container, spots_dataset, source_spots, final_spots) = it
+            def spots_dir = file(final_spots).parent
             def spots_sizes_output_dir = file("${outputdir}/${params.spots_sizes_subdir}/${meta_spots.id}")
             def adjusted_spots_dataset = sync_image_scale_with_labels_scale(spots_dataset, seg_input_dataset)
 
