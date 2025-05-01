@@ -36,7 +36,7 @@ workflow SPOT_EXTRACTION {
 
     def final_rsfish_results
     if (params.skip_spot_extraction) {
-        log.info "Skipping spot extraction"
+        log.debug "Skipping spot extraction"
         // even if we skip spot extraction
         // we assume we have the csv file and we apply the post processing
         def verify_spot_results = spots_spark_input
