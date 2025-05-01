@@ -18,6 +18,14 @@ workflow MEASURE_SPOTS {
     }
 
     def spots_sizes_input = ch_spots
+    | filter {
+        def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
+        if (!final_spots) {
+            log.debug "Filter out spots input for: $it"
+            false
+        }
+        true
+    }
     | map {
         def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
         def id = meta_reg.fix_id
@@ -41,7 +49,8 @@ workflow MEASURE_SPOTS {
          all_spots_image_containers,
          all_spots_datasets,
          all_source_spots,
-         all_final_spots].transpose().collect {
+         all_final_spots].transpose()
+         .collect {
             def (meta_spots, spots_image_container, spots_dataset, source_spots, final_spots) = it
             def spots_dir = file(final_spots).parent
             def spots_sizes_output_dir = file("${outputdir}/${params.spots_sizes_subdir}/${meta_spots.id}")
