@@ -24,7 +24,7 @@
 
     "registration_fix_id": "t1",
     "stitching_channel": "c3",
-    "reg_ch": "c3",
+    "reg_ch": "c2",
     "global_steps": "ransac,affine",
     "local_steps": "ransac,affine,deform",
     "global_scale": "s3",
@@ -33,7 +33,7 @@
 
     "cellpose_test": false,
     "cellpose_verbose": true,
-    "cellpose_dask_workers": 8,
+    "cellpose_dask_workers": 20,
     "cellpose_dask_worker_cpus": 1,
     "cellpose_merge_with_iou_only": true,
     "cellpose_worker_runtime_opts": "--nv",
@@ -51,8 +51,8 @@
     "multiscale_spark_worker_cores": 20,
     "multiscale_spark_gb_per_core": 5,
 
-    "dapi_channel": "c1",
-    "bleeding_channel": "c0",
+    "dapi_channel": "c2",
+    "bleeding_channel": "c3",
 
     "lsf_opts": "-P scicompsoft",
     "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"

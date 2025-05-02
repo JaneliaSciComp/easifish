@@ -36,13 +36,16 @@ workflow SEGMENTATION {
         } else {
             input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
         }
-        if (!params.segmentation_subpaths && !params.seg_channels && !params.seg_scales) {
+        if (!params.segmentation_subpaths && (!params.seg_channels || !params.dapi_channel) && !params.seg_scales) {
             segmentation_subpaths = [ '' ] // empty subpath - the input image container contains the array data
         } else if (params.segmentation_subpaths) {
             // in this case the subpaths parameters must match exactly the container datasets
             segmentation_subpaths = as_list(params.segmentation_subpaths)
         } else {
-            def seg_channels = as_list(params.seg_channels)
+            def seg_channels = params.seg_channels
+                ? as_list(params.seg_channels)
+                : as_list(params.dapi_channel)
+
             def seg_scales = as_list(params.seg_scales)
 
             segmentation_subpaths = [seg_channels, seg_scales].combinations()
