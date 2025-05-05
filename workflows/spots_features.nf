@@ -1,5 +1,5 @@
 include { SPOTS_REGIONPROPS } from '../modules/local/spots/regionprops/main'
-include { SPOTS_SIZES       } from '../modules/local/spots/sizes/main'
+include { SPOTS_COUNTS      } from '../modules/local/spots/counts/main'
 
 workflow MEASURE_SPOTS {
     take:
@@ -69,7 +69,7 @@ workflow MEASURE_SPOTS {
          }
     }
 
-    def spots_sizes_outputs = SPOTS_SIZES(
+    def spots_sizes_outputs = SPOTS_COUNTS(
         spots_sizes_input,
         params.spots_sizes_cores,
         params.spots_sizes_mem_gb,

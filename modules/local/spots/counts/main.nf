@@ -1,4 +1,4 @@
-process SPOTS_SIZES {
+process SPOTS_COUNTS {
     tag { meta.id }
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1' }
     cpus { ncpus }
@@ -40,7 +40,7 @@ process SPOTS_SIZES {
 
     CMD=(
         python
-        /opt/scripts/spots-utils/labeled-spots-sizes.py
+        /opt/scripts/spots-utils/labeled-spots-counts.py
         --image-container \${full_input_image_path}
         --image-subpath ${input_dataset}
         --labels-container \${full_labels_path}
