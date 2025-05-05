@@ -1,7 +1,7 @@
 include { SPOTS_REGIONPROPS } from '../modules/local/spots/regionprops/main'
 include { SPOTS_COUNTS      } from '../modules/local/spots/counts/main'
 
-workflow MEASURE_SPOTS {
+workflow SPOTS_STATS {
     take:
     ch_spots        // channel: [ meta_spots, meta_reg, spots_input_image, spots_input_dataset, spots, warped_spots ]
     ch_segmentation // channel: [ meta, seg_input_image, seg_input_dataset, seg_labels ]

@@ -25,7 +25,7 @@ include { REGISTRATION             } from './registration'
 include { SEGMENTATION             } from './segmentation'
 include { SPOT_EXTRACTION          } from './spot_extraction'
 include { WARP_SPOTS               } from './warp_spots'
-include { MEASURE_SPOTS            } from './spots_features'
+include { SPOTS_STATS              } from './spots_features'
 include { EXTRACT_CELL_REGIONPROPS } from './spots_features'
 
 
@@ -170,13 +170,13 @@ workflow EASIFISH {
 
     warped_spots_results.subscribe { log.debug "Warped spots results: $it " }
 
-    def sized_spots_results = MEASURE_SPOTS(
+    def spots_stats_results = SPOTS_STATS(
         warped_spots_results,
         segmentation_results,
         outdir,
     )
 
-    sized_spots_results.subscribe { log.debug "Spots sizes: $it " }
+    spots_stats_results.subscribe { log.debug "Spots stats: $it " }
 
     def cell_regionprops = EXTRACT_CELL_REGIONPROPS(
         registration_results,
