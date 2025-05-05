@@ -27,7 +27,9 @@ workflow WARP_SPOTS {
         ) = it
 
         def id = meta_reg.mov_id
-        [ id, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath ]
+        def r = [ id, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath ]
+        log.debug "Registration results considered for warping: $r"
+        r
     }
 
     def registration_fix = registration_results
