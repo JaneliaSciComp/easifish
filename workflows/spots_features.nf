@@ -17,7 +17,7 @@ workflow MEASURE_SPOTS {
         r
     }
 
-    def spots_sizes_input = ch_spots
+    def spots_counts_input = ch_spots
     | filter {
         def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
         if (!final_spots) {
@@ -53,7 +53,7 @@ workflow MEASURE_SPOTS {
          .collect {
             def (meta_spots, spots_image_container, spots_dataset, source_spots, final_spots) = it
             def spots_dir = file(final_spots).parent
-            def spots_sizes_output_dir = file("${outputdir}/${params.spots_sizes_subdir}/${meta_spots.id}")
+            def spots_counts_output_dir = file("${outputdir}/${params.spots_counts_subdir}/${meta_spots.id}")
             def adjusted_spots_dataset = sync_image_scale_with_labels_scale(spots_dataset, seg_input_dataset)
 
             def r = [
@@ -62,21 +62,21 @@ workflow MEASURE_SPOTS {
                 seg_labels, seg_input_dataset,
                 spots_dir,
                 '*coord.csv',
-                spots_sizes_output_dir,
+                spots_counts_output_dir,
             ]
             log.debug "Spots sizes input: $r"
             r
          }
     }
 
-    def spots_sizes_outputs = SPOTS_COUNTS(
-        spots_sizes_input,
-        params.spots_sizes_cores,
-        params.spots_sizes_mem_gb,
+    def spots_counts_outputs = SPOTS_COUNTS(
+        spots_counts_input,
+        params.spots_counts_cores,
+        params.spots_counts_mem_gb,
     )
 
     emit:
-    done = spots_sizes_outputs.results
+    done = spots_counts_outputs.results
 }
 
 workflow EXTRACT_CELL_REGIONPROPS {
