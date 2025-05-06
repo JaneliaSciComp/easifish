@@ -1,4 +1,4 @@
-process SPOTS_REGIONPROPS {
+process SPOTS_PROPS {
     tag { meta.id }
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1' }
     cpus { ncpus }
@@ -41,7 +41,7 @@ process SPOTS_REGIONPROPS {
 
     CMD=(
         python
-        /opt/scripts/spots-utils/labeled-cells-regionprops.py
+        /opt/scripts/spots-utils/labeled-spots-props.py
         --image-container \${full_input_image_path}
         --image-subpath ${input_dataset}
         --labels-container \${full_labels_path}

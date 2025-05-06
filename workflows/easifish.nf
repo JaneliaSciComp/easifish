@@ -19,14 +19,14 @@ include {
 */
 
 
-include { INPUT_CHECK              } from '../subworkflows/local/input_check'
-include { STITCHING                } from '../subworkflows/local/stitching'
-include { REGISTRATION             } from './registration'
-include { SEGMENTATION             } from './segmentation'
-include { SPOT_EXTRACTION          } from './spot_extraction'
-include { WARP_SPOTS               } from './warp_spots'
-include { SPOTS_STATS              } from './spots_features'
-include { EXTRACT_CELL_REGIONPROPS } from './spots_features'
+include { INPUT_CHECK         } from '../subworkflows/local/input_check'
+include { STITCHING           } from '../subworkflows/local/stitching'
+include { REGISTRATION        } from './registration'
+include { SEGMENTATION        } from './segmentation'
+include { SPOT_EXTRACTION     } from './spot_extraction'
+include { WARP_SPOTS          } from './warp_spots'
+include { SPOTS_STATS         } from './spots_features'
+include { EXTRACT_SPOTS_PROPS } from './spots_features'
 
 
 def validate_params() {
@@ -178,13 +178,13 @@ workflow EASIFISH {
 
     spots_stats_results.subscribe { log.debug "Spots stats: $it " }
 
-    def cell_regionprops = EXTRACT_CELL_REGIONPROPS(
+    def spots_props = EXTRACT_SPOTS_PROPS(
         registration_results,
         segmentation_results,
         outdir,
     )
 
-    cell_regionprops.subscribe { log.debug "Cell regionprops: $it " }
+    spots_props.subscribe { log.debug "Spots props: $it " }
 }
 
 

@@ -1,6 +1,6 @@
-include { SPOTS_REGIONPROPS } from '../modules/local/spots/regionprops/main'
-include { SPOTS_COUNTS      } from '../modules/local/spots/counts/main'
-include { as_list           } from './util_functions'
+include { SPOTS_PROPS  } from '../modules/local/spots/props/main'
+include { SPOTS_COUNTS } from '../modules/local/spots/counts/main'
+include { as_list      } from './util_functions'
 
 workflow SPOTS_STATS {
     take:
@@ -80,7 +80,7 @@ workflow SPOTS_STATS {
     done = spots_counts_outputs.results
 }
 
-workflow EXTRACT_CELL_REGIONPROPS {
+workflow EXTRACT_SPOTS_PROPS {
     take:
     ch_registration
     ch_segmentation
@@ -175,14 +175,14 @@ workflow EXTRACT_CELL_REGIONPROPS {
         r
     }
 
-    SPOTS_REGIONPROPS(
+    def spots_props_results = SPOTS_PROPS(
         regionprops_inputs,
         params.spots_props_cores,
         params.spots_props_mem_gb,
     )
 
     emit:
-    done = SPOTS_REGIONPROPS.out.results
+    done = spots_props_results.results
 }
 
 
