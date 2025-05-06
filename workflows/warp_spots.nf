@@ -77,7 +77,7 @@ workflow WARP_SPOTS {
 
     def spots_warp_input = spots
     | filter { it[2] /* spots_file must be defined */}
-    | join(transform, by: 0)
+    | combine(transform, by: 0)
     | map {
         def (
             id,
