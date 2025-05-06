@@ -113,11 +113,16 @@ workflow EXTRACT_CELL_REGIONPROPS {
     }
     | unique { it[0] } // unique by id
 
+    fixed_images.subscribe { log.debug "Fixed images for regionprops: $it" }
+    registered_images.subscribe { log.debug "Registered images for regionprops: $it" }
+
     def ch_segmentation_with_id = ch_segmentation
     | map {
         def (meta, seg_input_image, seg_input_dataset, seg_labels) = it
         def id = meta.id
-        [ id, meta, seg_input_image, seg_input_dataset, seg_labels ]
+        def r = [ id, meta, seg_input_image, seg_input_dataset, seg_labels ]
+        log.debug "Segmentation data for regionprops: $r"
+        r
     }
 
     def regionprops_inputs = fixed_images
