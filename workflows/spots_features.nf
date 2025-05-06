@@ -127,15 +127,29 @@ workflow EXTRACT_CELL_REGIONPROPS {
 
     def regionprops_inputs = fixed_images
     | concat(registered_images)
+    | flatMap {
+        def (id, image_container, image_dataset) = it
+        log.debug "Images for regionprops: $it"
+        get_spot_subpaths(id).collect { subpath, result_name ->
+            def r = [
+                id,
+                image_container,
+                subpath,
+                result_name,
+            ]
+            log.debug "Image for regionprops: $r"
+            r
+        }
+    }
     | combine(ch_segmentation_with_id, by: 0)
     | map {
         def (id,
-             image_container, image_dataset,
+             image_container, image_dataset, result_name,
              meta,
              seg_input_image, seg_input_dataset, seg_labels) = it
         log.debug "Combined cell images with segmentation: $it"
 
-        def regionprops_output_dir = file("${outdir}/${params.cells_regionprops_subdir}/${meta.id}")
+        def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${meta.id}")
         def adjusted_image_dataset = sync_image_scale_with_labels_scale(image_dataset, seg_input_dataset)
 
         def dapi_dataset = params.dapi_channel
@@ -145,8 +159,6 @@ workflow EXTRACT_CELL_REGIONPROPS {
             ? change_dataset_channel(adjusted_image_dataset, params.bleeding_channel)
             : ''
 
-        def dataset_ch = get_dataset_channel(adjusted_image_dataset)
-
         def r = [
             meta,
             image_container, adjusted_image_dataset,
@@ -154,7 +166,7 @@ workflow EXTRACT_CELL_REGIONPROPS {
             dapi_dataset,
             bleeding_dataset,
             regionprops_output_dir,
-            "${meta.id}-${dataset_ch}-regionprops.csv",
+            result_name,
         ]
         log.debug "Cell regionprops input: $r"
         r
@@ -162,8 +174,8 @@ workflow EXTRACT_CELL_REGIONPROPS {
 
     SPOTS_REGIONPROPS(
         regionprops_inputs,
-        params.cells_regionprops_cores,
-        params.cells_regionprops_mem_gb,
+        params.spots_props_cores,
+        params.spots_props_mem_gb,
     )
 
     emit:
@@ -192,4 +204,52 @@ def change_dataset_channel(image_dataset, channel) {
 def get_dataset_channel(image_dataset) {
     def image_dataset_comps = image_dataset.split('/')
     return image_dataset_comps ? image_dataset_comps[-2] : ''
+}
+
+def get_spot_subpaths(id) {
+    if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
+        return [
+            ['', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
+        ]
+    } else if (params.spot_subpaths) {
+        // in this case the subpaths parameters must match exactly the container datasets
+        return as_list(params.spot_subpaths)
+            .collect { subpath ->
+                def spot_ch = get_dataset_channel(subpath)
+                [
+                    "${id}/${subpath}",
+                    "${id}-${spot_ch}-props.csv",
+                ]
+            }
+    } else {
+        def spot_channels;
+        if (params.spot_channels) {
+            spot_channels = as_list(params.spot_channels)
+            log.debug "Use specified spot channels: $spot_channels"
+        } else {
+            // all but the last channel which typically is DAPI
+            def all_channels = as_list(params.channels)
+            if (params.dapi_channel) {
+                spot_channels = all_channels.findAll { it != params.dapi_channel }
+            } else {
+                // automatically consider DAPI the last channel
+                // this may throw an exception if the channel list is empty or a singleton
+                spot_channels = all_channels[0..-2] // all but the last channel
+            }
+            log.debug "Spot channels: $spot_channels (all from ${params.channels} except the last one)"
+        }
+        def spot_scales = as_list(params.spot_scales)
+
+        return [spot_channels, spot_scales].combinations()
+            .collect { ch, scale ->
+                // when channel and scale is used we also prepend the stitched dataset
+                def dataset = "${ch}/${scale}"
+                def r = [
+                    "${id}/${dataset}"
+                    "${id}-${ch}-props.csv",
+                ]
+                log.debug "Spot dataset: $r"
+                r
+        }
+    }
 }
