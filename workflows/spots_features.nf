@@ -1,5 +1,6 @@
 include { SPOTS_REGIONPROPS } from '../modules/local/spots/regionprops/main'
 include { SPOTS_COUNTS      } from '../modules/local/spots/counts/main'
+include { as_list           } from './util_functions'
 
 workflow SPOTS_STATS {
     take:
