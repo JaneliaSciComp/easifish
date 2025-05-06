@@ -97,7 +97,9 @@ workflow EXTRACT_CELL_REGIONPROPS {
              transform_name, transform_subpath,
              inv_transform_output,
              inv_transform_name, inv_transform_subpath) = it
-        [ reg_meta.fix_id, warped, warped_subpath ]
+        // include the registered round id
+        // so that it can be used for properly creating the dataset
+        [ reg_meta.fix_id, reg_meta.mov_id, warped, warped_subpath ]
     }
 
     def fixed_images = ch_registration
@@ -110,12 +112,11 @@ workflow EXTRACT_CELL_REGIONPROPS {
              transform_name, transform_subpath,
              inv_transform_output,
              inv_transform_name, inv_transform_subpath) = it
-        [ reg_meta.fix_id, fix, fix_subpath ]
+        // the fixed round id is included
+        // to make the result compatible with the one for moving rounds
+        [ reg_meta.fix_id, reg_meta.fix_id, fix, fix_subpath ]
     }
     | unique { it[0] } // unique by id
-
-    fixed_images.subscribe { log.debug "Fixed images for regionprops: $it" }
-    registered_images.subscribe { log.debug "Registered images for regionprops: $it" }
 
     def ch_segmentation_with_id = ch_segmentation
     | map {
@@ -129,9 +130,9 @@ workflow EXTRACT_CELL_REGIONPROPS {
     def regionprops_inputs = fixed_images
     | concat(registered_images)
     | flatMap {
-        def (id, image_container, image_dataset) = it
+        def (id, image_id, image_container, image_dataset) = it
         log.debug "Images for regionprops: $it"
-        get_spot_subpaths(id).collect { subpath, result_name ->
+        get_spot_subpaths(image_id).collect { subpath, result_name ->
             def r = [
                 id,
                 image_container,
