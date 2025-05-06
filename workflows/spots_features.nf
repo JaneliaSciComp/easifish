@@ -130,11 +130,12 @@ workflow EXTRACT_CELL_REGIONPROPS {
     def regionprops_inputs = fixed_images
     | concat(registered_images)
     | flatMap {
-        def (id, image_id, image_container, image_dataset) = it
+        def (join_id, image_id, image_container, image_dataset) = it
         log.debug "Images for regionprops: $it"
         get_spot_subpaths(image_id).collect { subpath, result_name ->
             def r = [
-                id,
+                join_id,
+                image_id,
                 image_container,
                 subpath,
                 result_name,
@@ -145,13 +146,13 @@ workflow EXTRACT_CELL_REGIONPROPS {
     }
     | combine(ch_segmentation_with_id, by: 0)
     | map {
-        def (id,
-             image_container, image_dataset, result_name,
+        def (join_id,
+             image_id, image_container, image_dataset, result_name,
              meta,
              seg_input_image, seg_input_dataset, seg_labels) = it
         log.debug "Combined cell images with segmentation: $it"
 
-        def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${meta.id}")
+        def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${image_id}")
         def adjusted_image_dataset = sync_image_scale_with_labels_scale(image_dataset, seg_input_dataset)
 
         def dapi_dataset = params.dapi_channel
