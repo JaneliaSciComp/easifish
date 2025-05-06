@@ -193,19 +193,6 @@ def sync_image_scale_with_labels_scale(image_dataset, labels_dataset) {
     return image_dataset_comps.join('/')
 }
 
-def change_dataset_channel(image_dataset, channel) {
-    def image_dataset_comps = image_dataset.split('/')
-    if (image_dataset_comps) {
-        image_dataset_comps[-2] = channel
-    }
-    return image_dataset_comps.join('/')
-}
-
-def get_dataset_channel(image_dataset) {
-    def image_dataset_comps = image_dataset.split('/')
-    return image_dataset_comps ? image_dataset_comps[-2] : ''
-}
-
 def get_spot_subpaths(id) {
     if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
         return [
@@ -245,11 +232,24 @@ def get_spot_subpaths(id) {
                 // when channel and scale is used we also prepend the stitched dataset
                 def dataset = "${ch}/${scale}"
                 def r = [
-                    "${id}/${dataset}"
+                    "${id}/${dataset}",
                     "${id}-${ch}-props.csv",
                 ]
                 log.debug "Spot dataset: $r"
                 r
         }
     }
+}
+
+def change_dataset_channel(image_dataset, channel) {
+    def image_dataset_comps = image_dataset.split('/')
+    if (image_dataset_comps) {
+        image_dataset_comps[-2] = channel
+    }
+    return image_dataset_comps.join('/')
+}
+
+def get_dataset_channel(image_dataset) {
+    def image_dataset_comps = image_dataset.split('/')
+    return image_dataset_comps ? image_dataset_comps[-2] : ''
 }
