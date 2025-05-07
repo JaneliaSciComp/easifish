@@ -7,7 +7,7 @@
     "registration_subdir": "registration",
     "segmentation_subdir": "segmentation",
 
-    "skip_stitching": true,
+    "skip_stitching": false,
     "skip_registration": false,
     "skip_global_align": false,
     "skip_local_align": false,
@@ -35,7 +35,7 @@
     "cellpose_verbose": true,
     "cellpose_dask_workers": 20,
     "cellpose_dask_worker_cpus": 1,
-    "cellpose_merge_with_iou_only": true,
+    "cellpose_merge_with_iou_only": false,
     "cellpose_worker_runtime_opts": "--nv",
 
     "spark_workers": 5,
@@ -50,6 +50,8 @@
     "multiscale_spark_workers": 1,
     "multiscale_spark_worker_cores": 20,
     "multiscale_spark_gb_per_core": 5,
+
+    "rsfish_spark_workers": 4,
 
     "dapi_channel": "c2",
     "bleeding_channel": "c3",
