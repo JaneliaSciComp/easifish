@@ -822,9 +822,9 @@
                     "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use only IOU of the labels across adjacent faces.",
                     "hidden": true
                 },
-                "cellpose_use_model_and_size": {
+                "cellpose_eval_with_model_only": {
                     "type": "boolean",
-                    "description": "If true use both CellposeModel and SizeModel to segment the volume, otherwise only use CellposeModel",
+                    "description": "If true segment only with CellposeModel otherwise use both CellposeModel and SizeModel to segment the volume",
                     "hidden": true
                 },
                 "cellpose_merge_iou_depth": {
