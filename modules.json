@@ -27,22 +27,22 @@
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
+                        "git_sha": "37dcd298f0e63b697fa18cdc15ffac36958e1150",
                         "installed_by": ["modules"]
                     },
                     "cellpose": {
                         "branch": "main",
-                        "git_sha": "5619a98c3ea6062e65490fc972545eb182810da6",
+                        "git_sha": "9b06bebf0b46ad077a8d73d488921f0dbf3262a9",
                         "installed_by": ["modules"]
                     },
                     "cellpose/tests": {
                         "branch": "main",
-                        "git_sha": "8232ff68e737a6788759d1f0f0cf50fd82580ea5",
+                        "git_sha": "9b06bebf0b46ad077a8d73d488921f0dbf3262a9",
                         "installed_by": ["modules"]
                     },
                     "rs_fish": {
                         "branch": "main",
-                        "git_sha": "5619a98c3ea6062e65490fc972545eb182810da6",
+                        "git_sha": "bf3bbef8f048aeb79dcbf5adada70d6e587eae5c",
                         "installed_by": ["modules"]
                     }
                 }

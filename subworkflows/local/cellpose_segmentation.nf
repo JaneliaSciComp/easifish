@@ -5,9 +5,9 @@ include { DASK_STOP  } from '../janelia/dask_stop/main.nf'
 
 workflow CELLPOSE_SEGMENTATION {
     take:
-    ch_meta                // channel: [ meta, 
+    ch_meta                // channel: [ meta,
                            //            img_container_dir, img_dataset,
-                           //            output_dir, 
+                           //            output_dir,
                            //            segmentation_container ]
     skip                   // boolean: if true skip segmentation completely and just return the meta as if it ran
     models_dir             // string|file: directory
@@ -29,19 +29,14 @@ workflow CELLPOSE_SEGMENTATION {
         | multiMap {
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
             log.debug "Start to prepare inputs for cellpose segmentation: $it"
-            def segmentation_work_dir = work_dir 
+            def segmentation_work_dir = work_dir
                 ? file("${work_dir}/${meta.id}/${workflow.sessionId}/${img_dataset}")
                 : file("${output_dir}/${meta.id}/${workflow.sessionId}/${img_dataset}")
 
             def cellpose_models_dir = models_dir ? file(models_dir) : "${output_dir}/cellpose-models"
 
-            def segmentation_meta = meta + [
-                segmentation_work_dir: segmentation_work_dir,
-                cellpose_models_dir: cellpose_models_dir,
-            ]
-
             def cellpose_data = [
-                segmentation_meta,
+                meta,
                 img_container_dir,
                 img_dataset,
                 cellpose_models_dir,
@@ -56,7 +51,7 @@ workflow CELLPOSE_SEGMENTATION {
             ] + (cellpose_models_dir ? [ cellpose_models_dir ] : [])
 
             def cluster_data = [
-                segmentation_meta,
+                meta,
                 cluster_dirs,
             ]
 
@@ -102,29 +97,38 @@ workflow CELLPOSE_SEGMENTATION {
             cluster_info: cluster_info
         }
 
-        def segmentation_results = CELLPOSE(
+        def cellpose_outputs = CELLPOSE(
             segmentation_inputs.cellpose_data,
             segmentation_inputs.cluster_info,
             log_config ? file(log_config) : [],
             segmentation_cpus,
             segmentation_mem_gb,
         )
-        segmentation_results.results.subscribe {
-            log.debug "Segmentation results: $it"
+
+        final_segmentation_results = cellpose_outputs.results
+
+        final_segmentation_results.subscribe {
+            log.debug "Cellpose results: $it"
         }
 
-        dask_cluster.join(segmentation_results.results, by:0)
+        dask_cluster.join(final_segmentation_results, by:0)
         | map {
             def (meta, cluster_context) = it
             [ meta, cluster_context ]
         }
         | groupTuple
         | DASK_STOP
-
-        final_segmentation_results = segmentation_results.results
     } else {
-        // FIXME:
         final_segmentation_results = ch_meta
+        | map {
+            def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
+            log.debug "Skip cellpose segmentation: $it"
+            [
+                meta,
+                img_container_dir, img_dataset,
+                "${output_dir}/${segmentation_container}",
+            ]
+        }
     }
 
     emit:

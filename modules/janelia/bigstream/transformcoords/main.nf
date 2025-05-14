@@ -20,7 +20,7 @@ process BIGSTREAM_TRANSFORMCOORDS {
     val(bigstream_mem_in_gb)
 
     output:
-    tuple val(meta), path(input_coords), env(warped_coords),          emit: results
+    tuple val(meta), env(full_input_coords), env(warped_coords),          emit: results
     tuple val(meta), env(source_fullpath), val(source_image_subpath), emit: source
 
     when:
@@ -54,11 +54,12 @@ process BIGSTREAM_TRANSFORMCOORDS {
     else
         source_fullpath=
     fi
+    full_input_coords=\$(readlink -e ${input_coords})
     output_fullpath=\$(readlink ${output_dir})
     mkdir -p \${output_fullpath}
     warped_coords="\${output_fullpath}/${warped_coords_name}"
     python /app/bigstream/scripts/main_apply_transform_coords.py \
-        --input-coords ${input_coords} \
+        --input-coords \${full_input_coords} \
         --output-coords \${warped_coords} \
         ${pixel_resolution_arg} \
         ${downsampling_arg} \

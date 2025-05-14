@@ -4,11 +4,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { POST_RS_FISH } from '../modules/local/post_rs_fish/main'
-include { RS_FISH      } from '../modules/janelia/rs_fish/main'
-include { SPARK_START  } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP   } from '../subworkflows/janelia/spark_stop/main'
-include { as_list      } from './util_functions'
+include { POST_RS_FISH                         } from '../modules/local/post_rs_fish/main'
+include { POST_RS_FISH as VERIFY_RS_FISH_SPOTS } from '../modules/local/post_rs_fish/main'
+include { RS_FISH                              } from '../modules/janelia/rs_fish/main'
+include { SPARK_START                          } from '../subworkflows/janelia/spark_start/main'
+include { SPARK_STOP                           } from '../subworkflows/janelia/spark_stop/main'
+include { as_list                              } from './util_functions'
 
 workflow SPOT_EXTRACTION {
     take:
@@ -24,6 +25,7 @@ workflow SPOT_EXTRACTION {
         spot_volume_ids.empty || meta.id in spot_volume_ids
     }
     | map { meta ->
+        // Spot extraction is typically done for all cell (no DAPI) channels from all rounds
         def input_img_dir = get_spot_extraction_input_volume(meta)
         def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
         [
@@ -34,25 +36,27 @@ workflow SPOT_EXTRACTION {
 
     def final_rsfish_results
     if (params.skip_spot_extraction) {
-        log.info "Skipping spot extraction"
-        // even if we skip spot extraction 
+        log.debug "Skipping spot extraction"
+        // even if we skip spot extraction
         // we assume we have the csv file and we apply the post processing
-        spots_spark_input
+        def verify_spot_results = spots_spark_input
         | flatMap {
             def (meta, spots_inout_dirs) = it
             def (input_img_dir, spots_output_dir) = spots_inout_dirs
             get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
-                [
+                def r = [
                     meta,
                     input_img_dir,
                     input_spot_subpath,
                     "${spots_output_dir}/${spots_result_name}",
                 ]
+                log.debug "Verify spots: $r"
+                r
             }
         }
-        | POST_RS_FISH
+        | VERIFY_RS_FISH_SPOTS
 
-        final_rsfish_results = POST_RS_FISH.out.results
+        final_rsfish_results = verify_spot_results.results
     } else {
         spots_spark_input.subscribe { log.debug "Spot extraction spark input: $it" }
 
@@ -143,10 +147,8 @@ def get_spot_extraction_input_volume(meta) {
 }
 
 def get_spot_subpaths(meta) {
-    def input_img_dir = get_spot_extraction_input_volume(meta)
-
     if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
-        return [ 
+        return [
             ['', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
         ]
     } else if (params.spot_subpaths) {
@@ -162,10 +164,15 @@ def get_spot_subpaths(meta) {
             spot_channels = as_list(params.spot_channels)
             log.debug "Use specified spot channels: $spot_channels"
         } else {
-            // all but the last channel whcih typically is DAPI
+            // all but the last channel which typically is DAPI
             def all_channels = as_list(params.channels)
-            // this may throw an exception if the channel list is empty or a singleton
-            spot_channels = all_channels[0..-2]
+            if (params.dapi_channel) {
+                spot_channels = all_channels.findAll { it != params.dapi_channel }
+            } else {
+                // automatically consider DAPI the last channel
+                // this may throw an exception if the channel list is empty or a singleton
+                spot_channels = all_channels[0..-2] // all but the last channel
+            }
             log.debug "Spot channels: $spot_channels (all from ${params.channels} except the last one)"
         }
         def spot_scales = as_list(params.spot_scales)
@@ -174,10 +181,12 @@ def get_spot_subpaths(meta) {
             .collect { ch, scale ->
                 // when channel and scale is used we also prepend the stitched dataset
                 def dataset = "${ch}/${scale}"
-                [
+                def r = [
                     "${meta.stitched_dataset}/${dataset}",
                     "spots-rsfish-${ch}.csv"
                 ]
+                log.debug "Spot dataset: $r"
+                r
         }
     }
 }

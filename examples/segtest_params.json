@@ -30,7 +30,7 @@
     "cellpose_diameter": 40,
     "cellpose_min_size": 15000,
     "cellpose_preprocessing_steps": "",
-    "cellpose_use_model_and_size": false,
+    "cellpose_eval_with_model_only": false,
 
     "distributed_cellpose_blocksize": "256,256,256",
     "cellpose_blocks_overlap": "90,90,90",

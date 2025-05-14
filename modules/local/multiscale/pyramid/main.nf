@@ -23,7 +23,7 @@ process MULTISCALE_PYRAMID {
     # Create command line parameters
     full_n5_container_path=\$(readlink -e ${n5_container})
     echo "Generate pyramid for \${full_n5_container_path}:${fullscale_dataset}"
-    # move existing scale levels because the downsampler 
+    # move existing scale levels because the downsampler
     # fails if a downsample folder already exists
     intermediate_data=\$(echo "$fullscale_dataset" | sed -e s/s0\$/intermediate-downsampling-XY/)
     renamed_intermediate_data=\$(echo "$fullscale_dataset" | sed -e s/s0\$/prev-intermediate-downsampling-XY/)
