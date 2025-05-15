@@ -49,5 +49,4 @@ process POST_RS_FISH {
         post-rs-fish: v1
     END_VERSIONS
     """
-
 }

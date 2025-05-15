@@ -1,5 +1,7 @@
 # JaneliaSciComp/easifish: Changelog
 
+* Added spots count and spots intensities
+
 * Added spots warping using Bigstream
 
 * Added RS-FISH module for spot extraction

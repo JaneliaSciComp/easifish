@@ -19,12 +19,14 @@ include {
 */
 
 
-include { INPUT_CHECK     } from '../subworkflows/local/input_check'
-include { STITCHING       } from '../subworkflows/local/stitching'
-include { REGISTRATION    } from './registration'
-include { SEGMENTATION    } from './segmentation'
-include { SPOT_EXTRACTION } from './spot_extraction'
-include { WARP_SPOTS      } from './warp_spots'
+include { INPUT_CHECK         } from '../subworkflows/local/input_check'
+include { STITCHING           } from '../subworkflows/local/stitching'
+include { REGISTRATION        } from './registration'
+include { SEGMENTATION        } from './segmentation'
+include { SPOT_EXTRACTION     } from './spot_extraction'
+include { WARP_SPOTS          } from './warp_spots'
+include { SPOTS_STATS         } from './spots_features'
+include { EXTRACT_SPOTS_PROPS } from './spots_features'
 
 
 def validate_params() {
@@ -160,13 +162,31 @@ workflow EASIFISH {
 
     spot_extraction_results.subscribe { log.debug "Spot extraction result: $it " }
 
-    WARP_SPOTS(
+    def warped_spots_results = WARP_SPOTS(
         registration_results,
         spot_extraction_results,
         outdir,
+    ) // final_spot_results includes spots for fixed and warped spots from the moving rounds
+
+    warped_spots_results.subscribe { log.debug "Warped spots results: $it " }
+
+    def spots_stats_results = SPOTS_STATS(
+        warped_spots_results,
+        segmentation_results,
+        outdir,
     )
 
+    spots_stats_results.subscribe { log.debug "Spots stats: $it " }
+
+    def spots_props = EXTRACT_SPOTS_PROPS(
+        registration_results,
+        segmentation_results,
+        outdir,
+    )
+
+    spots_props.subscribe { log.debug "Spots props: $it " }
 }
+
 
 workflow.onComplete {
     if (params.email || params.email_on_fail) {
