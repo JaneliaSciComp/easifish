@@ -44,11 +44,9 @@ process POST_RS_FISH {
         coord_spots_csv_file=
     fi
 
-
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         post-rs-fish: v1
     END_VERSIONS
     """
-
 }
