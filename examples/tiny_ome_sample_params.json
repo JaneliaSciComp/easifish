@@ -4,22 +4,25 @@
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
 
-    "stitching_result_dir": "bigstitcher",
-    "stitching_result_container": "stitched.ome.zarr",
+    "stitching_result_container": "stitched.zarr",
 
     "registration_subdir": "registration",
+    "global_registration_container": "global-registration.zarr",
+    "local_registration_container": "registration.zarr",
+
     "segmentation_subdir": "segmentation",
+    "segmentation_imgname": "segmentation.zarr",
 
     "skip_stitching": true,
-    "skip_registration": false,
+    "skip_registration": true,
     "skip_global_align": false,
     "skip_local_align": false,
     "skip_deformations": false,
     "skip_inverse": false,
     "skip_multiscale": false,
     "skip_segmentation": false,
-    "skip_spot_extraction": false,
-    "skip_warp_spots": false,
+    "skip_spot_extraction": true,
+    "skip_warp_spots": true,
 
     "flatfield_correction": false,
     "darkfieldfile": "",

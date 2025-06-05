@@ -1,6 +1,6 @@
 process BIGSTREAM_GLOBALALIGN {
     tag "${meta.id}"
-    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:5.0.2-dask2025.1.0-py12' }
+    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:5.0.2-dask2025.5.1-py12-ome' }
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
 

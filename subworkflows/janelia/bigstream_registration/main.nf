@@ -6,7 +6,7 @@ include { DASK_STOP             } from '../dask_stop/main'
 
 process PREPARE_BIGSTREAM_DIRS {
     label 'process_low'
-    container { task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:5.0.2-dask2025.1.0-py12' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:5.0.2-dask2025.5.1-py12-ome' }
 
     input:
     tuple val(meta), path(data_parent), val(data_paths)
@@ -31,9 +31,9 @@ process PREPARE_BIGSTREAM_DIRS {
 workflow BIGSTREAM_REGISTRATION {
     take:
     registration_input // channel:
-                       // [  
+                       // [
                        //    meta,
-                       //    global_fix, global_fix_subpath, 
+                       //    global_fix, global_fix_subpath,
                        //    global_mov, global_mov_subpath,
                        //    global_fix_mask, global_fix_mask_subpath
                        //    global_mov_mask, global_mov_mask_subpath
@@ -71,7 +71,7 @@ workflow BIGSTREAM_REGISTRATION {
     def bigstream_output_dirs = registration_input
     | map {
         def (meta,
-             global_fix, global_fix_subpath, 
+             global_fix, global_fix_subpath,
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
@@ -125,7 +125,7 @@ workflow BIGSTREAM_REGISTRATION {
     | join(registration_input, by:0)
     | map {
         def (meta,
-             global_fix, global_fix_subpath, 
+             global_fix, global_fix_subpath,
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
@@ -174,7 +174,7 @@ workflow BIGSTREAM_REGISTRATION {
              global_results_transform,
              global_results_align_output,
              global_results_align_name, global_results_align_subpath,
-             global_fix, global_fix_subpath, 
+             global_fix, global_fix_subpath,
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
@@ -261,7 +261,7 @@ workflow BIGSTREAM_REGISTRATION {
              global_results_transform,
              global_results_align_output,
              global_results_align_name, global_results_align_subpath,
-             global_fix, global_fix_subpath, 
+             global_fix, global_fix_subpath,
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
@@ -345,7 +345,7 @@ workflow BIGSTREAM_REGISTRATION {
              local_results_inv_deform_subpath,
              local_results_align_output,
              local_results_align_name, local_results_align_subpath,
-             global_fix, global_fix_subpath, 
+             global_fix, global_fix_subpath,
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
@@ -422,7 +422,7 @@ workflow BIGSTREAM_REGISTRATION {
     }
 
     emit:
-    global = global_align_results 
+    global = global_align_results
     local = local_align_results
     cluster
 }
