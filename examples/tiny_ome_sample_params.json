@@ -19,7 +19,7 @@
     "skip_local_align": false,
     "skip_deformations": false,
     "skip_inverse": false,
-    "skip_multiscale": false,
+    "skip_multiscale": true,
     "skip_segmentation": false,
     "skip_spot_extraction": true,
     "skip_warp_spots": true,
