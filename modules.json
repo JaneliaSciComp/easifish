@@ -7,27 +7,27 @@
                 "janelia": {
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
+                        "git_sha": "1e46fc2e6fd1e61c54abfaaf571440eef0ad350c",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
+                        "git_sha": "1e46fc2e6fd1e61c54abfaaf571440eef0ad350c",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
+                        "git_sha": "1e46fc2e6fd1e61c54abfaaf571440eef0ad350c",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "8045802c52bf97c2f04ea1744348d06ba902cfb1",
+                        "git_sha": "1e46fc2e6fd1e61c54abfaaf571440eef0ad350c",
                         "installed_by": ["bigstream_registration"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "37dcd298f0e63b697fa18cdc15ffac36958e1150",
+                        "git_sha": "1e46fc2e6fd1e61c54abfaaf571440eef0ad350c",
                         "installed_by": ["modules"]
                     },
                     "cellpose": {
@@ -42,7 +42,7 @@
                     },
                     "rs_fish": {
                         "branch": "main",
-                        "git_sha": "ab7b1117fdcfd140a6f5e5863413bd27aaf9638d",
+                        "git_sha": "4508180ef1d9ae3c561e19d691066106dae7ee7e",
                         "installed_by": ["modules"]
                     }
                 }
