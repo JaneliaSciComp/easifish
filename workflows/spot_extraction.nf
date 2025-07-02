@@ -156,7 +156,7 @@ def get_spot_subpaths(meta) {
         return as_list(params.spot_subpaths)
             .collect { subpath ->
                 def spots_result_name = "spots-rsfish-${subpath.replace('/', '-')}.csv"
-                [ subpath, spots_result_name ]
+                [ "${meta.stitched_dataset}/${subpath}", spots_result_name ]
             }
     } else {
         def spot_channels;

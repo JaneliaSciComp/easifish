@@ -47,6 +47,7 @@ process RS_FISH {
         ${executor_memory}
         ${spark.driver_cores}
         ${driver_memory}
+        --spark-conf "spark.jars.ivy=/tmp/.ivy2"
         --spark-conf "spark.driver.extraClassPath=/app/app.jar"
         --spark-conf "spark.executor.extraClassPath=/app/app.jar"
         --spark-conf "spark.driver.extraJavaOptions=-Dnative.libpath.verbose=true"
