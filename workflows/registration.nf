@@ -61,6 +61,7 @@ workflow REGISTRATION {
             id: "${fix_meta.id}-${mov_meta.id}",
             fix_id: fix_meta.id,
             mov_id: mov_meta.id,
+            warped_channels_mapping: mov_meta.warped_channels_mapping ?: [:],
         ]
         [ reg_meta, fix_meta, mov_meta ]
     }
@@ -239,13 +240,23 @@ workflow RUN_GLOBAL_REGISTRATION {
         def global_registration_working_dir = file("${reg_outdir}/global/${reg_meta.id}")
         def global_registration_output = file("${reg_outdir}")
 
+        global_fix_channel = params.fix_global_channel
+        global_mov_channel = params.mov_global_channel
+
+        // get the corresponding output channel from the warped to output mapping if there is one
+        def global_output_channel = reg_meta.warped_channels_mapping[global_mov_channel]
+
         def ri =  [
             reg_meta,
 
             fix, // global_fixed
             "${fix_meta.stitched_dataset}/${fix_global_subpath}", // global_fixed_subpath
+            params.fix_global_timeindex, global_fix_channel,
+
             mov, // global_moving
             "${mov_meta.stitched_dataset}/${mov_global_subpath}", // global_moving_subpath
+            params.mov_global_timeindex, global_mov_channel,
+
             global_fix_mask_file, params.global_fix_mask_subpath,
             global_mov_mask_file, params.global_mov_mask_subpath,
 
@@ -255,6 +266,7 @@ workflow RUN_GLOBAL_REGISTRATION {
             global_registration_output, // global_align_output
             params.global_registration_container, // global_aligned_name
             '',    // global_alignment_subpath (defaults to mov_global_subpath)
+            params.global_registration_timeindex, global_output_channel,
         ]
         log.debug "Global registration inputs: $it -> $ri"
         ri
@@ -485,11 +497,20 @@ workflow RUN_LOCAL_REGISTRATION {
 
             dask_meta, dask_context
         ) = it
+
+        local_fix_channel = params.fix_local_channel
+        local_mov_channel = params.mov_local_channel
+        // get the corresponding output channel from the warped to output mapping if there is one
+        def local_output_channel = reg_meta.warped_channels_mapping[local_mov_channel]
+
         def data = [
             reg_meta,
 
             local_fix, local_fix_subpath,
+            params.fix_local_timeindex, local_fix_channel,
+
             local_mov, local_mov_subpath,
+            params.mov_local_timeindex, local_mov_channel,
 
 	        local_fix_mask, local_fix_mask_subpath,
             local_mov_mask, local_mov_mask_subpath,
@@ -503,6 +524,7 @@ workflow RUN_LOCAL_REGISTRATION {
 
             local_registration_output, // local_align_output
             local_align_name, local_align_subpath,
+            params.local_registration_timeindex, local_output_channel,
         ]
         def cluster = [
             dask_context.scheduler_address,
@@ -651,21 +673,40 @@ workflow RUN_LOCAL_DEFORMS {
         ) = it
         log.debug "Prepare deformation inputs: $it"
         def warped_name = local_warped_name ?: params.local_registration_container
-        def r = get_warped_subpaths()
-	            .findAll { fix_warped_subpath, warped_subpath -> warped_subpath != local_warped_subpath }
-                .collect { fix_warped_subpath, warped_subpath ->
+        def warped_subpaths = get_warped_subpaths()
+        def warped_and_output_channels = get_warped_and_output_channels(reg_meta.warped_channels_mapping)
+
+        def r = [ warped_subpaths, warped_and_output_channels ]
+                .combinations()
+                .collect {
+                    def (subpaths, channel_mapping) = it
+                    def (fixed_subpath, warped_subpath) = subpaths
+                    [ fixed_subpath, warped_subpath, channel_mapping ]
+                }
+	            .findAll { fix_warped_subpath, warped_subpath, channel_mapping -> warped_subpath != local_warped_subpath }
+                .collect { fix_warped_subpath, warped_subpath, channel_mapping ->
+                    def (warped_channel, output_channel) = channel_mapping
                     def deformation_input = [
                         reg_meta,
-                        fix, "${fix_meta.stitched_dataset}/${fix_warped_subpath}", ''/* fix_spacing */,
-                        mov, "${mov_meta.stitched_dataset}/${warped_subpath}", ''/* mov_spacing */,
+                        fix, "${fix_meta.stitched_dataset}/${fix_warped_subpath}",
+                        params.fix_local_timeindex, params.fix_local_channel,
+                        /* fix_spacing */'',
+
+                        mov, "${mov_meta.stitched_dataset}/${warped_subpath}",
+                        params.mov_local_timeindex, warped_channel,
+                        /* mov_spacing */'',
 
                         affine_transform,
 
                         "${local_transform_output}/${local_deform}", local_deform_subpath,
 
                         "${warped_output}/${warped_name}", "${mov_meta.stitched_dataset}/${warped_subpath}",
+                        params.local_registration_timeindex, output_channel
                     ]
-                    def r = [ deformation_input, dask_context ]
+                    def r = [
+                        deformation_input,
+                        dask_context,
+                    ]
                     log.debug "Deformation input: ${warped_subpath} -> $r "
                     r
                 }
@@ -850,10 +891,12 @@ def get_warped_subpaths() {
         as_list(params.warped_subpaths)
             .collect { warped_subpath_param ->
                 def (fix_subpath, warped_subpath) = warped_subpath_param.tokenize(':')
-                [
+                def r = [
                     fix_subpath,
                     warped_subpath ?: fix_subpath,
                 ]
+                log.debug "Warped subpath: $r"
+                r
             }
     } else if (warped_channels_param && warped_scales_param) {
         warped_scales = as_list(warped_scales_param)
@@ -861,12 +904,32 @@ def get_warped_subpaths() {
         [warped_channels, warped_scales]
             .combinations()
             .collect { warped_ch, warped_scale ->
-                [
+                def r = [
                     "${warped_ch}/${warped_scale}", // fixed subpath
                     "${warped_ch}/${warped_scale}", // warped subpath
                 ]
+                log.debug "Warped subpath: $r"
+                r
+
 	    }
     } else {
         []
+    }
+}
+
+def get_warped_and_output_channels(warped_channels_mapping) {
+    if (warped_channels_mapping) {
+        // return a list of tuples t, where
+        // t._1 - warped (moving) channel and t._2 is the corresponding output channel
+        return warped_channels_mapping
+            .collect { k, v ->
+                [k, v]
+            }
+    } else {
+        // no mapping has been defined
+        // return a singleton list with empty mappings
+        return [
+            []
+        ]
     }
 }

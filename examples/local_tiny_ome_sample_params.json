@@ -1,0 +1,91 @@
+{
+    "channels": "c0,c1",
+    "input": "examples/remote_samplesheets/tiny_extended_samplesheet.csv",
+    "indir": "/Users/goinac/Work/HHMI/stitching/datasets/tiny",
+    "outdir": "/Users/goinac/Work/HHMI/stitching/datasets/tiny",
+
+    "stitching_result_container": "stitched.ome.zarr",
+
+    "registration_subdir": "registration",
+    "global_registration_container": "global-registration.ome.zarr",
+    "global_registration_timeindex": "0",
+
+    "local_registration_container": "registration.ome.zarr",
+    "local_registration_timeindex": "0",
+
+    "segmentation_subdir": "segmentation",
+    "segmentation_imgname": "segmentation.ome.zarr",
+
+    "skip_stitching": true,
+    "skip_registration": false,
+    "skip_global_align": false,
+    "skip_local_align": false,
+    "skip_deformations": false,
+    "skip_inverse": false,
+    "skip_multiscale": true,
+    "skip_segmentation": true,
+    "skip_spot_extraction": true,
+    "skip_warp_spots": true,
+    "skip_spots_stats": true,
+
+    "flatfield_correction": false,
+    "darkfieldfile": "",
+    "flatfieldfile": "",
+
+    "stitching_channel": "1",
+
+    "registration_fix_id": "t1",
+    "reg_ch": "1",
+
+    "global_steps": "ransac,affine",
+    "global_scale": "2",
+    "fix_global_subpath": "2",
+    "fix_global_timeindex": "0",
+    "fix_global_channel": "1",
+    "mov_global_subpath": "2",
+    "mov_global_timeindex": "0",
+    "mov_global_channel": "1",
+    "global_align_cpus": 1,
+
+    "local_steps": "ransac,affine,deform",
+    "local_scale": "1",
+    "fix_local_subpath": "1",
+    "fix_local_timeindex": "0",
+    "fix_local_channel": "1",
+    "mov_local_subpath": "1",
+    "mov_local_timeindex": "0",
+    "mov_local_channel": "1",
+
+    "warped_subpaths": "0",
+    "warped_scales": "0",
+
+    "local_align_workers": 2,
+    "with_dask_cluster": false,
+    "worker_cpus": 1,
+
+    "cellpose_test": false,
+    "cellpose_verbose": true,
+    "cellpose_dask_workers": 4,
+    "cellpose_dask_worker_cpus": 1,
+    "cellpose_merge_with_iou_only": false,
+    "cellpose_worker_runtime_opts": "--nv",
+
+    "spark_workers": 5,
+    "min_spark_workers": 2,
+    "spark_gb_per_core": 8,
+
+    "local_align_workers": 10,
+    "local_align_worker_mem_gb": 10,
+    "bigstream_scheduler_port": 0,
+    "bigstream_dashboard_port": 0,
+
+    "multiscale_spark_workers": 1,
+    "multiscale_spark_worker_cores": 20,
+    "multiscale_spark_gb_per_core": 5,
+
+    "dapi_channel": "1",
+    "bleeding_channel": "0",
+
+    "lsf_opts": "-P scicompsoft",
+    "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"
+}

@@ -20,9 +20,11 @@ workflow INPUT_CHECK {
         .branch {
             row ->
                 remote: row.containsKey('uri')
-                    return row
+                        log.debug "Remote tile: $row"
+                        return row
                 local: true
-                    return row
+                       log.debug "Local tile: $row"
+                       return row
     }
     .set { tiles }
 
@@ -73,6 +75,27 @@ def create_acq_channel(LinkedHashMap samplesheet_row, image_dir) {
     def meta = [:]
     def image_name = file(samplesheet_row.filename).name
     meta.id = samplesheet_row.id
+    if (samplesheet_row.warped_channels_map) {
+        meta.warped_channels_mapping = extract_warped_channels_mapping(samplesheet_row.warped_channels_map)
+    }
     def filepath = "${image_dir}/${image_name}"
     return [meta, file(filepath), samplesheet_row.pattern]
+}
+
+def extract_warped_channels_mapping(warped_channels_map) {
+    warped_channels_map.tokenize(';')
+        .findAll { it.trim() }
+        .collect { schannel_mapping ->
+            def channel_mapping = schannel_mapping.trim().tokenize(':')
+            if (channel_mapping.size == 1) {
+                [
+                    ("${channel_mapping[0].trim()}" as String) : channel_mapping[0].trim()
+                ]
+            } else {
+                [
+                    ("${channel_mapping[0].trim()}" as String) : channel_mapping[1].trim()
+                ]
+            }
+        }
+        .collectEntries { it }
 }

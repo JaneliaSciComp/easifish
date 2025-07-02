@@ -7,7 +7,9 @@ process BIGSTREAM_LOCALALIGN {
     input:
     tuple val(meta),
           path(fix_image, stageAs: 'fix/*'), val(fix_image_subpath),
+          val(fix_timeindex), val(fix_channel),
           path(mov_image, stageAs: 'mov/*'), val(mov_image_subpath),
+          val(mov_timeindex), val(mov_channel),
           path(fix_mask, stageAs: 'fixmask/*'), val(fix_mask_subpath),
           path(mov_mask, stageAs: 'movmask/*'), val(mov_mask_subpath),
           path(affine_transform), // global affine file name
@@ -15,7 +17,9 @@ process BIGSTREAM_LOCALALIGN {
           path(transform_dir, stageAs: 'transform/*'),
           val(transform_name), val(transform_subpath),
           val(inv_transform_name), val(inv_transform_subpath),
-          path(align_dir, stageAs: 'align/*'), val(align_name), val(align_subpath)
+          path(align_dir, stageAs: 'align/*'), val(align_name), val(align_subpath),
+          val(align_timeindex), val(align_channel)
+
 
     path(bigstream_config)
 
@@ -43,8 +47,14 @@ process BIGSTREAM_LOCALALIGN {
     def args = task.ext.args ?: ''
     def fix_image_arg = fix_image ? "--local-fix \${full_fix_image}" : ''
     def fix_image_subpath_arg = fix_image_subpath ? "--local-fix-subpath ${fix_image_subpath}" : ''
+    def fix_timeindex_arg = fix_timeindex ? "--local-fix-timeindex ${fix_timeindex}" : ''
+    def fix_channel_arg = fix_channel ? "--local-fix-channel ${fix_channel}" : ''
+
     def mov_image_arg = mov_image ? "--local-mov \${full_mov_image}" : ''
     def mov_image_subpath_arg = mov_image_subpath ? "--local-mov-subpath ${mov_image_subpath}" : ''
+    def mov_timeindex_arg = mov_timeindex ? "--local-mov-timeindex ${mov_timeindex}" : ''
+    def mov_channel_arg = mov_channel ? "--local-mov-channel ${mov_channel}" : ''
+
     def fix_mask_arg = fix_mask ? "--local-fix-mask \$(readlink ${fix_mask})" : ''
     def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--local-fix-mask-subpath ${fix_mask_subpath}" : ''
     def mov_mask_arg = mov_mask ? "--local-mov-mask \$(readlink ${mov_mask})" : ''
@@ -56,9 +66,13 @@ process BIGSTREAM_LOCALALIGN {
     def transform_subpath_arg = transform_subpath ? "--local-transform-subpath ${transform_subpath}" : ''
     def inv_transform_name_arg = inv_transform_name ? "--local-inv-transform-name ${inv_transform_name}" : ''
     def inv_transform_subpath_arg = inv_transform_subpath ? "--local-inv-transform-subpath ${inv_transform_subpath}" : ''
+
     def align_dir_arg = align_dir ? "--local-align-dir \${full_align_dir}" : ''
     def aligned_name_arg = align_name ? "--local-align-name ${align_name}" : ''
     def aligned_subpath_arg = align_subpath ? "--local-align-subpath ${align_subpath}" : ''
+    def align_timeindex_arg = align_timeindex ? "--local-align-timeindex ${align_timeindex}" : ''
+    def align_channel_arg = align_channel ? "--local-align-channel ${align_channel}" : ''
+
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
     def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
@@ -139,21 +153,29 @@ process BIGSTREAM_LOCALALIGN {
         full_align_dir=
     fi
 
-    python /app/bigstream/scripts/main_local_align_pipeline.py \
-        ${fix_image_arg} ${fix_image_subpath_arg} \
-        ${mov_image_arg} ${mov_image_subpath_arg} \
-        ${fix_mask_arg} ${fix_mask_subpath_arg} \
-        ${mov_mask_arg} ${mov_mask_subpath_arg} \
-        ${affine_transform_arg} \
-        ${steps_arg} \
-        ${bigstream_config_arg} \
-        ${transform_dir_arg} \
-        ${transform_name_arg} ${transform_subpath_arg} \
-        ${inv_transform_name_arg} ${inv_transform_subpath_arg} \
-        ${align_dir_arg} ${aligned_name_arg} ${aligned_subpath_arg} \
-        ${dask_scheduler_arg} \
-        ${dask_config_arg} \
+    CMD=(
+        python /app/bigstream/scripts/main_local_align_pipeline.py
+        ${fix_image_arg} ${fix_image_subpath_arg}
+        ${fix_timeindex_arg} ${fix_channel_arg}
+        ${mov_image_arg} ${mov_image_subpath_arg}
+        ${mov_timeindex_arg} ${mov_channel_arg}
+        ${fix_mask_arg} ${fix_mask_subpath_arg}
+        ${mov_mask_arg} ${mov_mask_subpath_arg}
+        ${affine_transform_arg}
+        ${steps_arg}
+        ${bigstream_config_arg}
+        ${transform_dir_arg}
+        ${transform_name_arg} ${transform_subpath_arg}
+        ${inv_transform_name_arg} ${inv_transform_subpath_arg}
+        ${align_dir_arg} ${aligned_name_arg} ${aligned_subpath_arg}
+        ${align_timeindex_arg} ${align_channel_arg}
+        ${dask_scheduler_arg}
+        ${dask_config_arg}
         ${args}
+    )
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
+
     """
 
 }

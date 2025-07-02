@@ -7,12 +7,15 @@ process BIGSTREAM_GLOBALALIGN {
     input:
     tuple val(meta),
           path(fix_image, stageAs: 'fix/*'), val(fix_image_subpath),
+          val(fix_timeindex), val(fix_channel),
           path(mov_image, stageAs: 'mov/*'), val(mov_image_subpath),
+          val(mov_timeindex), val(mov_channel),
           path(fix_mask, stageAs: 'fixmask/*'), val(fix_mask_subpath),
           path(mov_mask, stageAs: 'movmask/*'), val(mov_mask_subpath),
           val(steps),
           path(transform_dir, stageAs: 'transform/*'), val(transform_name),
-          path(align_dir, stageAs: 'align/*'), val(align_name), val(align_subpath)
+          path(align_dir, stageAs: 'align/*'), val(align_name), val(align_subpath),
+          val(align_timeindex), val(align_channel)
 
     path(bigstream_config)
 
@@ -34,8 +37,14 @@ process BIGSTREAM_GLOBALALIGN {
     def args = task.ext.args ?: ''
     def fix_image_arg = fix_image ? "--global-fix \${full_fix_image}" : ''
     def fix_image_subpath_arg = fix_image_subpath ? "--global-fix-subpath ${fix_image_subpath}" : ''
+    def fix_timeindex_arg = fix_timeindex ? "--global-fix-timeindex ${fix_timeindex}" : ''
+    def fix_channel_arg = fix_channel ? "--global-fix-channel ${fix_channel}" : ''
+
     def mov_image_arg = mov_image ? "--global-mov \${full_mov_image}" : ''
     def mov_image_subpath_arg = mov_image_subpath ? "--global-mov-subpath ${mov_image_subpath}" : ''
+    def mov_timeindex_arg = mov_timeindex ? "--global-mov-timeindex ${mov_timeindex}" : ''
+    def mov_channel_arg = mov_channel ? "--global-mov-channel ${mov_channel}" : ''
+
     def fix_mask_arg = fix_mask ? "--global-fix-mask ${fix_mask}" : ''
     def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--global-fix-mask-subpath ${fix_mask_subpath}" : ''
     def mov_mask_arg = mov_mask ? "--global-mov-mask ${mov_mask}" : ''
@@ -43,9 +52,13 @@ process BIGSTREAM_GLOBALALIGN {
     def steps_arg = steps ? "--global-registration-steps ${steps}" : ''
     def transform_dir_arg = transform_dir ? "--global-transform-dir \${full_transform_dir}" : ''
     def transform_name_arg = transform_name ? "--global-transform-name ${transform_name}" : ''
+
     def align_dir_arg = align_dir ? "--global-align-dir \${full_align_dir}" : ''
     def align_name_arg = align_name ? "--global-align-name ${align_name}" : ''
     def align_subpath_arg = align_subpath ? "--global-align-subpath ${align_subpath}" : ''
+    def align_timeindex_arg = align_timeindex ? "--global-align-timeindex ${align_timeindex}" : ''
+    def align_channel_arg = align_channel ? "--global-align-channel ${align_channel}" : ''
+
     def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
 
     """
@@ -106,15 +119,22 @@ process BIGSTREAM_GLOBALALIGN {
         full_align_dir=
     fi
 
-    python /app/bigstream/scripts/main_global_align_pipeline.py \
-        ${fix_image_arg} ${fix_image_subpath_arg} \
-        ${mov_image_arg} ${mov_image_subpath_arg} \
-        ${fix_mask_arg} ${fix_mask_subpath_arg} \
-        ${mov_mask_arg} ${mov_mask_subpath_arg} \
-        ${steps_arg} \
-        ${bigstream_config_arg} \
-        ${transform_dir_arg} ${transform_name_arg} \
-        ${align_dir_arg} ${align_name_arg} ${align_subpath_arg} \
+    CMD=(
+        python /app/bigstream/scripts/main_global_align_pipeline.py
+        ${fix_image_arg} ${fix_image_subpath_arg}
+        ${fix_timeindex_arg} ${fix_channel_arg}
+        ${mov_image_arg} ${mov_image_subpath_arg}
+        ${mov_timeindex_arg} ${mov_channel_arg}
+        ${fix_mask_arg} ${fix_mask_subpath_arg}
+        ${mov_mask_arg} ${mov_mask_subpath_arg}
+        ${steps_arg}
+        ${bigstream_config_arg}
+        ${transform_dir_arg} ${transform_name_arg}
+        ${align_dir_arg} ${align_name_arg} ${align_subpath_arg}
+        ${align_timeindex_arg} ${align_channel_arg}
         ${args}
+    )
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
     """
 }
