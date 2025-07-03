@@ -1,0 +1,24 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - dask=2025.5.1
+  - distributed=2025.5.1
+  - dask-image=2024.5.3
+  - pip
+  - flatten_json
+  - imagecodecs
+  - numpy>=1.26.0,<2
+  - pyyaml
+  - scikit-image>=0.21.0
+  - scikit-learn>=1.4.1
+  - zarr=2.18.7
+  - pydantic=2.7.1
+  - roifile
+  - pip:
+    - cellpose==4.0.4
+    - pynrrd
+    - ome-zarr-models==0.1.6
+    - tornado
+    - torch==2.6.0
+    - torchvision

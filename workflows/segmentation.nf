@@ -41,6 +41,9 @@ workflow SEGMENTATION {
         } else if (params.segmentation_subpaths) {
             // in this case the subpaths parameters must match exactly the container datasets
             segmentation_subpaths = as_list(params.segmentation_subpaths)
+                .collect { subpath ->
+                     "${meta.stitched_dataset}/${subpath}"
+                }
         } else {
             def seg_channels = params.seg_channels
                 ? as_list(params.seg_channels)

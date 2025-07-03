@@ -2,6 +2,7 @@ process CELLPOSE {
     container { task && task.ext.container ?: 'janeliascicomp/cellpose:3.1.0-dask2025.1.0-py12' }
     cpus { cellpose_cpus }
     memory "${cellpose_mem_in_gb} GB"
+    conda 'modules/janelia/cellpose/conda-env.yml'
 
     input:
     tuple val(meta),
@@ -30,7 +31,7 @@ process CELLPOSE {
     def input_image_subpath_arg = image_subpath
                                     ? "--input-subpath ${image_subpath}"
                                     : ''
-    def set_models_path = models_path 
+    def set_models_path = models_path
         ? "models_fullpath=\$(readlink ${models_path}) && \
            mkdir -p \${models_fullpath} && \
            export CELLPOSE_LOCAL_MODELS_PATH=\${models_fullpath}"
@@ -43,7 +44,7 @@ process CELLPOSE {
     def dask_config_arg = dask_config ? "--dask-config ${dask_config}" : ''
     (output_name_noext, output_name_ext) = output_image_name.lastIndexOf('.').with {
         it == -1
-            ? [output_image_name, ''] 
+            ? [output_image_name, '']
             : [output_image_name[0..<it], output_image_name[(it+1)..-1]]
     }
     log.debug "Output name:ext => ${output_name_noext}:${output_name_ext}"
