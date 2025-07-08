@@ -110,13 +110,14 @@ workflow CELLPOSE_SEGMENTATION {
         final_segmentation_results.subscribe {
             log.debug "Cellpose results: $it"
         }
-
+        // we only start one cluster per cellpose task
+        // so there's no need to wait (groupBy) for
+        // other tasks tasks to complete before stopping the cluster
         dask_cluster.join(final_segmentation_results, by:0)
         | map {
             def (meta, cluster_context) = it
             [ meta, cluster_context ]
         }
-        | groupTuple
         | DASK_STOP
     } else {
         final_segmentation_results = ch_meta
