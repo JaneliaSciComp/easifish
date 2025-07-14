@@ -170,26 +170,22 @@ workflow EASIFISH {
 
     warped_spots_results.subscribe { log.debug "Warped spots results: $it " }
 
-    if (params.skip_spots_stats) {
-        log.info "Skip spots statistics"
-    } else {
-        def spots_stats_results = SPOTS_STATS(
-            warped_spots_results,
-            segmentation_results,
-            outdir,
-        )
+    def spots_stats_results = SPOTS_STATS(
+        warped_spots_results,
+        segmentation_results,
+        outdir,
+    )
 
-        spots_stats_results.subscribe { log.debug "Spots stats: $it " }
+    spots_stats_results.subscribe { log.debug "Spots stats: $it " }
 
-        def spots_props = EXTRACT_SPOTS_PROPS(
-            registration_results,
-            segmentation_results,
-            outdir,
-        )
+    def spots_props = EXTRACT_SPOTS_PROPS(
+        registration_results,
+        segmentation_results,
+        outdir,
+    )
 
-        spots_props.subscribe { log.debug "Spots props: $it " }
+    spots_props.subscribe { log.debug "Spots props: $it " }
 
-    }
 }
 
 

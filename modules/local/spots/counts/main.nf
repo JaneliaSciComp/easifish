@@ -28,6 +28,7 @@ process SPOTS_COUNTS {
     task.ext.when == null || task.ext.when
 
     script:
+    def args = task.ext.args ?: ''
     """
     full_input_image_path=\$(readlink -e ${input_image_path})
     full_labels_path=\$(readlink -e ${labels_path})
@@ -47,6 +48,7 @@ process SPOTS_COUNTS {
         --labels-subpath ${labels_dataset}
         --spots-pattern \"\${full_spots_input_dir}/${input_pattern}\"
         --output \${output_csv_file}
+        ${args}
     )
     echo "CMD: \${CMD[@]}"
     (exec "\${CMD[@]}")

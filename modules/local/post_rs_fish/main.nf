@@ -12,8 +12,8 @@ process POST_RS_FISH {
     tuple val(meta),
           env(full_input_path),
           val(input_dataset),
-          env(coord_spots_csv_file), emit: results
-    path "versions.yml"            , emit: versions
+          env(spots_results)  , emit: results
+    path "versions.yml"       , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,6 +21,7 @@ process POST_RS_FISH {
     script:
     def rsfish_spots_filename = file(voxel_spots_csv_file).name
     def spots_filename = rsfish_spots_filename.replace('rsfish-', '').replace('.csv', '-coord.csv')
+    def spots_filepattern = rsfish_spots_filename.replace('rsfish-', '').replace('.csv', '-coord*.csv')
 
     """
     # Create command line parameters
@@ -39,9 +40,12 @@ process POST_RS_FISH {
             --image-subpath ${input_dataset} \
             --input \${full_voxel_spots_csv_file} \
             --output \${coord_spots_csv_file}
+
+        spots_results=\$(ls \${voxel_spots_csv_dir}/${spots_filepattern})
+        echo "Spots results \${spots_results}"
     else
         echo "Voxel spots CSV file not found: \${full_voxel_spots_csv_file}"
-        coord_spots_csv_file=
+        spots_results=
     fi
 
     cat <<-END_VERSIONS > versions.yml

@@ -2,6 +2,9 @@ include { SPOTS_PROPS  } from '../modules/local/spots/props/main'
 include { SPOTS_COUNTS } from '../modules/local/spots/counts/main'
 include { as_list      } from './util_functions'
 
+/*
+SPOTS_STATS - aggregate all channel spot counts into a single csv output
+*/
 workflow SPOTS_STATS {
     take:
     ch_spots        // channel: [ meta_spots, meta_reg, spots_input_image, spots_input_dataset, spots, warped_spots ]
@@ -31,7 +34,7 @@ workflow SPOTS_STATS {
         def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
         def id = meta_reg.fix_id
         def r = [ id, meta_spots, spots_input_image, spots_input_dataset, source_spots, final_spots ]
-        log.debug "Spots data for spots sizes: $r"
+        log.debug "Spots data for spots counts: $it -> $r"
         r
     }
     | groupTuple(by: 0)
@@ -62,22 +65,46 @@ workflow SPOTS_STATS {
                 spots_image_container, adjusted_spots_dataset,
                 seg_labels, seg_input_dataset,
                 spots_dir,
-                '*coord.csv',
+                params.spots_counts_pattern,
                 spots_counts_output_dir,
             ]
-            log.debug "Spots sizes input: $r"
+            log.debug "Spots counts input before removing duplicates: $r"
             r
          }
     }
+    | unique { it[0].id }
 
-    def spots_counts_outputs = SPOTS_COUNTS(
-        spots_counts_input,
-        params.spots_counts_cores,
-        params.spots_counts_mem_gb,
-    )
+    spots_counts_input.subscribe { log.debug "Spots counts input: $it" }
+
+    def spots_counts_outputs
+    if (params.skip_spots_counts) {
+        spots_counts_outputs = spots_counts_input
+        | map {
+            def (meta_spots,
+                 spots_image_container, adjusted_spots_dataset,
+                 seg_labels, seg_input_dataset,
+                 spots_dir,
+                 spots_pattern,
+                 spots_counts_output_dir) = it
+
+            log.debug "Skip spots counts $it"
+            [
+                meta_spots,
+                spots_image_container, adjusted_spots_dataset,
+                spots_dir,
+                spots_counts_output_dir,
+            ]
+        }
+    } else {
+        spots_counts_outputs = SPOTS_COUNTS(
+            spots_counts_input,
+            params.spots_counts_cores,
+            params.spots_counts_mem_gb,
+        ).results
+    }
 
     emit:
-    done = spots_counts_outputs.results
+    done = spots_counts_outputs
 }
 
 workflow EXTRACT_SPOTS_PROPS {
@@ -175,14 +202,34 @@ workflow EXTRACT_SPOTS_PROPS {
         r
     }
 
-    def spots_props_results = SPOTS_PROPS(
-        regionprops_inputs,
-        params.spots_props_cores,
-        params.spots_props_mem_gb,
-    )
+    def spots_props_results
+    if (params.skip_region_props) {
+        spots_props_results = regionprops_inputs
+        | map {
+            def (meta,
+                 image_container, adjusted_image_dataset,
+                 seg_labels, seg_input_dataset,
+                 dapi_dataset,
+                 bleeding_dataset,
+                 regionprops_output_dir,
+                 result_name) = it
+            log.debug "Skip region props: $it"
+            [
+                meta,
+                image_container, adjusted_image_dataset,
+                result_name
+            ]
+        }
+    } else {
+        spots_props_results = SPOTS_PROPS(
+            regionprops_inputs,
+            params.spots_props_cores,
+            params.spots_props_mem_gb,
+        ).results
+    }
 
     emit:
-    done = spots_props_results.results
+    done = spots_props_results
 }
 
 
@@ -204,30 +251,27 @@ def get_spot_subpaths(id) {
     } else if (params.spot_subpaths) {
         // in this case the subpaths parameters must match exactly the container datasets
         return as_list(params.spot_subpaths)
-            .collect { subpath ->
+            .collectMany { subpath ->
                 def spot_ch = get_dataset_channel(subpath)
-                [
-                    "${id}/${subpath}",
-                    "${id}-${spot_ch}-props.csv",
-                ]
+                if (spot_ch) {
+                    [
+                        [
+                            "${id}/${subpath}",
+                            "${id}-${spot_ch}-props.csv",
+                        ]
+                    ]
+                } else {
+                    get_spot_channels_from_params()
+                    .collect { ch ->
+                        [
+                            "${id}/${subpath}",
+                            "${id}-${spot_ch}-props.csv",
+                        ]
+                    }
+                }
             }
     } else {
-        def spot_channels;
-        if (params.spot_channels) {
-            spot_channels = as_list(params.spot_channels)
-            log.debug "Use specified spot channels: $spot_channels"
-        } else {
-            // all but the last channel which typically is DAPI
-            def all_channels = as_list(params.channels)
-            if (params.dapi_channel) {
-                spot_channels = all_channels.findAll { it != params.dapi_channel }
-            } else {
-                // automatically consider DAPI the last channel
-                // this may throw an exception if the channel list is empty or a singleton
-                spot_channels = all_channels[0..-2] // all but the last channel
-            }
-            log.debug "Spot channels: $spot_channels (all from ${params.channels} except the last one)"
-        }
+        def spot_channels = get_spot_channels_from_params();
         def spot_scales = as_list(params.spot_scales)
 
         return [spot_channels, spot_scales].combinations()
@@ -254,5 +298,25 @@ def change_dataset_channel(image_dataset, channel) {
 
 def get_dataset_channel(image_dataset) {
     def image_dataset_comps = image_dataset.split('/')
-    return image_dataset_comps ? image_dataset_comps[-2] : ''
+    return image_dataset_comps && image_dataset_comps.size() >= 2 ? image_dataset_comps[-2] : ''
+}
+
+def get_spot_channels_from_params() {
+    def spot_channels
+    if (params.spot_channels) {
+        spot_channels = as_list(params.spot_channels)
+        log.debug "Use specified spot channels: $spot_channels"
+    } else {
+        // all but the last channel which typically is DAPI
+        def all_channels = as_list(params.channels)
+        def excluded_channels = params.spot_excluded_channels
+            ? as_list(params.spot_excluded_channels)
+            : params.dapi_channel
+            ? [ params.dapi_channel ]
+            : []
+
+        spot_channels = all_channels.findAll { ch ->  !(ch in excluded_channels) }
+        log.debug "Use all spot channels w/out excluded ones: $spot_channels"
+    }
+    return spot_channels
 }

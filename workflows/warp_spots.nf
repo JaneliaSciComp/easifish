@@ -40,6 +40,8 @@ workflow WARP_SPOTS {
     }
     | unique { it[0] } // unique by id
 
+    registration_fix.subscribe { log.debug "Registration fix id: $it" }
+
     def spots = spot_extraction_results
     | map {
         log.debug "Extracted spot: $it"
@@ -62,7 +64,7 @@ workflow WARP_SPOTS {
     }
 
     def fixed_spots = registration_fix
-    | join(spots, by: 0)
+    | combine(spots, by: 0)
     | map {
         def (id, meta_reg, meta_spots, spots_file) = it
         log.debug "Extract only fixed spots from $it"
@@ -136,6 +138,8 @@ workflow WARP_SPOTS {
     } else {
         // skip warp spots
         spots_warp_results = spots_warp_input.map {
+            log.debug "Check warp spots input: $it"
+
             def (meta, spots_file, warped_spots_output_dir, warped_spots_filename) = it[0]
 
             def r = [
@@ -144,11 +148,13 @@ workflow WARP_SPOTS {
                 "${warped_spots_output_dir}/${warped_spots_filename}",
             ]
 
-            log.debug "Skipping warp spots and return: $r"
+            log.debug "Skip warp spots return: $r"
+            r
         }
     }
 
-    def final_spot_results = fixed_spots.concat(spots_warp_results)
+    def final_spot_results = fixed_spots
+    | concat(spots_warp_results)
     | map {
         def (meta, source_spots, final_spots) = it
         def r = [
@@ -156,7 +162,7 @@ workflow WARP_SPOTS {
             meta.meta_reg,
             source_spots, final_spots,
         ]
-        log.debug "All (fixed and warped) spot results: $r"
+        log.debug "Prepare (fixed and warped) spot results: $r"
         r
     }
     | join(spot_extraction_results, by: 0)

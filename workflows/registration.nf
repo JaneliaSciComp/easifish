@@ -560,20 +560,27 @@ workflow RUN_LOCAL_REGISTRATION {
         | map {
             def data = (
                 reg_meta,
+
                 local_fix, local_fix_subpath,
+                local_fix_timeindex, local_fix_channel,
+
                 local_mov, local_mov_subpath,
+                local_mov_timeindex, local_mov_channel,
+
 	            local_fix_mask, local_fix_mask_subpath,
                 local_mov_mask, local_mov_mask_subpath,
+
                 global_transform,
+
                 local_steps,
+
                 local_registration_working_dir, // local_transform_output
                 local_transform_name, local_transform_subpath,
                 local_inv_transform_name, local_inv_transform_subpath,
                 local_registration_output, // local_align_output
                 local_align_name, local_align_subpath
             ) = it
-            log.debug "Skip local alignment $it"
-            [
+            def r = [
                 reg_meta,
                 local_fix, local_fix_subpath,
                 local_mov, local_mov_subpath,
@@ -584,6 +591,8 @@ workflow RUN_LOCAL_REGISTRATION {
                 local_registration_output,
                 local_align_name, local_align_subpath
             ]
+            log.debug "Skip local alignment $it -> $r"
+            r
         }
     }
 

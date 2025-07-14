@@ -1,6 +1,6 @@
 process SPOTS_PROPS {
     tag { meta.id }
-    container { task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.1-ome' }
+    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.1-ome' }
     cpus { ncpus }
     memory { "${mem_in_gb}GB" }
 
@@ -28,6 +28,7 @@ process SPOTS_PROPS {
     task.ext.when == null || task.ext.when
 
     script:
+    def args = task.ext.args ?: ''
     dapi_dataset_arg = dapi_dataset ? "--dapi-subpath ${dapi_dataset}" : ""
     bleed_dataset_arg = bleed_dataset ? "--bleed-subpath ${bleed_dataset}" : ""
     """
@@ -49,6 +50,7 @@ process SPOTS_PROPS {
         ${dapi_dataset_arg}
         ${bleed_dataset_arg}
         --output \${output_csv_file}
+        ${args}
     )
     echo "CMD: \${CMD[@]}"
     (exec "\${CMD[@]}")

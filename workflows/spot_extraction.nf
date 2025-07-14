@@ -56,7 +56,7 @@ workflow SPOT_EXTRACTION {
         }
         | VERIFY_RS_FISH_SPOTS
 
-        final_rsfish_results = verify_spot_results.results
+        final_rsfish_results = expand_spot_results(verify_spot_results.results)
     } else {
         spots_spark_input.subscribe { log.debug "Spot extraction spark input: $it" }
 
@@ -120,7 +120,7 @@ workflow SPOT_EXTRACTION {
         }
         | POST_RS_FISH
 
-        final_rsfish_results = POST_RS_FISH.out.results
+        final_rsfish_results = expand_spot_results(POST_RS_FISH.out.results)
 
         def prepare_spark_stop = rsfish_results
         | groupTuple(by: [0, 4]) // group by meta and spark
@@ -187,6 +187,18 @@ def get_spot_subpaths(meta) {
                 ]
                 log.debug "Spot dataset: $r"
                 r
+        }
+    }
+}
+
+def expand_spot_results(results) {
+    results.flatMap {
+        def (meta, input_img_dir, input_spot_subpath, spots_results) = it
+        spots_results.split(/[ \n]+/)
+        .collect { spots_file ->
+            [
+                meta, input_img_dir, input_spot_subpath, spots_file,
+            ]
         }
     }
 }
