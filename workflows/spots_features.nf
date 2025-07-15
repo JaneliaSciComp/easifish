@@ -115,7 +115,7 @@ workflow EXTRACT_SPOTS_PROPS {
 
     main:
     def registered_images = ch_registration
-    | map {
+    | flatMap {
         def (reg_meta,
              fix, fix_subpath,
              mov, mov_subpath,
@@ -124,13 +124,54 @@ workflow EXTRACT_SPOTS_PROPS {
              transform_name, transform_subpath,
              inv_transform_output,
              inv_transform_name, inv_transform_subpath) = it
-        // include the registered round id
-        // so that it can be used for properly creating the dataset
-        [ reg_meta.fix_id, reg_meta.mov_id, warped, warped_subpath ]
+        log.info "Get registered images for region props: $it"
+        def join_id = reg_meta.fix_id
+        def image_id = reg_meta.mov_id
+        get_spot_subpaths(reg_meta.mov_id).collect { subpath, result_name, image_ch ->
+            def warped_image_ch
+            def bleeding_channel
+            def dapi_channel
+            if (reg_meta.warped_channels_mapping) {
+                // if any of the moving, bleeding or dapi was mapped to a different channel
+                // in the registration output, then get the appropriate channel value
+                if (image_ch as String in  reg_meta.warped_channels_mapping) {
+                    // if the image channel was mapped to a different channel
+                    warped_image_ch = reg_meta.warped_channels_mapping[image_ch as String]
+                } else {
+                    warped_image_ch = image_ch
+                }
+                if (params.bleeding_channel && params.bleeding_channel as String in reg_meta.warped_channels_mapping) {
+                    bleeding_channel = reg_meta.warped_channels_mapping[params.bleeding_channel as String]
+                } else {
+                    bleeding_channel = params.bleeding_channel
+                }
+                if (params.dapi_channel && params.dapi_channel as String in reg_meta.warped_channels_mapping) {
+                    dapi_channel = reg_meta.warped_channels_mapping[params.dapi_channel as String]
+                } else {
+                    dapi_channel = params.dapi_channel
+                }
+            } else {
+                warped_image_ch = image_ch
+                bleeding_channel = params.bleeding_channel
+                dapi_channel = params.dapi_channel
+            }
+            def r = [
+                join_id,
+                image_id,
+                warped,
+                warped_subpath,
+                warped_image_ch,
+                result_name,
+                bleeding_channel,
+                dapi_channel,
+            ]
+            log.info "Registered image for regionprops: $r"
+            r
+        }
     }
 
     def fixed_images = ch_registration
-    | map {
+    | flatMap {
         def (reg_meta,
              fix, fix_subpath,
              mov, mov_subpath,
@@ -139,11 +180,24 @@ workflow EXTRACT_SPOTS_PROPS {
              transform_name, transform_subpath,
              inv_transform_output,
              inv_transform_name, inv_transform_subpath) = it
-        // the fixed round id is included
-        // to make the result compatible with the one for moving rounds
-        [ reg_meta.fix_id, reg_meta.fix_id, fix, fix_subpath ]
+        log.info "Get fixed image for region props: $it"
+        def join_id = reg_meta.fix_id
+        def image_id = reg_meta.fix_id
+        get_spot_subpaths(reg_meta.fix_id).collect { subpath, result_name, image_ch ->
+            def r = [
+                join_id,
+                image_id,
+                fix,
+                fix_subpath,
+                image_ch,
+                result_name,
+                params.bleeding_channel,
+                params.dapi_channel,
+            ]
+            log.info "Fixed image for regionprops: $r"
+            r
+        }
     }
-    | unique { it[0] } // unique by id
 
     def ch_segmentation_with_id = ch_segmentation
     | map {
@@ -156,49 +210,42 @@ workflow EXTRACT_SPOTS_PROPS {
 
     def regionprops_inputs = fixed_images
     | concat(registered_images)
-    | flatMap {
-        def (join_id, image_id, image_container, image_dataset) = it
-        log.debug "Images for regionprops: $it"
-        get_spot_subpaths(image_id).collect { subpath, result_name ->
-            def r = [
-                join_id,
-                image_id,
-                image_container,
-                subpath,
-                result_name,
-            ]
-            log.debug "Image for regionprops: $r"
-            r
-        }
+    | map {
+        log.info "All images for regionprops: $it"
+        it
     }
     | combine(ch_segmentation_with_id, by: 0)
     | map {
         def (join_id,
-             image_id, image_container, image_dataset, result_name,
+             image_id, image_container, image_dataset, image_ch, result_name, bleeding_channel, dapi_channel,
              meta,
              seg_input_image, seg_input_dataset, seg_labels) = it
-        log.debug "Combined cell images with segmentation: $it"
+        log.info "Combined cell images with segmentation: $it"
 
         def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${image_id}")
         def adjusted_image_dataset = sync_image_scale_with_labels_scale(image_dataset, seg_input_dataset)
 
-        def dapi_dataset = params.dapi_channel
-            ? change_dataset_channel(adjusted_image_dataset, params.dapi_channel)
+        log.info "Synced image and label datasets: ${image_dataset}, ${seg_input_dataset} -> ${adjusted_image_dataset}"
+
+        def dapi_dataset = dapi_channel
+            ? change_dataset_channel(adjusted_image_dataset, dapi_channel)
             : ''
-        def bleeding_dataset = params.bleeding_channel
-            ? change_dataset_channel(adjusted_image_dataset, params.bleeding_channel)
+        def bleeding_dataset = bleeding_channel
+            ? change_dataset_channel(adjusted_image_dataset, bleeding_channel)
             : ''
+
+        log.info "DAPI dataset: ${dapi_dataset}, bleeding dataset: ${bleeding_dataset}"
 
         def r = [
             meta,
-            image_container, adjusted_image_dataset,
+            image_container, adjusted_image_dataset, image_ch,
             seg_labels, seg_input_dataset,
-            dapi_dataset,
-            bleeding_dataset,
+            dapi_dataset, dapi_channel,
+            bleeding_dataset, bleeding_channel,
             regionprops_output_dir,
             result_name,
         ]
-        log.debug "Cell regionprops input: $r"
+        log.info "Cell regionprops input: $r"
         r
     }
 
@@ -207,16 +254,16 @@ workflow EXTRACT_SPOTS_PROPS {
         spots_props_results = regionprops_inputs
         | map {
             def (meta,
-                 image_container, adjusted_image_dataset,
+                 image_container, image_dataset, image_ch,
                  seg_labels, seg_input_dataset,
-                 dapi_dataset,
-                 bleeding_dataset,
+                 dapi_dataset, dapi_ch,
+                 bleeding_dataset, bleeding_ch,
                  regionprops_output_dir,
                  result_name) = it
             log.debug "Skip region props: $it"
             [
                 meta,
-                image_container, adjusted_image_dataset,
+                image_container, image_dataset,
                 result_name
             ]
         }
@@ -246,7 +293,7 @@ def sync_image_scale_with_labels_scale(image_dataset, labels_dataset) {
 def get_spot_subpaths(id) {
     if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
         return [
-            ['', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
+            ['', '', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
         ]
     } else if (params.spot_subpaths) {
         // in this case the subpaths parameters must match exactly the container datasets
@@ -258,6 +305,7 @@ def get_spot_subpaths(id) {
                         [
                             "${id}/${subpath}",
                             "${id}-${spot_ch}-props.csv",
+                            "${spot_ch}",
                         ]
                     ]
                 } else {
@@ -265,7 +313,8 @@ def get_spot_subpaths(id) {
                     .collect { ch ->
                         [
                             "${id}/${subpath}",
-                            "${id}-${spot_ch}-props.csv",
+                            "${id}-${ch}-props.csv",
+                            "${ch}",
                         ]
                     }
                 }
@@ -281,6 +330,7 @@ def get_spot_subpaths(id) {
                 def r = [
                     "${id}/${dataset}",
                     "${id}-${ch}-props.csv",
+                    "${ch}",
                 ]
                 log.debug "Spot dataset: $r"
                 r
@@ -290,7 +340,7 @@ def get_spot_subpaths(id) {
 
 def change_dataset_channel(image_dataset, channel) {
     def image_dataset_comps = image_dataset.split('/')
-    if (image_dataset_comps) {
+    if (image_dataset_comps.size() > 2) {
         image_dataset_comps[-2] = channel
     }
     return image_dataset_comps.join('/')

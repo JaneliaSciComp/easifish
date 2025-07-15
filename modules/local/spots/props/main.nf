@@ -8,10 +8,13 @@ process SPOTS_PROPS {
     tuple val(meta),
           path(input_image_path, stageAs: 'image/*'),
           val(input_dataset),
+          val(input_channel),
           path(labels_path, stageAs: 'labels/*'),
           val(labels_dataset),
           val(dapi_dataset),
-          val(bleed_dataset),
+          val(dapi_channel),
+          val(bleeding_dataset),
+          val(bleeding_channel),
           path(output_dir, stageAs: 'output/*'),
           val(output_name)
     val(ncpus)
@@ -29,8 +32,11 @@ process SPOTS_PROPS {
 
     script:
     def args = task.ext.args ?: ''
-    dapi_dataset_arg = dapi_dataset ? "--dapi-subpath ${dapi_dataset}" : ""
-    bleed_dataset_arg = bleed_dataset ? "--bleed-subpath ${bleed_dataset}" : ""
+    def dapi_dataset_arg = dapi_dataset ? "--dapi-subpath ${dapi_dataset}" : ""
+    def bleeding_dataset_arg = bleeding_dataset ? "--bleeding-subpath ${bleeding_dataset}" : ""
+    def input_ch_arg = input_channel ? "--image-channel ${input_channel}" : ''
+    def dapi_ch_arg = dapi_channel ? "--dapi-channel ${dapi_channel}" : ''
+    def bleeding_ch_arg = bleeding_channel ? "--bleeding-channel ${bleeding_channel}" : ''
     """
     full_input_image_path=\$(readlink -e ${input_image_path})
     full_labels_path=\$(readlink -e ${labels_path})
@@ -48,7 +54,10 @@ process SPOTS_PROPS {
         --labels-container \${full_labels_path}
         --labels-subpath ${labels_dataset}
         ${dapi_dataset_arg}
-        ${bleed_dataset_arg}
+        ${dapi_ch_arg}
+        ${bleeding_dataset_arg}
+        ${bleeding_ch_arg}
+        ${input_ch_arg}
         --output \${output_csv_file}
         ${args}
     )

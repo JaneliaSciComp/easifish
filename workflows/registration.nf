@@ -129,6 +129,7 @@ workflow REGISTRATION {
             inv_transform_output,
             inv_transform_name, inv_transform_subpath
         ) = it
+        log.debug "Prepare all registration results: $it"
         def r = [
             reg_meta,
             fix, fix_subpath,
@@ -246,6 +247,8 @@ workflow RUN_GLOBAL_REGISTRATION {
         // get the corresponding output channel from the warped to output mapping if there is one
         def global_output_channel = reg_meta.warped_channels_mapping[global_mov_channel]
 
+        log.debug "Prepare global registration inputs: global_fix_channel=${global_fix_channel}, global_mov_channel=${global_mov_channel}, global_output_channel=${global_output_channel}, $it"
+
         def ri =  [
             reg_meta,
 
@@ -268,7 +271,7 @@ workflow RUN_GLOBAL_REGISTRATION {
             '',    // global_alignment_subpath (defaults to mov_global_subpath)
             params.global_registration_timeindex, global_output_channel,
         ]
-        log.debug "Global registration inputs: $it -> $ri"
+        log.debug "Global registration inputs: $ri"
         ri
     }
     if (!skip_global_align) {
@@ -283,8 +286,8 @@ workflow RUN_GLOBAL_REGISTRATION {
         | map {
             def ri =(
                 reg_meta,
-                fix, fix_subpath,
-                mov, mov_subpath,
+                fix, fix_subpath, fix_timeindex, fix_channel,
+                mov, mov_subpath, mov_timeindex, mov_channel,
                 fix_mask, fix_mask_subpath,
                 mov_mask, mov_mask_subpath,
                 steps,
@@ -292,14 +295,15 @@ workflow RUN_GLOBAL_REGISTRATION {
                 transform_name,
                 align_dir, align_name, align_subpath
             ) = it
-            log.debug "Skip global alignment $it"
-            [
+            def r = [
                 reg_meta,
                 fix, fix_subpath,
                 mov, mov_subpath,
                 transform_dir, transform_name,
                 align_dir, align_name, align_subpath,
             ]
+            log.debug "Skip global alignment: $r"
+            r
         }
     }
     // Prepare global transform output
@@ -311,8 +315,11 @@ workflow RUN_GLOBAL_REGISTRATION {
             transform_dir, transform_name,
             align_dir, align_name, align_subpath) = it
         log.debug "Completed global alignment: $it"
+        def full_transform_path = transform_dir && transform_name
+            ? "${transform_dir}/${transform_name}"
+            : ''
         def r = [
-        reg_meta, "${transform_dir}/${transform_name}",
+            reg_meta, full_transform_path,
         ]
         log.debug "Global transform $it -> $r"
         r
@@ -531,6 +538,9 @@ workflow RUN_LOCAL_REGISTRATION {
             dask_context.config,
         ]
         log.debug "Local registration inputs: $it -> $data, $cluster"
+        log.debug "Local registration cluster: $cluster"
+        log.debug "Local registration data: $data"
+
         data: data
         cluster: cluster
     }
@@ -546,14 +556,15 @@ workflow RUN_LOCAL_REGISTRATION {
 
         local_registration_results.subscribe {
             // [
-            //    meta, fix, fix_subpath, mov, mov_subpath,
+            //    meta, fix, fix_subpath,
+            //    mov, mov_subpath,
             //    affine_transform,
             //    local_deform_dir,
             //    local_deform, local_deform_subpath,
             //    local_inv_deform, local_inv_deform_subpath
             //    warped_output, warped_name_only, warped_subpath
             //  ]
-            log.debug "Completed local alignment -> $it"
+            log.debug "Completed local alignment: $it"
         }
     } else {
         local_registration_results = local_registration_inputs.data
@@ -591,7 +602,7 @@ workflow RUN_LOCAL_REGISTRATION {
                 local_registration_output,
                 local_align_name, local_align_subpath
             ]
-            log.debug "Skip local alignment $it -> $r"
+            log.debug "Skip local alignment: $r"
             r
         }
     }
@@ -731,15 +742,15 @@ workflow RUN_LOCAL_DEFORMS {
         )
 
         deformation_results.subscribe {
-            log.debug "Completed deformation -> $it"
+            log.debug "Completed deformation: $it"
         }
     } else {
         deformation_results = deformation_inputs
         | map {
             def (
                 reg_meta,
-                fix, fix_subpath, fix_spacing,
-                mov, mov_subpath, mov_spacing,
+                fix, fix_subpath, fix_timeindex, fix_channel, fix_spacing,
+                mov, mov_subpath, mov_timeindex, mov_channel, mov_spacing,
                 affine_transform,
                 deform_transform, deform_transform_subpath,
                 warped, warped_subpath
@@ -750,7 +761,7 @@ workflow RUN_LOCAL_DEFORMS {
                 mov, mov_subpath,
                 warped, warped_subpath,
             ]
-            log.debug "Skip deformation -> $r"
+            log.debug "Skip deformation: $r"
             r
         }
     }
