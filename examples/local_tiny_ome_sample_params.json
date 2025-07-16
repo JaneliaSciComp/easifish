@@ -1,9 +1,11 @@
 {
     "channels": "0,1",
-    "input": "examples/remote_samplesheets/tiny_extended_samplesheet.csv",
-    "indir": "/Users/goinac/Work/HHMI/stitching/datasets/tiny",
-    "outdir": "/Users/goinac/Work/HHMI/stitching/datasets/tiny",
+    "input": "examples/remote_samplesheets/tiny_bigstitcher_samplesheet.csv",
+    "indir": "/Users/goinac/Work/HHMI/stitching/datasets/tiny_4_bigstitcher",
+    "outdir": "/Users/goinac/Work/HHMI/stitching/datasets/tiny_4_bigstitcher",
+    "stitching_dir": "/Users/goinac/Work/HHMI/stitching/datasets/tiny_4_bigstitcher",
 
+    "use_bigstitcher": true,
     "stitching_result_container": "stitched.ome.zarr",
 
     "registration_subdir": "registration",
@@ -16,22 +18,18 @@
     "segmentation_subdir": "segmentation",
     "segmentation_imgname": "segmentation.ome.zarr",
 
-    "skip_stitching": true,
+    "skip_stitching": false,
     "skip_registration": true,
-    "skip_global_align": true,
-    "skip_local_align": true,
+    "skip_global_align": false,
+    "skip_local_align": false,
     "skip_deformations": false,
     "skip_inverse": true,
     "skip_multiscale": true,
     "skip_segmentation": true,
     "skip_spot_extraction": true,
     "skip_warp_spots": true,
-    "skip_spots_counts": false,
-    "skip_region_props": false,
-
-    "flatfield_correction": false,
-    "darkfieldfile": "",
-    "flatfieldfile": "",
+    "skip_spots_counts": true,
+    "skip_region_props": true,
 
     "stitching_channel": "1",
 
@@ -86,9 +84,10 @@
     "spot_subpaths": "0",
     "distributed_spot_extraction": false,
 
-    "spark_workers": 5,
-    "min_spark_workers": 2,
-    "spark_gb_per_core": 8,
+    "spark_workers": 2,
+    "min_spark_workers": 1,
+    "spark_worker_cores": 1,
+    "spark_gb_per_core": 4,
 
     "local_align_workers": 2,
     "local_align_worker_mem_gb": 10,

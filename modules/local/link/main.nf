@@ -27,10 +27,15 @@ process LINK {
     else
         echo "Output directory: \${output_fullpath} - already exists"
     fi
-    pushd \${output_fullpath}
-    echo "Create link \${output_fullpath}/${filename} to \${full_filename}"
-    ln -sf \${full_filename} ${filename}
-    popd
+
+    if [[ "\${output_fullpath}" != "\${output_fullpath}" ]]; then
+        pushd \${output_fullpath}
+        echo "Create link \${output_fullpath}/${filename} to \${full_filename}"
+        ln -sf \${full_filename} ${filename}
+        popd
+    else
+        echo "No links created because \${output_fullpath} is the same as input"
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

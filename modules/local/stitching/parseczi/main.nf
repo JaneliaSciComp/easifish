@@ -24,7 +24,7 @@ process STITCHING_PARSECZI {
     pattern = meta.pattern
     // If there is no pattern, it must be a single CZI file
     if (pattern==null || pattern=='') {
-        czis = files.findAll { it.extension=="czi" }
+        czis = files.findAll { it.extension == 'czi' }
         pattern = czis.first()
     }
     """

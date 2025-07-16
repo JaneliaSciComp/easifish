@@ -20,7 +20,7 @@ include {
 
 
 include { INPUT_CHECK         } from '../subworkflows/local/input_check'
-include { STITCHING           } from '../subworkflows/local/stitching'
+include { STITCHING           } from './stitching'
 include { REGISTRATION        } from './registration'
 include { SEGMENTATION        } from './segmentation'
 include { SPOT_EXTRACTION     } from './spot_extraction'
@@ -103,7 +103,6 @@ workflow EASIFISH {
 
     def session_work_dir = "${params.workdir}/${workflow.sessionId}"
     def stitching_dir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching"
-    def stitching_result_dir = params.stitching_result_dir ? file(params.stitching_result_dir) : outdir
 
     def ch_acquisitions = INPUT_CHECK (
         samplesheet_file,
@@ -120,22 +119,8 @@ workflow EASIFISH {
 
     def stitching_results = STITCHING(
         ch_acquisitions,
-        params.flatfield_correction,
-        params.spark_cluster,
-        stitching_dir,
-        params.darkfieldfile,
-        params.flatfieldfile,
-        stitching_result_dir,
-        params.stitching_result_container,
-        true, // use ID for stitched dataset subpath
-        "${session_work_dir}/stitching",
-        params.skip_stitching,
-        params.spark_workers as int,
-        params.min_spark_workers as int,
-        params.spark_worker_cores as int,
-        params.spark_gb_per_core as int,
-        params.spark_driver_cores as int,
-        params.spark_driver_mem_gb as int,
+        outdir,
+        session_work_dir
     )
 
     stitching_results.subscribe { log.debug "Stitching result: $it " }

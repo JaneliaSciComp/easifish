@@ -5,6 +5,11 @@
         "git@github.com:JaneliaSciComp/nextflow-modules.git": {
             "modules": {
                 "janelia": {
+                    "bigstitcher/module": {
+                        "branch": "main",
+                        "git_sha": "da85471d0120ddeba06b0aeabfc96cd1de072cb0",
+                        "installed_by": ["modules"]
+                    },
                     "bigstream/computeinverse": {
                         "branch": "main",
                         "git_sha": "1e46fc2e6fd1e61c54abfaaf571440eef0ad350c",

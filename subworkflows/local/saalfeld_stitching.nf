@@ -9,7 +9,7 @@ include { STITCHING_FLATFIELD    } from '../../modules/local/stitching/flatfield
 include { STITCHING_STITCH       } from '../../modules/local/stitching/stitch/main'
 include { STITCHING_FUSE         } from '../../modules/local/stitching/fuse/main'
 
-workflow STITCHING {
+workflow SAALFELD_STITCHING {
     take:
     acquisition_data           // channel: [ meta, files ]
     flatfield_correction       // boolean: run flatfield correction
@@ -18,10 +18,9 @@ workflow STITCHING {
     darkfield                  // string|file: file containing the darkfield for flatfield correction
     flatfield                  // string|file: file containing the flatfield for flatfield correction
     stitching_result_dir       // string|file: directory where the final stitched results will be stored
-    stitched_n5_container_name // final stitched container name - defaults to export.n5
-    id_for_stiched_dataset     // boolean: if true use id for stitched dataset otherwise no dataset is used 
-    workdir                    // string|file: spark work dir
+    stitched_container_name    // final stitched container name - defaults to export.n5
     skip                       // boolean: if true skip stitching completely and just return the meta as if it ran
+    spark_workdir              // string|file: spark work dir
     spark_workers              // int: number of workers in the cluster (ignored if spark_cluster is false)
     min_spark_workers          // int: min required spark workers
     spark_worker_cores         // int: number of cores per worker
@@ -37,11 +36,11 @@ workflow STITCHING {
     | map {
         def (meta, files) = it
         // set output subdirectories for each acquisition
-        meta.session_work_dir = "${workdir}/${meta.id}"
+        meta.session_work_dir = "${spark_workdir}/${meta.id}"
         meta.stitching_dir = "${stitching_dir}/${meta.id}"
         meta.stitching_result_dir = stitching_result_dir
-        meta.stitched_dataset = id_for_stiched_dataset ? meta.id : ''
-        meta.stitching_container = stitched_n5_container_name ?: "export.n5"
+        meta.stitched_dataset = meta.id
+        meta.stitching_container = stitched_container_name ?: "export.n5"
         // Add output dir here so that it will get mounted into the Spark processes
         def data_files = files +
             [stitching_dir, stitching_result_dir] +
@@ -65,7 +64,7 @@ workflow STITCHING {
             prepared_data,      // [meta, data_paths]
             [:],                // spark default config
             with_spark_cluster,
-            workdir,
+            spark_workdir,
             spark_workers,
             min_spark_workers,
             spark_worker_cores,

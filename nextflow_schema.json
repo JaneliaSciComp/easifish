@@ -162,26 +162,26 @@
                     "default": 5
                 },
                 "spark_worker_cores": {
-                    "type": "integer",
+                    "type": "number",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated to each Spark worker. Default: 4",
                     "default": 1
                 },
                 "spark_gb_per_core": {
-                    "type": "integer",
+                    "type": "number",
                     "fa_icon": "fas fa-cog",
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
                     "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. ",
                     "default": 15
                 },
                 "spark_driver_cores": {
-                    "type": "integer",
+                    "type": "number",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated for the Spark driver. Default: 1",
                     "default": 1
                 },
                 "spark_driver_mem_gb": {
-                    "type": "integer",
+                    "type": "number",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
                     "default": 12
