@@ -61,7 +61,7 @@ workflow BIGSTITCHER {
     if (skip) {
         stitching_results = prepared_data.map {
             def (meta) = it
-            [ meta, [:] ]
+            meta
         }
     } else {
         def stitching_input = SPARK_START(
@@ -154,6 +154,12 @@ workflow BIGSTITCHER {
             FUSE.out,
             with_spark_cluster,
         )
+        | map {
+            // Only meta contains data relevant for the next steps
+            def (meta, spark) = it
+            log.debug "Stopped spark ${spark} - stitching result: $meta"
+            meta
+        }
     }
 
     emit:
