@@ -73,6 +73,22 @@
                     "type": "boolean",
                     "description": "If set skip stitching"
                 },
+                "use_bigstitcher": {
+                    "type": "boolean",
+                    "description": "If set stitch with BigStitcher"
+                },
+                "skip_bigstitcher_pairwise_stitch": {
+                    "type": "boolean",
+                    "description": "Skip pairwise stitching with BigStitcher"
+                },
+                "skip_bigstitcher_create_container": {
+                    "type": "boolean",
+                    "description": "Skip create container with BigStitcher"
+                },
+                "skip_bigstitcher_affine_fusion": {
+                    "type": "boolean",
+                    "description": "Skip affine fusion with BigStitcher"
+                },
                 "stitching_result_container": {
                     "type": "string",
                     "default": "stitched.n5"

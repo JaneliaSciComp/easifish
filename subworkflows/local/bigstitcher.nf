@@ -8,18 +8,22 @@ include { BIGSTITCHER_MODULE as FUSE             } from '../../modules/janelia/b
 workflow BIGSTITCHER {
 
     take:
-    ch_acquisition_data        // channel: [ meta, files ]
-    with_spark_cluster         // boolean: use a distributed spark cluster
+    ch_acquisition_data           // channel: [ meta, files ]
+    with_spark_cluster            // boolean: use a distributed spark cluster
     stitching_result_dir
-    stitched_image_name        // stitched container name
-    skip
-    spark_workdir              // string|file: spark work dir
-    spark_workers              // int: number of workers in the cluster (ignored if spark_cluster is false)
-    min_spark_workers          // int: min required spark workers
-    spark_worker_cores         // int: number of cores per worker
-    spark_gb_per_core          // int: number of GB of memory per worker core
-    spark_driver_cores         // int: number of cores for the driver
-    spark_driver_mem_gb        // int: number of GB of memory for the driver
+    stitched_image_name           // stitched container name
+    preserve_anisotropy
+    skip_all_steps
+    skip_pairwise_stitch
+    skip_create_container
+    skip_affine_fusion
+    spark_workdir                 // string|file: spark work dir
+    spark_workers                 // int: number of workers in the cluster (ignored if spark_cluster is false)
+    min_spark_workers             // int: min required spark workers
+    spark_worker_cores            // int: number of cores per worker
+    spark_gb_per_core             // int: number of GB of memory per worker core
+    spark_driver_cores            // int: number of cores for the driver
+    spark_driver_mem_gb           // int: number of GB of memory for the driver
 
     main:
     def prepared_data = ch_acquisition_data
@@ -58,7 +62,7 @@ workflow BIGSTITCHER {
     }
 
     def stitching_results
-    if (skip) {
+    if (skip_all_steps || skip_pairwise_stitch && skip_create_container && skip_affine_fusion) {
         stitching_results = prepared_data.map {
             def (meta) = it
             meta
@@ -80,78 +84,104 @@ workflow BIGSTITCHER {
 
         stitching_input.subscribe { log.debug "Stitching input: $it" }
 
-        def pairwise_stitching_step_inputs = stitching_input
-        | multiMap {
-            def (meta, spark, files) = it
-            def module_args = [
-                meta,
-                spark,
-                'net.preibisch.bigstitcher.spark.SparkPairwiseStitching',
-                [
-                    '-x', meta.stitching_xml,
-                ],
-            ]
-            log.debug "Stitching module args: $module_args"
-            module_args: module_args
-            data_files: files
-        }
-
-        STITCH(
-            pairwise_stitching_step_inputs.module_args,
-            pairwise_stitching_step_inputs.data_files,
-        )
-
-        def create_fused_container_inputs = stitching_input
-        | join(STITCH.out, by: 0)
-        | multiMap {
-            def (meta, spark, files) = it
-            def module_args = [
-                meta,
-                spark,
-                'net.preibisch.bigstitcher.spark.CreateFusionContainer',
-                [
-                    '-x', meta.stitching_xml,
-                    '-o', "${meta.stitching_result_dir}/${meta.stitching_container}/${meta.id}",
-                    '-s', meta.stitching_container_storage,
-                    '--multiRes',
+        def pairwise_stitch_output
+        if (skip_pairwise_stitch) {
+            pairwise_stitch_output = stitching_input.map {
+                def (meta, spark) = it
+                [ meta, spark ]
+            }
+        } else {
+            def pairwise_stitching_step_inputs = stitching_input
+            | multiMap {
+                def (meta, spark, files) = it
+                def module_args = [
+                    meta,
+                    spark,
+                    'net.preibisch.bigstitcher.spark.SparkPairwiseStitching',
+                    [
+                        '-x', meta.stitching_xml,
+                    ],
                 ]
-            ]
-            log.info "Create-container module args: $module_args"
+                log.debug "Stitching module args: $module_args"
+                module_args: module_args
+                data_files: files
+            }
 
-            module_args: module_args
-            data_files: files
+            pairwise_stitch_output = STITCH(
+                pairwise_stitching_step_inputs.module_args,
+                pairwise_stitching_step_inputs.data_files,
+            )
+
         }
 
-        CREATE_CONTAINER(
-            create_fused_container_inputs.module_args,
-            create_fused_container_inputs.data_files,
-        )
-
-        def fuse_inputs = stitching_input
-        | join(CREATE_CONTAINER.out, by: 0)
-        | multiMap {
-            def (meta, spark, files) = it
-            def module_args = [
-                meta,
-                spark,
-                'net.preibisch.bigstitcher.spark.SparkAffineFusion',
-                [
-                    '-o', "${meta.stitching_result_dir}/${meta.stitching_container}/${meta.id}",
+        def create_fused_container_output
+        if (skip_create_container) {
+            create_fused_container_output = pairwise_stitch_output
+        } else {
+            def create_fused_container_inputs = stitching_input
+            | join(pairwise_stitch_output, by: 0)
+            | multiMap {
+                def (meta, spark, files) = it
+                def preserve_anisotropy_arg = preserve_anisotropy ? '--preserveAnisotropy' : ''
+                def module_args = [
+                    meta,
+                    spark,
+                    'net.preibisch.bigstitcher.spark.CreateFusionContainer',
+                    [
+                        '-x', meta.stitching_xml,
+                        '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
+                        "--group", meta.id,
+                        '-s', meta.stitching_container_storage,
+                        '--multiRes',
+                        preserve_anisotropy_arg,
+                    ]
                 ]
-            ]
-            log.info "Affine fuse module args: $module_args"
+                log.debug "Create-container module args: $module_args"
 
-            module_args: module_args
-            data_files: files
+                module_args: module_args
+                data_files: files
+            }
+
+            create_fused_container_output = CREATE_CONTAINER(
+                create_fused_container_inputs.module_args,
+                create_fused_container_inputs.data_files,
+            )
+
         }
 
-        FUSE(
-            fuse_inputs.module_args,
-            fuse_inputs.data_files,
-        )
+        def fuse_output
+        if (skip_affine_fusion) {
+            fuse_output = create_fused_container_output
+        } else {
+            def fuse_inputs = stitching_input
+            | join(create_fused_container_output, by: 0)
+            | multiMap {
+                def (meta, spark, files) = it
+                def module_args = [
+                    meta,
+                    spark,
+                    'net.preibisch.bigstitcher.spark.SparkAffineFusion',
+                    [
+                        '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
+                        "--group", meta.id,
+                        '-s', meta.stitching_container_storage,
+                    ]
+                ]
+                log.debug "Affine fuse module args: $module_args"
+
+                module_args: module_args
+                data_files: files
+            }
+
+            fuse_output = FUSE(
+                fuse_inputs.module_args,
+                fuse_inputs.data_files,
+            )
+
+        }
 
         stitching_results = SPARK_STOP(
-            FUSE.out,
+            fuse_output,
             with_spark_cluster,
         )
         | map {

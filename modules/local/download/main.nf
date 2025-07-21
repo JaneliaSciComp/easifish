@@ -8,8 +8,8 @@ process DOWNLOAD {
     path download_dir
 
     output:
-    tuple val(samplesheet_row), env(download_fullpath), emit: tiles
-    path "versions.yml"                               , emit: versions
+    tuple val(samplesheet_row), env(download_fullpath), env(download_fullpath), emit: tiles
+    path "versions.yml"                                                       , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

@@ -124,7 +124,7 @@ workflow EXTRACT_SPOTS_PROPS {
              transform_name, transform_subpath,
              inv_transform_output,
              inv_transform_name, inv_transform_subpath) = it
-        log.info "Get registered images for region props: $it"
+        log.debug "Get registered images for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.mov_id
         get_spot_subpaths(reg_meta.mov_id).collect { subpath, result_name, image_ch ->
@@ -165,7 +165,7 @@ workflow EXTRACT_SPOTS_PROPS {
                 bleeding_channel,
                 dapi_channel,
             ]
-            log.info "Registered image for regionprops: $r"
+            log.debug "Registered image for regionprops: $r"
             r
         }
     }
@@ -180,7 +180,7 @@ workflow EXTRACT_SPOTS_PROPS {
              transform_name, transform_subpath,
              inv_transform_output,
              inv_transform_name, inv_transform_subpath) = it
-        log.info "Get fixed image for region props: $it"
+        log.debug "Get fixed image for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.fix_id
         get_spot_subpaths(reg_meta.fix_id).collect { subpath, result_name, image_ch ->
@@ -194,7 +194,7 @@ workflow EXTRACT_SPOTS_PROPS {
                 params.bleeding_channel,
                 params.dapi_channel,
             ]
-            log.info "Fixed image for regionprops: $r"
+            log.debug "Fixed image for regionprops: $r"
             r
         }
     }
@@ -211,7 +211,7 @@ workflow EXTRACT_SPOTS_PROPS {
     def regionprops_inputs = fixed_images
     | concat(registered_images)
     | map {
-        log.info "All images for regionprops: $it"
+        log.debug "All images for regionprops: $it"
         it
     }
     | combine(ch_segmentation_with_id, by: 0)
@@ -220,12 +220,12 @@ workflow EXTRACT_SPOTS_PROPS {
              image_id, image_container, image_dataset, image_ch, result_name, bleeding_channel, dapi_channel,
              meta,
              seg_input_image, seg_input_dataset, seg_labels) = it
-        log.info "Combined cell images with segmentation: $it"
+        log.debug "Combined cell images with segmentation: $it"
 
         def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${image_id}")
         def adjusted_image_dataset = sync_image_scale_with_labels_scale(image_dataset, seg_input_dataset)
 
-        log.info "Synced image and label datasets: ${image_dataset}, ${seg_input_dataset} -> ${adjusted_image_dataset}"
+        log.debug "Synced image and label datasets: ${image_dataset}, ${seg_input_dataset} -> ${adjusted_image_dataset}"
 
         def dapi_dataset = dapi_channel
             ? change_dataset_channel(adjusted_image_dataset, dapi_channel)
@@ -234,7 +234,7 @@ workflow EXTRACT_SPOTS_PROPS {
             ? change_dataset_channel(adjusted_image_dataset, bleeding_channel)
             : ''
 
-        log.info "DAPI dataset: ${dapi_dataset}, bleeding dataset: ${bleeding_dataset}"
+        log.debug "DAPI dataset: ${dapi_dataset}, bleeding dataset: ${bleeding_dataset}"
 
         def r = [
             meta,
@@ -245,7 +245,7 @@ workflow EXTRACT_SPOTS_PROPS {
             regionprops_output_dir,
             result_name,
         ]
-        log.info "Cell regionprops input: $r"
+        log.debug "Cell regionprops input: $r"
         r
     }
 
