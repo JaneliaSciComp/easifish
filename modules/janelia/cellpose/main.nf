@@ -1,7 +1,7 @@
 process CELLPOSE {
     container { task && task.ext.container ?: 'janeliascicomp/cellpose:3.1.0-dask2025.1.0-py12' }
     cpus { cellpose_cpus }
-    memory "${cellpose_mem_in_gb} GB"
+    memory "${cellpose_mem_gb} GB"
     conda 'modules/janelia/cellpose/conda-env.yml'
 
     input:
@@ -16,7 +16,7 @@ process CELLPOSE {
           path(dask_config) // this is optional - if undefined pass in as empty list ([])
     path(logging_config) // this is optional - if undefined pass in as empty list ([])
     val(cellpose_cpus)
-    val(cellpose_mem_in_gb)
+    val(cellpose_mem_gb)
 
     output:
     tuple val(meta), env(input_image_fullpath), val(image_subpath), env(output_segmentation_results), emit: results
