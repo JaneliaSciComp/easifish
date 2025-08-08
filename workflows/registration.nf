@@ -4,9 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MULTISCALE_PYRAMID       } from '../modules/local/multiscale/pyramid/main'
-
-include { MULTISCALE               } from '../subworkflows/local/multiscale'
+include { MULTISCALE               } from './multiscale'
 
 include { BIGSTREAM_GLOBALALIGN    } from '../modules/janelia/bigstream/globalalign/main'
 include { BIGSTREAM_LOCALALIGN     } from '../modules/janelia/bigstream/localalign/main'
@@ -114,9 +112,41 @@ workflow REGISTRATION {
         params.skip_deformations || params.skip_registration,
     )
 
+    def multiscale_warped_inputs = local_deformation_results
+    | combine(local_registrations_cluster, by: 0)
+    | map {
+        def (
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            dask_meta, dask_context
+        ) = it
+        log.debug "Prepare multiscale input for warped image $it"
+        def r = [
+            [
+                reg_meta,
+                warped, warped_subpath,
+            ],
+            [
+                dask_context.scheduler_address ?: '',
+                dask_context.config ?: [],
+            ],
+        ]
+        log.debug "Multiscale warped image input $r"
+        r
+    }
+
+    def multiscale_results = MULTISCALE(
+        multiscale_warped_inputs.map { it[0] },
+        multiscale_warped_inputs.map { it[1] },
+        params.skip_multiscale_warped_image,
+    )
+
     def all_registration_results = local_deformation_results
     | combine(local_registrations_cluster, by: 0)
     | combine(local_inverse_results, by: 0)
+    | combine(multiscale_results, by: 0)
     | map {
         def (
             reg_meta,
@@ -173,15 +203,7 @@ workflow REGISTRATION {
 
     stopped_clusters.subscribe { log.debug "Stopped dask cluster $it" }
 
-    def multiscale_results = RUN_MULTISCALE_WITH_SINGLE_CLUSTER(
-        local_deformation_results,
-        "${session_work_dir}/multiscale",
-    )
-
-    multiscale_results.subscribe { log.debug "Multiscale results: $it" }
-
     def final_results = all_registration_results
-    | join (multiscale_results, by: 0)
     | map {
         def (
             reg_meta,
@@ -768,133 +790,6 @@ workflow RUN_LOCAL_DEFORMS {
 
     emit:
     deformation_results
-}
-
-workflow RUN_MULTISCALE_WITH_SINGLE_CLUSTER {
-    take:
-    deformation_results // ch: [ meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath ]
-    multiscale_work_dir // string|file
-
-    main:
-    def multiscale_inputs = deformation_results
-    | map {
-        def (
-            reg_meta,
-            fix, fix_subpath,
-            mov, mov_subpath,
-            warped, warped_subpath
-        ) = it
-        def r = [
-            reg_meta.mov_id, reg_meta, warped, warped_subpath,
-        ]
-        log.debug "Multiscale input: $it -> $r"
-        r
-    }
-
-    def multiscale_cluster_data = multiscale_inputs
-    | toList() // wait for all deformations to complete
-    | flatMap { all ->
-        all
-        .collect { id, reg_meta, data_dir, data_subpath ->
-            // convert to a map in which the
-            // key = meta, value = a list containing data_dir
-            def data_dir_set = [ data_dir ].toSet()
-            [
-                [id: id]: data_dir_set,
-            ]
-        }
-        .inject([:]) { result, current ->
-            current.each { k, v ->
-                if (result[k] != null) {
-                    result[k] = result[k] + v
-                } else {
-                    result[k] = v
-                }
-            }
-    	    result
-        }
-        .collect { k, v ->
-            // convert the key value back to a tuple
-            [ k, v ]
-        }
-    }
-    | map { meta, data_dirs ->
-        meta.session_work_dir = "${multiscale_work_dir}/${meta.id}"
-        def r = [ meta, data_dirs ]
-        log.debug "Multiscale cluster data: $r"
-        r
-    }
-
-    def completed_downsampling
-    if (!params.skip_multiscale) {
-        def downsample_input = SPARK_START(
-            multiscale_cluster_data,
-            [:],                                                               // spark default config
-            params.multiscale_with_spark_cluster,
-            multiscale_work_dir,
-            params.multiscale_spark_workers ?: params.spark_workers,
-            params.multiscale_min_spark_workers,
-            params.multiscale_spark_worker_cores ?: params.spark_worker_cores,
-            params.multiscale_spark_gb_per_core ?: params.spark_gb_per_core,
-            params.multiscale_spark_driver_cores,
-            params.multiscale_spark_driver_mem_gb,
-        ) // ch: [ meta, spark ]
-        | map { meta, spark ->
-            [ meta.id, meta, spark ]
-        }
-        | combine(multiscale_inputs, by: 0)
-        | map {
-            def (id, meta, spark, reg_meta, n5_container, fullscale_dataset) = it
-            def r = [
-                meta, n5_container, fullscale_dataset, spark,
-            ]
-            log.debug "Downsample input: $it -> $r"
-            r
-        }
-
-        MULTISCALE_PYRAMID(downsample_input)
-
-        def spark_cluster_to_stop = MULTISCALE_PYRAMID.out.data
-        | map {
-            def (meta, n5_container, fullscale_dataset, spark) = it
-            log.debug "Completed downsampling  $it"
-            // spark_stop only needs meta and spark
-            log.debug "Prepare to stop [${meta}, ${spark}]"
-            [ meta, spark ]
-        }
-        | groupTuple(by: [0, 1])
-
-        completed_downsampling = SPARK_STOP(spark_cluster_to_stop, params.multiscale_with_spark_cluster)
-        | map {
-            def (meta, spark) = it
-            log.debug "Stopped multiscale spark ${spark} - downsampled result: $meta"
-            meta
-        }
-    } else {
-        completed_downsampling = multiscale_cluster_data
-        | map {
-            def (meta) = it
-            log.debug "Skipped multiscale - returned result: $meta"
-            meta
-        }
-    }
-
-    downsampling_results = completed_downsampling
-    | map { meta ->
-        [ meta.id ]
-    }
-    | join(multiscale_inputs, by: 0)
-    | map {
-        def (id, reg_meta, warped, warped_subpath) = it
-        def r = [
-            reg_meta, warped, warped_subpath,
-        ]
-        log.debug "Final downsampling results $it -> $r"
-        r
-    }
-
-    emit:
-    downsampling_results // ch: [ reg_meta, warped, warped_subpath ]
 }
 
 def get_params_as_list_of_files(lparams) {
