@@ -119,7 +119,7 @@ workflow CELLPOSE_SEGMENTATION {
             [ meta, cluster_context ]
         }
         | DASK_STOP
-    } else {
+    } else { // skip segmentation
         final_segmentation_results = ch_meta
         | map {
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it

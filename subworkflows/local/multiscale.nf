@@ -1,4 +1,4 @@
-include { MULTISCALE_PYRAMID } from '../modules/local/multiscale/pyramid/main'
+include { MULTISCALE_PYRAMID } from '../../modules/local/multiscale/pyramid/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

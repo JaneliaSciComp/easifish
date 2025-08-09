@@ -4,8 +4,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MULTISCALE               } from './multiscale'
-
 include { BIGSTREAM_GLOBALALIGN    } from '../modules/janelia/bigstream/globalalign/main'
 include { BIGSTREAM_LOCALALIGN     } from '../modules/janelia/bigstream/localalign/main'
 include { BIGSTREAM_COMPUTEINVERSE } from '../modules/janelia/bigstream/computeinverse/main'
@@ -15,6 +13,8 @@ include { DASK_START               } from '../subworkflows/janelia/dask_start/ma
 include { DASK_STOP                } from '../subworkflows/janelia/dask_stop/main'
 include { SPARK_START              } from '../subworkflows/janelia/spark_start/main'
 include { SPARK_STOP               } from '../subworkflows/janelia/spark_stop/main'
+
+include { MULTISCALE               } from '../subworkflows/local/multiscale'
 
 include { as_list                  } from './util_functions'
 
