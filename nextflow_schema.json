@@ -102,17 +102,17 @@
                 "flatfield_correction": {
                     "type": "boolean",
                     "fa_icon": "fas fa-cube",
-                    "description": "Apply flatfield correction before stitching? Default: false"
+                    "description": "Apply flatfield correction before stitching. This is not used for BigStitcher? Default: false"
                 },
                 "darkfieldfile": {
                     "type": "string",
                     "fa_icon": "fas fa-cube",
-                    "description": "Path to the precomputed darkfield file used for flatfield correction?"
+                    "description": "Path to the precomputed darkfield file used for flatfield correction. This is not used for BigStitcher."
                 },
                 "flatfieldfile": {
                     "type": "string",
                     "fa_icon": "fas fa-cube",
-                    "description": "Path to the precomputed flatfield file used for flatfield correction"
+                    "description": "Path to the precomputed flatfield file used for flatfield correction. This is not used for BigStitcher."
                 },
                 "axis_mapping": {
                     "type": "string",
@@ -554,6 +554,10 @@
                     "type": "string",
                     "description": "Comma delimited list of spot channels. This together with spot_scales is used for determining the datasets used for spot extraction."
                 },
+                "spot_excluded_channels": {
+                    "type": "string",
+                    "description": "Comma delimited list of spot channels excluded from spot extraction. This together with spot_scales is used for determining the datasets used for."
+                },
                 "spot_scales": {
                     "type": "string",
                     "description": "image scale used for spot extraction. This together with spot_channels is used for determining the datasets used for spot extraction."
@@ -643,6 +647,14 @@
             "description": "Various spots characteristcs, such as counts, area, intensity",
             "fa_icon": "far fa-map",
             "properties": {
+                "skip_spots_counts": {
+                    "type": "boolean",
+                    "description": "If set skip spots count"
+                },
+                "skip_region_props": {
+                    "type": "boolean",
+                    "description": "If set skip spots region properties"
+                },
                 "spots_counts_subdir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
@@ -659,7 +671,7 @@
                     "description": "Name of the DAPI channel.",
                     "help_text": "The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction."
                 },
-                "bleed_channel": {
+                "bleeding_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Channel (other than DAPI) that needs bleedthrough correction."
@@ -675,6 +687,32 @@
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory needed for getting spots counts",
                     "default": 2
+                },
+                "spots_timeindex": {
+                    "type": "string",
+                    "pattern": "^\\d*$",
+                    "description": "This applies only to OME-ZARR inputs and specify which timeindex to be used for spot extraction",
+                    "hidden": true
+                },
+                "labels_timeindex": {
+                    "type": "string",
+                    "pattern": "^\\d*$",
+                    "description": "This applies only to OME-ZARR inputs and specify which labels timeindex to be used for extracting spot region properties",
+                    "default": "",
+                    "hidden": true
+                },
+                "labels_channel": {
+                    "type": "string",
+                    "pattern": "^\\d*$",
+                    "description": "This applies only to OME-ZARR inputs and specify which labels channel to be used for extracting spot region properties",
+                    "default": "",
+                    "hidden": true
+                },
+                "spots_counts_pattern": {
+                    "type": "string",
+                    "description": "Spots counts file name pattern",
+                    "default": "*coord*.csv",
+                    "hidden": true
                 },
                 "spots_props_cores": {
                     "type": "integer",
@@ -883,7 +921,7 @@
                 "cellpose_model": {
                     "type": "string",
                     "description": "Cellpose model name",
-                    "default": "cyto3"
+                    "default": "cpsam"
                 },
                 "cellpose_models_dir": {
                     "type": "string",
@@ -922,20 +960,10 @@
                     "description": "GPU device used for cellpose segmentation",
                     "hidden": true
                 },
-                "cellpose_test": {
-                    "type": "boolean",
-                    "description": "Flag used to ouput intermediate segmentation results before inter-block label merging process",
-                    "hidden": true
-                },
                 "cellpose_diameter": {
                     "type": "integer",
                     "default": 30,
                     "description": "Default cellpose cell size"
-                },
-                "cellpose_eval_channels": {
-                    "type": "string",
-                    "default": "0,0",
-                    "description": "Cellpose eval channels - <cytoplasm channel>,<nucleus channel>. Channel values are typically for grayscale=0, Red=1, Green=2, Blue=3. If the nucleus channel does not exist - set it to 0"
                 },
                 "cellpose_min_size": {
                     "type": "integer",
@@ -966,11 +994,6 @@
                 "cellpose_merge_with_iou_only": {
                     "type": "boolean",
                     "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use only IOU of the labels across adjacent faces.",
-                    "hidden": true
-                },
-                "cellpose_eval_with_model_only": {
-                    "type": "boolean",
-                    "description": "If true segment only with CellposeModel otherwise use both CellposeModel and SizeModel to segment the volume",
                     "hidden": true
                 },
                 "cellpose_merge_iou_depth": {
