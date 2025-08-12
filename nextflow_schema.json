@@ -970,6 +970,11 @@
                     "default": 5,
                     "description": "Minimum number of pixels per mask, can turn off with -1"
                 },
+                "cellpose_stitch_threshold": {
+                    "type": "number",
+                    "default": 0.0,
+                    "description": "Cellpose stitch threshold value - compute masks in 2D then stitch them with IOU > 0.9 across planes."
+                },
                 "cellprob_threshold": {
                     "type": "number",
                     "default": 1.0,
