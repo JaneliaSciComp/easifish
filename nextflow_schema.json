@@ -996,11 +996,6 @@
                     "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks",
                     "hidden": true
                 },
-                "cellpose_merge_with_iou_only": {
-                    "type": "boolean",
-                    "description": "Control the merging algorithm for neighboring regions from adjacent blocks. If true use only IOU of the labels across adjacent faces.",
-                    "hidden": true
-                },
                 "cellpose_merge_iou_depth": {
                     "type": "integer",
                     "default": 1,
