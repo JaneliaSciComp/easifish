@@ -226,6 +226,10 @@
                     "description": "Location of the YAML bigstream configuration",
                     "hidden": true
                 },
+                "bigstream_verbose": {
+                    "type": "boolean",
+                    "description": "Set verbosity for bigstream"
+                },
                 "skip_registration": {
                     "type": "boolean",
                     "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse"
@@ -989,12 +993,6 @@
                     "type": "number",
                     "default": 1,
                     "description": "Across labels distance transform threshold for merging labels from adjacent blocks"
-                },
-                "cellpose_save_intermediate_labels": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If set persist the intermediate labeled blocks - before merging the labels for adjacent blocks",
-                    "hidden": true
                 },
                 "cellpose_merge_iou_depth": {
                     "type": "integer",
