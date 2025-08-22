@@ -141,6 +141,8 @@ workflow REGISTRATION {
         multiscale_warped_inputs.map { it[0] },
         multiscale_warped_inputs.map { it[1] },
         params.skip_multiscale_warped_image,
+        params.multiscale_cpus,
+        params.multiscale_mem_gb,
     )
 
     def all_registration_results = local_deformation_results

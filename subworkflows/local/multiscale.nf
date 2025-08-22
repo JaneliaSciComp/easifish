@@ -11,6 +11,8 @@ workflow MULTISCALE {
     ch_meta       // ch: [ meta, img_container, img_dataset ]
     ch_dask_info  // ch: [ dask_scheduler, dask_config ]
     skip_flag     // boolean
+    cpus          // number
+    mem_gb        // number
 
     main:
     def multiscale_results
@@ -21,8 +23,8 @@ workflow MULTISCALE {
         MULTISCALE_PYRAMID(
             ch_meta,
             ch_dask_info,
-            params.multiscale_cpus,
-            params.multiscale_mem_gb,
+            cpus,
+            mem_gb,
         )
         multiscale_results = MULTISCALE_PYRAMID.out.data
         multiscale_results.subscribe { log.debug "Multiscale pyramid: $it" }
