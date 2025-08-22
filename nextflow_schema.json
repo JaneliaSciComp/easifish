@@ -1045,9 +1045,9 @@
                 "cellpose_worker_runtime_opts": {
                     "type": "string"
                 },
-                "cellpose_worker_lsf_opts": {
+                "cellpose_worker_cluster_opts": {
                     "type": "string",
-                    "default": "-q gpu_l4 -gpu \"num=1"
+                    "description": "Cluster options for cellpose dask workers. This is to allocate cellpose dask workers to nodes that have GPUs, e.g. '-q gpu_l4 -gpu num=1' "
                 }
             }
         },
