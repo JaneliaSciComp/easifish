@@ -1,5 +1,5 @@
 process CELLPOSE {
-    container { task && task.ext.container ?: 'janeliascicomp/cellpose:3.1.0-dask2025.1.0-py12' }
+    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/cellpose:4.0.6-dask2025.5.1-py12' }
     cpus { cellpose_cpus }
     memory "${cellpose_mem_gb} GB"
     conda 'modules/janelia/cellpose/conda-env.yml'
@@ -62,7 +62,7 @@ process CELLPOSE {
     fi
     ${set_models_path}
     echo "Run: " \
-        python /opt/scripts/cellpose/main_distributed_cellpose.py \
+        python -m tools.main_distributed_cellpose \
         -i \${input_image_fullpath} ${input_image_subpath_arg} \
         -o \${full_outputname} \
         --working-dir \${working_fullpath} \
@@ -72,7 +72,7 @@ process CELLPOSE {
         ${logging_config_arg} \
         ${args}
 
-    python /opt/scripts/cellpose/main_distributed_cellpose.py \
+    python -m tools.main_distributed_cellpose \
         -i \${input_image_fullpath} ${input_image_subpath_arg} \
         -o \${full_outputname} \
         --working-dir \${working_fullpath} \
@@ -87,7 +87,7 @@ process CELLPOSE {
         output_segmentation_results+=("\${output_fullpath}/\${sr}")
     done
 
-    cellpose_version=\$(python /opt/scripts/cellpose/main_distributed_cellpose.py \
+    cellpose_version=\$(python -m tools.main_distributed_cellpose \
                         --version | \
                         grep "cellpose version" | \
                         sed "s/cellpose version:\\s*//")
