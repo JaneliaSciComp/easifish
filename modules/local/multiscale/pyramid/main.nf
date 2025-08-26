@@ -2,7 +2,7 @@ process MULTISCALE_PYRAMID {
     tag { meta.id }
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/zarr-tools:dask2025.5.1-py12' }
     cpus { multiscale_cpus }
-    memory { multiscale_mem_gb }
+    memory { "${multiscale_mem_gb} GB" }
 
     input:
     tuple val(meta), path(data_container), val(dataset_subpath)

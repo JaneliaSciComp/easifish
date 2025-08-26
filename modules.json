@@ -37,12 +37,12 @@
                     },
                     "cellpose": {
                         "branch": "main",
-                        "git_sha": "1f265e822145c4f7d167142a3a0f82d91f15c092",
+                        "git_sha": "a9c0f2eff928a964543abc55927bfae8b958e3b1",
                         "installed_by": ["modules"]
                     },
                     "cellpose/tests": {
                         "branch": "main",
-                        "git_sha": "9b06bebf0b46ad077a8d73d488921f0dbf3262a9",
+                        "git_sha": "2a343e2f3a45213be05ca36e5de7d33f54c05ca0",
                         "installed_by": ["modules"]
                     },
                     "rs_fish": {
@@ -61,7 +61,7 @@
                     },
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "797ac8b4e5c377691b76cb04378902c8aa1d7c5d",
+                        "git_sha": "c2fb6e31c459e53023fcf365276fd83a9449abf4",
                         "installed_by": ["bigstream_registration"]
                     },
                     "dask_stop": {
@@ -87,7 +87,7 @@
                 "nf-core": {
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
                         "installed_by": ["modules"]
                     }
                 }

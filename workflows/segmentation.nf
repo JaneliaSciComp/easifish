@@ -76,7 +76,10 @@ workflow SEGMENTATION {
         seg_volume,
         params.skip_segmentation,
         params.cellpose_models_dir,
+        params.cellpose_model,
+        params.cellpose_preprocessing_config_file,
         params.cellpose_log_config,
+        params.generate_segmentation_multiscale,
         params.distributed_cellpose,
         params.dask_config,
         session_work_dir,
@@ -85,7 +88,9 @@ workflow SEGMENTATION {
         params.cellpose_dask_worker_cpus,
         params.cellpose_dask_worker_mem_gb,
         params.cellpose_segmentation_cpus,
-        params.cellpose_segmentation_mem_gb
+        params.cellpose_segmentation_mem_gb,
+        params.multiscale_cpus,
+        params.multiscale_mem_gb,
     )
 
     emit:

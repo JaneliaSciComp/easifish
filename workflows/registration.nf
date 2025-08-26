@@ -140,7 +140,7 @@ workflow REGISTRATION {
     def multiscale_results = MULTISCALE(
         multiscale_warped_inputs.map { it[0] },
         multiscale_warped_inputs.map { it[1] },
-        params.skip_multiscale_warped_image,
+        params.skip_multiscale_warped_image || params.skip_deformations || params.skip_registration,
         params.multiscale_cpus,
         params.multiscale_mem_gb,
     )

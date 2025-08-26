@@ -38,8 +38,9 @@ workflow test_cellpose {
             ],
             input_image, params.input_image_subpath,
             cellpose_models_path,
+            params.model,
             file(params.output_image_dir),
-            params.output_image_name,
+            params.output_image_name, /*labels subpath*/'',
             cellpose_working_path,
         ]
     }
@@ -48,6 +49,7 @@ workflow test_cellpose {
     def cellpose_results = CELLPOSE(
         cellpose_test_data,
         Channel.of(['', []]),
+        params.preprocessing_config ? file(params.preprocessing_config) : [],
         params.logging_config ? file(params.logging_config) : [],
         params.cellpose_driver_cpus,
         params.cellpose_driver_mem_gb,

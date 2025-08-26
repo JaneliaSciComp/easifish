@@ -1,7 +1,7 @@
 process CELLPOSE {
     container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/cellpose:4.0.6-dask2025.5.1-py12' }
     cpus { cellpose_cpus }
-    memory "${cellpose_mem_gb} GB"
+    memory "${cellpose_mem_in_gb} GB"
     conda 'modules/janelia/cellpose/conda-env.yml'
 
     input:
@@ -9,82 +9,111 @@ process CELLPOSE {
           path(image, stageAs: 'cellpose-input/*'),
           val(image_subpath),
           path(models_path, stageAs: 'cellpose-models/*'), // this is optional - if undefined pass in as empty list ([])
+          val(model_name), // model name
           path(output_dir),
-          val(output_name),
+          val(labels),
+          val(labels_subpath),
           path(working_dir, stageAs: 'cellpose-work/*') // this is optional
     tuple val(dask_scheduler),
           path(dask_config) // this is optional - if undefined pass in as empty list ([])
+    path(preprocessing_config) // preprocessing config file
     path(logging_config) // this is optional - if undefined pass in as empty list ([])
     val(cellpose_cpus)
-    val(cellpose_mem_gb)
+    val(cellpose_mem_in_gb)
 
     output:
-    tuple val(meta), env(input_image_fullpath), val(image_subpath), env(output_segmentation_results), emit: results
-    tuple val(meta), val(output_name_noext), val(output_name_ext)                                   , emit: result_names
-    path('versions.yml')                                                                            , emit: versions
+    tuple val(meta),
+          env(input_image_fullpath),
+          val(image_subpath),
+          eval('(IFS=$"\n"; echo "${output_label_images[@]}")'),
+          val(output_labels_subpath)                           , emit: results
+    path('versions.yml')                                       , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
+    def image_name = file(image).name.replace('.', '_')
     def input_image_subpath_arg = image_subpath
                                     ? "--input-subpath ${image_subpath}"
+                                    : ''
+    output_labels_subpath = labels_subpath ?: image_subpath
+    def output_labels_subpath_arg  = labels_subpath
+                                    ? "--output-subpath ${labels_subpath}"
                                     : ''
     def set_models_path = models_path
         ? "models_fullpath=\$(readlink ${models_path}) && \
            mkdir -p \${models_fullpath} && \
            export CELLPOSE_LOCAL_MODELS_PATH=\${models_fullpath}"
         : ''
+    def preprocessing_config_arg = preprocessing_config ? "--preprocessing-config ${preprocessing_config}" : ''
     def logging_config_arg = logging_config ? "--logging-config ${logging_config}" : ''
     def models_path_arg = models_path ? "--models-dir \${models_fullpath}" : ''
-    def working_dir_arg = working_dir ?: output_dir
-    def output_image_name = output_name ?: ''
+    def model_name_arg = model_name ? "--model ${model_name}": ''
+    def subpath_name = image_subpath ? "/${image_subpath.split('/')[-1]}" : ''
+    def working_dirname = working_dir ? working_dir : output_dir
+    def labels_image = labels ?: ''
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_config ? "--dask-config ${dask_config}" : ''
-    (output_name_noext, output_name_ext) = output_image_name.lastIndexOf('.').with {
+    (labels_noext, labels_ext) = labels_image.lastIndexOf('.').with {
         it == -1
-            ? [output_image_name, '']
-            : [output_image_name[0..<it], output_image_name[(it+1)..-1]]
+            ? [labels_image, '']
+            : [labels_image[0..<it], labels_image[(it+1)..-1]]
     }
-    log.debug "Output name:ext => ${output_name_noext}:${output_name_ext}"
+    log.debug "Labels output name:ext => ${labels_noext}:${labels_ext}"
+
     """
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_MISSING_OPT="readlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_MISSING_OPT="readlink -m"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
     input_image_fullpath=\$(readlink ${image})
+    echo "Input image: \${input_image_fullpath}"
     # create the output directory using the canonical name
-    output_fullpath=\$(readlink ${output_dir})
+    output_fullpath=\$(\${READLINK_MISSING_OPT} ${output_dir})
+    echo "Output dir: \${output_fullpath}"
     mkdir -p \${output_fullpath}
-    working_fullpath=\$(readlink ${working_dir_arg})
-    mkdir -p \${working_fullpath}
-    if [[ "${output_image_name}" == "" ]]; then
+    echo "Created output dir: \${output_fullpath}"
+    # create working directory
+    working_fullpath=\$(\${READLINK_MISSING_OPT} ${working_dirname})
+    echo "Working dir: \${working_fullpath}"
+    full_workingname="\${working_fullpath}/${image_name}${subpath_name}"
+    mkdir -p "\${full_workingname}"
+    if [[ "${labels_image}" == "" ]]; then
         full_outputname=\${output_fullpath}
     else
-        full_outputname="\${output_fullpath}/${output_image_name}"
+        full_outputname="\${output_fullpath}/${labels_image}"
     fi
     ${set_models_path}
-    echo "Run: " \
-        python -m tools.main_distributed_cellpose \
-        -i \${input_image_fullpath} ${input_image_subpath_arg} \
-        -o \${full_outputname} \
-        --working-dir \${working_fullpath} \
-        ${models_path_arg} \
-        ${dask_scheduler_arg} \
-        ${dask_config_arg} \
-        ${logging_config_arg} \
-        ${args}
 
-    python -m tools.main_distributed_cellpose \
-        -i \${input_image_fullpath} ${input_image_subpath_arg} \
-        -o \${full_outputname} \
-        --working-dir \${working_fullpath} \
-        ${models_path_arg} \
-        ${dask_scheduler_arg} \
-        ${dask_config_arg} \
-        ${logging_config_arg} \
+    CMD=(
+        python -m tools.main_distributed_cellpose
+        -i \${input_image_fullpath} ${input_image_subpath_arg}
+        -o \${full_outputname} ${output_labels_subpath_arg}
+        --working-dir \${full_workingname}
+        ${models_path_arg}
+        ${model_name_arg}
+        ${dask_scheduler_arg}
+        ${dask_config_arg}
+        ${preprocessing_config_arg}
+        ${logging_config_arg}
         ${args}
+    )
 
-    output_segmentation_results=()
-    for sr in \$(ls \${output_fullpath} | grep "${output_name_noext}.*${output_name_ext}") ; do
-        output_segmentation_results+=("\${output_fullpath}/\${sr}")
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
+
+    output_label_images=()
+    for sr in \$(ls \${output_fullpath} | grep "${labels_noext}.*${labels_ext}") ; do
+        output_label_images+=("\${output_fullpath}/\${sr}")
     done
 
     cellpose_version=\$(python -m tools.main_distributed_cellpose \
@@ -96,5 +125,4 @@ process CELLPOSE {
     cellpose: \${cellpose_version}
     END_VERSIONS
     """
-
 }
