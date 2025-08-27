@@ -61,14 +61,10 @@
     "warped_subpaths": "0",
     "warped_scales": "0",
 
-    "with_dask_cluster": false,
+    "with_dask_cluster": true,
     "worker_cpus": 1,
 
-    "cellpose_test": false,
     "cellpose_verbose": true,
-    "cellpose_merge_with_iou_only": false,
-    "cellpose_worker_runtime_opts": "",
-    "distributed_cellpose": false,
     "segmentation_subpaths": "2",
     "cellpose_diameter": 0,
     "cellprob_threshold": -5,
@@ -83,6 +79,12 @@
     "cellpose_device": "mps",
     "sample_z_axis": 1,
     "sample_channel_axis": "0",
+
+    "distributed_cellpose": true,
+    "cellpose_driver_runtime_opts": "",
+    "cellpose_driver_cluster_opts": "",
+    "cellpose_worker_runtime_opts": "--nv",
+    "cellpose_worker_cluster_opts": "-P scicompsoft -q gpu_l4 -gpu 'num=1'",
 
     "spot_subpaths": "0",
     "distributed_spot_extraction": false,
@@ -105,6 +107,5 @@
     "dapi_channel": "1",
     "bleeding_channel": "0",
 
-    "lsf_opts": "-P scicompsoft",
-    "cellpose_worker_cluster_opts": "-q gpu_l4 -gpu 'num=1'"
+    "lsf_opts": "-P scicompsoft"
 }
