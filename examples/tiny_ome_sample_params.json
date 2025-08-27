@@ -95,7 +95,8 @@
     "spark_worker_cores": 2,
     "spark_gb_per_core": 4,
 
-    "local_align_workers": 2,
+    "bigstream_local_overlap_factor": 0.25,
+    "local_align_workers": 10,
     "local_align_worker_mem_gb": 10,
     "bigstream_scheduler_port": 0,
     "bigstream_dashboard_port": 0,
