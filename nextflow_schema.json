@@ -888,6 +888,10 @@
                     "default": "segmentation.n5",
                     "description": "Name of the segmentation image"
                 },
+                "cellpose_input_channels": {
+                    "type": "string",
+                    "description": "One or more comma separated channels used for segmentation."
+                },
                 "skip_segmentation": {
                     "type": "boolean",
                     "description": "If true skip segmentation"
@@ -911,10 +915,14 @@
                     "type": "boolean"
                 },
                 "cellpose_preprocessing_steps": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Preprocessing steps (There aren't any clear steps yet so ignore for now)",
+                    "hidden": true
                 },
-                "cellpose_preprocessing_params_file": {
-                    "type": "string"
+                "cellpose_preprocessing_config_file": {
+                    "type": "string",
+                    "description": "YML config file containing preprocessing parameters. However the preprocessing is not clear yet",
+                    "hidden": true
                 },
                 "distributed_cellpose": {
                     "type": "boolean",
@@ -945,7 +953,7 @@
                 },
                 "distributed_cellpose_blocksize": {
                     "type": "string",
-                    "default": "128,128,128",
+                    "default": "256,256,256",
                     "description": "Cellpose blocksize used for parallelizing the distributed segmentation"
                 },
                 "cellpose_blocks_overlap": {
@@ -974,6 +982,12 @@
                     "default": 5,
                     "description": "Minimum number of pixels per mask, can turn off with -1"
                 },
+                "cellpose_norm_percentile": {
+                    "type": "string",
+                    "pattern": "^((\\d)+ (\\d)+)?$",
+                    "description": "Cellpose normalization args the define the low and high percentile",
+                    "default": "1 99"
+                },
                 "cellpose_stitch_threshold": {
                     "type": "number",
                     "default": 0.0,
@@ -981,24 +995,18 @@
                 },
                 "cellprob_threshold": {
                     "type": "number",
-                    "default": 1.0,
-                    "description": "Probabilty threshold to control cellpose mask size."
+                    "description": "Probabilty threshold to control cellpose mask size.",
+                    "default": 1.0
                 },
-                "cellpose_iou_threshold": {
+                "cellpose_flow3D_smooth": {
                     "type": "number",
-                    "default": 0.05,
-                    "description": "Intersection over union threshold for merging labels from adjacent blocks"
+                    "description": "Cellpose flow3D_smooth parameter",
+                    "default": 1.0
                 },
                 "cellpose_labels_distance_th": {
                     "type": "number",
                     "default": 1,
                     "description": "Across labels distance transform threshold for merging labels from adjacent blocks"
-                },
-                "cellpose_merge_iou_depth": {
-                    "type": "integer",
-                    "default": 1,
-                    "description": "Parameter that controls the depth considered for merging the neighboring regions of the adjacent blocks",
-                    "hidden": true
                 },
                 "cellpose_segmentation_cpus": {
                     "type": "integer",
@@ -1042,8 +1050,17 @@
                     "description": "Default dashboards port of the Dask segmentation cluster",
                     "hidden": true
                 },
+                "cellpose_driver_runtime_opts": {
+                    "type": "string",
+                    "description": "Container runtime options for cellpose driver. When running the segmentation locally (non-distributed) enable GPU access for the main cellpose (--nv)"
+                },
+                "cellpose_driver_cluster_opts": {
+                    "type": "string",
+                    "description": "Cluster options for cellpose driver. When running the segmentation locally (non-distributed) we need the main cellpose to be dispatched to a GPU node."
+                },
                 "cellpose_worker_runtime_opts": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Container runtime options for cellpose dask workers. This is used to enable GPU access from the container running cellpose dask workers."
                 },
                 "cellpose_worker_cluster_opts": {
                     "type": "string",
