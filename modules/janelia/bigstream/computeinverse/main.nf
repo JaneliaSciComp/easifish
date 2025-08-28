@@ -71,6 +71,7 @@ process BIGSTREAM_COMPUTEINVERSE {
         ${dask_config_arg}
         ${args}
     )
+
     echo "CMD: \${CMD[@]}"
     (exec "\${CMD[@]}")
 

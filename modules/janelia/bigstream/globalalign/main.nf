@@ -147,6 +147,7 @@ process BIGSTREAM_GLOBALALIGN {
         ${align_timeindex_arg} ${align_channel_arg}
         ${args}
     )
+
     echo "CMD: \${CMD[@]}"
     (exec "\${CMD[@]}")
     """

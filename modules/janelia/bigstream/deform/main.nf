@@ -63,6 +63,7 @@ process BIGSTREAM_DEFORM {
     mov_fullpath=\$(readlink ${mov_image})
     output_fullpath=\$(readlink ${output_dir})
     mkdir -p \${output_fullpath}
+
     CMD=(
         python -m launchers.main_apply_local_transform
         --fix \${fix_fullpath} ${fix_image_subpath_arg}
@@ -77,6 +78,7 @@ process BIGSTREAM_DEFORM {
         ${dask_config_arg}
         ${args}
     )
+
     echo "CMD: \${CMD[@]}"
     (exec "\${CMD[@]}")
     """

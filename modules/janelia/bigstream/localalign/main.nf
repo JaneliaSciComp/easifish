@@ -186,6 +186,7 @@ process BIGSTREAM_LOCALALIGN {
         ${dask_config_arg}
         ${args}
     )
+
     echo "CMD: \${CMD[@]}"
     (exec "\${CMD[@]}")
 

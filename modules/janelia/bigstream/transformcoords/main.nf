@@ -73,8 +73,9 @@ process BIGSTREAM_TRANSFORMCOORDS {
         ${dask_config_arg}
         ${args}
     )
-    """
+
     echo "CMD: \${CMD[@]}"
     (exec "\${CMD[@]}")
 
+    """
 }
