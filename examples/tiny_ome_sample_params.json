@@ -89,11 +89,11 @@
     "spot_subpaths": "0",
     "distributed_spot_extraction": false,
 
-    "spark_cluster": false,
+    "spark_cluster": true,
     "spark_workers": 1,
     "min_spark_workers": 1,
     "spark_worker_cores": 2,
-    "spark_gb_per_core": 4,
+    "spark_gb_per_core": 15,
 
     "bigstream_local_overlap_factor": 0.25,
     "local_align_workers": 10,
