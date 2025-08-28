@@ -3,6 +3,7 @@ process BIGSTREAM_TRANSFORMCOORDS {
     container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:5.0.2-dask2025.5.1-py12' }
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
+    conda 'modules/janelia/bigstream/conda-env.yml'
 
     input:
     tuple val(meta),
@@ -58,17 +59,22 @@ process BIGSTREAM_TRANSFORMCOORDS {
     output_fullpath=\$(readlink ${output_dir})
     mkdir -p \${output_fullpath}
     warped_coords="\${output_fullpath}/${warped_coords_name}"
-    python /app/bigstream/scripts/main_apply_transform_coords.py \
-        --input-coords \${full_input_coords} \
-        --output-coords \${warped_coords} \
-        ${pixel_resolution_arg} \
-        ${downsampling_arg} \
-        ${source_image_arg} ${source_image_subpath_arg} \
-        ${affine_transforms_arg} \
-        ${deform_arg} ${deform_subpath_arg} \
-        ${dask_scheduler_arg} \
-        ${dask_config_arg} \
+
+    CMD=(
+        python -m launchers.main_apply_transform_coords.py
+        --input-coords \${full_input_coords}
+        --output-coords \${warped_coords}
+        ${pixel_resolution_arg}
+        ${downsampling_arg}
+        ${source_image_arg} ${source_image_subpath_arg}
+        ${affine_transforms_arg}
+        ${deform_arg} ${deform_subpath_arg}
+        ${dask_scheduler_arg}
+        ${dask_config_arg}
         ${args}
+    )
     """
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
 
 }

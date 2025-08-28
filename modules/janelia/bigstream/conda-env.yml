@@ -1,0 +1,25 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - dask=2025.5.1
+  - distributed=2025.5.1
+  - flatten_json
+  - numcodecs>=0.9.1
+  - numpy>=1.26.0,<2
+  - pip
+  - pyyaml
+  - pynrrd
+  - pydantic=2.7.1
+  - scikit-image>=0.21.0
+  - tifffile
+  - zarr=2.18.7
+  - pip:
+      - argparse
+      - fishspot>=0.3.0
+      - opencv-python>=4.10.0.84
+      - ome-zarr-models==0.1.6
+      - simpleitk==2.3.1
+      - git+https://github.com/GFleishman/ClusterWrap.git@fa718ac49
+      - git+https://github.com/JaneliaSciComp/bigstream@ome-dev
+

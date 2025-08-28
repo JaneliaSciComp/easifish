@@ -3,6 +3,7 @@ process BIGSTREAM_COMPUTEINVERSE {
     container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:5.0.2-dask2025.5.1-py12' }
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
+    conda 'modules/janelia/bigstream/conda-env.yml'
 
     input:
     tuple val(meta),
@@ -47,15 +48,20 @@ process BIGSTREAM_COMPUTEINVERSE {
         mkdir -p \${full_inv_deform_dir}
     fi
 
-    python /app/bigstream/scripts/main_compute_local_inverse.py \
-        ${deform_dir_arg} \
-        ${deform_name_arg} \
-        ${deform_subpath_arg} \
-        ${inv_deform_dir_arg} \
-        ${inv_deform_name_arg} \
-        ${inv_deform_subpath_arg} \
-        ${dask_scheduler_arg} \
-        ${dask_config_arg} \
+    CMD=(
+        python -m launchers.main_compute_local_inverse
+        ${deform_dir_arg}
+        ${deform_name_arg}
+        ${deform_subpath_arg}
+        ${inv_deform_dir_arg}
+        ${inv_deform_name_arg}
+        ${inv_deform_subpath_arg}
+        ${dask_scheduler_arg}
+        ${dask_config_arg}
         ${args}
+    )
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
+
     """
 }

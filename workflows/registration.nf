@@ -844,9 +844,9 @@ def get_warped_and_output_channels(warped_channels_mapping) {
             }
     } else {
         // no mapping has been defined
-        // return a singleton list with empty mappings
+        // return a singleton list that maps the mov_local_channel parameter to the same value
         return [
-            []
+            [params.mov_local_channel, params.mov_local_channel]
         ]
     }
 }

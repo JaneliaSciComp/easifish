@@ -9,12 +9,12 @@ dependencies:
   - flatten_json
   - imagecodecs
   - numpy>=1.26.0,<2
+  - pydantic=2.7.1
   - pyyaml
+  - roifile
   - scikit-image>=0.21.0
   - scikit-learn>=1.4.1
   - zarr=2.18.7
-  - pydantic=2.7.1
-  - roifile
   - pip:
     - cellpose==4.0.6
     - git+https://github.com/JaneliaSciComp/containers@ome-zarr#subdirectory=cellpose/4.0.6-dask2025.5.1-py12/scripts/python
