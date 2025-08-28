@@ -40,11 +40,22 @@ process BIGSTREAM_COMPUTEINVERSE {
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
 
     """
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_MISSING_OPT="readlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_MISSING_OPT="readlink -m"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
     full_deform_dir=\$(readlink ${deform_dir})
     if [[ "${inv_deform_dir_arg}" == "" ]]; then
         full_inv_deform_dir=\${full_deform_dir}
     else
-        full_inv_deform_dir=\$(readlink -m ${inv_deform_dir})
+        full_inv_deform_dir=\$(\${READLINK_MISSING_OPT} ${inv_deform_dir})
         mkdir -p \${full_inv_deform_dir}
     fi
 

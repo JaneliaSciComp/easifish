@@ -63,15 +63,27 @@ process BIGSTREAM_GLOBALALIGN {
     def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
 
     """
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_MISSING_OPT="readlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_MISSING_OPT="readlink -m"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
+
     if [[ "${fix_image}" != "" ]];  then
-        full_fix_image=\$(readlink -m ${fix_image})
+        full_fix_image=\$(\${READLINK_MISSING_OPT} ${fix_image})
         echo "Fix volume full path: \${full_fix_image}"
     else
         full_fix_image=
         echo "No fix volume provided"
     fi
     if [[ "${mov_image}" != "" ]];  then
-        full_mov_image=\$(readlink -m ${mov_image})
+        full_mov_image=\$(\${READLINK_MISSING_OPT} ${mov_image})
         echo "Moving volume full path: \${full_mov_image}"
     else
         full_mov_image=
@@ -79,7 +91,7 @@ process BIGSTREAM_GLOBALALIGN {
     fi
 
     if [[ "${transform_dir}" != "" ]] ; then
-        full_transform_dir=\$(readlink -m ${transform_dir})
+        full_transform_dir=\$(\${READLINK_MISSING_OPT} ${transform_dir})
         if [[ ! -e \${full_transform_dir} ]] ; then
             echo "Create transform directory: \${full_transform_dir}"
             mkdir -p \${full_transform_dir}
@@ -100,7 +112,7 @@ process BIGSTREAM_GLOBALALIGN {
     fi
 
     if [[ "${align_dir}" != "" ]] ; then
-        full_align_dir=\$(readlink -m ${align_dir})
+        full_align_dir=\$(\${READLINK_MISSING_OPT} ${align_dir})
         if [[ ! -e \${full_align_dir} ]] ; then
             echo "Create align directory: \${full_align_dir}"
             mkdir -p \${full_align_dir}

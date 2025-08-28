@@ -82,6 +82,18 @@ process BIGSTREAM_LOCALALIGN {
     inv_transform_subpath_output = inv_transform_subpath ?: transform_subpath_output
 
     """
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_MISSING_OPT="readlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_MISSING_OPT="readlink -m"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
+
     if [[ "${fix_image}" != "" ]];  then
         full_fix_image=\$(readlink ${fix_image})
         echo "Fix volume full path: \${full_fix_image}"
@@ -104,7 +116,7 @@ process BIGSTREAM_LOCALALIGN {
     fi
 
     if [[ "${transform_dir}" != "" ]] ; then
-        full_transform_dir=\$(readlink -m ${transform_dir})
+        full_transform_dir=\$(\${READLINK_MISSING_OPT} ${transform_dir})
         if [[ ! -e \${full_transform_dir} ]] ; then
             echo "Create transform directory: \${full_transform_dir}"
             mkdir -p \${full_transform_dir}
@@ -134,7 +146,7 @@ process BIGSTREAM_LOCALALIGN {
     fi
 
     if [[ "${align_dir}" != "" ]] ; then
-        full_align_dir=\$(readlink -m ${align_dir})
+        full_align_dir=\$(\${READLINK_MISSING_OPT} ${align_dir})
         if [[ ! -e \${full_align_dir} ]] ; then
             echo "Create align directory: \${full_align_dir}"
             mkdir -p \${full_align_dir}

@@ -55,7 +55,7 @@ process BIGSTREAM_TRANSFORMCOORDS {
     else
         source_fullpath=
     fi
-    full_input_coords=\$(readlink -e ${input_coords})
+    full_input_coords=\$(readlink ${input_coords})
     output_fullpath=\$(readlink ${output_dir})
     mkdir -p \${output_fullpath}
     warped_coords="\${output_fullpath}/${warped_coords_name}"

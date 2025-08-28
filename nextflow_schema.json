@@ -255,10 +255,22 @@
                     "hidden": true,
                     "description": "Explicit fix image dataset used for global registration"
                 },
+                "fix_global_timeindex": {
+                    "type": "string",
+                    "pattern": "\\d+",
+                    "description": "selected timepoint for fix low resolution image",
+                    "default": "0"
+                },
                 "mov_global_subpath": {
                     "type": "string",
                     "hidden": true,
                     "description": "Explicit moving image dataset used for global registration"
+                },
+                "mov_global_timeindex": {
+                    "type": "string",
+                    "pattern": "\\d+",
+                    "description": "selected timepoint for moving low resolution image",
+                    "default": "0"
                 },
                 "reg_ch": {
                     "type": "string",

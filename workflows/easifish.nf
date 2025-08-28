@@ -72,8 +72,10 @@ def validate_params() {
         }
     }
 
-    if (!params.skip_registration && !params.reg_ch) {
-        exit 1, 'The registration channel (reg_ch) is required'
+    if (!params.skip_registration && !params.reg_ch ||
+        !params.skip_global_align && !params.fix_global_channel ||
+        !params.skip_local_align && !params.fix_local_channel) {
+        exit 1, 'The registration channel is required - one of reg_ch, fix_global_channel or fix_local_channel must be defined'
     }
 
     def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)

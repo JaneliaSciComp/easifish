@@ -247,10 +247,10 @@ workflow RUN_GLOBAL_REGISTRATION {
     main:
     def fix_global_subpath = params.fix_global_subpath
         ? params.fix_global_subpath
-        : "${params.reg_ch}/${params.global_scale}"
+        : "${params.fix_global_channel ?: params.reg_ch}/${params.global_scale}"
     def mov_global_subpath = params.mov_global_subpath
         ? params.mov_global_subpath
-        : "${params.reg_ch}/${params.global_scale}"
+        : "${params.mov_global_channel ?: params.reg_ch}/${params.global_scale}"
 
     def global_fix_mask_file = params.global_fix_mask ? file(params.global_fix_mask) : []
     def global_mov_mask_file = params.global_mov_mask ? file(params.global_mov_mask) : []
@@ -265,8 +265,8 @@ workflow RUN_GLOBAL_REGISTRATION {
         def global_registration_working_dir = file("${reg_outdir}/global/${reg_meta.id}")
         def global_registration_output = file("${reg_outdir}")
 
-        global_fix_channel = params.fix_global_channel
-        global_mov_channel = params.mov_global_channel
+        global_fix_channel = params.fix_global_channel ?: params.reg_ch // default to reg_ch
+        global_mov_channel = params.mov_global_channel ?: global_fix_channel // default to fix_channel
 
         // get the corresponding output channel from the warped to output mapping if there is one
         def global_output_channel = reg_meta.warped_channels_mapping[global_mov_channel]
@@ -463,10 +463,10 @@ workflow RUN_LOCAL_REGISTRATION {
     main:
     def fix_local_subpath = params.fix_local_subpath
         ? params.fix_local_subpath
-        : "${params.reg_ch}/${params.local_scale}"
+        : "${params.fix_local_channel ?: params.reg_ch}/${params.local_scale}"
     def mov_local_subpath = params.mov_local_subpath
         ? params.mov_local_subpath
-        : "${params.reg_ch}/${params.local_scale}"
+        : "${params.mov_local_channel ?: params.reg_ch}/${params.local_scale}"
 
     def local_fix_mask_file = params.local_fix_mask ? file(params.local_fix_mask) : []
     def local_mov_mask_file = params.local_mov_mask ? file(params.local_mov_mask) : []
@@ -529,8 +529,8 @@ workflow RUN_LOCAL_REGISTRATION {
             dask_meta, dask_context
         ) = it
 
-        local_fix_channel = params.fix_local_channel
-        local_mov_channel = params.mov_local_channel
+        local_fix_channel = params.fix_local_channel ?: params.reg_ch
+        local_mov_channel = params.mov_local_channel ?: local_fix_channel
         // get the corresponding output channel from the warped to output mapping if there is one
         def local_output_channel = reg_meta.warped_channels_mapping[local_mov_channel]
 
