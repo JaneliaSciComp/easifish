@@ -61,7 +61,7 @@ process BIGSTREAM_TRANSFORMCOORDS {
     warped_coords="\${output_fullpath}/${warped_coords_name}"
 
     CMD=(
-        python -m launchers.main_apply_transform_coords.py
+        python -m launchers.main_apply_transform_coords
         --input-coords \${full_input_coords}
         --output-coords \${warped_coords}
         ${pixel_resolution_arg}
