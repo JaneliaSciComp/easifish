@@ -28,6 +28,7 @@
     "skip_inverse": false,
     "skip_multiscale_warped_image": false,
     "skip_segmentation": false,
+    "skip_multiscale_segmentation": false,
     "skip_spot_extraction": false,
     "skip_warp_spots": false,
     "skip_spots_counts": false,
