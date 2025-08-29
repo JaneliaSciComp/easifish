@@ -283,11 +283,11 @@
                 },
                 "fix_mask_descriptor": {
                     "type": "string",
-                    "description": "tuple that describes fix max"
+                    "description": "tuple that describes fix mask."
                 },
                 "mov_mask_descriptor": {
                     "type": "string",
-                    "description": "tuple that describes mov max"
+                    "description": "tuple that describes mov mask."
                 },
                 "global_steps": {
                     "type": "string",
@@ -297,7 +297,6 @@
                 },
                 "global_scale": {
                     "type": "string",
-                    "default": "s3",
                     "description": "Scale used for global registration"
                 },
                 "fix_local_subpath": {
@@ -370,7 +369,6 @@
                 },
                 "local_scale": {
                     "type": "string",
-                    "default": "s2",
                     "description": "Scale used for local registration"
                 },
                 "deform_subpath": {
@@ -411,7 +409,6 @@
                 },
                 "warped_scales": {
                     "type": "string",
-                    "default": "s0",
                     "description": "All scales that need to be warped"
                 },
                 "global_align_cpus": {
@@ -553,6 +550,11 @@
             "help_text": "Spot extraction arguments",
             "fa_icon": "far fa-map",
             "properties": {
+                "distributed_spot_extraction": {
+                    "type": "boolean",
+                    "description": "If true run spot extraction on a distributed spark cluster",
+                    "default": true
+                },
                 "skip_spot_extraction": {
                     "type": "boolean",
                     "description": "If set skip spot extraction"
@@ -560,7 +562,8 @@
                 "spot_extraction_subdir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "description": "Spot extraction results sub-directory"
+                    "description": "Spot extraction results sub-directory",
+                    "default": "spots"
                 },
                 "spot_extraction_ids": {
                     "type": "string",
@@ -924,7 +927,8 @@
                     "default": 0
                 },
                 "cellpose_verbose": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Controls cellpose log verbosity"
                 },
                 "cellpose_preprocessing_steps": {
                     "type": "string",
@@ -984,6 +988,12 @@
                     "description": "GPU device used for cellpose segmentation",
                     "hidden": true
                 },
+                "cellpose_do_3D": {
+                    "type": "boolean",
+                    "description": "Do cellppose segmentation in 3D. For 3D images this must be true",
+                    "default": true,
+                    "hidden": true
+                },
                 "cellpose_diameter": {
                     "type": "integer",
                     "default": 30,
@@ -1032,7 +1042,7 @@
                 },
                 "cellpose_dask_workers": {
                     "type": "integer",
-                    "default": 10,
+                    "default": 8,
                     "description": "Number of cellpose Dask workers"
                 },
                 "cellpose_dask_min_workers": {
