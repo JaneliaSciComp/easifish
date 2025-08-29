@@ -348,7 +348,7 @@ def change_dataset_channel(image_dataset, channel) {
 
 def get_dataset_channel(image_dataset) {
     def image_dataset_comps = image_dataset.split('/')
-    log.info "!!!!! Get dataset channel from ${image_dataset_comps}"
+    log.debug "Get dataset channel from ${image_dataset_comps}"
     return image_dataset_comps && image_dataset_comps.size() >= 2 ? image_dataset_comps[-2] : ''
 }
 

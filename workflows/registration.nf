@@ -835,18 +835,16 @@ def get_warped_subpaths() {
 }
 
 def get_warped_and_output_channels(warped_channels_mapping) {
-    if (warped_channels_mapping) {
-        // return a list of tuples t, where
-        // t._1 - warped (moving) channel and t._2 is the corresponding output channel
-        return warped_channels_mapping
-            .collect { k, v ->
-                [k, v]
+    def warped_channels_param = params.warped_channels ?: params.channels
+
+    as_list(warped_channels_param)
+        .collect { ch ->
+            def sch = ch as String // just to make sure ch is a String
+            if (warped_channels_mapping && (sch in warped_channels_mapping) ) {
+                [ sch, warped_channels_mapping[sch] ]
+            } else {
+                // if no mapping defined for the current channel - use the same channel in the output
+                [ sch, sch ]
             }
-    } else {
-        // no mapping has been defined
-        // return a singleton list that maps the mov_local_channel parameter to the same value
-        return [
-            [params.mov_local_channel, params.mov_local_channel]
-        ]
-    }
+        }
 }
