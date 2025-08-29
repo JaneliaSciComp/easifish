@@ -134,7 +134,7 @@ workflow EXTRACT_SPOTS_PROPS {
             if (reg_meta.warped_channels_mapping) {
                 // if any of the moving, bleeding or dapi was mapped to a different channel
                 // in the registration output, then get the appropriate channel value
-                if (image_ch as String in  reg_meta.warped_channels_mapping) {
+                if (image_ch as String in reg_meta.warped_channels_mapping) {
                     // if the image channel was mapped to a different channel
                     warped_image_ch = reg_meta.warped_channels_mapping[image_ch as String]
                 } else {
@@ -348,6 +348,7 @@ def change_dataset_channel(image_dataset, channel) {
 
 def get_dataset_channel(image_dataset) {
     def image_dataset_comps = image_dataset.split('/')
+    log.info "!!!!! Get dataset channel from ${image_dataset_comps}"
     return image_dataset_comps && image_dataset_comps.size() >= 2 ? image_dataset_comps[-2] : ''
 }
 
