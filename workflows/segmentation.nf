@@ -79,7 +79,7 @@ workflow SEGMENTATION {
         params.cellpose_model,
         params.cellpose_preprocessing_config_file,
         params.cellpose_log_config,
-        params.generate_segmentation_multiscale,
+        params.skip_multiscale_segmentation,
         params.distributed_cellpose,
         params.dask_config,
         session_work_dir,

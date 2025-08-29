@@ -911,6 +911,10 @@
                     "type": "boolean",
                     "description": "If true skip segmentation"
                 },
+                "skip_multiscale_segmentation": {
+                    "type": "boolean",
+                    "description": "If true skip generating the pyramid for the labels image"
+                },
                 "sample_anisotropy": {
                     "type": "number",
                     "default": 1.0

@@ -16,7 +16,7 @@ workflow CELLPOSE_SEGMENTATION {
     model_name             // string model name
     preprocessing_config   // string|file
     log_config             // string|file: log configuration file
-    with_multiscale        // boolean: if true generate multiscale pyramid
+    skip_multiscale        // boolean: if true skip multiscale pyramid for segmented image
     distributed            // boolean: use a distributed dask cluster
     dask_config            // string|file: dask configuration file
     work_dir               // string|file: dask work dir
@@ -155,7 +155,7 @@ workflow CELLPOSE_SEGMENTATION {
         def labels_multiscale_outputs = MULTISCALE(
             labels_multiscale_inputs.map { it[0] },
             labels_multiscale_inputs.map { it[1] },
-            !with_multiscale || skip, // skip this if cellpose was skipped
+            skip_multiscale || skip, // skip this if cellpose was skipped
             multiscale_cpus,
             multiscale_mem_gb,
         )
