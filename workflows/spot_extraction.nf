@@ -4,11 +4,11 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { POST_RS_FISH                         } from '../modules/local/post_rs_fish/main'
-include { POST_RS_FISH as VERIFY_RS_FISH_SPOTS } from '../modules/local/post_rs_fish/main'
-include { RS_FISH                              } from '../modules/janelia/rs_fish/main'
-include { SPARK_START                          } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP                           } from '../subworkflows/janelia/spark_stop/main'
+include { POST_RS_FISH                         } from '../modules/local/post_rs_fish'
+include { POST_RS_FISH as VERIFY_RS_FISH_SPOTS } from '../modules/local/post_rs_fish'
+include { RS_FISH                              } from '../modules/janelia/rs_fish'
+include { SPARK_START                          } from '../subworkflows/janelia/spark_start'
+include { SPARK_STOP                           } from '../subworkflows/janelia/spark_stop'
 include { as_list                              } from './util_functions'
 
 workflow SPOT_EXTRACTION {
