@@ -1,4 +1,3 @@
-include { POST_RS_FISH } from '../../modules/local/post_rs_fish'
 include { RS_FISH      } from '../../modules/janelia/rs_fish'
 
 include { SPARK_START  } from '../janelia/spark_start'
@@ -22,11 +21,7 @@ workflow RSFISH_SPOT_EXTRACTION {
         def (meta, input_img, input_subpath, spots_output_dir, spots_output_name) = it
         [
             meta,
-            input_img,
-            input_subpath,
-            spots_output_dir,
-            spots_output_name,
-            rsfish_spark,
+            [ input_img, spots_output_dir ],
         ]
     }
 
@@ -73,21 +68,19 @@ workflow RSFISH_SPOT_EXTRACTION {
             spark,
         ]
     }
-    rsfish_results.subscribe { log.debug "RS_FISH results: $it" }
 
-    rsfish_results
+    def final_rsfish_results = rsfish_results
     | map {
-        def (meta, input_image, input_dataset, output_filename) = it
+        log.debug "RS_FISH results: $it"
+
+        def (meta, input_image, input_dataset, full_output_filename) = it
         [
             meta,
             input_image,
             input_dataset,
-            output_filename,
+            full_output_filename,
         ]
     }
-    | POST_RS_FISH
-
-    final_rsfish_results = expand_spot_results(POST_RS_FISH.out.results)
 
     def prepare_spark_stop = rsfish_results
     | groupTuple(by: [0, 4]) // group by meta and spark
@@ -105,5 +98,4 @@ workflow RSFISH_SPOT_EXTRACTION {
 
     emit:
     done = final_rsfish_results
-
 }

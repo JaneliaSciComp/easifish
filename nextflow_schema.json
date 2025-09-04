@@ -657,6 +657,65 @@
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
                     "default": 4
+                },
+                "use_fishspots": {
+                    "type": "boolean",
+                    "description": "If true use fishspots for spot extraction"
+                },
+                "fishspots_psf_retries": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Fishspots retries for determining the PSF"
+                },
+                "fishspots_intensity_threshold": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Fishspots intensity threshold"
+                },
+                "fishspots_config": {
+                    "type": "string",
+                    "description": "Fishspots YML config file containing various fishspots parameters"
+                },
+                "fishspots_dask_config": {
+                    "type": "string",
+                    "description": "Fishspots Dask configuration file."
+                },
+                "fishspots_blocksize": {
+                    "type": "string",
+                    "default": "128,128,128",
+                    "description": "Fishspots block processing size"
+                },
+                "fishspots_dask_workers": {
+                    "type": "integer",
+                    "default": 8,
+                    "description": "Number of Dask workers used for fishspots"
+                },
+                "fishspots_dask_min_workers": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Minimum number of Dask workers required for fishspots"
+                },
+                "fishspots_dask_worker_cpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "CPUs allocated for a fishspots Dask worker"
+                },
+                "fishspots_dask_worker_mem_gb": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Memory allocated for a fishspots Dask worker"
+                },
+                "fishspots_cpus": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores allocated for the head fishspots task. Default: 1",
+                    "default": 1
+                },
+                "fishspots_mem_gb": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory to allocate for the head fishspots task. Default: 12g",
+                    "default": 4
                 }
             }
         },

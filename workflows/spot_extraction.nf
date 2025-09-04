@@ -4,12 +4,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { POST_RS_FISH                         } from '../modules/local/post_rs_fish'
-include { POST_RS_FISH as VERIFY_RS_FISH_SPOTS } from '../modules/local/post_rs_fish'
-include { RS_FISH                              } from '../modules/janelia/rs_fish'
-include { SPARK_START                          } from '../subworkflows/janelia/spark_start'
-include { SPARK_STOP                           } from '../subworkflows/janelia/spark_stop'
-include { as_list                              } from './util_functions'
+include { POST_RS_FISH           } from '../modules/local/post_rs_fish'
+
+include { FISHSPOT_EXTRACTION    } from '../subworkflows/local/fishspot_extraction'
+include { RSFISH_SPOT_EXTRACTION } from '../subworkflows/local/rsfish_spot_extraction'
+
+include { as_list                } from './util_functions'
 
 workflow SPOT_EXTRACTION {
     take:
@@ -20,49 +20,58 @@ workflow SPOT_EXTRACTION {
     main:
     def spot_volume_ids = as_list(params.spot_extraction_ids)
 
-    def spots_spark_input = ch_meta
+    def spots_inputs = ch_meta
     | filter { meta ->
         spot_volume_ids.empty || meta.id in spot_volume_ids
     }
-    | map { meta ->
+    | flatMap { meta ->
         // Spot extraction is typically done for all cell (no DAPI) channels from all rounds
         def input_img_dir = get_spot_extraction_input_volume(meta)
         def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
-        [
-            meta,
-            [ input_img_dir, spots_output_dir ],
-        ]
+
+        get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
+            def r = [
+                meta,
+                input_img_dir,
+                input_spot_subpath,
+                spots_output_dir,
+                spots_result_name,
+            ]
+            log.debug "Spot extraction input: $r"
+            r
+        }
     }
 
-    def final_rsfish_results
+    def spots_results
     if (params.skip_spot_extraction) {
         log.debug "Skipping spot extraction"
-        // even if we skip spot extraction
-        // we assume we have the csv file and we apply the post processing
-        def verify_spot_results = spots_spark_input
-        | flatMap {
-            def (meta, spots_inout_dirs) = it
-            def (input_img_dir, spots_output_dir) = spots_inout_dirs
-            get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
-                def r = [
-                    meta,
-                    input_img_dir,
-                    input_spot_subpath,
-                    "${spots_output_dir}/${spots_result_name}",
-                ]
-                log.debug "Verify spots: $r"
-                r
-            }
+        spots_results = spots_inputs
+        | map {
+            def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name) = it
+            [
+                meta,
+                input_img_dir,
+                input_spot_subpath,
+                "${spots_output_dir}/${spots_result_name}",
+            ]
         }
-        | VERIFY_RS_FISH_SPOTS
-
-        final_rsfish_results = expand_spot_results(verify_spot_results.results)
+    } else if (params.use_fishspots) {
+        spots_results = FISHSPOT_EXTRACTION(
+            spots_inputs,
+            params.distributed_spot_extraction,
+            params.fishspots_config,
+            params.fishspots_dask_config,
+            workdir,
+            params.fishspots_dask_workers,
+            params.fishspots_min_dask_workers,
+            params.fishspots_dask_worker_cpus,
+            params.fishspots_dask_worker_mem_gb,
+            params.fishspots_cpus ,
+            params.fishspots_mem_gb,
+        )
     } else {
-        spots_spark_input.subscribe { log.debug "Spot extraction spark input: $it" }
-
-        def rsfish_input = SPARK_START(
-            spots_spark_input,
-            [:],                                // spark default config
+        spots_results = RSFISH_SPOT_EXTRACTION(
+            spots_inputs,
             params.distributed_spot_extraction,
             workdir,
             params.rsfish_spark_workers,
@@ -71,75 +80,15 @@ workflow SPOT_EXTRACTION {
             params.rsfish_spark_gb_per_core,
             params.rsfish_spark_driver_cores,
             params.rsfish_spark_driver_mem_gb,
-        ) // ch: [ meta, spark ]
-        | join(ch_meta, by: 0) // join to add the files
-        | flatMap {
-            def (meta, rsfish_spark) = it
-            def input_img_dir = get_spot_extraction_input_volume(meta)
-            def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
-
-            get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
-                [
-                    meta,
-                    input_img_dir,
-                    input_spot_subpath,
-                    spots_output_dir,
-                    spots_result_name,
-                    rsfish_spark,
-                ]
-            }
-        }
-
-        rsfish_input.subscribe { log.debug "RS_FISH input: $it" }
-
-        RS_FISH(rsfish_input)
-
-        def rsfish_results = RS_FISH.out.params
-        | join(RS_FISH.out.csv, by:0)
-        | map {
-            def (meta, input_image, input_dataset, spots_output_dir, spots_result_name, spark, full_output_filename) = it
-            [
-                meta,
-                input_image,
-                input_dataset,
-                full_output_filename,
-                spark,
-            ]
-        }
-        rsfish_results.subscribe { log.debug "RS_FISH results: $it" }
-
-        rsfish_results
-        | map {
-            def (meta, input_image, input_dataset, output_filename) = it
-            [
-                meta,
-                input_image,
-                input_dataset,
-                output_filename,
-            ]
-        }
-        | POST_RS_FISH
-
-        final_rsfish_results = expand_spot_results(POST_RS_FISH.out.results)
-
-        def prepare_spark_stop = rsfish_results
-        | groupTuple(by: [0, 4]) // group by meta and spark
-        | map {
-            def (meta, input_image, input_dataset, output_filename, spark) = it
-            [
-                meta, spark,
-            ]
-        }
-
-        SPARK_STOP(
-            prepare_spark_stop,
-            params.distributed_spot_extraction,
         )
-
     }
 
+    POST_RS_FISH(spots_results)
+
+    def final_spot_results = expand_spot_results(POST_RS_FISH.out.results)
+
     emit:
-    done = final_rsfish_results
+    done = POST_RS_FISH.out.results
 }
 
 def get_spot_extraction_input_volume(meta) {
