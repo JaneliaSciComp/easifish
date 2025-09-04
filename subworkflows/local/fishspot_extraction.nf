@@ -105,6 +105,6 @@ workflow FISHSPOT_EXTRACTION {
     | DASK_STOP
 
     emit:
-    done = fishspots_results
+    done = final_fishspots_results
 
 }
