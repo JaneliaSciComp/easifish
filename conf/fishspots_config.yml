@@ -1,12 +1,12 @@
 white_tophat_args:
-  radius: 8
+  radius: 4
 
 psf_estimation_args:
   n_propose_model: 10
   max_iterations: 1000
   inlier_threshold: 0.4
   min_inliers: 10
-  radius: 18
+  radius: 9
 
 deconvolution_args:
   clip: false
