@@ -63,7 +63,7 @@ workflow SPOT_EXTRACTION {
             params.fishspots_dask_config,
             workdir,
             params.fishspots_dask_workers,
-            params.fishspots_min_dask_workers,
+            params.fishspots_dask_min_workers,
             params.fishspots_dask_worker_cpus,
             params.fishspots_dask_worker_mem_gb,
             params.fishspots_cpus ,

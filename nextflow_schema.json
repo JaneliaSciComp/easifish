@@ -1,10 +1,10 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/JaneliaSciComp/easifish/master/nextflow_schema.json",
     "title": "JaneliaSciComp/easifish pipeline parameters",
     "description": "Lightsheet microscopy image reconstruction",
     "type": "object",
-    "definitions": {
+    "defs": {
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
@@ -25,8 +25,7 @@
                 "indir": {
                     "type": "string",
                     "format": "directory-path",
-                    "description": "The directory where the input images are located (or where they will be cached once they are downloaded). If undefined, it defaults to <outdir>/input",
-                    "fa_icon": "fas fa-folder-open"
+                    "description": "The directory where the input images are located (or where they will be cached once they are downloaded). If undefined, it defaults to <outdir>/input"
                 },
                 "outdir": {
                     "type": "string",
@@ -91,6 +90,11 @@
                     "type": "boolean",
                     "description": "Skip affine fusion with BigStitcher",
                     "hidden": true
+                },
+                "preserve_anisotropy": {
+                    "type": "boolean",
+                    "description": "Bigstitcher preserveAnisotropy flag",
+                    "default": "false"
                 },
                 "stitching_result_container": {
                     "type": "string",
@@ -317,10 +321,32 @@
                     "hidden": true,
                     "description": "Fix dataset used for local registration"
                 },
+                "fix_local_timeindex": {
+                    "type": "string",
+                    "pattern": "\\d+",
+                    "description": "selected timepoint for fix high resolution image",
+                    "default": "0"
+                },
+                "fix_local_channel": {
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Explicit channel for fix high resolution image"
+                },
                 "mov_local_subpath": {
                     "type": "string",
                     "hidden": true,
                     "description": "Moving dataset used for local registration"
+                },
+                "mov_local_timeindex": {
+                    "type": "string",
+                    "pattern": "\\d+",
+                    "description": "selected timepoint for mov high resolution image",
+                    "default": "0"
+                },
+                "mov_local_channel": {
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Explicit channel for mov high resolution image"
                 },
                 "global_fix_mask": {
                     "type": "string",
@@ -553,6 +579,12 @@
                     "default": "registration.n5",
                     "description": "Name of the final registration container"
                 },
+                "local_registration_timeindex": {
+                    "type": "string",
+                    "pattern": "\\d+",
+                    "description": "selected timepoint for low resolution alignment output",
+                    "default": "0"
+                },
                 "registration_subdir": {
                     "type": "string",
                     "hidden": true,
@@ -728,6 +760,11 @@
                     "type": "integer",
                     "default": 0,
                     "description": "Memory allocated for a fishspots Dask worker"
+                },
+                "fishspots_local_workers": {
+                    "type": "integer",
+                    "description": "Number of local processes when a local dask cluster (distributed_spot_extraction=false) is used for fishspots",
+                    "default": 0
                 },
                 "fishspots_cpus": {
                     "type": "integer",
@@ -1039,8 +1076,19 @@
                 "sample_voxel_spacing": {
                     "type": "string"
                 },
+                "sample_channel_axis": {
+                    "type": "string",
+                    "description": "channel axis for image to be segmented after the timeindex axis was eliminated",
+                    "default": "0"
+                },
+                "sample_timeindex": {
+                    "type": "string",
+                    "pattern": "\\d*",
+                    "description": "Segmentation input timepoint"
+                },
                 "sample_z_axis": {
                     "type": "integer",
+                    "description": "Z axis for image to be segmented after the timeindex axis was eliminated",
                     "default": 0
                 },
                 "cellpose_verbose": {
@@ -1352,6 +1400,9 @@
         },
         {
             "$ref": "#/definitions/segmentation"
+        },
+        {
+            "$ref": "#/definitions/warp_spots"
         },
         {
             "$ref": "#/definitions/spot_extraction"

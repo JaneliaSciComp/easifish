@@ -1,6 +1,6 @@
 {
     "channels": "0,1",
-    "input": "examples/remote_samplesheets/tiny_bigstitcher_samplesheet.csv",
+    "input": "${projectDir}/examples/remote_samplesheets/tiny_bigstitcher_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
 
@@ -63,7 +63,7 @@
     "warped_scales": "0",
 
     "with_dask_cluster": true,
-    "worker_cpus": 1,
+    "local_align_worker_cpus": 1,
 
     "cellpose_verbose": true,
     "segmentation_subpaths": "2",
@@ -71,7 +71,6 @@
     "cellprob_threshold": -5,
     "cellpose_model": "cpsam",
     "cellpose_input_channels": "1",
-    "cellpose_eval_channels": "",
     "cellpose_norm_percentile": "1 99",
     "cellpose_dask_workers": 2,
     "cellpose_dask_worker_cpus": 1,
@@ -101,10 +100,6 @@
     "local_align_worker_mem_gb": 10,
     "bigstream_scheduler_port": 0,
     "bigstream_dashboard_port": 0,
-
-    "multiscale_spark_workers": 1,
-    "multiscale_spark_worker_cores": 20,
-    "multiscale_spark_gb_per_core": 5,
 
     "dapi_channel": "1",
     "bleeding_channel": "0",
