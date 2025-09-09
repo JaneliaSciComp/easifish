@@ -41,8 +41,21 @@ workflow INPUT_CHECK {
             }
     } else {
         // download remote tiles
-        def downloaded_tiles = DOWNLOAD(tiles.remote, output_image_dir).tiles
-        def linked_tiles = LINK(tiles.local, ch_input_image_dir, output_image_dir).tiles
+        def downloaded_tiles = DOWNLOAD(
+            tiles.remote,
+            output_image_dir
+        ).tiles
+        def link_inputs = tiles.local
+                .combine(ch_input_image_dir)
+                .map { row, input_image_dir ->
+                    log.debug "Prepare link inputs: ${row}, ${input_image_dir}, ${output_image_dir}"
+                    return [ row, input_image_dir, output_image_dir ]
+                }
+        def linked_tiles = LINK(
+            link_inputs.map { it[0] }, // row
+            link_inputs.map { it[1] }, // image_dir
+            link_inputs.map { it[2] }, // output_dir
+        ).tiles
 
         prepare_acq = downloaded_tiles
             .mix(linked_tiles)

@@ -61,6 +61,7 @@ workflow PIPELINE_INITIALISATION {
         def inputdir = inputdir_arg
                             ? file(inputdir_arg, checkIfExists: true)
                             : samplesheet_file.parent()
+        log.debug "Pipeline inputs: ${samplesheet_file}, ${inputdir}"
         return [samplesheet_file, inputdir]
     }
 
@@ -135,10 +136,12 @@ def validateInputParameters() {
         error('You must enable --spark_cluster if --spark_workers is greater than 1.')
     }
 
-    if (!params.skip_registration && !params.reg_ch ||
-        !params.skip_global_align && !params.fix_global_channel ||
-        !params.skip_local_align && !params.fix_local_channel) {
-        error('The registration channel is required - one of reg_ch, fix_global_channel or fix_local_channel must be defined')
+    if (!params.skip_registration && (!params.reg_ch && !params.fix_global_channel && !params.fix_local_channnel) ||
+        !params.skip_global_align && (!params.reg_ch && !params.fix_global_channel) ||
+        !params.skip_local_align && (!params.reg_ch && !params.fix_local_channel)) {
+        // if registration is not skipped either reg_ch or both fix_global_channel and fix_local_channel must be set
+        // if global registration is skipped then
+        error("The registration channel is required - one of reg_ch (${params.reg_ch}), fix_global_channel (${params.fix_global_channel}) or fix_local_channel (${params.fix_local_channel}) must be defined")
     }
 
 }

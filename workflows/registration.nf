@@ -54,13 +54,13 @@ workflow REGISTRATION {
     | combine(mov_volumes)
     | map {
         def (fix_meta, mov_meta) = it
-        log.debug "Prepare registration inputs: $it -> ${fix_meta}, ${mov_meta}"
         def reg_meta = [
             id: "${fix_meta.id}-${mov_meta.id}",
             fix_id: fix_meta.id,
             mov_id: mov_meta.id,
             warped_channels_mapping: mov_meta.warped_channels_mapping ?: [:],
         ]
+        log.debug "Prepare registration inputs: $it -> reg_meta:${reg_meta}, fix_meta:${fix_meta}, mov_meta:${mov_meta}"
         [ reg_meta, fix_meta, mov_meta ]
     }
 

@@ -48,14 +48,17 @@ workflow SPOT_EXTRACTION {
         spots_results = spots_inputs
         | map {
             def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name) = it
-            [
+            def r = [
                 meta,
                 input_img_dir,
                 input_spot_subpath,
                 "${spots_output_dir}/${spots_result_name}",
             ]
+            log.debug "Skipped spot extraction, but verify any spot files at: $r"
+            r
         }
     } else if (params.use_fishspots) {
+        log.debug "Extract spots using Fishspot"
         spots_results = FISHSPOT_EXTRACTION(
             spots_inputs,
             params.distributed_spot_extraction,
@@ -70,6 +73,7 @@ workflow SPOT_EXTRACTION {
             params.fishspots_mem_gb,
         )
     } else {
+        log.debug "Extract spots using RS_FISH"
         spots_results = RSFISH_SPOT_EXTRACTION(
             spots_inputs,
             params.distributed_spot_extraction,
@@ -88,7 +92,7 @@ workflow SPOT_EXTRACTION {
     def final_spot_results = expand_spot_results(POST_RS_FISH.out.results)
 
     emit:
-    done = POST_RS_FISH.out.results
+    done = final_spot_results
 }
 
 def get_spot_extraction_input_volume(meta) {
