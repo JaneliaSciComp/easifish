@@ -7,24 +7,12 @@
 ----------------------------------------------------------------------------------------
 */
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    VALIDATE & PRINT PARAMETER SUMMARY
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-include {
-          validateParameters; 
-          paramsHelp          } from 'plugin/nf-validation'
-include { EASIFISH            } from './workflows/easifish'
+include { EASIFISH                } from './workflows/easifish'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_multifish_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_multifish_pipeline'
 
 
-// Validate input parameters
-if (params.validate_params) {
-    validateParameters()
-}
 
-WorkflowMain.initialise(workflow, params, log)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,16 +25,34 @@ WorkflowMain.initialise(workflow, params, log)
 // WORKFLOW: Run main JaneliaSciComp/easifish analysis pipeline
 //
 workflow {
-    // Print help message if needed
-    if (params.help) {
-        def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
-        def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
-        def String command = "nextflow run ${workflow.manifest.name} --input samplesheet.csv --outdir ./output -profile docker"
-        log.info logo + paramsHelp(command) + citation + NfcoreTemplate.dashedLine(params.monochrome_logs)
-        System.exit(0)
-    }
 
-    EASIFISH()
+    //
+    // SUBWORKFLOW: Run initialisation tasks
+    //
+    def init_result = PIPELINE_INITIALISATION (
+        params.version,
+        params.validate_params,
+        args,
+        params.outdir,
+    )
+
+    EASIFISH(
+        init_result.inputs,
+        init_result.versions,
+    )
+
+    //
+    // SUBWORKFLOW: Run completion tasks
+    //
+    PIPELINE_COMPLETION (
+        params.email,
+        params.email_on_fail,
+        params.plaintext_email,
+        params.outdir,
+        params.monochrome_logs,
+        params.hook_url,
+    )
+
 }
 
 /*

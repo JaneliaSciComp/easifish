@@ -4,7 +4,7 @@
     "title": "JaneliaSciComp/easifish pipeline parameters",
     "description": "Lightsheet microscopy image reconstruction",
     "type": "object",
-    "defs": {
+    "$defs": {
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
@@ -1378,40 +1378,40 @@
     },
     "allOf": [
         {
-            "$ref": "#/definitions/input_output_options"
+            "$ref": "#/$defs/input_output_options"
         },
         {
-            "$ref": "#/definitions/data_options"
+            "$ref": "#/$defs/data_options"
         },
         {
-            "$ref": "#/definitions/stitching_options"
+            "$ref": "#/$defs/stitching_options"
         },
         {
-            "$ref": "#/definitions/registration"
+            "$ref": "#/$defs/registration"
         },
         {
-            "$ref": "#/definitions/institutional_config_options"
+            "$ref": "#/$defs/institutional_config_options"
         },
         {
-            "$ref": "#/definitions/max_job_request_options"
+            "$ref": "#/$defs/max_job_request_options"
         },
         {
-            "$ref": "#/definitions/multiscale"
+            "$ref": "#/$defs/multiscale"
         },
         {
-            "$ref": "#/definitions/segmentation"
+            "$ref": "#/$defs/segmentation"
         },
         {
-            "$ref": "#/definitions/warp_spots"
+            "$ref": "#/$defs/warp_spots"
         },
         {
-            "$ref": "#/definitions/spot_extraction"
+            "$ref": "#/$defs/spot_extraction"
         },
         {
-            "$ref": "#/definitions/spots_features"
+            "$ref": "#/$defs/spots_features"
         },
         {
-            "$ref": "#/definitions/generic_options"
+            "$ref": "#/$defs/generic_options"
         }
     ]
 }

@@ -12,7 +12,6 @@ workflow STITCHING {
     def stitching_work_dir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching" // stitcher's work directory
     def stitching_result_dir = params.stitching_result_dir ? file(params.stitching_result_dir) : outdir
 
-
     def stitching_results
     if (params.use_bigstitcher) {
         stitching_results = BIGSTITCHER(

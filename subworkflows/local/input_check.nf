@@ -8,9 +8,9 @@ include { LINK              } from '../../modules/local/link/main'
 
 workflow INPUT_CHECK {
     take:
-    samplesheet // file: /path/to/samplesheet.csv
-    input_image_dir
-    output_image_dir
+    samplesheet          // ch: /path/to/samplesheet.csv
+    ch_input_image_dir   // ch: /path/to/input_data
+    output_image_dir     // String|file: path to output
     skip
 
     main:
@@ -29,18 +29,20 @@ workflow INPUT_CHECK {
     .set { tiles }
 
     def prepare_acq
+
     if (skip) {
         // take the tiles and prepare the output as if it was downloaded
         prepare_acq = tiles.remote
             .mix(tiles.local)
-            .map { row ->
+            .combine(ch_input_image_dir)
+            .map { row, input_image_dir ->
                 log.debug "Skipped downloading ${row}"
                 create_acq_channel(row, input_image_dir, output_image_dir)
             }
     } else {
         // download remote tiles
         def downloaded_tiles = DOWNLOAD(tiles.remote, output_image_dir).tiles
-        def linked_tiles = LINK(tiles.local, input_image_dir, output_image_dir).tiles
+        def linked_tiles = LINK(tiles.local, ch_input_image_dir, output_image_dir).tiles
 
         prepare_acq = downloaded_tiles
             .mix(linked_tiles)
@@ -49,6 +51,7 @@ workflow INPUT_CHECK {
                 create_acq_channel(row, input_dir, image_dir)
             }
     }
+
     prepare_acq
         .groupTuple() // Group by acquisition
         .map {
@@ -73,6 +76,7 @@ workflow INPUT_CHECK {
 }
 
 def create_acq_channel(LinkedHashMap samplesheet_row, input_dir, image_dir) {
+    log.debug "Create acquisition data: from: ${samplesheet_row} , ${input_dir}, ${image_dir}"
     def meta = [:]
     def image_name = file(samplesheet_row.filename).name
     def id = samplesheet_row.id
