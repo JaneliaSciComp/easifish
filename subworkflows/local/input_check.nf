@@ -9,7 +9,7 @@ include { LINK              } from '../../modules/local/link/main'
 workflow INPUT_CHECK {
     take:
     samplesheet          // ch: /path/to/samplesheet.csv
-    ch_input_image_dir   // ch: /path/to/input_data
+    ch_input             // ch: /path/to/input_data
     output_image_dir     // String|file: path to output
     skip
 
@@ -29,12 +29,13 @@ workflow INPUT_CHECK {
     .set { tiles }
 
     def prepare_acq
+    def ch_input_image = ch_input
 
     if (skip) {
         // take the tiles and prepare the output as if it was downloaded
         prepare_acq = tiles.remote
             .mix(tiles.local)
-            .combine(ch_input_image_dir)
+            .combine(ch_input_image)
             .map { row, input_image_dir ->
                 log.debug "Skipped downloading ${row}"
                 create_acq_channel(row, input_image_dir, output_image_dir)
@@ -46,7 +47,7 @@ workflow INPUT_CHECK {
             output_image_dir
         ).tiles
         def link_inputs = tiles.local
-                .combine(ch_input_image_dir)
+                .combine(ch_input_image)
                 .map { row, input_image_dir ->
                     log.debug "Prepare link inputs: ${row}, ${input_image_dir}, ${output_image_dir}"
                     return [ row, input_image_dir, output_image_dir ]
