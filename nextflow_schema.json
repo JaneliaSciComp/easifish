@@ -1365,7 +1365,6 @@
                 },
                 "singularity_cache_dir": {
                     "type": "string",
-                    "default": "$HOME/.singularity_cache",
                     "description": "cache directory for singularity images",
                     "hidden": true
                 },
