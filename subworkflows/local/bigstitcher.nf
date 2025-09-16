@@ -31,15 +31,10 @@ workflow BIGSTITCHER {
         def (meta, files) = it
         def stitching_meta = meta.clone()
 
-        def data_files = files
-
         stitching_meta.session_work_dir = "${spark_workdir}/${meta.id}"
         stitching_meta.stitching_result_dir = stitching_result_dir
         stitching_meta.stitched_dataset = meta.id
         stitching_meta.stitching_container = stitched_image_name ?: "fused.ome.zarr"
-
-        // append stitching result dir too
-        data_files << stitching_result_dir
 
         def to_lowercase_image_name = stitching_meta.stitching_container.toLowerCase()
         if (to_lowercase_image_name.endsWith('.n5')) {
@@ -51,6 +46,8 @@ workflow BIGSTITCHER {
             // default to OME-ZARR
             stitching_meta.stitching_container_storage = 'ZARR'
         }
+
+        def data_files = files + [ stitching_result_dir ]
 
         stitching_meta.stitching_xml = files.find { it.extension == 'xml' }
         if (stitching_meta.stitching_xml == null) {
