@@ -1,3 +1,5 @@
-id,filename,warped_channels_map
-t1,t1/dataset.xml,
-t2,t2/dataset.xml,
+id,filename,pattern,checksum,uri,warped_channels_map
+t1,LHA3_R3_tiny_V01.czi,LHA3_R3_tiny_V{x}.czi,,https://janelia.figshare.com/ndownloader/files/30900664,
+t1,LHA3_R3_tiny_V02.czi,LHA3_R3_tiny_V{x}.czi,,https://janelia.figshare.com/ndownloader/files/30900676,
+t2,LHA3_R5_tiny_V01.czi,LHA3_R5_tiny_V{x}.czi,,https://janelia.figshare.com/ndownloader/files/30900766,
+t2,LHA3_R5_tiny_V02.czi,LHA3_R5_tiny_V{x}.czi,,https://janelia.figshare.com/ndownloader/files/30900781,

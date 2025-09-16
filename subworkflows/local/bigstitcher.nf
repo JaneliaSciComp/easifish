@@ -48,14 +48,13 @@ workflow BIGSTITCHER {
         }
 
         stitching_meta.stitching_xml = files.find { it.extension == 'xml' }
+        def data_files = files
         if (stitching_meta.stitching_xml == null) {
-            log.error 'No XML project found for BigStitcher. This may cause an error later'
+            log.debug 'No XML project found for BigStitcher.'
         } else {
-            log.debug "Stitching project file: ${stitching_meta.stitching_xml}"
+            log.debug "Stitching project file was set: ${stitching_meta.stitching_xml}"
+            data_files << file(stitching_meta.stitching_xml).parent
         }
-        def data_files = files + [
-            file(stitching_meta.stitching_xml).parent,
-        ]
         def r = [ stitching_meta, data_files ]
         log.debug "Prepared stitching input: $r"
         r
@@ -94,13 +93,42 @@ workflow BIGSTITCHER {
             def pairwise_stitching_step_inputs = stitching_input
             | multiMap {
                 def (meta, spark, files) = it
+                def bigstitcher_class
+                def bigstitcher_params
+                // if stitching xml BDV is not set we get a default value and use that
+                // but we don't set it back in the meta because
+                // that alters the hash and downstream joins will not work correctly
+                def stitching_xml = get_stitching_xml_or_default(meta)
+                if (meta.stitching_xml) {
+                    // BDV XML project is present in meta
+                    bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
+                    bigstitcher_params = [
+                        '-x', stitching_xml,
+                    ]
+                } else {
+                    // BDV XML project is not present in meta
+                    bigstitcher_class = 'net.preibisch.bigstitcher.spark.ChainCommands'
+                    def pattern = meta.pattern ?: "*.czi"
+                    bigstitcher_params = [
+                        '--command=create-dataset',
+                        '--input-pattern', meta.pattern,
+                        '--input-path', meta.image_dir,
+                        '-x', stitching_xml,
+                        '+',
+                        '--command=resave',
+                        '-x', stitching_xml,
+                        '-o', "${meta.image_dir}/dataset.zarr",
+                        '+',
+                        '--command=stitching',
+                        '-x', stitching_xml,
+                    ]
+                }
+                log.debug "Bigstitcher parameters: ${bigstitcher_class}: ${bigstitcher_params}"
                 def module_args = [
                     meta,
                     spark,
-                    'net.preibisch.bigstitcher.spark.SparkPairwiseStitching',
-                    [
-                        '-x', meta.stitching_xml,
-                    ],
+                    bigstitcher_class,
+                    bigstitcher_params,
                 ]
                 log.debug "Stitching module args: $module_args"
                 module_args: module_args
@@ -112,6 +140,8 @@ workflow BIGSTITCHER {
                 pairwise_stitching_step_inputs.data_files,
             )
 
+            pairwise_stitch_output.subscribe { log.debug "Stitching output: $it" }
+
         }
 
         def create_fused_container_output
@@ -122,13 +152,14 @@ workflow BIGSTITCHER {
             | join(pairwise_stitch_output, by: 0)
             | multiMap {
                 def (meta, spark, files) = it
+                def stitching_xml = get_stitching_xml_or_default(meta)
                 def preserve_anisotropy_arg = preserve_anisotropy ? '--preserveAnisotropy' : ''
                 def module_args = [
                     meta,
                     spark,
                     'net.preibisch.bigstitcher.spark.CreateFusionContainer',
                     [
-                        '-x', meta.stitching_xml,
+                        '-x', stitching_xml,
                         '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
                         "--group", meta.id,
                         '-s', meta.stitching_container_storage,
@@ -194,4 +225,8 @@ workflow BIGSTITCHER {
 
     emit:
     done = stitching_results
+}
+
+def get_stitching_xml_or_default(meta) {
+    return meta.stitching_xml ?: "${meta.image_dir}/dataset.xml"
 }
