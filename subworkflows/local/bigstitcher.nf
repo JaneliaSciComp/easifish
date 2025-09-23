@@ -12,6 +12,7 @@ workflow BIGSTITCHER {
     with_spark_cluster            // boolean: use a distributed spark cluster
     stitching_result_dir
     stitched_image_name           // stitched container name
+    advanced_stitching_params
     preserve_anisotropy
     skip_all_steps
     skip_pairwise_stitch
@@ -100,12 +101,15 @@ workflow BIGSTITCHER {
                 // but we don't set it back in the meta because
                 // that alters the hash and downstream joins will not work correctly
                 def stitching_xml = get_stitching_xml_or_default(meta)
+                def advanced_stitching_args = advanced_stitching_params
+                    ? [ advanced_stitching_params ]
+                    : []
                 if (meta.stitching_xml) {
                     // BDV XML project is present in meta
                     bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
                     bigstitcher_params = [
                         '-x', stitching_xml,
-                    ]
+                    ] + advanced_stitching_args
                 } else {
                     // BDV XML project is not present in meta
                     bigstitcher_class = 'net.preibisch.bigstitcher.spark.ChainCommands'
@@ -122,7 +126,7 @@ workflow BIGSTITCHER {
                         '+',
                         '--command=stitching',
                         '-x', stitching_xml,
-                    ]
+                    ] + advanced_stitching_args
                 }
                 log.debug "Bigstitcher parameters: ${bigstitcher_class}: ${bigstitcher_params}"
                 def module_args = [

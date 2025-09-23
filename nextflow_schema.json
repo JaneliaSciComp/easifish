@@ -91,6 +91,10 @@
                     "description": "Skip affine fusion with BigStitcher",
                     "hidden": true
                 },
+                "advanced_stitching_params": {
+                    "type": "string",
+                    "description": "BigStitcher stitching advanced args such as --ds --channels"
+                },
                 "preserve_anisotropy": {
                     "type": "boolean",
                     "description": "Bigstitcher preserveAnisotropy flag",

@@ -19,6 +19,7 @@ workflow STITCHING {
             params.spark_cluster,
             stitching_result_dir,
             params.stitching_result_container,
+            params.advanced_stitching_params,
             params.preserve_anisotropy,
             params.skip_stitching,
             params.skip_bigstitcher_pairwise_stitch,
