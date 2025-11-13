@@ -1038,9 +1038,39 @@
                 "cellpose_worker_runtime_opts": {
                     "type": "string"
                 },
-                "cellpose_worker_lsf_opts": {
+                "cellpose_worker_cluster_opts": {
                     "type": "string",
                     "default": "-q gpu_l4 -gpu \"num=1"
+                }
+            }
+        },
+        "warp_spots": {
+            "title": "Warp spots parameters",
+            "type": "object",
+            "description": "Parameters for warping spots",
+            "fa_icon": "far fa-map",
+            "properties": {
+                "skip_warp_spots": {
+                    "type": "boolean",
+                    "description": "If set skip spots warping",
+                    "default": false
+                },
+                "warped_spots_subdir": {
+                    "type": "string",
+                    "description": "Subdirectory for warped spots results",
+                    "default": "warped-spots"
+                },
+                "warp_spots_cpus": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cpus needed for warping spots.",
+                    "default": 1
+                },
+                "warp_spots_mem_in_gb": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory needed for warping spots",
+                    "default": 15
                 }
             }
         },
@@ -1192,6 +1222,9 @@
         },
         {
             "$ref": "#/definitions/spot_extraction"
+        },
+        {
+            "$ref": "#/definitions/warp_spots"
         },
         {
             "$ref": "#/definitions/spots_features"

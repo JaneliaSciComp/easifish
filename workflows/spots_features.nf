@@ -158,8 +158,8 @@ workflow EXTRACT_SPOTS_PROPS {
         def dapi_dataset = params.dapi_channel
             ? change_dataset_channel(adjusted_image_dataset, params.dapi_channel)
             : ''
-        def bleeding_dataset = params.bleeding_channel
-            ? change_dataset_channel(adjusted_image_dataset, params.bleeding_channel)
+        def bleeding_dataset = params.bleed_channel
+            ? change_dataset_channel(adjusted_image_dataset, params.bleed_channel)
             : ''
 
         def r = [
