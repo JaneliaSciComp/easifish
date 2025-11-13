@@ -643,7 +643,7 @@
                     "description": "Name of the DAPI channel.",
                     "help_text": "The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction."
                 },
-                "bleed_channel": {
+                "bleeding_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Channel (other than DAPI) that needs bleedthrough correction."
