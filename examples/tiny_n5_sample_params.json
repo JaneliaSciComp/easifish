@@ -1,6 +1,6 @@
 {
     "channels": "c0,c1",
-    "input": "examples/remote_samplesheets/tiny_samplesheet.csv",
+    "input": "${projectDir}/examples/remote_samplesheets/tiny_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
 
