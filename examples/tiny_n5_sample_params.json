@@ -55,5 +55,6 @@
     "bleeding_channel": "c0",
 
     "lsf_opts": "-P scicompsoft",
-    "cellpose_worker_cluster_opts": "-q gpu_l4 -gpu 'num=1'"
+    "cellpose_worker_cluster_opts": "-P scicompsoft -q gpu_l4 -gpu 'num=1'",
+    "singularity_cache_dir": "/nrs/scicompsoft/nextflow_work/.singularity_cache"
 }
