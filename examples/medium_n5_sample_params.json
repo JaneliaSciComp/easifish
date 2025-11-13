@@ -1,6 +1,6 @@
 {
     "channels": "c0,c1,c2,c3",
-    "input": "examples/local_samplesheets/medium_samplesheet.csv",
+    "input": "${projectDir}/examples/local_samplesheets/medium_samplesheet.csv",
     "indir": "/nrs/multifish/Pipeline/Examples/subset",
     "outdir": "/nrs/scicompsoft/goinac/multifish/medium/results",
 
