@@ -1,6 +1,6 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/JaneliaSciComp/easifish/master/nextflow_schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/JaneliaSciComp/easifish/main/nextflow_schema.json",
     "title": "JaneliaSciComp/easifish pipeline parameters",
     "description": "Lightsheet microscopy image reconstruction",
     "type": "object",
@@ -440,7 +440,7 @@
                 },
                 "bigstream_inv_step": {
                     "type": "number",
-                    "default": 1.0,
+                    "default": 1,
                     "hidden": true,
                     "description": "Step used for generating inverse displacement vector"
                 },
@@ -533,6 +533,10 @@
                 "spot_extraction_ids": {
                     "type": "string",
                     "description": "rounds used for extracting spots"
+                },
+                "distributed_spot_extraction": {
+                    "type": "boolean",
+                    "description": "if set uses a spark cluster to run spot extraction otherwise it uses spark-local"
                 },
                 "spot_channels": {
                     "type": "string",
@@ -643,7 +647,7 @@
                     "description": "Name of the DAPI channel.",
                     "help_text": "The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction."
                 },
-                "bleed_channel": {
+                "bleeding_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Channel (other than DAPI) that needs bleedthrough correction."
@@ -866,11 +870,11 @@
                 },
                 "sample_anisotropy": {
                     "type": "number",
-                    "default": 1.0
+                    "default": 1
                 },
                 "sample_expansion_factor": {
                     "type": "number",
-                    "default": 1.0
+                    "default": 1
                 },
                 "sample_voxel_spacing": {
                     "type": "string"
@@ -958,7 +962,7 @@
                 },
                 "cellprob_threshold": {
                     "type": "number",
-                    "default": 1.0,
+                    "default": 1,
                     "description": "Probabilty threshold to control cellpose mask size."
                 },
                 "cellpose_iou_threshold": {
@@ -1038,9 +1042,39 @@
                 "cellpose_worker_runtime_opts": {
                     "type": "string"
                 },
-                "cellpose_worker_lsf_opts": {
+                "cellpose_worker_cluster_opts": {
                     "type": "string",
                     "default": "-q gpu_l4 -gpu \"num=1"
+                }
+            }
+        },
+        "warp_spots": {
+            "title": "Warp spots parameters",
+            "type": "object",
+            "description": "Parameters for warping spots",
+            "fa_icon": "far fa-map",
+            "properties": {
+                "skip_warp_spots": {
+                    "type": "boolean",
+                    "description": "If set skip spots warping",
+                    "default": false
+                },
+                "warped_spots_subdir": {
+                    "type": "string",
+                    "description": "Subdirectory for warped spots results",
+                    "default": "warped-spots"
+                },
+                "warp_spots_cpus": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cpus needed for warping spots.",
+                    "default": 1
+                },
+                "warp_spots_mem_in_gb": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory needed for warping spots",
+                    "default": 15
                 }
             }
         },
@@ -1192,6 +1226,9 @@
         },
         {
             "$ref": "#/definitions/spot_extraction"
+        },
+        {
+            "$ref": "#/definitions/warp_spots"
         },
         {
             "$ref": "#/definitions/spots_features"

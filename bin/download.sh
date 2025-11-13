@@ -6,7 +6,7 @@ md5=$3
 
 if [ ! -e $filepath ]; then
     echo "Downloading $uri to $filepath"
-    curl -skL $uri -o $filepath
+    curl -skL --user-agent 'Mozilla/5.0' $uri -o $filepath
 fi
 
 if [ "$md5" ]; then

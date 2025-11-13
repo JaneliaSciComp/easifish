@@ -57,5 +57,5 @@
     "bleeding_channel": "c3",
 
     "lsf_opts": "-P scicompsoft",
-    "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"
+    "cellpose_worker_cluster_opts": "-q gpu_l4 -gpu 'num=1'"
 }

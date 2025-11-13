@@ -1,6 +1,6 @@
 {
     "channels": "c0,c1",
-    "input": "examples/remote_samplesheets/tiny_samplesheet.csv",
+    "input": "${projectDir}/examples/remote_samplesheets/tiny_samplesheet.csv",
     "indir": "/nrs/scicompsoft/goinac/multifish/tiny",
     "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
 
@@ -55,5 +55,5 @@
     "bleeding_channel": "c0",
 
     "lsf_opts": "-P scicompsoft",
-    "cellpose_worker_lsf_opts": "-q gpu_l4 -gpu 'num=1'"
+    "cellpose_worker_cluster_opts": "-q gpu_l4 -gpu 'num=1'"
 }
