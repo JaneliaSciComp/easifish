@@ -440,7 +440,7 @@
                 },
                 "bigstream_inv_step": {
                     "type": "number",
-                    "default": 1.0,
+                    "default": 1,
                     "hidden": true,
                     "description": "Step used for generating inverse displacement vector"
                 },
@@ -870,11 +870,11 @@
                 },
                 "sample_anisotropy": {
                     "type": "number",
-                    "default": 1.0
+                    "default": 1
                 },
                 "sample_expansion_factor": {
                     "type": "number",
-                    "default": 1.0
+                    "default": 1
                 },
                 "sample_voxel_spacing": {
                     "type": "string"
@@ -962,7 +962,7 @@
                 },
                 "cellprob_threshold": {
                     "type": "number",
-                    "default": 1.0,
+                    "default": 1,
                     "description": "Probabilty threshold to control cellpose mask size."
                 },
                 "cellpose_iou_threshold": {
@@ -1195,11 +1195,6 @@
                 "runtime_opts": {
                     "type": "string",
                     "description": "container run options"
-                },
-                "lsf_opts": {
-                    "type": "string",
-                    "description": "LSF cluster options when running an LSF executor",
-                    "hidden": true
                 }
             }
         }
