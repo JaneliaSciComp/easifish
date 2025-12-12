@@ -1,5 +1,5 @@
 process CELLPOSE {
-    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/cellpose:4.0.6-dask2025.5.1-py12' }
+    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/cellpose:4.0.8-dask2025.11.0-py12' }
     cpus { cellpose_cpus }
     memory "${cellpose_mem_in_gb} GB"
     conda 'modules/janelia/cellpose/conda-env.yml'

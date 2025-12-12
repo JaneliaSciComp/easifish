@@ -19,27 +19,46 @@ input:
         Groovy map containing: id, input_image_dataset, output_image_name
   - image:
       type: file
-      description: Path to the image
+      description: Path to the image container
   - image_subpath:
       type: string
       description: Relative path to the image dataset if needed (for N5 or zarr containers)
-  - dask_config:
-      type: file
-      description: |
-        Optional path to the dask config. If this is not specified pass in as empty list.
   - models_path:
       type: directory
       description: |
         Optional path to the cellpose models cache directory. If this is not specified pass in as empty list.
-  - outputdir:
-      type: directory
-      description: Directory location of the output image
-  - output_name:
+  - model_name:
       type: string
-      description: Name the generated output file(s).
+      description: The name of the cellpose model.
+  - output_dir:
+      type: directory
+      description: Directory location of the output image container
+  - labels:
+      type: string
+      description: Name of the labels container created at the location specified by output_dir
+  - labels_subpath:
+      type: string
+      description: Relative labels dataset subpath
+  - working_dir:
+      type: directory
+      description: |
+        Location of the temporary files created during the segmentation. This must have enough space to hold the temporary labels 
+        before they are reassigned during the merge process
   - dask_scheduler:
       type: string
       description: Dask scheduler IP
+  - dask_config:
+      type: file
+      description: |
+        Optional path to the dask config. If this is not specified pass in as empty list.
+  - preprocessing_config:
+      type: file
+      description: |
+        Optional YAML file holding the configuration parameters for various preprocessing operations.
+        So far the only preprocessing available is a gaussian filter but there may be more in the future
+  - logging_config:
+      type: file
+      description: Optional log config.
   - cellpose_cpus:
       type: integer
       description: Number of cpus needed to run the main cellpose program
@@ -51,13 +70,23 @@ output:
       type: map
       description: |
         Groovy map containing: id, input_image_dataset, output_image_name
-  - results:
+  - input_image_fullpath:
       type: directory
       description: |
-        Tuple containing meta, input image, output dir
-  - result_names:
+        Full path to the input image container
+  - image_subpath:
       type: string
-      description: Tuple containing result names and extensions
+      description: |
+        Subpath to the input image dataset
+  - output_label_images:
+      type: string
+      description: |
+        One or more image names containing segmentation results. If the output is a zarr or N5 container
+        there's only one output_label_image, but if the output type is a tiff and the segmented image is large
+        there can be multiple tiff files
+  - output_labels_subpath:
+        type: string
+        description: this is the labels dataset if the output is a zarr or N5 container
   - versions:
       type: file
       description: File containing software versions

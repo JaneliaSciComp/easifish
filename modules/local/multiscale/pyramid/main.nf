@@ -1,6 +1,6 @@
 process MULTISCALE_PYRAMID {
     tag { meta.id }
-    container { task.ext.container ?: 'ghcr.io/janeliascicomp/zarr-tools:dask2025.5.1-py12-ol9' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/zarr-tools:dask2025.11.0-py12-ol9' }
     cpus { multiscale_cpus }
     memory { "${multiscale_mem_gb} GB" }
 
@@ -27,7 +27,7 @@ process MULTISCALE_PYRAMID {
     full_data_container_path=\$(readlink -e ${data_container})
     echo "Generate pyramid for \${full_data_container_path}:${dataset_subpath}"
     CMD=(
-        python /opt/scripts/zarr-tools/main_multiscale.py
+        python -m zarr_tools.cli.main_multiscale
         -i \${full_data_container_path}
         ${dataset_subpath_arg}
         ${dask_scheduler_arg}
