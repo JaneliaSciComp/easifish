@@ -58,10 +58,10 @@ workflow PIPELINE_INITIALISATION {
     def ch_inputs = Channel.of([params.input, params.indir])
     | map { input_arg, inputdir_arg ->
         def samplesheet_file = file(input_arg, checkIfExists: true)
-        log.info "!!!!! samplesheet file: ${samplesheet_file}"
+        log.debug "Samplesheet file: ${samplesheet_file}"
         def inputdir = inputdir_arg
                             ? file(inputdir_arg, checkIfExists: true)
-                            : samplesheet_file.parent()
+                            : samplesheet_file.parent
         log.debug "Pipeline inputs: ${samplesheet_file}, ${inputdir}"
         return [samplesheet_file, inputdir]
     }
