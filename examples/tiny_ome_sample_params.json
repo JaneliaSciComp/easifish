@@ -1,8 +1,6 @@
 {
     "channels": "0,1",
-    "input": "${projectDir}/examples/remote_samplesheets/tiny_bigstitcher_samplesheet.csv",
-    "indir": "/nrs/scicompsoft/goinac/multifish/tiny",
-    "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
+    "input": "${projectDir}/examples/samplesheets/tiny_bigstitcher_samplesheet.csv",
 
     "use_bigstitcher": true,
     "stitching_result_container": "stitched.ome.zarr",
@@ -77,8 +75,6 @@
     "cellpose_dask_worker_mem_gb": 2,
     "sample_timeindex": "0",
     "cellpose_device": "mps",
-    "sample_z_axis": 1,
-    "sample_channel_axis": "0",
 
     "distributed_cellpose": true,
     "cellpose_driver_runtime_opts": "",

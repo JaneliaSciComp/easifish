@@ -1,11 +1,6 @@
 {
     "channels": "c0,c1",
-    "input": "${projectDir}/examples/remote_samplesheets/tiny_samplesheet.csv",
-    "indir": "/nrs/scicompsoft/goinac/multifish/tiny",
-    "outdir": "/nrs/scicompsoft/goinac/multifish/tiny/results",
-
-    "registration_subdir": "registration",
-    "segmentation_subdir": "segmentation",
+    "input": "${projectDir}/examples/samplesheets/tiny_samplesheet.csv",
 
     "skip_stitching": false,
     "skip_registration": false,
