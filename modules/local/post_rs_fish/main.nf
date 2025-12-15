@@ -1,6 +1,6 @@
 process POST_RS_FISH {
     tag { meta.id }
-    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.1-ome' }
+    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome' }
 
     input:
     tuple val(meta),
@@ -35,7 +35,7 @@ process POST_RS_FISH {
         voxel_spots_csv_dir=\$(dirname \${full_voxel_spots_csv_file})
         coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
 
-        python /opt/scripts/spots-utils/post-rs-fish.py \
+        python -m easifish_spots_tools.post_rs_fish \
             --image-container \${full_input_path} \
             --image-subpath ${input_dataset} \
             --input \${full_voxel_spots_csv_file} \

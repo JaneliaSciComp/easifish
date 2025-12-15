@@ -1,6 +1,6 @@
 process SPOTS_PROPS {
     tag { meta.id }
-    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.1-ome' }
+    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome' }
     cpus { ncpus }
     memory { "${mem_in_gb}GB" }
 
@@ -47,8 +47,7 @@ process SPOTS_PROPS {
     output_csv_file="\${full_output_dir}/${output_name}"
 
     CMD=(
-        python
-        /opt/scripts/spots-utils/labeled-spots-props.py
+        python -m easifish_spots_tools.labeled_spots_props
         --image-container \${full_input_image_path}
         --image-subpath ${input_dataset}
         --labels-container \${full_labels_path}

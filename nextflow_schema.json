@@ -841,7 +841,7 @@
                     "type": "string",
                     "pattern": "^\\d*$",
                     "description": "This applies only to OME-ZARR inputs and specify which labels timeindex to be used for extracting spot region properties",
-                    "default": "",
+                    "default": "0",
                     "hidden": true
                 },
                 "labels_channel": {
