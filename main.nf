@@ -34,6 +34,8 @@ workflow {
         params.validate_params,
         args,
         params.outdir,
+        params.help,
+        '', // example command
     )
 
     EASIFISH(

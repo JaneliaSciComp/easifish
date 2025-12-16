@@ -1,4 +1,3 @@
-
 include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
 include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
@@ -19,6 +18,8 @@ workflow PIPELINE_INITIALISATION {
     validate_params
     nextflow_cli_args
     outdir
+    help
+    command
 
     main:
 
@@ -40,7 +41,13 @@ workflow PIPELINE_INITIALISATION {
     UTILS_NFSCHEMA_PLUGIN (
         workflow,
         validate_params,
-        null
+        null,
+        false,
+        help,
+        true,
+        '',
+        '',
+        command,
     )
 
     //
