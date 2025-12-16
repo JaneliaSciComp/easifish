@@ -8,6 +8,8 @@
     "registration_subdir": "registration",
     "global_registration_container": "global-registration.ome.zarr",
     "global_registration_timeindex": "0",
+    "local_transform_name": "deform.zarr",
+    "local_inv_transform_name": "inv-deform.zarr",
 
     "local_registration_container": "registration.ome.zarr",
     "local_registration_timeindex": "0",
@@ -39,11 +41,11 @@
     "reg_ch": "1",
 
     "global_steps": "ransac,affine",
-    "global_scale": "2",
-    "fix_global_subpath": "2",
+    "global_scale": "3",
+    "fix_global_subpath": "3",
     "fix_global_timeindex": "0",
     "fix_global_channel": "1",
-    "mov_global_subpath": "2",
+    "mov_global_subpath": "3",
     "mov_global_timeindex": "0",
     "mov_global_channel": "1",
     "global_align_cpus": 1,
