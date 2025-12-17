@@ -1,7 +1,7 @@
 process LINK {
     tag "${samplesheet_row.filename}"
     label 'process_single'
-    container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0-rc2' }
 
     input:
     val samplesheet_row
