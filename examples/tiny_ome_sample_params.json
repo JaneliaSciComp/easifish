@@ -1,21 +1,21 @@
 {
     "channels": "0,1",
-    "input": "${projectDir}/examples/samplesheets/tiny_bigstitcher_samplesheet.csv",
+    "input": "${projectDir}/assets/samplesheets/tiny_bigstitcher_samplesheet.csv",
 
     "use_bigstitcher": true,
-    "stitching_result_container": "stitched.ome.zarr",
+    "stitching_result_container": "stitched.zarr",
 
     "registration_subdir": "registration",
-    "global_registration_container": "global-registration.ome.zarr",
+    "global_registration_container": "global-registration.zarr",
     "global_registration_timeindex": "0",
     "local_transform_name": "deform.zarr",
     "local_inv_transform_name": "inv-deform.zarr",
 
-    "local_registration_container": "registration.ome.zarr",
+    "local_registration_container": "registration.zarr",
     "local_registration_timeindex": "0",
 
     "segmentation_subdir": "segmentation",
-    "segmentation_imgname": "segmentation.ome.zarr",
+    "segmentation_imgname": "segmentation.zarr",
 
     "skip_stitching": false,
     "skip_bigstitcher_pairwise_stitch": false,
