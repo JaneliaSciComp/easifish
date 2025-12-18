@@ -56,6 +56,56 @@ LHA3_R5_tiny,LHA3_R5_tiny_V02.czi,,9a8de1ebca387dfbeb265e9fbb8ab435,https://jane
 LHA3_R5_tiny,LHA3_R5_tiny.mvl,,7300eaacaa089f8e6303a872a484e715,https://janelia.figshare.com/ndownloader/files/30900778
 ```
 
+### BigStitcher samplesheet
+
+If you use BigStitcher you have an option to do some preparation work and preview in Fiji and only run the final step - affine-fusion with EASI-FISH pipeline.
+
+
+If you have already prepared the stitching project for BigStitcher (dataset.xml) then you can use directly references to the corresponding dataset xmls since the XML already have correct references to the raw data. If these are not available you can use raw data as above.
+
+For example if the XMLs are present and the directory structure looks as below:
+```
+<somepath>/stitching_input
+│
+├─ r1/
+│  ├─ dataset.xml
+│  └─ dataset.ome.zarr
+│
+└─ r2/
+   ├─ dataset.xml
+   └─ dataset.ome.zarr
+```
+
+Then the samplesheet.csv can be:
+```
+id,filename,pattern
+r1,r1/dataset.xml,
+r2,r2/dataset.xml,
+```
+
+and the `--indir` parameter will be set to `<somepath>/stitching_input`
+
+If only raw data is available at some directory location
+
+```
+<somepath>/stitching_input
+│
+├─ r1/
+│  └─ r1.czi
+│
+└─ r2/
+   └─ r2.czi
+```
+
+Then the samplesheet.csv would be:
+```
+id,filename,pattern
+r1,r1/r1.czi,
+r2,r2/r2.czi,
+```
+
+and the `--indir` parameter will be set to `<somepath>/stitching_input`
+
 ### Overview: Samplesheet Columns
 
 | Column     | Description                                                                                                            |

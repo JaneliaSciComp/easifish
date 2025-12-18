@@ -80,9 +80,9 @@
 
     "distributed_cellpose": true,
     "cellpose_driver_runtime_opts": "",
-    "cellpose_driver_cluster_opts": "-P scicompsoft",
+    "cellpose_driver_cluster_opts": "",
     "cellpose_worker_runtime_opts": "--nv",
-    "cellpose_worker_cluster_opts": "-P scicompsoft -q gpu_l4 -gpu 'num=1'",
+    "cellpose_worker_cluster_opts": "-q gpu_l4 -gpu 'num=1'",
 
     "spot_subpaths": "0",
     "distributed_spot_extraction": false,
@@ -102,5 +102,5 @@
     "dapi_channel": "1",
     "bleeding_channel": "0",
 
-    "lsf_opts": "-P scicompsoft"
+    "lsf_opts": ""
 }
