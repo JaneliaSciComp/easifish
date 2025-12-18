@@ -105,12 +105,14 @@ workflow BIGSTITCHER {
                     ? [ advanced_stitching_params ]
                     : []
                 if (meta.stitching_xml) {
+                    log.debug "Create dataset ${meta.stitching_xml}"
                     // BDV XML project is present in meta
                     bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
                     bigstitcher_params = [
                         '-x', stitching_xml,
                     ] + advanced_stitching_args
                 } else {
+                    log.debug "Create dataset ${stitching_xml}"
                     // BDV XML project is not present in meta
                     bigstitcher_class = 'net.preibisch.bigstitcher.spark.ChainCommands'
                     def pattern = meta.pattern ?: "*.czi"
