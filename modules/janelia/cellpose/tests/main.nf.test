@@ -8,7 +8,7 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                input[0] = Channel.of(
+                input[0] = channel.of(
                     file(params.test_data['stitched_images']['n5']['r1_n5'])
                 )
                 """

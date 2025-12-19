@@ -14,7 +14,7 @@ process UNTAR_RAW_INPUT {
 
 workflow test_cellpose_standalone {
     test_cellpose(
-        Channel.of(
+        channel.of(
             file(params.test_data['stitched_images']['n5']['r1_n5'])
         )
     )
@@ -48,7 +48,7 @@ workflow test_cellpose {
 
     def cellpose_results = CELLPOSE(
         cellpose_test_data,
-        Channel.of(['', []]),
+        channel.of(['', []]),
         params.preprocessing_config ? file(params.preprocessing_config) : [],
         params.logging_config ? file(params.logging_config) : [],
         params.cellpose_driver_cpus,

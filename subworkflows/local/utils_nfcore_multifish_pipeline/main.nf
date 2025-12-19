@@ -25,7 +25,7 @@ workflow PIPELINE_INITIALISATION {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
@@ -64,7 +64,7 @@ workflow PIPELINE_INITIALISATION {
     //
     validateInputParameters()
 
-    def ch_inputs = Channel.of([params.input, params.indir])
+    def ch_inputs = channel.of([params.input, params.indir])
     | map { input_arg, inputdir_arg ->
         def samplesheet_file = file(input_arg, checkIfExists: true)
         log.debug "Samplesheet file: ${samplesheet_file}"

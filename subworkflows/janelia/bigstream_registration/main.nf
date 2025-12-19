@@ -432,7 +432,7 @@ workflow BIGSTREAM_REGISTRATION {
  */
 def as_value_channel(v) {
     if (!v.toString().contains("Dataflow")) {
-        Channel.value(v)
+        channel.value(v)
     } else if (!v.toString().contains("value")) {
         // if not a value channel return the first value
         v.first()
