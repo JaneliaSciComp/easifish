@@ -56,10 +56,10 @@ process CELLPOSE {
     def labels_image = labels ?: ''
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_config ? "--dask-config ${dask_config}" : ''
-    (labels_noext, labels_ext) = labels_image.lastIndexOf('.').with {
-        it == -1
+    (labels_noext, labels_ext) = labels_image.lastIndexOf('.').with { pos ->
+        pos == -1
             ? [labels_image, '']
-            : [labels_image[0..<it], labels_image[(it+1)..-1]]
+            : [labels_image[0..<pos], labels_image[(pos+1)..-1]]
     }
     log.debug "Labels output name:ext => ${labels_noext}:${labels_ext}"
 

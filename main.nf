@@ -35,6 +35,8 @@ workflow {
         args,
         params.outdir,
         params.help,
+        params.help_full,
+        params.show_hidden,
         '', // example command
     )
 

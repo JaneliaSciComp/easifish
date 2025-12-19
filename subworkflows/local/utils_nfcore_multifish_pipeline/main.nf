@@ -19,6 +19,8 @@ workflow PIPELINE_INITIALISATION {
     nextflow_cli_args
     outdir
     help
+    help_full
+    show_hidden
     command
 
     main:
@@ -42,9 +44,9 @@ workflow PIPELINE_INITIALISATION {
         workflow,
         validate_params,
         null,
-        false,
         help,
-        true,
+        help_full,
+        show_hidden,
         '',
         '',
         command,

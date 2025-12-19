@@ -37,7 +37,7 @@
                     },
                     "cellpose": {
                         "branch": "main",
-                        "git_sha": "a0144e5a7339f707a9c828a3192c884aac2f766a",
+                        "git_sha": "d42e3529e9886c8afbbaa6fc81afdb8fdc49eddf",
                         "installed_by": ["modules"]
                     },
                     "cellpose/tests": {
