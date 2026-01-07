@@ -5,5 +5,5 @@ dependencies:
   - pip
   - psutil>=7.1.3
   - pip:
-    - git+https://github.com/JaneliaSciComp/bigstream@d578f5f
+    - git+https://github.com/JaneliaSciComp/bigstream@7706d3b
     - git+https://github.com/JaneliaSciComp/cellpose-tools@695281d

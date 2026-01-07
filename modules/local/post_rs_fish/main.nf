@@ -35,11 +35,15 @@ process POST_RS_FISH {
         voxel_spots_csv_dir=\$(dirname \${full_voxel_spots_csv_file})
         coord_spots_csv_file=\${voxel_spots_csv_dir}/${spots_filename}
 
-        python -m easifish_spots_tools.post_rs_fish \
-            --image-container \${full_input_path} \
-            --image-subpath ${input_dataset} \
-            --input \${full_voxel_spots_csv_file} \
+        CMD=(
+            python -m easifish_spots_tools.post_rs_fish
+            --image-container \${full_input_path}
+            --image-subpath ${input_dataset}
+            --input \${full_voxel_spots_csv_file}
             --output \${coord_spots_csv_file}
+        )
+        echo "CMD: \${CMD[@]}"
+        (exec "\${CMD[@]}")
 
         spots_results=\$(ls \${voxel_spots_csv_dir}/${spots_filepattern})
         echo "Spots results \${spots_results}"
