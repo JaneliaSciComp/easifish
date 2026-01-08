@@ -37,12 +37,12 @@
                     },
                     "cellpose": {
                         "branch": "main",
-                        "git_sha": "d42e3529e9886c8afbbaa6fc81afdb8fdc49eddf",
+                        "git_sha": "8c4c9c8d519c90f7636121f1576a92eaee688dd6",
                         "installed_by": ["modules"]
                     },
                     "cellpose/tests": {
                         "branch": "main",
-                        "git_sha": "2a343e2f3a45213be05ca36e5de7d33f54c05ca0",
+                        "git_sha": "356c19d8ecafe61c03a2c34ca30c6c4a8c7666a7",
                         "installed_by": ["modules"]
                     },
                     "rs_fish": {

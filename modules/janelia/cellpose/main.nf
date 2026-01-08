@@ -44,6 +44,7 @@ process CELLPOSE {
                                     : ''
     def set_models_path = models_path
         ? "models_fullpath=\$(readlink ${models_path}) && \
+           echo \"Set models path: \${models_fullpath}\" && \
            mkdir -p \${models_fullpath} && \
            export CELLPOSE_LOCAL_MODELS_PATH=\${models_fullpath}"
         : ''
