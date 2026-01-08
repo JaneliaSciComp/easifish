@@ -1,11 +1,24 @@
-.nextflow*
-work/
+# OSX specific files
+.DS_Store
+
+# Python compiled files
+*.pyc
+
+# Emacs backup files
+*~
+
+# Local test data and scripts
+mylocal
 data/
 results/
-.DS_Store
 testing/
 testing*
-*.pyc
 null/
-mylocal
-*~
+
+# Nextflow work files and logs
+.nextflow*
+work/
+
+# Claude Code - personal settings only
+.claude/settings.local.json
+.claude/CLAUDE.local.md

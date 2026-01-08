@@ -8,8 +8,8 @@
 */
 
 include { EASIFISH                } from './workflows/easifish'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_multifish_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_multifish_pipeline'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_easifish_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_easifish_pipeline'
 
 
 

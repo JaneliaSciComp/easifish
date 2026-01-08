@@ -1,10 +1,10 @@
 {
     "channels": "",
     "input": "examples/local_samplesheets/segtest_samplesheet.csv",
-    "indir": "/nrs/scicompsoft/goinac/multifish/segtest/data",
-    "outdir": "/nrs/scicompsoft/goinac/multifish/segtest/results",
+    "indir": "/path/to/your/segtest/data",
+    "outdir": "/path/to/your/segtest/results",
 
-    "segmentation_input": "/nrs/scicompsoft/goinac/multifish/segtest/data/dapi_zarr_small.zarr",
+    "segmentation_input": "/path/to/your/dapi_zarr_small.zarr",
     "segmentation_subpaths": "",
     "seg_channels": "",
     "seg_scales": "",

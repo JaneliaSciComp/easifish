@@ -1,8 +1,8 @@
 {
     "channels": "c0,c1,c2,c3",
     "input": "${projectDir}/examples/local_samplesheets/medium_samplesheet.csv",
-    "indir": "/nrs/multifish/Pipeline/Examples/subset",
-    "outdir": "/nrs/scicompsoft/goinac/multifish/medium/results",
+    "indir": "/path/to/your/input/data",
+    "outdir": "/path/to/your/output/results",
 
     "registration_subdir": "registration",
     "segmentation_subdir": "segmentation",
