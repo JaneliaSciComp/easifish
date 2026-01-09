@@ -66,7 +66,7 @@
         "stitching_options": {
             "title": "Stitching",
             "type": "object",
-            "description": "Stitching options",
+            "description": "Common stitching options",
             "properties": {
                 "skip_stitching": {
                     "type": "boolean",
@@ -76,33 +76,10 @@
                     "type": "boolean",
                     "description": "If set stitch with BigStitcher"
                 },
-                "skip_bigstitcher_pairwise_stitch": {
-                    "type": "boolean",
-                    "description": "Skip pairwise stitching with BigStitcher",
-                    "hidden": true
-                },
-                "skip_bigstitcher_create_container": {
-                    "type": "boolean",
-                    "description": "Skip create container with BigStitcher",
-                    "hidden": true
-                },
-                "skip_bigstitcher_affine_fusion": {
-                    "type": "boolean",
-                    "description": "Skip affine fusion with BigStitcher",
-                    "hidden": true
-                },
-                "advanced_stitching_params": {
-                    "type": "string",
-                    "description": "BigStitcher stitching advanced args such as --ds --channels"
-                },
-                "preserve_anisotropy": {
-                    "type": "boolean",
-                    "description": "Bigstitcher preserveAnisotropy flag",
-                    "default": "false"
-                },
                 "stitching_result_container": {
                     "type": "string",
-                    "default": "stitched.n5"
+                    "default": "stitched.n5",
+                    "description": "Name of the stitching result container"
                 },
                 "stitching_channel": {
                     "type": "string",
@@ -110,64 +87,13 @@
                     "default": "all",
                     "description": "Name of the channel used for stitching, e.g. 'c1' or '1'. You can also specify 'all' to use all of the channels. Default: 'all'"
                 },
-                "flatfield_correction": {
-                    "type": "boolean",
-                    "fa_icon": "fas fa-cube",
-                    "description": "Apply flatfield correction before stitching. This is not used for BigStitcher? Default: false"
-                },
-                "darkfieldfile": {
-                    "type": "string",
-                    "fa_icon": "fas fa-cube",
-                    "description": "Path to the precomputed darkfield file used for flatfield correction. This is not used for BigStitcher."
-                },
-                "flatfieldfile": {
-                    "type": "string",
-                    "fa_icon": "fas fa-cube",
-                    "description": "Path to the precomputed flatfield file used for flatfield correction. This is not used for BigStitcher."
-                },
-                "axis_mapping": {
-                    "type": "string",
-                    "fa_icon": "fas fa-chart-line",
-                    "default": "-x,y,z",
-                    "description": "Axis mapping for the objective->pixel coordinates conversion. Default: -x,y,z",
-                    "help_text": "Comma-separated axis specification with optional flips."
-                },
-                "stitching_block_size": {
-                    "type": "string",
-                    "fa_icon": "fas fa-cube",
-                    "default": "128,128,64",
-                    "pattern": "^\\d+,\\d+,\\d+$",
-                    "description": "Block size to use when converting input data to n5 before stitching. Default: 128,128,64"
-                },
-                "final_block_size_xy": {
-                    "type": "integer",
-                    "fa_icon": "far fa-square",
-                    "description": "Block size (in Z dimension) when retiling after stitching. Default: 64",
-                    "help_text": "This must be smaller than the number of Z slices in the data.",
-                    "default": 512
-                },
-                "stitching_mode": {
-                    "type": "string",
-                    "fa_icon": "fas fa-braille",
-                    "description": "Rematching mode ('full' or 'incremental'). Default: incremental",
-                    "hidden": true,
-                    "default": "incremental"
-                },
-                "stitching_padding": {
-                    "type": "string",
-                    "fa_icon": "fas fa-expand",
-                    "description": "Padding for the overlap regions. Default: 0,0,0",
-                    "default": "0,0,0"
-                },
-                "stitching_blur_sigma": {
-                    "type": "integer",
-                    "fa_icon": "fas fa-border-style",
-                    "description": "Sigma value of the gaussian blur pre-applied to the images before stitching. Default: 2",
-                    "default": 2
-                },
                 "stitching_dir": {
                     "type": "string",
                     "description": "Directory containing intermediate stitching results"
+                },
+                "stitching_result_dir": {
+                    "type": "string",
+                    "description": "Directory containing final stitching results"
                 },
                 "spark_cluster": {
                     "type": "boolean",
@@ -213,10 +139,6 @@
                     "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
                     "default": 12
                 },
-                "stitching_result_dir": {
-                    "type": "string",
-                    "description": "Directory containing final stitching results"
-                },
                 "spark_local_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
@@ -224,6 +146,101 @@
                 }
             },
             "fa_icon": "far fa-map"
+        },
+        "bigstitcher": {
+            "title": "BigStitcher",
+            "type": "object",
+            "description": "BigStitcher specific options",
+            "properties": {
+                "skip_bigstitcher_pairwise_stitch": {
+                    "type": "boolean",
+                    "description": "Skip pairwise stitching with BigStitcher",
+                    "hidden": true
+                },
+                "skip_bigstitcher_create_container": {
+                    "type": "boolean",
+                    "description": "Skip create container with BigStitcher",
+                    "hidden": true
+                },
+                "skip_bigstitcher_affine_fusion": {
+                    "type": "boolean",
+                    "description": "Skip affine fusion with BigStitcher",
+                    "hidden": true
+                },
+                "advanced_stitching_params": {
+                    "type": "string",
+                    "description": "BigStitcher stitching advanced args such as --ds --channels"
+                },
+                "preserve_anisotropy": {
+                    "type": "boolean",
+                    "description": "BigStitcher preserveAnisotropy flag",
+                    "default": false
+                }
+            },
+            "fa_icon": "fas fa-th"
+        },
+        "saalfeld_stitching": {
+            "title": "Saalfeld Stitching",
+            "type": "object",
+            "description": "Saalfeld stitcher specific options",
+            "properties": {
+                "flatfield_correction": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-cube",
+                    "description": "Apply flatfield correction before stitching. Default: false"
+                },
+                "darkfieldfile": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cube",
+                    "description": "Path to the precomputed darkfield file used for flatfield correction"
+                },
+                "flatfieldfile": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cube",
+                    "description": "Path to the precomputed flatfield file used for flatfield correction"
+                },
+                "stitching_mode": {
+                    "type": "string",
+                    "fa_icon": "fas fa-braille",
+                    "description": "Rematching mode ('full' or 'incremental'). Default: incremental",
+                    "hidden": true,
+                    "default": "incremental"
+                },
+                "axis_mapping": {
+                    "type": "string",
+                    "fa_icon": "fas fa-chart-line",
+                    "default": "-x,y,z",
+                    "description": "Axis mapping for the objective->pixel coordinates conversion. Default: -x,y,z",
+                    "help_text": "Comma-separated axis specification with optional flips."
+                },
+                "stitching_block_size": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cube",
+                    "default": "128,128,64",
+                    "pattern": "^\\d+,\\d+,\\d+$",
+                    "description": "Block size to use when converting input data to n5 before stitching. Default: 128,128,64"
+                },
+                "final_block_size_xy": {
+                    "type": "integer",
+                    "fa_icon": "far fa-square",
+                    "description": "Block size (in Z dimension) when retiling after stitching. Default: 64",
+                    "help_text": "This must be smaller than the number of Z slices in the data.",
+                    "default": 512
+                },
+                "stitching_padding": {
+                    "type": "string",
+                    "fa_icon": "fas fa-expand",
+                    "description": "Padding for the overlap regions. Default: 0,0,0",
+                    "default": "0,0,0"
+                },
+                "stitching_blur_sigma": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-border-style",
+                    "description": "Sigma value of the gaussian blur pre-applied to the images before stitching. Default: 2",
+                    "default": 2
+                }
+            },
+            "fa_icon": "fas fa-puzzle-piece"
         },
         "registration": {
             "title": "Registration",
@@ -512,7 +529,7 @@
                 },
                 "bigstream_inv_step": {
                     "type": "number",
-                    "default": 1.0,
+                    "default": 1,
                     "hidden": true,
                     "description": "Step used for generating inverse displacement vector"
                 },
@@ -958,6 +975,11 @@
                     "default": 15,
                     "description": "Default memory per core",
                     "hidden": true
+                },
+                "lsf_opts": {
+                    "type": "string",
+                    "description": "Additional LSF options for job submission",
+                    "hidden": true
                 }
             }
         },
@@ -1071,11 +1093,11 @@
                 },
                 "sample_anisotropy": {
                     "type": "number",
-                    "default": 1.0
+                    "default": 1
                 },
                 "sample_expansion_factor": {
                     "type": "number",
-                    "default": 1.0
+                    "default": 1
                 },
                 "sample_voxel_spacing": {
                     "type": "string"
@@ -1181,18 +1203,18 @@
                 },
                 "cellpose_stitch_threshold": {
                     "type": "number",
-                    "default": 0.0,
+                    "default": 0,
                     "description": "Cellpose stitch threshold value - compute masks in 2D then stitch them with IOU > 0.9 across planes."
                 },
                 "cellprob_threshold": {
                     "type": "number",
                     "description": "Probabilty threshold to control cellpose mask size.",
-                    "default": 1.0
+                    "default": 1
                 },
                 "cellpose_flow3D_smooth": {
                     "type": "number",
                     "description": "Cellpose flow3D_smooth parameter",
-                    "default": 1.0
+                    "default": 1
                 },
                 "cellpose_labels_distance_th": {
                     "type": "number",
@@ -1388,6 +1410,12 @@
         },
         {
             "$ref": "#/$defs/stitching_options"
+        },
+        {
+            "$ref": "#/$defs/bigstitcher"
+        },
+        {
+            "$ref": "#/$defs/saalfeld_stitching"
         },
         {
             "$ref": "#/$defs/registration"
