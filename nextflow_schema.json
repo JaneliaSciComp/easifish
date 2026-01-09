@@ -25,7 +25,8 @@
                 "indir": {
                     "type": "string",
                     "format": "directory-path",
-                    "description": "The directory where the input images are located (or where they will be cached once they are downloaded). If undefined, it defaults to <outdir>/input"
+                    "description": "The directory where the input images are located (or where they will be cached once they are downloaded). If undefined, it defaults to <outdir>/input",
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "outdir": {
                     "type": "string",
@@ -70,16 +71,19 @@
             "properties": {
                 "skip_stitching": {
                     "type": "boolean",
-                    "description": "If set skip stitching"
+                    "description": "If set skip stitching",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "use_bigstitcher": {
                     "type": "boolean",
-                    "description": "If set stitch with BigStitcher"
+                    "description": "If set stitch with BigStitcher",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "stitching_result_container": {
                     "type": "string",
                     "default": "stitched.n5",
-                    "description": "Name of the stitching result container"
+                    "description": "Name of the stitching result container",
+                    "fa_icon": "fas fa-cube"
                 },
                 "stitching_channel": {
                     "type": "string",
@@ -89,11 +93,13 @@
                 },
                 "stitching_dir": {
                     "type": "string",
-                    "description": "Directory containing intermediate stitching results"
+                    "description": "Directory containing intermediate stitching results",
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "stitching_result_dir": {
                     "type": "string",
-                    "description": "Directory containing final stitching results"
+                    "description": "Directory containing final stitching results",
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "spark_cluster": {
                     "type": "boolean",
@@ -155,26 +161,31 @@
                 "skip_bigstitcher_pairwise_stitch": {
                     "type": "boolean",
                     "description": "Skip pairwise stitching with BigStitcher",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_bigstitcher_create_container": {
                     "type": "boolean",
                     "description": "Skip create container with BigStitcher",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_bigstitcher_affine_fusion": {
                     "type": "boolean",
                     "description": "Skip affine fusion with BigStitcher",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "advanced_stitching_params": {
                     "type": "string",
-                    "description": "BigStitcher stitching advanced args such as --ds --channels"
+                    "description": "BigStitcher stitching advanced args such as --ds --channels",
+                    "fa_icon": "fas fa-cog"
                 },
                 "preserve_anisotropy": {
                     "type": "boolean",
                     "description": "BigStitcher preserveAnisotropy flag",
-                    "default": false
+                    "default": false,
+                    "fa_icon": "fas fa-toggle-on"
                 }
             },
             "fa_icon": "fas fa-th"
@@ -252,365 +263,437 @@
                     "type": "string",
                     "default": "${projectDir}/conf/bigstream_config.yml",
                     "description": "Location of the YAML bigstream configuration",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-file"
                 },
                 "bigstream_verbose": {
                     "type": "boolean",
-                    "description": "Set verbosity for bigstream"
+                    "description": "Set verbosity for bigstream",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_registration": {
                     "type": "boolean",
-                    "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse"
+                    "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_global_align": {
                     "type": "boolean",
-                    "description": "If true skip global alignment"
+                    "description": "If true skip global alignment",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_local_align": {
                     "type": "boolean",
-                    "description": "If true skip local blockwise alignment"
+                    "description": "If true skip local blockwise alignment",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_inverse": {
                     "type": "boolean",
-                    "description": "If true skip computing the inverse transformation"
+                    "description": "If true skip computing the inverse transformation",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "registration_fix_id": {
                     "type": "string",
-                    "description": "ID of the fix image used for registration"
+                    "description": "ID of the fix image used for registration",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "fix_global_subpath": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Explicit fix image dataset used for global registration"
+                    "description": "Explicit fix image dataset used for global registration",
+                    "fa_icon": "fas fa-database"
                 },
                 "fix_global_timeindex": {
                     "type": "string",
                     "pattern": "\\d+",
                     "description": "selected timepoint for fix low resolution image",
-                    "default": "0"
+                    "default": "0",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "fix_global_channel": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Explicit fix image channel used for global registration"
+                    "description": "Explicit fix image channel used for global registration",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "mov_global_subpath": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Explicit moving image dataset used for global registration"
+                    "description": "Explicit moving image dataset used for global registration",
+                    "fa_icon": "fas fa-database"
                 },
                 "mov_global_timeindex": {
                     "type": "string",
                     "pattern": "\\d+",
                     "description": "selected timepoint for moving low resolution image",
-                    "default": "0"
+                    "default": "0",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "mov_global_channel": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Explicit fix image channel used for global registration"
+                    "description": "Explicit fix image channel used for global registration",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "reg_ch": {
                     "type": "string",
-                    "description": "Reference channel used for registration"
+                    "description": "Reference channel used for registration",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "reuse_global_affine": {
                     "type": "boolean",
                     "default": true,
-                    "description": "If True and global affine exists, reuse it"
+                    "description": "If True and global affine exists, reuse it",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "fix_mask_descriptor": {
                     "type": "string",
-                    "description": "tuple that describes fix mask."
+                    "description": "tuple that describes fix mask.",
+                    "fa_icon": "fas fa-cog"
                 },
                 "mov_mask_descriptor": {
                     "type": "string",
-                    "description": "tuple that describes mov mask."
+                    "description": "tuple that describes mov mask.",
+                    "fa_icon": "fas fa-cog"
                 },
                 "global_steps": {
                     "type": "string",
                     "default": "affine",
                     "hidden": true,
-                    "description": "Global steps - if not set they are read from the bigstream config"
+                    "description": "Global steps - if not set they are read from the bigstream config",
+                    "fa_icon": "fas fa-cog"
                 },
                 "global_scale": {
                     "type": "string",
-                    "description": "Scale used for global registration"
+                    "description": "Scale used for global registration",
+                    "fa_icon": "fas fa-ruler"
                 },
                 "fix_local_subpath": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Fix dataset used for local registration"
+                    "description": "Fix dataset used for local registration",
+                    "fa_icon": "fas fa-database"
                 },
                 "fix_local_timeindex": {
                     "type": "string",
                     "pattern": "\\d+",
                     "description": "selected timepoint for fix high resolution image",
-                    "default": "0"
+                    "default": "0",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "fix_local_channel": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Explicit channel for fix high resolution image"
+                    "description": "Explicit channel for fix high resolution image",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "mov_local_subpath": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Moving dataset used for local registration"
+                    "description": "Moving dataset used for local registration",
+                    "fa_icon": "fas fa-database"
                 },
                 "mov_local_timeindex": {
                     "type": "string",
                     "pattern": "\\d+",
                     "description": "selected timepoint for mov high resolution image",
-                    "default": "0"
+                    "default": "0",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "mov_local_channel": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Explicit channel for mov high resolution image"
+                    "description": "Explicit channel for mov high resolution image",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "global_fix_mask": {
                     "type": "string",
-                    "description": "Mask used for the global fix image"
+                    "description": "Mask used for the global fix image",
+                    "fa_icon": "fas fa-image"
                 },
                 "global_fix_mask_subpath": {
                     "type": "string",
-                    "description": "Subpath of the global fix mask"
+                    "description": "Subpath of the global fix mask",
+                    "fa_icon": "fas fa-database"
                 },
                 "global_mov_mask": {
                     "type": "string",
-                    "description": "Mask used for the global moving image"
+                    "description": "Mask used for the global moving image",
+                    "fa_icon": "fas fa-image"
                 },
                 "global_mov_mask_subpath": {
                     "type": "string",
-                    "description": "Subpath of the global moving mask"
+                    "description": "Subpath of the global moving mask",
+                    "fa_icon": "fas fa-database"
                 },
                 "local_fix_mask": {
                     "type": "string",
-                    "description": "Mask used for the local fix image"
+                    "description": "Mask used for the local fix image",
+                    "fa_icon": "fas fa-image"
                 },
                 "local_fix_mask_subpath": {
                     "type": "string",
-                    "description": "Subpath of the local fix mask"
+                    "description": "Subpath of the local fix mask",
+                    "fa_icon": "fas fa-database"
                 },
                 "local_mov_mask": {
                     "type": "string",
-                    "description": "Mask used for the local moving image"
+                    "description": "Mask used for the local moving image",
+                    "fa_icon": "fas fa-image"
                 },
                 "local_mov_mask_subpath": {
                     "type": "string",
-                    "description": "Subpath of the local moving mask"
+                    "description": "Subpath of the local moving mask",
+                    "fa_icon": "fas fa-database"
                 },
                 "local_inverse_cpus": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Number of cpus used for the main compute inverse process"
+                    "description": "Number of cpus used for the main compute inverse process",
+                    "fa_icon": "fas fa-microchip"
                 },
                 "local_inverse_mem_gb": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Memory used by the main compute inverse process"
+                    "description": "Memory used by the main compute inverse process",
+                    "fa_icon": "fas fa-memory"
                 },
                 "local_deform_cpus": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Number of cpus used for local deform driver"
+                    "description": "Number of cpus used for local deform driver",
+                    "fa_icon": "fas fa-microchip"
                 },
                 "local_deform_mem_gb": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Max memory in GB allowed for local deform driver"
+                    "description": "Max memory in GB allowed for local deform driver",
+                    "fa_icon": "fas fa-memory"
                 },
                 "local_steps": {
                     "type": "string",
                     "default": "affine,deform",
                     "description": "Steps for local alignment - if not set they are read from bigstream config yaml",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-cog"
                 },
                 "local_scale": {
                     "type": "string",
-                    "description": "Scale used for local registration"
+                    "description": "Scale used for local registration",
+                    "fa_icon": "fas fa-ruler"
                 },
                 "deform_subpath": {
                     "type": "string",
                     "hidden": true,
-                    "description": "subpath used for saving the deformation field"
+                    "description": "subpath used for saving the deformation field",
+                    "fa_icon": "fas fa-database"
                 },
                 "local_transform_name": {
                     "type": "string",
                     "default": "deform.n5",
-                    "description": "Name of the container for the local deform transformation"
+                    "description": "Name of the container for the local deform transformation",
+                    "fa_icon": "fas fa-cube"
                 },
                 "local_inv_transform_name": {
                     "type": "string",
                     "default": "inv-deform.n5",
-                    "description": "Name of the container for the local inverse deform transformation"
+                    "description": "Name of the container for the local inverse deform transformation",
+                    "fa_icon": "fas fa-cube"
                 },
                 "warped_subpaths": {
                     "type": "string",
                     "description": "explicit datasets to be warped",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-database"
                 },
                 "with_dask_cluster": {
                     "type": "boolean",
                     "default": true,
-                    "description": "If true use a distributed dask cluster"
+                    "description": "If true use a distributed dask cluster",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "dask_config": {
                     "type": "string",
                     "default": "${projectDir}/conf/dask_config.yml",
                     "description": "Dask cluster configuration",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-file"
                 },
                 "warped_channels": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Channels to be warped"
+                    "description": "Channels to be warped",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "warped_scales": {
                     "type": "string",
-                    "description": "All scales that need to be warped"
+                    "description": "All scales that need to be warped",
+                    "fa_icon": "fas fa-ruler"
                 },
                 "global_align_cpus": {
                     "type": "integer",
                     "default": 3,
                     "hidden": true,
-                    "description": "Number of CPUs used for global registration"
+                    "description": "Number of CPUs used for global registration",
+                    "fa_icon": "fas fa-microchip"
                 },
                 "global_align_mem_gb": {
                     "type": "integer",
                     "default": 0,
                     "description": "Memory for global alignment",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-memory"
                 },
                 "local_align_cpus": {
                     "type": "integer",
                     "default": 1,
                     "description": "CPUs used for local alignment driver",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-microchip"
                 },
                 "local_align_mem_gb": {
                     "type": "integer",
                     "default": 0,
                     "description": "Memory (GB) used for local alignment driver",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-memory"
                 },
                 "local_align_workers": {
                     "type": "integer",
                     "default": 10,
-                    "description": "Number of workers used for local alignment"
+                    "description": "Number of workers used for local alignment",
+                    "fa_icon": "fas fa-cogs"
                 },
                 "local_align_min_workers": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Minimum number of workers that need to be available before the local alignment starts"
+                    "description": "Minimum number of workers that need to be available before the local alignment starts",
+                    "fa_icon": "fas fa-cogs"
                 },
                 "local_align_worker_cpus": {
                     "type": "integer",
                     "default": 3,
-                    "description": "Number of CPUs for each worker"
+                    "description": "Number of CPUs for each worker",
+                    "fa_icon": "fas fa-microchip"
                 },
                 "local_align_worker_mem_gb": {
                     "type": "integer",
                     "default": 0,
                     "description": "Memory for each worker",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-memory"
                 },
                 "bigstream_local_blocksize": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Local alignment processing block size"
+                    "description": "Local alignment processing block size",
+                    "fa_icon": "fas fa-cube"
                 },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
                     "default": 0.125,
                     "hidden": true,
-                    "description": "Block overlap used for local alignment"
+                    "description": "Block overlap used for local alignment",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_inv_step": {
                     "type": "number",
                     "default": 1,
                     "hidden": true,
-                    "description": "Step used for generating inverse displacement vector"
+                    "description": "Step used for generating inverse displacement vector",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_inv_iterations": {
                     "type": "string",
                     "default": "20",
                     "hidden": true,
-                    "description": "Iterations for generating the inverse deformation field. This can be a comma separated list for using multiple iteration levels."
+                    "description": "Iterations for generating the inverse deformation field. This can be a comma separated list for using multiple iteration levels.",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_inv_shrink_spacings": {
                     "type": "string",
                     "default": "",
                     "hidden": true,
-                    "description": "Comma separated list of shrink spacing values per level. The number of values here must equal the number of iteration levels defined by `bigstream_inv_iterations`."
+                    "description": "Comma separated list of shrink spacing values per level. The number of values here must equal the number of iteration levels defined by `bigstream_inv_iterations`.",
+                    "fa_icon": "fas fa-cog"
                 },
                 "bigstream_inv_smooth_sigmas": {
                     "type": "string",
                     "default": "0.",
                     "hidden": true,
-                    "description": "Comma separated list of smooth sigmas per level"
+                    "description": "Comma separated list of smooth sigmas per level",
+                    "fa_icon": "fas fa-cog"
                 },
                 "bigstream_inv_step_cut_factor": {
                     "type": "number",
                     "default": 0.5,
                     "hidden": true,
-                    "description": "Step cut factor used for generated inverse displacement vector"
+                    "description": "Step cut factor used for generated inverse displacement vector",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_inv_pad": {
                     "type": "number",
                     "default": 0.1,
                     "hidden": true,
-                    "description": "Padding used for generated inverse displacement vector"
+                    "description": "Padding used for generated inverse displacement vector",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_inv_use_root": {
                     "type": "boolean",
                     "default": true,
                     "hidden": true,
-                    "description": "Use root for generating the inverse displacement vector"
+                    "description": "Use root for generating the inverse displacement vector",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_deformations": {
                     "type": "boolean",
                     "hidden": true,
-                    "description": "If true skip deformations"
+                    "description": "If true skip deformations",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "bigstream_dashboard_port": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Bigstream dask dashboard port - if 0 the scheduler will pick a port that is available. The typical port used by the dask dashboard is 8787"
+                    "description": "Bigstream dask dashboard port - if 0 the scheduler will pick a port that is available. The typical port used by the dask dashboard is 8787",
+                    "fa_icon": "fas fa-network-wired"
                 },
                 "bigstream_scheduler_port": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Bigstream dask scheduler port - if 0 the scheduler will pick a port that is available. The typical port for the dask scheduler is 8786"
+                    "description": "Bigstream dask scheduler port - if 0 the scheduler will pick a port that is available. The typical port for the dask scheduler is 8786",
+                    "fa_icon": "fas fa-network-wired"
                 },
                 "global_registration_container": {
                     "type": "string",
                     "default": "global-registration.n5",
-                    "description": "Name of the global registration container"
+                    "description": "Name of the global registration container",
+                    "fa_icon": "fas fa-cube"
                 },
                 "global_registration_timeindex": {
                     "type": "string",
                     "pattern": "\\d+",
                     "description": "selected timepoint for low resolution alignment output",
-                    "default": "0"
+                    "default": "0",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "local_registration_container": {
                     "type": "string",
                     "default": "registration.n5",
-                    "description": "Name of the final registration container"
+                    "description": "Name of the final registration container",
+                    "fa_icon": "fas fa-cube"
                 },
                 "local_registration_timeindex": {
                     "type": "string",
                     "pattern": "\\d+",
                     "description": "selected timepoint for low resolution alignment output",
-                    "default": "0"
+                    "default": "0",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "registration_subdir": {
                     "type": "string",
                     "hidden": true,
                     "default": "registration",
-                    "description": "Subdirectory used for registration results"
+                    "description": "Subdirectory used for registration results",
+                    "fa_icon": "fas fa-folder-open"
                 }
             },
             "help_text": "Registration parameters"
@@ -625,11 +708,13 @@
                 "distributed_spot_extraction": {
                     "type": "boolean",
                     "description": "If true run spot extraction on a distributed spark cluster",
-                    "default": true
+                    "default": true,
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_spot_extraction": {
                     "type": "boolean",
-                    "description": "If set skip spot extraction"
+                    "description": "If set skip spot extraction",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "spot_extraction_subdir": {
                     "type": "string",
@@ -639,23 +724,28 @@
                 },
                 "spot_extraction_ids": {
                     "type": "string",
-                    "description": "rounds used for extracting spots"
+                    "description": "rounds used for extracting spots",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "spot_channels": {
                     "type": "string",
-                    "description": "Comma delimited list of spot channels. This together with spot_scales is used for determining the datasets used for spot extraction."
+                    "description": "Comma delimited list of spot channels. This together with spot_scales is used for determining the datasets used for spot extraction.",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "spot_excluded_channels": {
                     "type": "string",
-                    "description": "Comma delimited list of spot channels excluded from spot extraction. This together with spot_scales is used for determining the datasets used for."
+                    "description": "Comma delimited list of spot channels excluded from spot extraction. This together with spot_scales is used for determining the datasets used for.",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "spot_scales": {
                     "type": "string",
-                    "description": "image scale used for spot extraction. This together with spot_channels is used for determining the datasets used for spot extraction."
+                    "description": "image scale used for spot extraction. This together with spot_channels is used for determining the datasets used for spot extraction.",
+                    "fa_icon": "fas fa-ruler"
                 },
                 "spot_subpaths": {
                     "type": "string",
-                    "description": "alternative for defining the datasets used for spot extraction. If this is defined it takes priority over spot_channels and spot_scales."
+                    "description": "alternative for defining the datasets used for spot extraction. If this is defined it takes priority over spot_channels and spot_scales.",
+                    "fa_icon": "fas fa-database"
                 },
                 "rsfish_min_intensity": {
                     "type": "string",
@@ -737,55 +827,66 @@
                 },
                 "use_fishspots": {
                     "type": "boolean",
-                    "description": "If true use fishspots for spot extraction"
+                    "description": "If true use fishspots for spot extraction",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "fishspots_psf_retries": {
                     "type": "integer",
                     "default": 3,
-                    "description": "Fishspots retries for determining the PSF"
+                    "description": "Fishspots retries for determining the PSF",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "fishspots_intensity_threshold": {
                     "type": "number",
                     "default": 0,
-                    "description": "Fishspots intensity threshold"
+                    "description": "Fishspots intensity threshold",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "fishspots_config": {
                     "type": "string",
-                    "description": "Fishspots YML config file containing various fishspots parameters"
+                    "description": "Fishspots YML config file containing various fishspots parameters",
+                    "fa_icon": "fas fa-file"
                 },
                 "fishspots_dask_config": {
                     "type": "string",
-                    "description": "Fishspots Dask configuration file."
+                    "description": "Fishspots Dask configuration file.",
+                    "fa_icon": "fas fa-file"
                 },
                 "fishspots_blocksize": {
                     "type": "string",
                     "default": "128,128,128",
-                    "description": "Fishspots block processing size"
+                    "description": "Fishspots block processing size",
+                    "fa_icon": "fas fa-cube"
                 },
                 "fishspots_dask_workers": {
                     "type": "integer",
                     "default": 8,
-                    "description": "Number of Dask workers used for fishspots"
+                    "description": "Number of Dask workers used for fishspots",
+                    "fa_icon": "fas fa-cogs"
                 },
                 "fishspots_dask_min_workers": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Minimum number of Dask workers required for fishspots"
+                    "description": "Minimum number of Dask workers required for fishspots",
+                    "fa_icon": "fas fa-cogs"
                 },
                 "fishspots_dask_worker_cpus": {
                     "type": "integer",
                     "default": 1,
-                    "description": "CPUs allocated for a fishspots Dask worker"
+                    "description": "CPUs allocated for a fishspots Dask worker",
+                    "fa_icon": "fas fa-microchip"
                 },
                 "fishspots_dask_worker_mem_gb": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Memory allocated for a fishspots Dask worker"
+                    "description": "Memory allocated for a fishspots Dask worker",
+                    "fa_icon": "fas fa-memory"
                 },
                 "fishspots_local_workers": {
                     "type": "integer",
                     "description": "Number of local processes when a local dask cluster (distributed_spot_extraction=false) is used for fishspots",
-                    "default": 0
+                    "default": 0,
+                    "fa_icon": "fas fa-cogs"
                 },
                 "fishspots_cpus": {
                     "type": "integer",
@@ -809,11 +910,13 @@
             "properties": {
                 "skip_spots_counts": {
                     "type": "boolean",
-                    "description": "If set skip spots count"
+                    "description": "If set skip spots count",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_region_props": {
                     "type": "boolean",
-                    "description": "If set skip spots region properties"
+                    "description": "If set skip spots region properties",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "spots_counts_subdir": {
                     "type": "string",
@@ -852,27 +955,31 @@
                     "type": "string",
                     "pattern": "^\\d*$",
                     "description": "This applies only to OME-ZARR inputs and specify which timeindex to be used for spot extraction",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "labels_timeindex": {
                     "type": "string",
                     "pattern": "^\\d*$",
                     "description": "This applies only to OME-ZARR inputs and specify which labels timeindex to be used for extracting spot region properties",
                     "default": "0",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "labels_channel": {
                     "type": "string",
                     "pattern": "^\\d*$",
                     "description": "This applies only to OME-ZARR inputs and specify which labels channel to be used for extracting spot region properties",
                     "default": "",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "spots_counts_pattern": {
                     "type": "string",
                     "description": "Spots counts file name pattern",
                     "default": "*coord*.csv",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-file"
                 },
                 "spots_props_cores": {
                     "type": "integer",
@@ -897,12 +1004,14 @@
                 "skip_warp_spots": {
                     "type": "boolean",
                     "description": "If set skip spots warping",
-                    "default": false
+                    "default": false,
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "warped_spots_subdir": {
                     "type": "string",
                     "description": "Subdirectory for warped spots results",
-                    "default": "warped-spots"
+                    "default": "warped-spots",
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "warp_spots_cpus": {
                     "type": "integer",
@@ -968,18 +1077,21 @@
                     "type": "integer",
                     "default": 500,
                     "description": "Nextflow queue when submitting tasks to LSF",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "default_mem_gb_per_cpu": {
                     "type": "integer",
                     "default": 15,
                     "description": "Default memory per core",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-memory"
                 },
                 "lsf_opts": {
                     "type": "string",
                     "description": "Additional LSF options for job submission",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-cog"
                 }
             }
         },
@@ -1026,17 +1138,20 @@
             "properties": {
                 "skip_multiscale_warped_image": {
                     "type": "boolean",
-                    "description": "If true skip generating multiscale pyramid for warped images"
+                    "description": "If true skip generating multiscale pyramid for warped images",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "multiscale_cpus": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Number of cpus for multiscale"
+                    "description": "Number of cpus for multiscale",
+                    "fa_icon": "fas fa-microchip"
                 },
                 "multiscale_mem_gb": {
                     "type": "integer",
                     "default": 15,
-                    "description": "Memory resource in GB for multiscale"
+                    "description": "Memory resource in GB for multiscale",
+                    "fa_icon": "fas fa-memory"
                 }
             }
         },
@@ -1049,235 +1164,283 @@
                 "segmentation_ids": {
                     "type": "string",
                     "description": "Round id to be segmented",
-                    "default": "t1"
+                    "default": "t1",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "segmentation_input": {
                     "type": "string",
-                    "description": "Segmentation input image - if set this will be the segmentation input"
+                    "description": "Segmentation input image - if set this will be the segmentation input",
+                    "fa_icon": "fas fa-image"
                 },
                 "segmentation_subpaths": {
                     "type": "string",
-                    "description": "Comma delimited list of segmentation datasets"
+                    "description": "Comma delimited list of segmentation datasets",
+                    "fa_icon": "fas fa-database"
                 },
                 "seg_channels": {
                     "type": "string",
                     "default": "c1",
-                    "description": "Channels used for segmentation"
+                    "description": "Channels used for segmentation",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "seg_scales": {
                     "type": "string",
                     "default": "s2",
-                    "description": "Scale of the segmented image"
+                    "description": "Scale of the segmented image",
+                    "fa_icon": "fas fa-ruler"
                 },
                 "segmentation_subdir": {
                     "type": "string",
                     "default": "segmentation",
-                    "description": "Relative path of the segmentation result"
+                    "description": "Relative path of the segmentation result",
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "segmentation_imgname": {
                     "type": "string",
                     "default": "segmentation.n5",
-                    "description": "Name of the segmentation image"
+                    "description": "Name of the segmentation image",
+                    "fa_icon": "fas fa-image"
                 },
                 "cellpose_input_channels": {
                     "type": "string",
-                    "description": "One or more comma separated channels used for segmentation."
+                    "description": "One or more comma separated channels used for segmentation.",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "skip_segmentation": {
                     "type": "boolean",
-                    "description": "If true skip segmentation"
+                    "description": "If true skip segmentation",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "skip_multiscale_segmentation": {
                     "type": "boolean",
-                    "description": "If true skip generating the pyramid for the labels image"
+                    "description": "If true skip generating the pyramid for the labels image",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "sample_anisotropy": {
                     "type": "number",
-                    "default": 1
+                    "default": 1,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "sample_expansion_factor": {
                     "type": "number",
-                    "default": 1
+                    "default": 1,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "sample_voxel_spacing": {
-                    "type": "string"
+                    "type": "string",
+                    "fa_icon": "fas fa-ruler"
                 },
                 "sample_channel_axis": {
                     "type": "string",
                     "description": "channel axis for image to be segmented after the timeindex axis was eliminated",
-                    "default": "0"
+                    "default": "0",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "sample_timeindex": {
                     "type": "string",
                     "pattern": "\\d*",
-                    "description": "Segmentation input timepoint"
+                    "description": "Segmentation input timepoint",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "sample_z_axis": {
                     "type": "integer",
                     "description": "Z axis for image to be segmented after the timeindex axis was eliminated",
-                    "default": 0
+                    "default": 0,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_verbose": {
                     "type": "boolean",
-                    "description": "Controls cellpose log verbosity"
+                    "description": "Controls cellpose log verbosity",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "cellpose_preprocessing_steps": {
                     "type": "string",
                     "description": "Preprocessing steps (There aren't any clear steps yet so ignore for now)",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-cog"
                 },
                 "cellpose_preprocessing_config_file": {
                     "type": "string",
                     "description": "YML config file containing preprocessing parameters. However the preprocessing is not clear yet",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-file"
                 },
                 "distributed_cellpose": {
                     "type": "boolean",
                     "description": "Use a distributed dask cluster to run segmentation",
                     "default": true,
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "cellpose_model": {
                     "type": "string",
                     "description": "Cellpose model name",
-                    "default": "cpsam"
+                    "default": "cpsam",
+                    "fa_icon": "fas fa-cog"
                 },
                 "cellpose_models_dir": {
                     "type": "string",
-                    "description": "Location of the cellpose models"
+                    "description": "Location of the cellpose models",
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "cellpose_log_config": {
                     "type": "string",
                     "description": "Cellpose logging configuration",
                     "default": "${projectDir}/conf/cellpose_logging_config.ini",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-file"
                 },
                 "cellpose_dask_config": {
                     "type": "string",
                     "default": "${projectDir}/conf/dask_config.yml",
                     "description": "Dask configuration used for distributed cellpose",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-file"
                 },
                 "distributed_cellpose_blocksize": {
                     "type": "string",
                     "default": "256,256,256",
-                    "description": "Cellpose blocksize used for parallelizing the distributed segmentation"
+                    "description": "Cellpose blocksize used for parallelizing the distributed segmentation",
+                    "fa_icon": "fas fa-cube"
                 },
                 "cellpose_blocks_overlap": {
                     "type": "string",
-                    "description": "Blocks overlap used for distributed segmentation"
+                    "description": "Blocks overlap used for distributed segmentation",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_use_gpu": {
                     "type": "boolean",
                     "default": true,
                     "description": "Use GPU for cellpose segmentation",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "cellpose_device": {
                     "type": "string",
                     "default": "0",
                     "description": "GPU device used for cellpose segmentation",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_do_3D": {
                     "type": "boolean",
                     "description": "Do cellppose segmentation in 3D. For 3D images this must be true",
                     "default": true,
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "cellpose_diameter": {
                     "type": "integer",
                     "default": 30,
-                    "description": "Default cellpose cell size"
+                    "description": "Default cellpose cell size",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_min_size": {
                     "type": "integer",
                     "default": 5,
-                    "description": "Minimum number of pixels per mask, can turn off with -1"
+                    "description": "Minimum number of pixels per mask, can turn off with -1",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_norm_percentile": {
                     "type": "string",
                     "pattern": "^((\\d)+ (\\d)+)?$",
                     "description": "Cellpose normalization args the define the low and high percentile",
-                    "default": "1 99"
+                    "default": "1 99",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_stitch_threshold": {
                     "type": "number",
                     "default": 0,
-                    "description": "Cellpose stitch threshold value - compute masks in 2D then stitch them with IOU > 0.9 across planes."
+                    "description": "Cellpose stitch threshold value - compute masks in 2D then stitch them with IOU > 0.9 across planes.",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellprob_threshold": {
                     "type": "number",
                     "description": "Probabilty threshold to control cellpose mask size.",
-                    "default": 1
+                    "default": 1,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_flow3D_smooth": {
                     "type": "number",
                     "description": "Cellpose flow3D_smooth parameter",
-                    "default": 1
+                    "default": 1,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_labels_distance_th": {
                     "type": "number",
                     "default": 1,
-                    "description": "Across labels distance transform threshold for merging labels from adjacent blocks"
+                    "description": "Across labels distance transform threshold for merging labels from adjacent blocks",
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_segmentation_cpus": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Number of CPUs allocated for the segmentation driver"
+                    "description": "Number of CPUs allocated for the segmentation driver",
+                    "fa_icon": "fas fa-microchip"
                 },
                 "cellpose_segmentation_mem_gb": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Max memory allocated for the segmentation driver"
+                    "description": "Max memory allocated for the segmentation driver",
+                    "fa_icon": "fas fa-memory"
                 },
                 "cellpose_dask_workers": {
                     "type": "integer",
                     "default": 8,
-                    "description": "Number of cellpose Dask workers"
+                    "description": "Number of cellpose Dask workers",
+                    "fa_icon": "fas fa-cogs"
                 },
                 "cellpose_dask_min_workers": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Minimum number of Dask workers required for segmentation"
+                    "description": "Minimum number of Dask workers required for segmentation",
+                    "fa_icon": "fas fa-cogs"
                 },
                 "cellpose_dask_worker_cpus": {
                     "type": "integer",
                     "default": 1,
-                    "description": "CPUs allocated for a cellpose Dask worker"
+                    "description": "CPUs allocated for a cellpose Dask worker",
+                    "fa_icon": "fas fa-microchip"
                 },
                 "cellpose_dask_worker_mem_gb": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Memory allocated for a cellpose Dask worker"
+                    "description": "Memory allocated for a cellpose Dask worker",
+                    "fa_icon": "fas fa-memory"
                 },
                 "cellpose_scheduler_port": {
                     "type": "integer",
                     "default": 0,
                     "description": "Default scheduler's port of the Dask segmentation cluster",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-network-wired"
                 },
                 "cellpose_dashboard_port": {
                     "type": "integer",
                     "default": 0,
                     "description": "Default dashboards port of the Dask segmentation cluster",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-network-wired"
                 },
                 "cellpose_driver_runtime_opts": {
                     "type": "string",
-                    "description": "Container runtime options for cellpose driver. When running the segmentation locally (non-distributed) enable GPU access for the main cellpose (--nv)"
+                    "description": "Container runtime options for cellpose driver. When running the segmentation locally (non-distributed) enable GPU access for the main cellpose (--nv)",
+                    "fa_icon": "fas fa-cog"
                 },
                 "cellpose_driver_cluster_opts": {
                     "type": "string",
-                    "description": "Cluster options for cellpose driver. When running the segmentation locally (non-distributed) we need the main cellpose to be dispatched to a GPU node."
+                    "description": "Cluster options for cellpose driver. When running the segmentation locally (non-distributed) we need the main cellpose to be dispatched to a GPU node.",
+                    "fa_icon": "fas fa-cog"
                 },
                 "cellpose_worker_runtime_opts": {
                     "type": "string",
-                    "description": "Container runtime options for cellpose dask workers. This is used to enable GPU access from the container running cellpose dask workers."
+                    "description": "Container runtime options for cellpose dask workers. This is used to enable GPU access from the container running cellpose dask workers.",
+                    "fa_icon": "fas fa-cog"
                 },
                 "cellpose_worker_cluster_opts": {
                     "type": "string",
-                    "description": "Cluster options for cellpose dask workers. This is to allocate cellpose dask workers to nodes that have GPUs, e.g. '-q gpu_l4 -gpu num=1' "
+                    "description": "Cluster options for cellpose dask workers. This is to allocate cellpose dask workers to nodes that have GPUs, e.g. '-q gpu_l4 -gpu num=1' ",
+                    "fa_icon": "fas fa-cog"
                 }
             }
         },
@@ -1375,28 +1538,33 @@
                 "workdir": {
                     "type": "string",
                     "default": "work",
-                    "description": "work directory"
+                    "description": "work directory",
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "user_id": {
                     "type": "integer",
                     "description": "user id - defaults to `id -u`",
                     "default": 0,
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "group_id": {
                     "type": "integer",
                     "description": "user group id - defaults to `id -g`",
                     "hidden": true,
-                    "default": 0
+                    "default": 0,
+                    "fa_icon": "fas fa-hashtag"
                 },
                 "singularity_cache_dir": {
                     "type": "string",
                     "description": "cache directory for singularity images",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "runtime_opts": {
                     "type": "string",
-                    "description": "container run options"
+                    "description": "container run options",
+                    "fa_icon": "fas fa-cog"
                 }
             }
         }
