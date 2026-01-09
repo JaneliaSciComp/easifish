@@ -74,10 +74,12 @@
                     "description": "If set skip stitching",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "use_bigstitcher": {
-                    "type": "boolean",
-                    "description": "If set stitch with BigStitcher",
-                    "fa_icon": "fas fa-toggle-on"
+                "stitching_method": {
+                    "type": "string",
+                    "enum": ["BigStitcher", "SaalfeldStitcher"],
+                    "default": "BigStitcher",
+                    "description": "Stitching method to use: BigStitcher or SaalfeldStitcher",
+                    "fa_icon": "fas fa-cog"
                 },
                 "stitching_result_container": {
                     "type": "string",
@@ -825,10 +827,12 @@
                     "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
                     "default": 4
                 },
-                "use_fishspots": {
-                    "type": "boolean",
-                    "description": "If true use fishspots for spot extraction",
-                    "fa_icon": "fas fa-toggle-on"
+                "spot_extraction_method": {
+                    "type": "string",
+                    "enum": ["RS_FISH", "FISHSPOTS"],
+                    "default": "RS_FISH",
+                    "description": "Spot extraction method to use: RS_FISH or FISHSPOTS",
+                    "fa_icon": "fas fa-cog"
                 },
                 "fishspots_psf_retries": {
                     "type": "integer",

@@ -57,7 +57,7 @@ workflow SPOT_EXTRACTION {
             log.debug "Skipped spot extraction, but verify any spot files at: $r"
             r
         }
-    } else if (params.use_fishspots) {
+    } else if (params.spot_extraction_method == 'FISHSPOTS') {
         log.debug "Extract spots using Fishspot"
         spots_results = FISHSPOT_EXTRACTION(
             spots_inputs,

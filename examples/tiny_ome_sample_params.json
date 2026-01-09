@@ -2,7 +2,7 @@
     "channels": "0,1",
     "input": "${projectDir}/assets/samplesheets/tiny_bigstitcher_samplesheet.csv",
 
-    "use_bigstitcher": true,
+    "stitching_method": "BigStitcher",
     "stitching_result_container": "stitched.zarr",
 
     "registration_subdir": "registration",

@@ -13,7 +13,7 @@ workflow STITCHING {
     def stitching_result_dir = params.stitching_result_dir ? file(params.stitching_result_dir) : outdir
 
     def stitching_results
-    if (params.use_bigstitcher) {
+    if (params.stitching_method == 'BigStitcher') {
         stitching_results = BIGSTITCHER(
             ch_acquisition_data,
             params.spark_cluster,
