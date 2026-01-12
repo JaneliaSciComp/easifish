@@ -1565,6 +1565,11 @@
                     "hidden": true,
                     "fa_icon": "fas fa-folder-open"
                 },
+                "singularity_pull_timeout": {
+                    "type": "integer",
+                    "description": "singularity container pull timeout",
+                    "hidden": true
+                },
                 "runtime_opts": {
                     "type": "string",
                     "description": "container run options",
