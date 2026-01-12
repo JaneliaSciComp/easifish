@@ -55,7 +55,7 @@ workflow FISHSPOT_EXTRACTION {
             cluster_context.scheduler_address,
             dask_config ? file(dask_config) : [],
         ]
-        log.debug "Prepare fishspots input $it"
+        log.debug "Prepare fishspots input $it, fishspots cpus: ${fishspots_cpus}, fishspots mem: ${fishspots_mem_gb} "
         fishspots_data: fishspots_data
         cluster_info: cluster_info
     }

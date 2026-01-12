@@ -2,7 +2,7 @@ process FISHSPOTS {
     tag "${meta.id}"
     container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/fishspots:0.5.0-ome-dask2025.5.1-py12-ol9' }
     cpus { fishspots_cpus }
-    memory { fishspots_mem_gb }
+    memory { "${fishspots_mem_gb} GB" }
 
     input:
     tuple val(meta),
