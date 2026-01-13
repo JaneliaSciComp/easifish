@@ -170,7 +170,7 @@ workflow BIGSTITCHER {
                         '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
                         "--group", meta.id,
                         '-s', meta.stitching_container_storage,
-                        '--multiRes',
+                        '--multiRes', // always generate the multiresolution pyramid
                         preserve_anisotropy_arg,
                     ]
                 ]
