@@ -85,7 +85,15 @@
     "cellpose_worker_cluster_opts": "-q gpu_l4 -gpu 'num=1'",
 
     "spot_subpaths": "0",
+    "spot_extraction_method": "RS_FISH",
     "distributed_spot_extraction": false,
+
+    "fishspots_dask_workers": 10,
+    "fishspots_blocksize": "256,256,256",
+    "fishspots_dask_worker_cpus": 1,
+    "fishspots_dask_worker_mem_gb": 15,
+    "fishspots_cpus": 1,
+    "fishspots_mem_gb": 15,
 
     "spark_cluster": true,
     "spark_workers": 1,
