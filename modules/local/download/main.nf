@@ -26,7 +26,7 @@ process DOWNLOAD {
         echo "Download directory: \${download_fullpath} - already exists"
     fi
 
-    if [[ ! -e "\${download_fullpath}/${samplesheet_row.filename}" ]]; then
+    if [[ ! -s "\${download_fullpath}/${samplesheet_row.filename}" ]]; then
         echo "Download ${samplesheet_row.uri} to \${download_fullpath}/${samplesheet_row.filename}"
         curl -skL --user-agent 'Mozilla/5.0' "${samplesheet_row.uri}" -o "\${download_fullpath}/${samplesheet_row.filename}"
     fi
