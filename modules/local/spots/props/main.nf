@@ -1,6 +1,6 @@
 process SPOTS_PROPS {
     tag { meta.id }
-    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome' }
+    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome-dask2025.11.0' }
     cpus { ncpus }
     memory { "${mem_in_gb}GB" }
 
