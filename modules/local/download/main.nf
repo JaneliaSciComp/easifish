@@ -14,7 +14,9 @@ process DOWNLOAD {
     when:
     task.ext.when == null || task.ext.when
 
-    script: // This script is bundled with the pipeline, in ./bin
+    script:
+    // no longer use the download script from bin
+    // because if everything is in one place it is easier to debug from the work dir
     """
     download_fullpath=\$(readlink -m "${download_dir}/${samplesheet_row.id}")
     if [[ ! -e \${download_fullpath} ]] ; then
@@ -24,7 +26,26 @@ process DOWNLOAD {
         echo "Download directory: \${download_fullpath} - already exists"
     fi
 
-    download.sh ${samplesheet_row.uri} "\${download_fullpath}/${samplesheet_row.filename}" ${samplesheet_row.checksum}
+    if [[ ! -e "\${download_fullpath}/${samplesheet_row.filename}" ]]; then
+        echo "Download ${samplesheet_row.uri} to \${download_fullpath}/${samplesheet_row.filename}"
+        curl -skL --user-agent 'Mozilla/5.0' "${samplesheet_row.uri}" -o "\${download_fullpath}/${samplesheet_row.filename}"
+    fi
+
+    if [[ "${samplesheet_row.checksum}" ]]; then
+        echo "Verify checksum"
+        if md5sum -c <<< "${samplesheet_row.checksum} \${download_fullpath}/${samplesheet_row.filename}"; then
+            echo "Checksum verified for \${download_fullpath}/${samplesheet_row.filename}"
+        else
+            echo "Checksum failed for \${download_fullpath}/${samplesheet_row.filename}"
+            exit 1
+        fi
+    fi
+
+    if [[ \${download_fullpath}/${samplesheet_row.filename} == *.zip ]]; then
+        # use dirname in case samplesheet_row.filename has relative paths
+        parentdir=\$(dirname \${download_fullpath}/${samplesheet_row.filename})
+        unzip -o -d \${parentdir} \${download_fullpath}/${samplesheet_row.filename}
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -32,5 +53,3 @@ process DOWNLOAD {
     END_VERSIONS
     """
 }
-
-
