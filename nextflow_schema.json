@@ -834,6 +834,11 @@
                     "description": "Spot extraction method to use: RS_FISH or FISHSPOTS",
                     "fa_icon": "fas fa-cog"
                 },
+                "fishspots_psf_file": {
+                    "type": "string",
+                    "description": "Path to the PSF file used for fishspots",
+                    "fa_icon": "fas fa-file"
+                },
                 "fishspots_psf_retries": {
                     "type": "integer",
                     "default": 3,

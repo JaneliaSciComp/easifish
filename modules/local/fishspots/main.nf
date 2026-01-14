@@ -1,6 +1,6 @@
 process FISHSPOTS {
     tag "${meta.id}"
-    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/fishspots:0.5.0-ome-dask2025.5.1-py12-ol9' }
+    container { task && task.ext.container ?: 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome-dask2025.11.0' }
     cpus { fishspots_cpus }
     memory { "${fishspots_mem_gb} GB" }
 
@@ -42,7 +42,7 @@ process FISHSPOTS {
     full_output_filename=\${full_spots_dir}/${output_filename}
 
     CMD=(
-        python -m distributed_tools.main_spot_extraction
+        python -m easifish_spots_tools.main_spot_extraction
         --input \${INPUT_IMG}
         --input_subpath ${input_dataset}
         --output \${full_output_filename}
