@@ -31,6 +31,11 @@ process DOWNLOAD {
         curl -skL --user-agent 'Mozilla/5.0' "${samplesheet_row.uri}" -o "\${download_fullpath}/${samplesheet_row.filename}"
     fi
 
+    if [[ -s "\${download_fullpath}/${samplesheet_row.filename}" ]]; then
+        echo "Error downloading ${samplesheet_row.uri} to \${download_fullpath}/${samplesheet_row.filename}!"
+        exit 1
+    fi
+
     if [[ "${samplesheet_row.checksum}" ]]; then
         echo "Verify checksum"
         if md5sum -c <<< "${samplesheet_row.checksum} \${download_fullpath}/${samplesheet_row.filename}"; then
