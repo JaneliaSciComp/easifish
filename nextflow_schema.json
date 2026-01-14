@@ -1571,7 +1571,7 @@
                     "fa_icon": "fas fa-folder-open"
                 },
                 "singularity_pull_timeout": {
-                    "type": "integer",
+                    "type": "string",
                     "description": "singularity container pull timeout",
                     "hidden": true
                 },
