@@ -119,8 +119,8 @@
                 "min_spark_workers": {
                     "type": "integer",
                     "fa_icon": "fas fa-cogs",
-                    "description": "Minimum number of Spark workers needed to start stitching pipeline. Default: 5",
-                    "default": 5
+                    "description": "Minimum number of Spark workers needed to start stitching pipeline. Default: 1",
+                    "default": 1
                 },
                 "spark_worker_cores": {
                     "type": "number",
@@ -144,8 +144,8 @@
                 "spark_driver_mem_gb": {
                     "type": "number",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
-                    "default": 12
+                    "description": "Amount of memory to allocate for the Spark driver. Default: 14g",
+                    "default": 14
                 },
                 "spark_local_dir": {
                     "type": "string",
