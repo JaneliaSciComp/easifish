@@ -2,6 +2,7 @@ process DOWNLOAD {
     tag "${samplesheet_row.filename}"
     label 'process_single'
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0-rc2' }
+    errorStrategy 'terminate'
 
     input:
     val samplesheet_row
@@ -17,6 +18,7 @@ process DOWNLOAD {
     script:
     // no longer use the download script from bin
     // because if everything is in one place it is easier to debug from the work dir
+    def checksum = samplesheet_row.checksum ?: ''
     """
     download_fullpath=\$(readlink -m "${download_dir}/${samplesheet_row.id}")
     if [[ ! -e \${download_fullpath} ]] ; then
@@ -31,19 +33,21 @@ process DOWNLOAD {
         curl -skL --user-agent 'Mozilla/5.0' "${samplesheet_row.uri}" -o "\${download_fullpath}/${samplesheet_row.filename}"
     fi
 
-    if [[ -s "\${download_fullpath}/${samplesheet_row.filename}" ]]; then
+    if [[ ! -s "\${download_fullpath}/${samplesheet_row.filename}" ]]; then
         echo "Error downloading ${samplesheet_row.uri} to \${download_fullpath}/${samplesheet_row.filename}!"
         exit 1
     fi
 
-    if [[ "${samplesheet_row.checksum}" ]]; then
+    if [[ "${checksum}" ]]; then
         echo "Verify checksum"
-        if md5sum -c <<< "${samplesheet_row.checksum} \${download_fullpath}/${samplesheet_row.filename}"; then
+        if md5sum -c <<< "${checksum} \${download_fullpath}/${samplesheet_row.filename}"; then
             echo "Checksum verified for \${download_fullpath}/${samplesheet_row.filename}"
         else
             echo "Checksum failed for \${download_fullpath}/${samplesheet_row.filename}"
             exit 1
         fi
+    else
+        echo "Skip checksum verification"
     fi
 
     if [[ \${download_fullpath}/${samplesheet_row.filename} == *.zip ]]; then
