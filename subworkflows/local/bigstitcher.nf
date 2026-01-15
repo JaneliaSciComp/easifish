@@ -1,9 +1,12 @@
-include { SPARK_START                            } from '../janelia/spark_start/main'
-include { SPARK_STOP                             } from '../janelia/spark_stop/main'
+include { SPARK_START                                   } from '../janelia/spark_start/main'
+include { SPARK_STOP                                    } from '../janelia/spark_stop/main'
 
-include { BIGSTITCHER_MODULE as STITCH           } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as CREATE_CONTAINER } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as FUSE             } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as CREATE_DATASET          } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as RESAVE                  } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as STITCH_CREATED_DATASET  } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as STITCH_EXISTING_DATASET } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as CREATE_CONTAINER        } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as FUSE                    } from '../../modules/janelia/bigstitcher/module'
 
 workflow BIGSTITCHER {
 
@@ -92,44 +95,26 @@ workflow BIGSTITCHER {
                 [ meta, spark ]
             }
         } else {
-            def pairwise_stitching_step_inputs = stitching_input
+            // Split into two paths based on whether stitching_xml exists
+            def with_xml = stitching_input.branch {
+                def (meta, spark, files) = it
+                has_xml: meta.stitching_xml != null
+                no_xml: meta.stitching_xml == null
+            }
+
+            // Path 1: stitching_xml exists - use SparkPairwiseStitching directly
+            def pairwise_stitch_with_xml_inputs = with_xml.has_xml
             | multiMap {
                 def (meta, spark, files) = it
-                def bigstitcher_class
-                def bigstitcher_params
-                // if stitching xml BDV is not set we get a default value and use that
-                // but we don't set it back in the meta because
-                // that alters the hash and downstream joins will not work correctly
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 def advanced_stitching_args = advanced_stitching_params
                     ? [ advanced_stitching_params ]
                     : []
-                if (meta.stitching_xml) {
-                    log.debug "Stitch using dataset ${stitching_xml}"
-                    // BDV XML project is present in meta
-                    bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
-                    bigstitcher_params = [
-                        '-x', stitching_xml,
-                    ] + advanced_stitching_args
-                } else {
-                    log.debug "Create dataset ${stitching_xml} and stitch ${meta.image_dir} (${meta.pattern})"
-                    // BDV XML project is not present in meta
-                    bigstitcher_class = 'net.preibisch.bigstitcher.spark.ChainCommands'
-                    def pattern = meta.pattern ?: "*.czi"
-                    bigstitcher_params = [
-                        '--command=create-dataset',
-                        '--input-pattern', meta.pattern,
-                        '--input-path', meta.image_dir,
-                        '-x', stitching_xml,
-                        '+',
-                        '--command=resave',
-                        '-x', stitching_xml,
-                        '-o', "${meta.image_dir}/dataset.zarr",
-                        '+',
-                        '--command=stitching',
-                        '-x', stitching_xml,
-                    ] + advanced_stitching_args
-                }
+                log.debug "Stitch using dataset ${stitching_xml}"
+                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
+                def bigstitcher_params = [
+                    '-x', stitching_xml,
+                ] + advanced_stitching_args
                 log.debug "Bigstitcher parameters: ${bigstitcher_class}: ${bigstitcher_params}"
                 def module_args = [
                     meta,
@@ -142,10 +127,103 @@ workflow BIGSTITCHER {
                 data_files: files
             }
 
-            pairwise_stitch_output = STITCH(
-                pairwise_stitching_step_inputs.module_args,
-                pairwise_stitching_step_inputs.data_files,
+            def pairwise_stitch_with_xml_output = STITCH_EXISTING_DATASET(
+                pairwise_stitch_with_xml_inputs.module_args,
+                pairwise_stitch_with_xml_inputs.data_files,
             )
+
+            // Path 2: stitching_xml doesn't exist - use separate create-dataset, resave, and stitching calls
+            // Step 1: create-dataset
+            def create_dataset_inputs = with_xml.no_xml
+            | multiMap {
+                def (meta, spark, files) = it
+                def stitching_xml = get_stitching_xml_or_default(meta)
+                log.debug "Create dataset ${stitching_xml} from ${meta.image_dir} (${meta.pattern})"
+                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.CreateDataset'
+                def bigstitcher_params = [
+                    '--input-pattern', meta.pattern,
+                    '--input-path', meta.image_dir,
+                    '-x', stitching_xml,
+                ]
+                log.debug "Create dataset parameters: ${bigstitcher_class}: ${bigstitcher_params}"
+                def module_args = [
+                    meta,
+                    spark,
+                    bigstitcher_class,
+                    bigstitcher_params,
+                ]
+                log.debug "Create dataset module args: $module_args"
+                module_args: module_args
+                data_files: files
+            }
+
+            def create_dataset_output = CREATE_DATASET(
+                create_dataset_inputs.module_args,
+                create_dataset_inputs.data_files,
+            )
+
+            // Step 2: resave
+            def resave_inputs = with_xml.no_xml
+            | join(create_dataset_output, by: 0)
+            | multiMap {
+                def (meta, spark, files) = it
+                def stitching_xml = get_stitching_xml_or_default(meta)
+                log.debug "Resave dataset ${stitching_xml} to ${meta.image_dir}/dataset.zarr"
+                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkResaveN5'
+                def bigstitcher_params = [
+                    '-x', stitching_xml,
+                    '-o', "${meta.image_dir}/dataset.zarr",
+                ]
+                log.debug "Resave parameters: ${bigstitcher_class}: ${bigstitcher_params}"
+                def module_args = [
+                    meta,
+                    spark,
+                    bigstitcher_class,
+                    bigstitcher_params,
+                ]
+                log.debug "Resave module args: $module_args"
+                module_args: module_args
+                data_files: files
+            }
+
+            def resave_output = RESAVE(
+                resave_inputs.module_args,
+                resave_inputs.data_files,
+            )
+
+            // Step 3: pairwise stitching
+            def pairwise_stitch_no_xml_inputs = with_xml.no_xml
+            | join(resave_output, by: 0)
+            | multiMap {
+                def (meta, spark, files) = it
+                def stitching_xml = get_stitching_xml_or_default(meta)
+                def advanced_stitching_args = advanced_stitching_params
+                    ? [ advanced_stitching_params ]
+                    : []
+                log.debug "Stitch dataset ${stitching_xml}"
+                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
+                def bigstitcher_params = [
+                    '-x', stitching_xml,
+                ] + advanced_stitching_args
+                log.debug "Pairwise stitching parameters: ${bigstitcher_class}: ${bigstitcher_params}"
+                def module_args = [
+                    meta,
+                    spark,
+                    bigstitcher_class,
+                    bigstitcher_params,
+                ]
+                log.debug "Pairwise stitching module args: $module_args"
+                module_args: module_args
+                data_files: files
+            }
+
+            def pairwise_stitch_no_xml_output = STITCH_CREATED_DATASET(
+                pairwise_stitch_no_xml_inputs.module_args,
+                pairwise_stitch_no_xml_inputs.data_files,
+            )
+
+            // Combine both paths
+            pairwise_stitch_output = pairwise_stitch_with_xml_output.mix(pairwise_stitch_no_xml_output)
 
             pairwise_stitch_output.subscribe { log.debug "Stitching output: $it" }
 
