@@ -22,6 +22,8 @@ workflow STITCHING {
             params.advanced_stitching_params,
             params.preserve_anisotropy,
             params.skip_stitching,
+            params.skip_bigstitcher_create_dataset,
+            params.skip_bigstitcher_resave,
             params.skip_bigstitcher_pairwise_stitch,
             params.skip_bigstitcher_create_container,
             params.skip_bigstitcher_affine_fusion,

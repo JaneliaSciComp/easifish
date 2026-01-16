@@ -3,8 +3,8 @@ include { SPARK_STOP                                    } from '../janelia/spark
 
 include { BIGSTITCHER_MODULE as CREATE_DATASET          } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as RESAVE                  } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as STITCH_CREATED_DATASET  } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as STITCH_EXISTING_DATASET } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as STITCH_NEW_DATASET      } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as CREATE_CONTAINER        } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as FUSE                    } from '../../modules/janelia/bigstitcher/module'
 
@@ -18,9 +18,11 @@ workflow BIGSTITCHER {
     advanced_stitching_params
     preserve_anisotropy
     skip_all_steps
-    skip_pairwise_stitch
-    skip_create_container
-    skip_affine_fusion
+    skip_create_dataset           // skip dataset creation (when stitching_xml doesn't exist)
+    skip_resave                   // skip resave step (when stitching_xml doesn't exist)
+    skip_pairwise_stitch          // skip stitching
+    skip_create_container         // in case the container already exists this option allows the user to skip the step
+    skip_affine_fusion            // skip affine fusion step
     spark_workdir                 // string|file: spark work dir
     spark_workers                 // int: number of workers in the cluster (ignored if spark_cluster is false)
     min_spark_workers             // int: min required spark workers
@@ -66,7 +68,7 @@ workflow BIGSTITCHER {
     }
 
     def stitching_results
-    if (skip_all_steps || skip_pairwise_stitch && skip_create_container && skip_affine_fusion) {
+    if (skip_all_steps || skip_create_dataset && skip_resave && skip_pairwise_stitch && skip_create_container && skip_affine_fusion) {
         stitching_results = prepared_data.map {
             def (meta) = it
             meta
@@ -88,21 +90,21 @@ workflow BIGSTITCHER {
 
         stitching_input.subscribe { log.debug "Stitching input: $it" }
 
-        def pairwise_stitch_output
+        // Split into two paths based on whether stitching_xml exists
+        def with_xml = stitching_input.branch {
+            def (meta, spark, files) = it
+            has_xml: meta.stitching_xml != null
+            no_xml: meta.stitching_xml == null
+        }
+
+        // Path 1: stitching_xml exists - use SparkPairwiseStitching directly
+        def pairwise_stitch_with_xml_output
         if (skip_pairwise_stitch) {
-            pairwise_stitch_output = stitching_input.map {
+            pairwise_stitch_with_xml_output = with_xml.has_xml.map {
                 def (meta, spark) = it
                 [ meta, spark ]
             }
         } else {
-            // Split into two paths based on whether stitching_xml exists
-            def with_xml = stitching_input.branch {
-                def (meta, spark, files) = it
-                has_xml: meta.stitching_xml != null
-                no_xml: meta.stitching_xml == null
-            }
-
-            // Path 1: stitching_xml exists - use SparkPairwiseStitching directly
             def pairwise_stitch_with_xml_inputs = with_xml.has_xml
             | multiMap {
                 def (meta, spark, files) = it
@@ -127,13 +129,21 @@ workflow BIGSTITCHER {
                 data_files: files
             }
 
-            def pairwise_stitch_with_xml_output = STITCH_EXISTING_DATASET(
+            pairwise_stitch_with_xml_output = STITCH_EXISTING_DATASET(
                 pairwise_stitch_with_xml_inputs.module_args,
                 pairwise_stitch_with_xml_inputs.data_files,
             )
+        }
 
-            // Path 2: stitching_xml doesn't exist - use separate create-dataset, resave, and stitching calls
-            // Step 1: create-dataset
+        // Path 2: stitching_xml doesn't exist - use separate create-dataset, resave, and stitching calls
+        // Step 1: create-dataset (conditionally executed)
+        def create_dataset_output
+        if (skip_create_dataset) {
+            create_dataset_output = with_xml.no_xml.map {
+                def (meta, spark) = it
+                [ meta, spark ]
+            }
+        } else {
             def create_dataset_inputs = with_xml.no_xml
             | multiMap {
                 def (meta, spark, files) = it
@@ -157,12 +167,17 @@ workflow BIGSTITCHER {
                 data_files: files
             }
 
-            def create_dataset_output = CREATE_DATASET(
+            create_dataset_output = CREATE_DATASET(
                 create_dataset_inputs.module_args,
                 create_dataset_inputs.data_files,
             )
+        }
 
-            // Step 2: resave
+        // Step 2: resave (conditionally executed)
+        def resave_output
+        if (skip_resave) {
+            resave_output = create_dataset_output
+        } else {
             def resave_inputs = with_xml.no_xml
             | join(create_dataset_output, by: 0)
             | multiMap {
@@ -186,12 +201,17 @@ workflow BIGSTITCHER {
                 data_files: files
             }
 
-            def resave_output = RESAVE(
+            resave_output = RESAVE(
                 resave_inputs.module_args,
                 resave_inputs.data_files,
             )
+        }
 
-            // Step 3: pairwise stitching
+        // Step 3: pairwise stitching
+        def pairwise_stitch_no_xml_output
+        if (skip_pairwise_stitch) {
+            pairwise_stitch_no_xml_output = resave_output
+        } else {
             def pairwise_stitch_no_xml_inputs = with_xml.no_xml
             | join(resave_output, by: 0)
             | multiMap {
@@ -217,17 +237,16 @@ workflow BIGSTITCHER {
                 data_files: files
             }
 
-            def pairwise_stitch_no_xml_output = STITCH_CREATED_DATASET(
+            pairwise_stitch_no_xml_output = STITCH_NEW_DATASET(
                 pairwise_stitch_no_xml_inputs.module_args,
                 pairwise_stitch_no_xml_inputs.data_files,
             )
-
-            // Combine both paths
-            pairwise_stitch_output = pairwise_stitch_with_xml_output.mix(pairwise_stitch_no_xml_output)
-
-            pairwise_stitch_output.subscribe { log.debug "Stitching output: $it" }
-
         }
+
+        // Combine both paths
+        def pairwise_stitch_output = pairwise_stitch_with_xml_output.mix(pairwise_stitch_no_xml_output)
+
+        pairwise_stitch_output.subscribe { log.debug "Stitching output: $it" }
 
         def create_fused_container_output
         if (skip_create_container) {
