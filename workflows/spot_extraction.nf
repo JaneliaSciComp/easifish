@@ -87,9 +87,17 @@ workflow SPOT_EXTRACTION {
         )
     }
 
-    POST_RS_FISH(spots_results)
+    def post_results
+    if (params.skip_spot_extraction) {
+        post_results = spots_results
+    } else {
+        POST_RS_FISH(spots_results)
+        post_results = POST_RS_FISH.out.results
+    }
 
-    def final_spot_results = expand_spot_results(POST_RS_FISH.out.results)
+    def final_spot_results = params.skip_spot_extraction
+        ? post_results
+        : expand_spot_results(post_results)
 
     emit:
     done = final_spot_results
