@@ -20,10 +20,23 @@ process STITCHING_CZI2N5 {
     driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
     app_args = "-i ${meta.stitching_dir}/tiles.json -o ${meta.stitching_dir}/tiles.n5"
     """
-    /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
-        /app/app.jar org.janelia.stitching.ConvertCZITilesToN5Spark \
-        ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
-        ${app_args} ${extra_args}
+    CND=(
+        /opt/scripts/runapp.sh
+        "${workflow.containerEngine}"
+        "${spark.work_dir}"
+        "${spark.uri}"
+        /app/app.jar
+        org.janelia.stitching.ConvertCZITilesToN5Spark
+        ${spark.parallelism}
+        ${spark.worker_cores}
+        "${executor_memory}"
+        ${spark.driver_cores}
+        "${driver_memory}"
+        ${app_args}
+        ${extra_args}
+    )
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -34,10 +47,23 @@ process STITCHING_CZI2N5 {
 
     stub:
     """
-    /opt/scripts/runapp.sh "${workflow.containerEngine}" "${spark.work_dir}" "${spark.uri}" \
-        /app/app.jar org.janelia.stitching.fake.FakeCZITilesToN5Spark \
-        ${spark.parallelism} ${spark.worker_cores} "${executor_memory}" ${spark.driver_cores} "${driver_memory}" \
-        ${app_args} ${extra_args}
+    CMD=(
+        /opt/scripts/runapp.sh
+        "${workflow.containerEngine}"
+        "${spark.work_dir}"
+        "${spark.uri}"
+        /app/app.jar
+        org.janelia.stitching.fake.FakeCZITilesToN5Spark
+        ${spark.parallelism}
+        ${spark.worker_cores}
+        "${executor_memory}"
+        ${spark.driver_cores}
+        "${driver_memory}"
+        ${app_args}
+        ${extra_args}
+    )
+    echo "CMD: \${CMD[@]}"
+    (exec "\${CMD[@]}")
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
