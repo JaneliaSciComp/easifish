@@ -270,7 +270,7 @@ workflow SPARK_START {
             driver_memory: "${spark_driver_mem_gb ?: (spark_driver_cpus * spark_gb_per_cpu)} GB",
             parallelism: (n_spark_workers * spark_worker_cpus),
             worker_memory: (spark_worker_cpus * spark_gb_per_cpu - 1)+" GB", // 1 GB of overhead for Spark, the rest for executors
-            executor_memory: (spark_worker_cpus * spark_gb_per_cpu - 1)+" GB",
+            executor_memory: (spark_worker_cpus * spark_gb_per_cpu - 2)+" GB",
         ]
         def r = [
             meta,
