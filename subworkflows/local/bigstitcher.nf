@@ -76,7 +76,6 @@ workflow BIGSTITCHER {
     } else {
         def spark_config = [
             'spark.executor.cores': spark_worker_cores > 1 ? String.valueOf(spark_worker_cores - 1) : String.valueOf(spark_worker_cores),
-            'spark.executor.memory': spark.executor_memory.replace(' GB', 'g')
         ]
         def stitching_input = SPARK_START(
             prepared_data,
