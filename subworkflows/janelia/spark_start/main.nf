@@ -341,7 +341,7 @@ workflow SPARK_START {
             def (meta, spark, spark_work_dir) = it
             spark.workers = 1
             spark.driver_cores = spark_driver_cpus + spark_worker_cpus
-            spark.driver_memory = (2 + spark_worker_cpus * spark_gb_per_cpu) + " GB"
+            spark.driver_memory = (spark_worker_cpus * spark_gb_per_cpu - 1) + " GB"
             spark.uri = 'local[*]'
             log.debug "Create local Spark context: ${meta}, ${spark}"
             [ meta, spark ]

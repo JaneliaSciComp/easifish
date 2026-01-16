@@ -74,9 +74,12 @@ workflow BIGSTITCHER {
             meta
         }
     } else {
+        def spark_config = [
+            'spark.executor.cores': spark_worker_cores > 1 ? String.valueOf(spark_worker_cores - 1) : String.valueOf(spark_worker_cores),
+        ]
         def stitching_input = SPARK_START(
             prepared_data,
-            [:], // spark config
+            spark_config,
             with_spark_cluster,
             spark_workdir,
             spark_workers,
