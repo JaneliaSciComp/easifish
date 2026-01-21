@@ -151,6 +151,21 @@
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
                     "description": "Temporary local folder for Spark processing. Must exist on all cluster nodes. Default: /tmp/spark-${workflow.sessionId}"
+                },
+                "spark_executor_cores": {
+                    "type": "string",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores per Spark executor. If empty, defaults to spark_worker_cores."
+                },
+                "spark_executor_memoryOverhead": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of additional memory to be allocated per executor process. If empty, uses Spark default."
+                },
+                "spark_max_partition_bytes": {
+                    "type": "string",
+                    "fa_icon": "fas fa-database",
+                    "description": "Maximum number of bytes to pack into a single partition when reading files. If empty, uses Spark default."
                 }
             },
             "fa_icon": "far fa-map"

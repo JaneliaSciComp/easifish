@@ -30,6 +30,7 @@ workflow BIGSTITCHER {
     spark_gb_per_core             // int: number of GB of memory per worker core
     spark_driver_cores            // int: number of cores for the driver
     spark_driver_mem_gb           // int: number of GB of memory for the driver
+    spark_config                  // map: additional spark configuration
 
     main:
     def prepared_data = ch_acquisition_data
@@ -74,9 +75,6 @@ workflow BIGSTITCHER {
             meta
         }
     } else {
-        def spark_config = [
-            'spark.executor.cores': spark_worker_cores > 1 ? String.valueOf(spark_worker_cores - 1) : String.valueOf(spark_worker_cores),
-        ]
         def stitching_input = SPARK_START(
             prepared_data,
             spark_config,

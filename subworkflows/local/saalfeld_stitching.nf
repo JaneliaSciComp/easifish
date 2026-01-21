@@ -27,6 +27,7 @@ workflow SAALFELD_STITCHING {
     spark_gb_per_core          // int: number of GB of memory per worker core
     spark_driver_cores         // int: number of cores for the driver
     spark_driver_mem_gb        // int: number of GB of memory for the driver
+    spark_config               // map: additional spark configuration
 
     main:
     def darkfield_file = darkfield ? file(darkfield) : []
@@ -62,7 +63,7 @@ workflow SAALFELD_STITCHING {
     if (!skip) {
         def stitching_input = SPARK_START(
             prepared_data,      // [meta, data_paths]
-            [:],                // spark default config
+            spark_config,       // spark default config
             with_spark_cluster,
             spark_workdir,
             spark_workers,

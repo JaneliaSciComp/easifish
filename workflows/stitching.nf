@@ -34,6 +34,7 @@ workflow STITCHING {
             params.spark_gb_per_core as int,
             params.spark_driver_cores as int,
             params.spark_driver_mem_gb as int,
+            create_stitching_spark_config(),
         )
     } else {
         stitching_results = SAALFELD_STITCHING(
@@ -53,10 +54,25 @@ workflow STITCHING {
             params.spark_gb_per_core as int,
             params.spark_driver_cores as int,
             params.spark_driver_mem_gb as int,
+            create_stitching_spark_config(),
         )
     }
 
     emit:
     done = stitching_results
 
+}
+
+def create_stitching_spark_config() {
+    def spark_config = [:]
+    if (params.spark_executor_cores) {
+        spark_config['spark.executor.cores'] = params.spark_executor_cores
+    }
+    if (params.spark_executor_memoryOverhead) {
+        spark_config['spark.executor.memoryOverhead'] = params.spark_executor_memoryOverhead
+    }
+    if (params.spark_max_partition_bytes) {
+        spark_config['spark.sql.files.maxPartitionBytes'] = params.spark_max_partition_bytes
+    }
+    return spark_config
 }
