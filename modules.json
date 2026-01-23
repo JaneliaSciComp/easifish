@@ -71,7 +71,7 @@
                     },
                     "spark_start": {
                         "branch": "main",
-                        "git_sha": "523fea52786889da0994e4c16c1c9b9b22a536df",
+                        "git_sha": "8ec6da708a4242c91548d25b9e209cedf095564c",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_stop": {

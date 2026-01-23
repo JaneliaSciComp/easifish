@@ -1,4 +1,5 @@
 process PREPARE_SPARK_CONFIG {
+    tag "${meta.id}"
     label 'process_single'
     container 'ghcr.io/janeliascicomp/spark:3.3.2-scala2.12-java17-ubuntu24.04'
 
@@ -49,6 +50,7 @@ process PREPARE_SPARK_CONFIG {
 }
 
 process SPARK_STARTMANAGER {
+    tag "${meta.id}"
     label 'process_long'
     container 'ghcr.io/janeliascicomp/spark:3.3.2-scala2.12-java17-ubuntu24.04'
 
@@ -99,6 +101,7 @@ process SPARK_STARTMANAGER {
 }
 
 process SPARK_WAITFORMANAGER {
+    tag "${meta.id}"
     label 'process_single'
     container 'ghcr.io/janeliascicomp/spark:3.3.2-scala2.12-java17-ubuntu24.04'
     errorStrategy { task.exitStatus == 2
@@ -143,6 +146,7 @@ process SPARK_WAITFORMANAGER {
 }
 
 process SPARK_STARTWORKER {
+    tag "${meta.id}:${worker_id}"
     label 'process_long'
     container 'ghcr.io/janeliascicomp/spark:3.3.2-scala2.12-java17-ubuntu24.04'
     cpus { spark.worker_cores }
@@ -190,6 +194,7 @@ process SPARK_STARTWORKER {
 }
 
 process SPARK_WAITFORWORKER {
+    tag "${meta.id}:${worker_id}"
     label 'process_single'
     container 'ghcr.io/janeliascicomp/spark:3.3.2-scala2.12-java17-ubuntu24.04'
     // retry on a timeout to prevent the case when the waiter is started
@@ -229,6 +234,7 @@ process SPARK_WAITFORWORKER {
 }
 
 process SPARK_CLEANUP {
+    tag "${meta.id}"
     label 'process_single'
     container 'ghcr.io/janeliascicomp/spark:3.3.2-scala2.12-java17-ubuntu24.04'
 

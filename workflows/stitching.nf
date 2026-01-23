@@ -56,7 +56,7 @@ workflow STITCHING {
             params.min_spark_workers as int,
             params.spark_worker_cores as int,
             params.spark_worker_mem_gb as int,
-            params.spark_executor_cpus as int,
+            params.spark_executor_cores as int,
             params.spark_executor_mem_gb as float,
             params.spark_executor_overhead_mem_gb as float,
             params.spark_driver_cores as int,

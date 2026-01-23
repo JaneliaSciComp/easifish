@@ -5,7 +5,7 @@ process STITCHING_STITCH {
     memory { "${spark.driver_memory}g" }
 
     input:
-    tuple val(meta), path(files), val(spark)
+    tuple val(meta), path(files, stageAs: '?/*'), val(spark)
     path(darkfield_file, stageAs: 'df/*')
     path(flatfield_file, stageAs: 'ff/*')
 
