@@ -2,7 +2,7 @@ process STITCHING_CZI2N5 {
     tag "${meta.id}"
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0-rc2' }
     cpus { spark.driver_cores }
-    memory { spark.driver_memory }
+    memory { "${spark.driver_memory}g" }
 
     input:
     tuple val(meta), path(files), val(spark)
@@ -15,12 +15,12 @@ process STITCHING_CZI2N5 {
     task.ext.when == null || task.ext.when
 
     script:
-    extra_args = task.ext.args ?: ''
-    executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
-    driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
-    app_args = "-i ${meta.stitching_dir}/tiles.json -o ${meta.stitching_dir}/tiles.n5"
+    def extra_args = task.ext.args ?: ''
+    def executor_memory_gb = spark.executor_memory
+    def driver_memory_gb = spark.driver_memory
+    def app_args = "-i ${meta.stitching_dir}/tiles.json -o ${meta.stitching_dir}/tiles.n5"
     """
-    CND=(
+    CMD=(
         /opt/scripts/runapp.sh
         "${workflow.containerEngine}"
         "${spark.work_dir}"
@@ -28,10 +28,10 @@ process STITCHING_CZI2N5 {
         /app/app.jar
         org.janelia.stitching.ConvertCZITilesToN5Spark
         ${spark.parallelism}
-        ${spark.worker_cores}
-        "${executor_memory}"
+        ${spark.executor_cores}
+        "${executor_memory_gb}g"
         ${spark.driver_cores}
-        "${driver_memory}"
+        "${driver_memory_gb}g"
         ${app_args}
         ${extra_args}
     )
@@ -46,6 +46,10 @@ process STITCHING_CZI2N5 {
     """
 
     stub:
+    def extra_args = task.ext.args ?: ''
+    def executor_memory_gb = spark.executor_memory
+    def driver_memory_gb = spark.driver_memory
+    def app_args = "-i ${meta.stitching_dir}/tiles.json -o ${meta.stitching_dir}/tiles.n5"
     """
     CMD=(
         /opt/scripts/runapp.sh
@@ -56,9 +60,9 @@ process STITCHING_CZI2N5 {
         org.janelia.stitching.fake.FakeCZITilesToN5Spark
         ${spark.parallelism}
         ${spark.worker_cores}
-        "${executor_memory}"
+        "${executor_memory_gb}g"
         ${spark.driver_cores}
-        "${driver_memory}"
+        "${driver_memory_gb}g"
         ${app_args}
         ${extra_args}
     )

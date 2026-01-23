@@ -128,12 +128,29 @@
                     "description": "Number of cores allocated to each Spark worker. Default: 4",
                     "default": 1
                 },
-                "spark_gb_per_core": {
+                "spark_worker_mem_gb": {
                     "type": "number",
-                    "fa_icon": "fas fa-cog",
-                    "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
-                    "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. ",
-                    "default": 15
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory (in GB) allocated to each Spark worker. If not set, defaults to spark_worker_cores * spark_gb_per_core.",
+                    "default": 0
+                },
+                "spark_executor_cores": {
+                    "type": "number",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores per Spark executor. If 0, defaults to spark_worker_cores.",
+                    "default": 0
+                },
+                "spark_executor_mem_gb": {
+                    "type": "number",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory (in GB) allocated to each Spark executor. If not set, defaults to spark_executor_cores * spark_gb_per_core.",
+                    "default": 0
+                },
+                "spark_executor_overhead_mem_gb": {
+                    "type": "number",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Spark executor memory overhead (in GB).",
+                    "default": 0
                 },
                 "spark_driver_cores": {
                     "type": "number",
@@ -147,20 +164,17 @@
                     "description": "Amount of memory to allocate for the Spark driver. Default: 14g",
                     "default": 14
                 },
+                "spark_gb_per_core": {
+                    "type": "number",
+                    "fa_icon": "fas fa-cog",
+                    "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
+                    "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. ",
+                    "default": 15
+                },
                 "spark_local_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
                     "description": "Temporary local folder for Spark processing. Must exist on all cluster nodes. Default: /tmp/spark-${workflow.sessionId}"
-                },
-                "spark_executor_cores": {
-                    "type": "string",
-                    "fa_icon": "fas fa-microchip",
-                    "description": "Number of cores per Spark executor. If empty, defaults to spark_worker_cores."
-                },
-                "spark_executor_memoryOverhead": {
-                    "type": "string",
-                    "fa_icon": "fas fa-memory",
-                    "description": "Amount of additional memory to be allocated per executor process. If empty, uses Spark default."
                 },
                 "spark_max_partition_bytes": {
                     "type": "string",
@@ -835,12 +849,29 @@
                     "description": "Number of cores allocated to each Spark worker.",
                     "default": 5
                 },
-                "rsfish_spark_gb_per_core": {
-                    "type": "integer",
-                    "fa_icon": "fas fa-cog",
-                    "description": "Size of memory (in GB) that is allocated for each core of a Spark worker.",
-                    "help_text": "The total memory usage for extracting spots from one acquisition will be workers * worker_cores * gb_per_core.",
-                    "default": 5
+                "rsfish_spark_worker_mem_gb": {
+                    "type": "number",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory (in GB) allocated to each RS-FISH Spark worker. If not set, defaults to rsfish_spark_worker_cores * rsfish_spark_gb_per_core.",
+                    "default": 0
+                },
+                "rsfish_spark_executor_cores": {
+                    "type": "number",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores per RS-FISH Spark executor. If not set, defaults to rsfish_spark_worker_cores.",
+                    "default": 0
+                },
+                "rsfish_spark_executor_mem_gb": {
+                    "type": "number",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory (in GB) allocated to each RS-FISH Spark executor. If not set, defaults to rsfish_spark_executor_cores * rsfish_spark_gb_per_core.",
+                    "default": 0
+                },
+                "rsfish_spark_executor_overhead_mem_gb": {
+                    "type": "number",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Additional memory overhead (in GB) for each RS-FISH Spark executor.",
+                    "default": 0
                 },
                 "rsfish_spark_driver_cores": {
                     "type": "integer",
@@ -853,6 +884,13 @@
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
                     "default": 4
+                },
+                "rsfish_spark_gb_per_core": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cog",
+                    "description": "Size of memory (in GB) that is allocated for each core of a Spark worker.",
+                    "help_text": "The total memory usage for extracting spots from one acquisition will be workers * worker_cores * gb_per_core.",
+                    "default": 5
                 },
                 "spot_extraction_method": {
                     "type": "string",

@@ -16,8 +16,8 @@ process BIGSTITCHER_MODULE {
 
     script:
     def args = module_args ? module_args.join(' ') : ''
-    def executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
-    def driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
+    def executor_memory_gb = spark.executor_memory
+    def driver_memory_gb = spark.driver_memory
     def app_jar = '/app/app.jar'
     """
     CMD=(
@@ -28,10 +28,10 @@ process BIGSTITCHER_MODULE {
         /app/app.jar
         ${module_class}
         ${spark.parallelism}
-        ${spark.worker_cores}
-        ${executor_memory}
+        ${spark.executor_cores}
+        "${executor_memory_gb}g"
         ${spark.driver_cores}
-        ${driver_memory}
+        "${driver_memory_gb}g"
         --spark-conf "spark.driver.extraClassPath=${app_jar}"
         --spark-conf "spark.executor.extraClassPath=${app_jar}"
         --spark-conf "spark.jars.ivy=\${SPARK_WORK_DIR}"

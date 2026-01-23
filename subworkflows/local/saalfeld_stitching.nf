@@ -24,9 +24,13 @@ workflow SAALFELD_STITCHING {
     spark_workers              // int: number of workers in the cluster (ignored if spark_cluster is false)
     min_spark_workers          // int: min required spark workers
     spark_worker_cores         // int: number of cores per worker
-    spark_gb_per_core          // int: number of GB of memory per worker core
+    spark_worker_mem_gb        // int: number of GB of memory per worker
+    spark_executor_cores       // int: number of cores per executor
+    spark_executor_mem_gb      // int: number of GB of memory per executor
+    spark_executor_overhead_mem_gb // int: executor memory overhead in GB
     spark_driver_cores         // int: number of cores for the driver
     spark_driver_mem_gb        // int: number of GB of memory for the driver
+    spark_gb_per_core          // int: number of GB of memory per worker core
     spark_config               // map: additional spark configuration
 
     main:
@@ -69,9 +73,13 @@ workflow SAALFELD_STITCHING {
             spark_workers,
             min_spark_workers,
             spark_worker_cores,
-            spark_gb_per_core,
+            spark_worker_mem_gb,
+            spark_executor_cores,
+            spark_executor_mem_gb,
+            spark_executor_overhead_mem_gb,
             spark_driver_cores,
-            spark_driver_mem_gb
+            spark_driver_mem_gb,
+            spark_gb_per_core,
         ) // ch: [ meta, spark ]
         | join(prepared_data, by: 0) // join to add the files
         | map {

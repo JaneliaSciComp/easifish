@@ -28,8 +28,8 @@ process RS_FISH {
     script:
     def extra_args = task.ext.args ?: ''
     def output_filename = spots_result_name ?: "${meta.id}-points.csv"
-    def executor_memory = spark.executor_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
-    def driver_memory = spark.driver_memory.replace(" KB",'k').replace(" MB",'m').replace(" GB",'g').replace(" TB",'t')
+    def executor_memory_gb = spark.executor_memory
+    def driver_memory_gb = spark.driver_memory
     """
     INPUT_IMG=\$(realpath ${input_image})
     full_spots_dir=\$(readlink -m ${spots_output_dir})
@@ -43,10 +43,10 @@ process RS_FISH {
         /app/app.jar
         net.preibisch.rsfish.spark.SparkRSFISH
         ${spark.parallelism}
-        ${spark.worker_cores}
-        ${executor_memory}
+        ${spark.executor_cores}
+        "${executor_memory_gb}g"
         ${spark.driver_cores}
-        ${driver_memory}
+        "${driver_memory_gb}g"
         --spark-conf "spark.jars.ivy=/tmp/.ivy2"
         --spark-conf "spark.driver.extraClassPath=/app/app.jar"
         --spark-conf "spark.executor.extraClassPath=/app/app.jar"

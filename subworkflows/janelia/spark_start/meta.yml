@@ -14,6 +14,9 @@ input:
       description: |
         Channel of tuples containing a meta map and a list of data paths
         Structure: [ val(meta), [path(data_paths)] ]
+  - config:
+      type: map
+      description: additional spark configuration
   - spark_cluster:
       type: boolean
       description: Whether or not to spin up a Spark cluster
@@ -23,18 +26,30 @@ input:
   - spark_workers:
       type: integer
       description: Number of workers in the cluster
-  - spark_worker_cores:
+  - min_workers:
       type: integer
-      description: Number of cores per Spark worker
-  - spark_gb_per_core:
+      description: Minimum number of spark workers that must be available on the spark cluster
+  - spark_worker_cpus:
       type: integer
-      description: Number of GB of memory per worker core
-  - spark_driver_cores:
+      description: Number of CPUs per Spark worker
+  - spark_executor_cpus:
       type: integer
-      description: Number of cores for the Spark driver
+      description: Number of CPUs for a spark executor
+  - spark_executor_mem_gb:
+      type: integer
+      description: Memory resource in GB allocated for a spark executor
+  - spark_executor_overhead_mem_gb:
+      type: integer
+      description: Memory overhead for a spark executor
+  - spark_driver_cpus:
+      type: integer
+      description: Number of CPUs for the Spark driver
   - spark_driver_mem_gb:
       type: integer
       description: Number of GB of memory for the Spark driver
+  - spark_gb_per_core:
+      type: integer
+      description: Number of GB of memory per worker core
 
 output:
   - spark_context:

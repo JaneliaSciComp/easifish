@@ -9,11 +9,16 @@ workflow RSFISH_SPOT_EXTRACTION {
     distributed                // boolean
     workdir
     spark_workers
-    min_spark_workers          // int: min required spark workers
-    spark_worker_cores         // int: number of cores per worker
-    spark_gb_per_core          // int: number of GB of memory per worker core
-    spark_driver_cores         // int: number of cores for the driver
-    spark_driver_mem_gb        // int: number of GB of memory for the driver
+    min_spark_workers              // int: min required spark workers
+    spark_worker_cores             // int: number of cores per worker
+    spark_worker_mem_gb            // int: number of GB of memory per worker
+    spark_executor_cores           // int: number of cores per executor
+    spark_executor_mem_gb          // number: number of GB of memory per executor
+    spark_executor_overhead_mem_gb // number: executor memory overhead in GB
+    spark_driver_cores             // int: number of cores for the driver
+    spark_driver_mem_gb            // int: number of GB of memory for the driver
+    spark_gb_per_core              // int: number of GB of memory per worker core
+    spark_config
 
     main:
     def spots_spark_input = ch_spots_input
@@ -27,15 +32,19 @@ workflow RSFISH_SPOT_EXTRACTION {
 
     def rsfish_input = SPARK_START(
         spots_spark_input,
-        [:],
+        spark_config,
         distributed,
         workdir,
         spark_workers,
         min_spark_workers,
         spark_worker_cores,
-        spark_gb_per_core,
+        spark_worker_mem_gb,
+        spark_executor_cores,
+        spark_executor_mem_gb,
+        spark_executor_overhead_mem_gb,
         spark_driver_cores,
         spark_driver_mem_gb,
+        spark_gb_per_core,
     ) // ch: [ meta, spark ]
     | join(ch_spots_input, by:0)
     | map {

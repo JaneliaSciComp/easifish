@@ -81,9 +81,14 @@ workflow SPOT_EXTRACTION {
             params.rsfish_spark_workers,
             params.rsfish_min_spark_workers,
             params.rsfish_spark_worker_cores,
-            params.rsfish_spark_gb_per_core,
+            params.rsfish_spark_worker_mem_gb,
+            params.rsfish_spark_executor_cores,
+            params.rsfish_spark_executor_mem_gb,
+            params.rsfish_spark_executor_overhead_mem_gb,
             params.rsfish_spark_driver_cores,
             params.rsfish_spark_driver_mem_gb,
+            params.rsfish_spark_gb_per_core,
+            [:], // spark config
         )
     }
 
