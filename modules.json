@@ -18,17 +18,17 @@
                     "bigstream/deform": {
                         "branch": "main",
                         "git_sha": "5e68d16f31a1c18f6e6b18a87549ebff4c61ee90",
-                        "installed_by": ["bigstream_registration"]
+                        "installed_by": ["modules"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
                         "git_sha": "5e68d16f31a1c18f6e6b18a87549ebff4c61ee90",
-                        "installed_by": ["bigstream_registration"]
+                        "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
                         "git_sha": "5e68d16f31a1c18f6e6b18a87549ebff4c61ee90",
-                        "installed_by": ["bigstream_registration"]
+                        "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
@@ -54,20 +54,15 @@
             },
             "subworkflows": {
                 "janelia": {
-                    "bigstream_registration": {
-                        "branch": "main",
-                        "git_sha": "2b253ac644902064fa692a25dc6b8c25bc68792f",
-                        "installed_by": ["subworkflows"]
-                    },
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "c2fb6e31c459e53023fcf365276fd83a9449abf4",
-                        "installed_by": ["bigstream_registration"]
+                        "git_sha": "5c986a80800d42793aba5b08c48ea67c687645bc",
+                        "installed_by": ["subworkflows"]
                     },
                     "dask_stop": {
                         "branch": "main",
                         "git_sha": "d7d82538cad8fc7edc2ae3bc6449c33a614d7b86",
-                        "installed_by": ["bigstream_registration"]
+                        "installed_by": ["subworkflows"]
                     },
                     "spark_start": {
                         "branch": "main",
