@@ -152,6 +152,12 @@
                     "description": "Spark executor memory overhead (in GB).",
                     "default": 0
                 },
+                "spark_task_cores": {
+                    "type": "number",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores per Spark task. If 0, defaults to 1.",
+                    "default": 0
+                },
                 "spark_driver_cores": {
                     "type": "number",
                     "fa_icon": "fas fa-microchip",
@@ -873,6 +879,12 @@
                     "description": "Additional memory overhead (in GB) for each RS-FISH Spark executor.",
                     "default": 0
                 },
+                "rsfish_spark_task_cores": {
+                    "type": "number",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores per RS-FISH Spark task. If 0, defaults to 1.",
+                    "default": 0
+                },
                 "rsfish_spark_driver_cores": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
@@ -891,6 +903,11 @@
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker.",
                     "help_text": "The total memory usage for extracting spots from one acquisition will be workers * worker_cores * gb_per_core.",
                     "default": 5
+                },
+                "rsfish_spark_max_partition_bytes": {
+                    "type": "string",
+                    "fa_icon": "fas fa-database",
+                    "description": "Maximum number of bytes to pack into a single partition when reading files. If empty, uses Spark default."
                 },
                 "spot_extraction_method": {
                     "type": "string",

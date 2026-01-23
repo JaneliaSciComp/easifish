@@ -88,7 +88,7 @@ workflow SPOT_EXTRACTION {
             params.rsfish_spark_driver_cores,
             params.rsfish_spark_driver_mem_gb,
             params.rsfish_spark_gb_per_core,
-            [:], // spark config
+            create_rsfish_spark_config(), // spark config
         )
     }
 
@@ -155,6 +155,17 @@ def get_spot_subpaths(meta) {
                 r
         }
     }
+}
+
+def create_rsfish_spark_config() {
+    def spark_config = [:]
+    if (params.rsfish_spark_max_partition_bytes) {
+        spark_config['spark.sql.files.maxPartitionBytes'] = params.rsfish_spark_max_partition_bytes
+    }
+    if (params.rsfish_spark_task_cores) {
+        spark_config['spark.task.cpus'] = params.rsfish_spark_task_cores
+    }
+    return spark_config
 }
 
 def expand_spot_results(results) {

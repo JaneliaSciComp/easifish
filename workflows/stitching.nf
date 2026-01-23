@@ -76,5 +76,8 @@ def create_stitching_spark_config() {
     if (params.spark_max_partition_bytes) {
         spark_config['spark.sql.files.maxPartitionBytes'] = params.spark_max_partition_bytes
     }
+    if (params.spark_task_cores) {
+        spark_config['spark.task.cpus'] = params.spark_task_cores
+    }
     return spark_config
 }
