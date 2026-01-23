@@ -7,7 +7,7 @@
                 "janelia": {
                     "bigstitcher/module": {
                         "branch": "main",
-                        "git_sha": "cd87eeb2bc679e4a67c6a8dbb752a5938c04a4a1",
+                        "git_sha": "667590635b5fbeb899bf9a4beca7be6baec8ac68",
                         "installed_by": ["modules"]
                     },
                     "bigstream/computeinverse": {
@@ -47,7 +47,7 @@
                     },
                     "rs_fish": {
                         "branch": "main",
-                        "git_sha": "cd87eeb2bc679e4a67c6a8dbb752a5938c04a4a1",
+                        "git_sha": "667590635b5fbeb899bf9a4beca7be6baec8ac68",
                         "installed_by": ["modules"]
                     }
                 }

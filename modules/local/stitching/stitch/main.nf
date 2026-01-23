@@ -18,8 +18,8 @@ process STITCHING_STITCH {
 
     script:
     def extra_args = task.ext.args ?: ''
-    def executor_memory_gb = spark.executor_memory
-    def driver_memory_gb = spark.driver_memory
+    def executor_memory_gb = spark.executor_memory as int
+    def driver_memory_gb = spark.driver_memory as int
     def darkfield_file_arg = darkfield_file ? "--darkfield-file ${darkfield_file}" : ''
     def flatfield_file_arg = flatfield_file ? "--flatfield-file ${flatfield_file}" : ''
     """

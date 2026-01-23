@@ -2,8 +2,8 @@ process STITCHING_CZI2N5 {
     tag "${meta.id}"
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/stitching-spark:1.11.0-rc2' }
     cpus { spark.driver_cores }
-    memory { "${spark.driver_memory}g" }
-
+    memory { "${spark.driver_memory as int}g" }
+\
     input:
     tuple val(meta), path(files), val(spark)
 
@@ -16,8 +16,8 @@ process STITCHING_CZI2N5 {
 
     script:
     def extra_args = task.ext.args ?: ''
-    def executor_memory_gb = spark.executor_memory
-    def driver_memory_gb = spark.driver_memory
+    def executor_memory_gb = spark.executor_memory as int
+    def driver_memory_gb = spark.driver_memory as int
     def app_args = "-i ${meta.stitching_dir}/tiles.json -o ${meta.stitching_dir}/tiles.n5"
     """
     CMD=(

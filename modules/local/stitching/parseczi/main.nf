@@ -16,8 +16,8 @@ process STITCHING_PARSECZI {
 
     script:
     def extra_args = task.ext.args ?: ''
-    def executor_memory_gb = spark.executor_memory
-    def driver_memory_gb = spark.driver_memory
+    def executor_memory_gb = spark.executor_memory as int
+    def driver_memory_gb = spark.driver_memory as int
     // Find the MVL metadata file
     def mvl = files.findAll { it.extension=="mvl" }.first()
     // Get the CZI filename pattern

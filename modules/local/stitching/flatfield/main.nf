@@ -16,8 +16,8 @@ process STITCHING_FLATFIELD {
 
     script:
     def extra_args = task.ext.args ?: ''
-    def executor_memory_gb = spark.executor_memory
-    def driver_memory_gb = spark.driver_memory
+    def executor_memory_gb = spark.executor_memory as int
+    def driver_memory_gb = spark.driver_memory as int
     """
     # Remove previous flatfield results because the process will fail if it exists
     rm -r ${meta.stitching_dir}/*flatfield || true
