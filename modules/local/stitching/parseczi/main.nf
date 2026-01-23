@@ -19,13 +19,14 @@ process STITCHING_PARSECZI {
     def executor_memory_gb = spark.executor_memory as int
     def driver_memory_gb = spark.driver_memory as int
     // Find the MVL metadata file
-    def mvl = files.findAll { it.extension=="mvl" }.first()
+    def mvl = files.find { f -> f.extension=="mvl" }
+    def mvl_arg = mvl ? "-i ${mvl}" : ''
     // Get the CZI filename pattern
     def pattern = meta.pattern
     // If there is no pattern, it must be a single CZI file
-    if (pattern==null || pattern=='') {
-        def czis = files.findAll { it.extension == 'czi' }
-        pattern = czis.first()
+    if (pattern == null || pattern == '') {
+        def czi = files.find { f -> f.extension == 'czi' }
+        pattern = czi
     }
     """
     CMD=(
@@ -40,7 +41,7 @@ process STITCHING_PARSECZI {
         "${executor_memory_gb}g"
         ${spark.driver_cores}
         "${driver_memory_gb}g"
-        -i ${mvl}
+        ${mvl_arg}
         -b ${meta.image_dir}
         -f ${pattern}
         -o ${meta.stitching_dir}
