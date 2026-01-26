@@ -5,5 +5,44 @@ keywords:
   - dask
   - infrastructure
   - distributed
-components:
-  - dask_cluster
+input:
+  - meta_and_files:
+      type: tuple
+      description: |
+        Channel containing metadata and files that need to be accessible by the cluster.
+        Structure: [ val(meta), path(files)... ]
+  - distributed:
+      type: boolean
+      description: If true, create a distributed Dask cluster; if false, return empty context
+  - dask_config:
+      type: file
+      description: Path to Dask configuration file (optional)
+  - dask_work_path:
+      type: directory
+      description: Path to Dask work directory where cluster files will be stored (optional)
+  - total_workers:
+      type: integer
+      description: Number of total workers to start in the cluster
+  - required_workers:
+      type: integer
+      description: Minimum number of workers required before the cluster is considered ready
+  - dask_worker_cpus:
+      type: integer
+      description: Number of CPU cores allocated per worker
+  - dask_worker_mem_gb:
+      type: integer
+      description: Memory in GB allocated per worker
+output:
+  - dask_context:
+      type: tuple
+      description: |
+        Dask cluster context information. If distributed=true, contains cluster details;
+        if distributed=false, contains empty map.
+        Structure: [ val(meta), val(dask_info) ]
+        Where dask_info is a map containing:
+          - scheduler_address: Address of the Dask scheduler
+          - cluster_work_dir: Path to the cluster work directory
+          - available_workers: Number of workers that joined the cluster
+authors:
+  - "@krokicki"
+  - "@cgoina"

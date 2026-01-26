@@ -99,7 +99,8 @@ def create_acq_channel(LinkedHashMap samplesheet_row, input_dir, image_dir) {
     }
     def filepath = file("${image_dir}/${image_name}")
     meta.image_dir = filepath.parent
-    return [id, meta, file(input_dir), file(filepath), samplesheet_row.pattern]
+    def pattern = samplesheet_row.pattern ?: image_name // default the pattern to image_name
+    return [id, meta, file(input_dir), file(filepath), pattern]
 }
 
 def extract_warped_channels_mapping(warped_channels_map) {

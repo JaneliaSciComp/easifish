@@ -31,9 +31,13 @@ workflow STITCHING {
             params.spark_workers as int,
             params.min_spark_workers as int,
             params.spark_worker_cores as int,
-            params.spark_gb_per_core as int,
+            params.spark_worker_mem_gb as int,
+            params.spark_executor_cores as int,
+            params.spark_executor_mem_gb as float,
+            params.spark_executor_overhead_mem_gb as float,
             params.spark_driver_cores as int,
             params.spark_driver_mem_gb as int,
+            params.spark_gb_per_core as int,
             create_stitching_spark_config(),
         )
     } else {
@@ -51,9 +55,13 @@ workflow STITCHING {
             params.spark_workers as int,
             params.min_spark_workers as int,
             params.spark_worker_cores as int,
-            params.spark_gb_per_core as int,
+            params.spark_worker_mem_gb as int,
+            params.spark_executor_cores as int,
+            params.spark_executor_mem_gb as float,
+            params.spark_executor_overhead_mem_gb as float,
             params.spark_driver_cores as int,
             params.spark_driver_mem_gb as int,
+            params.spark_gb_per_core as int,
             create_stitching_spark_config(),
         )
     }
@@ -65,14 +73,11 @@ workflow STITCHING {
 
 def create_stitching_spark_config() {
     def spark_config = [:]
-    if (params.spark_executor_cores) {
-        spark_config['spark.executor.cores'] = params.spark_executor_cores
-    }
-    if (params.spark_executor_memoryOverhead) {
-        spark_config['spark.executor.memoryOverhead'] = params.spark_executor_memoryOverhead
-    }
     if (params.spark_max_partition_bytes) {
         spark_config['spark.sql.files.maxPartitionBytes'] = params.spark_max_partition_bytes
+    }
+    if (params.spark_task_cores) {
+        spark_config['spark.task.cpus'] = params.spark_task_cores
     }
     return spark_config
 }
