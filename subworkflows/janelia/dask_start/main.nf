@@ -109,6 +109,7 @@ workflow DASK_START {
 }
 
 process DASK_PREPARE {
+    tag "${meta.id}"
     label 'process_single'
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2025.5.1-py12-ol9' }
 
@@ -138,6 +139,7 @@ process DASK_PREPARE {
 }
 
 process DASK_STARTMANAGER {
+    tag "${meta.id}"
     label 'process_long'
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2025.5.1-py12-ol9' }
 
@@ -183,6 +185,7 @@ process DASK_STARTMANAGER {
 }
 
 process DASK_STARTWORKER {
+    tag "${meta.id}:${worker_id}"
     label 'process_long'
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2025.5.1-py12-ol9' }
     cpus { worker_cpus }
@@ -240,6 +243,7 @@ process DASK_STARTWORKER {
 }
 
 process DASK_WAITFORMANAGER {
+    tag "${meta.id}"
     label 'process_single'
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2025.5.1-py12-ol9' }
 
@@ -249,7 +253,7 @@ process DASK_WAITFORMANAGER {
     output:
     tuple val(meta),
           env(cluster_work_fullpath),
-          env(scheduler_address), 
+          env(scheduler_address),
           env(dashboard_port), emit: cluster_info
     path "versions.yml", emit: versions
 
@@ -286,6 +290,7 @@ process DASK_WAITFORMANAGER {
 }
 
 process DASK_WAITFORWORKERS {
+    tag "${meta.id}"
     label 'process_single'
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2025.5.1-py12-ol9' }
 
