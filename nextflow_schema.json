@@ -1499,6 +1499,12 @@
                     "description": "Memory allocated for a cellpose Dask worker",
                     "fa_icon": "fas fa-memory"
                 },
+                "cellpose_dask_worker_threads": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of concurrent tasks running on a cellpose Dask worker",
+                    "fa_icon": "fas fa-layer-group"
+                },
                 "cellpose_scheduler_port": {
                     "type": "integer",
                     "default": 0,
