@@ -1535,36 +1535,6 @@
                 }
             }
         },
-        "warp_spots": {
-            "title": "Warp spots parameters",
-            "type": "object",
-            "description": "Parameters for warping spots",
-            "fa_icon": "far fa-map",
-            "properties": {
-                "skip_warp_spots": {
-                    "type": "boolean",
-                    "description": "If set skip spots warping",
-                    "default": false
-                },
-                "warped_spots_subdir": {
-                    "type": "string",
-                    "description": "Subdirectory for warped spots results",
-                    "default": "warped-spots"
-                },
-                "warp_spots_cpus": {
-                    "type": "integer",
-                    "fa_icon": "fas fa-microchip",
-                    "description": "Number of cpus needed for warping spots.",
-                    "default": 1
-                },
-                "warp_spots_mem_in_gb": {
-                    "type": "integer",
-                    "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory needed for warping spots",
-                    "default": 15
-                }
-            }
-        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
