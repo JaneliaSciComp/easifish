@@ -776,10 +776,6 @@
                     "description": "rounds used for extracting spots",
                     "fa_icon": "fas fa-hashtag"
                 },
-                "distributed_spot_extraction": {
-                    "type": "boolean",
-                    "description": "if set uses a spark cluster to run spot extraction otherwise it uses spark-local"
-                },
                 "spot_channels": {
                     "type": "string",
                     "description": "Comma delimited list of spot channels. This together with spot_scales is used for determining the datasets used for spot extraction.",
