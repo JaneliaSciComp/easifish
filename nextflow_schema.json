@@ -606,28 +606,34 @@
                     "hidden": true,
                     "fa_icon": "fas fa-memory"
                 },
-                "local_align_workers": {
+                "bigstream_dask_workers": {
                     "type": "integer",
                     "default": 10,
-                    "description": "Number of workers used for local alignment",
+                    "description": "Number of Dask workers used for bigstream registration",
                     "fa_icon": "fas fa-cogs"
                 },
-                "local_align_min_workers": {
-                    "type": "integer",
-                    "default": 1,
-                    "description": "Minimum number of workers that need to be available before the local alignment starts",
-                    "fa_icon": "fas fa-cogs"
-                },
-                "local_align_worker_cpus": {
-                    "type": "integer",
-                    "default": 3,
-                    "description": "Number of CPUs for each worker",
-                    "fa_icon": "fas fa-microchip"
-                },
-                "local_align_worker_mem_gb": {
+                "bigstream_max_dask_cluster_jobs": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Memory for each worker",
+                    "description": "Maximum number of jobs sent by the local aligner to be scheduled on the Dask cluster (0 means unlimited)",
+                    "fa_icon": "fas fa-tasks"
+                },
+                "bigstream_dask_min_workers": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Minimum number of Dask workers that need to be available before the bigstream registration starts",
+                    "fa_icon": "fas fa-cogs"
+                },
+                "bigstream_dask_worker_cpus": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Number of CPUs for each bigstream Dask worker",
+                    "fa_icon": "fas fa-microchip"
+                },
+                "bigstream_dask_worker_mem_gb": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Memory (GB) for each bigstream Dask worker",
                     "hidden": true,
                     "fa_icon": "fas fa-memory"
                 },
@@ -710,6 +716,12 @@
                     "default": 0,
                     "description": "Bigstream dask scheduler port - if 0 the scheduler will pick a port that is available. The typical port for the dask scheduler is 8786",
                     "fa_icon": "fas fa-network-wired"
+                },
+                "bigstream_dask_threads": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of concurrent tasks running on a bigstream Dask worker",
+                    "fa_icon": "fas fa-layer-group"
                 },
                 "global_registration_container": {
                     "type": "string",

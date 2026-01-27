@@ -414,10 +414,10 @@ workflow START_EASIFISH_DASK {
         start_dask_cluster,
         dask_config_file,
         dask_work_dir_file,
-        params.local_align_workers,
-        params.local_align_min_workers,
-        params.local_align_worker_cpus,
-        params.local_align_worker_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_worker_cpus,
+        params.bigstream_dask_workers,
+        params.bigstream_dask_min_workers,
+        params.bigstream_dask_worker_cpus,
+        params.bigstream_dask_worker_mem_gb ?: params.default_mem_gb_per_cpu * params.bigstream_dask_worker_cpus,
     )
 
     def local_registrations_dask_cluster = cluster_info
