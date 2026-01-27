@@ -62,7 +62,7 @@
     "warped_subpaths": "0",
     "warped_scales": "0",
 
-    "with_dask_cluster": true,
+    "distributed_bigstream": true,
     "bigstream_dask_worker_cpus": 1,
 
     "cellpose_verbose": true,

@@ -554,10 +554,10 @@
                     "hidden": true,
                     "fa_icon": "fas fa-database"
                 },
-                "with_dask_cluster": {
+                "distributed_bigstream": {
                     "type": "boolean",
                     "default": true,
-                    "description": "If true use a distributed dask cluster",
+                    "description": "If true use a distributed dask cluster for BigStream registration or deformation",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "dask_config": {
