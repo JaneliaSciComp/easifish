@@ -19,7 +19,7 @@ workflow FISHSPOT_EXTRACTION {
 
     main:
     def dask_data = ch_spots_input
-    | map {
+    | map { it ->
         def (meta, input_img, input_subpath, spots_output_dir, spots_output_name) = it
         [
             meta,
@@ -38,15 +38,14 @@ workflow FISHSPOT_EXTRACTION {
         dask_worker_mem_gb,
     )
 
-    dask_cluster.subscribe {
-        log.debug "Dask cluster info: $it"
+    dask_cluster.view { it ->
+        "Dask cluster info: $it"
     }
 
     def fishspots_inputs = dask_cluster
     | join(ch_spots_input, by: 0)
-    | multiMap {
-        def (meta, cluster_context,
-             input_img, input_subpath, spots_output_dir, spots_output_name) = it
+    | multiMap {it ->
+        def (meta, cluster_context, input_img, input_subpath, spots_output_dir, spots_output_name) = it
 
         def fishspots_data = [
             meta, input_img, input_subpath, spots_output_dir, spots_output_name,
@@ -60,7 +59,7 @@ workflow FISHSPOT_EXTRACTION {
         cluster_info: cluster_info
     }
 
-    def fishspots_outputs = FISHSPOTS(
+    def _fishspots_outputs = FISHSPOTS(
         fishspots_inputs.fishspots_data,
         fishspots_inputs.cluster_info,
         fishspots_config ? file(fishspots_config) : [],
@@ -70,8 +69,8 @@ workflow FISHSPOT_EXTRACTION {
 
     def fishspots_results = FISHSPOTS.out.params
     | join(FISHSPOTS.out.csv, by: 0)
-    | map {
-        def (meta, input_image, input_dataset, spots_output_dir, spots_result_name, dask_scheduler, full_output_filename) = it
+    | map { it ->
+        def (meta, input_image, input_dataset, _spots_output_dir, _spots_result_name, dask_scheduler, full_output_filename) = it
         [
             meta,
             input_image,
@@ -82,7 +81,7 @@ workflow FISHSPOT_EXTRACTION {
     }
 
     def final_fishspots_results = fishspots_results
-    | map {
+    | map { it ->
         log.debug "fishspots results: $it"
 
         def (meta, input_image, input_dataset, full_output_filename) = it
@@ -98,7 +97,7 @@ workflow FISHSPOT_EXTRACTION {
     | groupTuple(by: [0, 4]) // group by meta and spark
 
     dask_cluster.join(all_fishspots_results, by:0)
-    | map {
+    | map { it ->
         def (meta, cluster_context) = it
         [ meta, cluster_context ]
     }

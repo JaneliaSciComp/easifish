@@ -33,13 +33,13 @@ process BIGSTREAM_LOCALALIGN {
 
     output:
     tuple val(meta),
-          env(full_fix_image), val(fix_image_subpath),
-          env(full_mov_image), val(mov_image_subpath),
-          env(full_affine_transform),
-          env(full_transform_dir),
+          env('full_fix_image'), val(fix_image_subpath),
+          env('full_mov_image'), val(mov_image_subpath),
+          env('full_affine_transform'),
+          env('full_transform_dir'),
           val(transform_name), val(transform_subpath_output),
           val(inv_transform_name), val(inv_transform_subpath_output),
-          env(full_align_dir), val(align_name), val(align_subpath)  , emit: results
+          env('full_align_dir'), val(align_name), val(align_subpath)  , emit: results
 
     when:
     task.ext.when == null || task.ext.when

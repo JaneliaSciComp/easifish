@@ -37,7 +37,7 @@ workflow SPARK_STOP {
     } else {
         done = ch_meta_and_spark
     }
-    done.subscribe { log.debug "Terminated spark cluster: $it" }
+    done.view { "Terminated spark cluster: $it" }
 
     emit:
     done

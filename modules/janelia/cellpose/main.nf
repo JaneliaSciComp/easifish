@@ -23,7 +23,7 @@ process CELLPOSE {
 
     output:
     tuple val(meta),
-          env(input_image_fullpath),
+          env('input_image_fullpath'),
           val(image_subpath),
           eval('(IFS=$"\n"; echo "${output_label_images[@]}")'),
           val(output_labels_subpath)                           , emit: results

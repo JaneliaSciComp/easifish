@@ -14,7 +14,7 @@ workflow INPUT_CHECK {
     skip
 
     main:
-    SAMPLESHEET_CHECK(samplesheet)
+    def tiles = SAMPLESHEET_CHECK(samplesheet)
         .csv
         .splitCsv ( header:true, sep:',' )
         .branch {
@@ -26,7 +26,6 @@ workflow INPUT_CHECK {
                        log.debug "Local tile: $row"
                        return row
     }
-    .set { tiles }
 
     def prepare_acq
     def ch_input_image = ch_input
@@ -66,7 +65,7 @@ workflow INPUT_CHECK {
             }
     }
 
-    prepare_acq
+    def acquisitions = prepare_acq
         .groupTuple() // Group by acquisition
         .map {
             def (id, metas, input_dirs, data_files, patterns) = it
@@ -82,7 +81,6 @@ workflow INPUT_CHECK {
             log.debug "Set acquisitions: $r"
             r
         }
-        .set { acquisitions }
 
     emit:
     acquisitions                              // channel: [ val(meta), [ filenames ] ]

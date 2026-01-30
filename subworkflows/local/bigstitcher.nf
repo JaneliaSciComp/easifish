@@ -38,7 +38,7 @@ workflow BIGSTITCHER {
 
     main:
     def prepared_data = ch_acquisition_data
-    | map {
+    | map { it ->
         def (meta, files) = it
         def stitching_meta = meta.clone()
 
@@ -74,8 +74,7 @@ workflow BIGSTITCHER {
 
     def stitching_results
     if (skip_all_steps || skip_create_dataset && skip_resave && skip_pairwise_stitch && skip_create_container && skip_affine_fusion) {
-        stitching_results = prepared_data.map {
-            def (meta) = it
+        stitching_results = prepared_data.map { meta, _data_files ->
             meta
         }
     } else {
@@ -97,7 +96,7 @@ workflow BIGSTITCHER {
         )
         | join(prepared_data, by: 0)
 
-        stitching_input.subscribe { log.debug "Stitching input: $it" }
+        stitching_input.view { "Stitching input: $it" }
 
         // Split into two paths based on whether stitching_xml exists
         def with_xml = stitching_input.branch {
@@ -255,7 +254,7 @@ workflow BIGSTITCHER {
         // Combine both paths
         def pairwise_stitch_output = pairwise_stitch_with_xml_output.mix(pairwise_stitch_no_xml_output)
 
-        pairwise_stitch_output.subscribe { log.debug "Stitching output: $it" }
+        pairwise_stitch_output.view { "Stitching output: $it" }
 
         def create_fused_container_output
         if (skip_create_container) {

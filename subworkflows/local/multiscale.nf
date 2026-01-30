@@ -18,7 +18,7 @@ workflow MULTISCALE {
     def multiscale_results
     if (skip_flag) {
         multiscale_results = ch_meta
-        multiscale_results.subscribe { log.debug "Skip multiscale pyramid: $it" }
+        multiscale_results.view { "Skip multiscale pyramid: $it" }
     } else {
         MULTISCALE_PYRAMID(
             ch_meta,
@@ -27,7 +27,7 @@ workflow MULTISCALE {
             mem_gb,
         )
         multiscale_results = MULTISCALE_PYRAMID.out.data
-        multiscale_results.subscribe { log.debug "Multiscale pyramid: $it" }
+        multiscale_results.view { "Multiscale pyramid: $it" }
     }
 
     emit:

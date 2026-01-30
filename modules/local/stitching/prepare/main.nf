@@ -9,7 +9,7 @@ process STITCHING_PREPARE {
     tuple val(meta), path(files, stageAs: '?/*')
 
     output:
-    tuple val(meta), env(canonical_file_list)
+    tuple val(meta), env('canonical_file_list')
 
     script:
     """

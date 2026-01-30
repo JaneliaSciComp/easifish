@@ -18,11 +18,11 @@ process SPOTS_COUNTS {
 
     output:
     tuple val(meta),
-          env(full_input_image_path),
+          env('full_input_image_path'),
           val(input_dataset),
-          env(full_spots_input_dir),
-          env(output_csv_file),      emit: results
-    path "versions.yml"            , emit: versions
+          env('full_spots_input_dir'),
+          env('output_csv_file'),      emit: results
+    path "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

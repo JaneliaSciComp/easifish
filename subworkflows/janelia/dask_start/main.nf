@@ -83,9 +83,9 @@ workflow DASK_START {
         )
 
         dask_context = cluster.cluster_info
-            | map {
+            | map { it ->
                 def (meta, cluster_work_dir, scheduler_address, available_workers) = it
-                dask_info = [
+                def dask_info = [
                     scheduler_address: scheduler_address,
                     cluster_work_dir: cluster_work_dir,
                     available_workers: available_workers,
@@ -118,7 +118,7 @@ process DASK_PREPARE {
     path dask_work_dir, stageAs: 'dask_work/*'
 
     output:
-    tuple val(meta), env(cluster_work_fullpath)
+    tuple val(meta), env('cluster_work_fullpath')
 
     when:
     task.ext.when == null || task.ext.when
@@ -147,7 +147,7 @@ process DASK_STARTMANAGER {
     tuple val(meta), path(dask_config), path(cluster_work_dir, stageAs: 'dask_work/*'), path(data, stageAs: '?/*')
 
     output:
-    tuple val(meta), env(cluster_work_fullpath), emit: cluster_info
+    tuple val(meta), env('cluster_work_fullpath'), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -197,7 +197,7 @@ process DASK_STARTWORKER {
     val worker_mem_in_gb
 
     output:
-    tuple val(meta), env(cluster_work_fullpath), val(scheduler_address), emit: cluster_info
+    tuple val(meta), env('cluster_work_fullpath'), val(scheduler_address), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -209,14 +209,10 @@ process DASK_STARTWORKER {
 
     def set_dask_config_env = dask_config ? "export DASK_CONFIG=\$(readlink ${dask_config})" : ''
     def dask_worker_name = "worker-${worker_id}"
-    def dask_scheduler_info_file = "${cluster_work_dir}/dask-scheduler-info.json"
     def terminate_file_name = "${cluster_work_dir}/terminate-dask"
 
     def dask_worker_work_dir = "${cluster_work_dir}/${dask_worker_name}"
     def dask_worker_pid_file = "${dask_worker_work_dir}/${dask_worker_name}.pid"
-
-    worker_name = dask_worker_name
-    worker_dir = dask_worker_work_dir
 
     """
     cluster_work_fullpath=\$(readlink ${cluster_work_dir})
@@ -252,9 +248,9 @@ process DASK_WAITFORMANAGER {
 
     output:
     tuple val(meta),
-          env(cluster_work_fullpath),
-          env(scheduler_address),
-          env(dashboard_port), emit: cluster_info
+          env('cluster_work_fullpath'),
+          env('scheduler_address'),
+          env('dashboard_port'), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -300,7 +296,7 @@ process DASK_WAITFORWORKERS {
     val required_workers
 
     output:
-    tuple val(meta), env(cluster_work_fullpath), val(scheduler_address), env(available_workers), emit: cluster_info
+    tuple val(meta), env('cluster_work_fullpath'), val(scheduler_address), env('available_workers'), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:

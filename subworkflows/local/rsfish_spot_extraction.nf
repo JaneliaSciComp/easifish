@@ -47,10 +47,8 @@ workflow RSFISH_SPOT_EXTRACTION {
         spark_gb_per_core,
     ) // ch: [ meta, spark ]
     | join(ch_spots_input, by:0)
-    | map {
-        def (meta, rsfish_spark,
-             input_img, input_subpath,
-             spots_output_dir, spots_output_name) = it
+    | map { it ->
+        def (meta, rsfish_spark, input_img, input_subpath, spots_output_dir, spots_output_name) = it
         def r = [
             meta,
             input_img,

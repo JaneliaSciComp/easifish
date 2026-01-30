@@ -25,10 +25,10 @@ workflow SEGMENTATION {
     // get volumes to segment
     // typically this is done for the DAPI channel of the fixed round
     def seg_volume = ch_meta
-    | filter { meta ->
+    | filter { meta, _data_files ->
         params.segmentation_input || meta.id in segmentation_ids
     }
-    | flatMap { meta ->
+    | flatMap { meta, _data_files ->
         def input_img_dir
         def segmentation_subpaths
         if (params.segmentation_input) {
@@ -52,7 +52,7 @@ workflow SEGMENTATION {
             def seg_scales = as_list(params.seg_scales)
 
             segmentation_subpaths = [seg_channels, seg_scales].combinations()
-                .collect {
+                .collect { it ->
                     // when channel and scale is used we also prepend the stitched dataset
                     def dataset = it.join('/')
                     "${meta.stitched_dataset}/${dataset}"
@@ -70,8 +70,9 @@ workflow SEGMENTATION {
         }
     }
 
-    seg_volume.subscribe { log.debug "Segmentation input: $it" }
+    seg_volume.view { it -> "Segmentation input: $it" }
 
+    def cellpose_dask_worker_mem_gb = params.cellpose_dask_worker_mem_gb ?: params.cellpose_dask_worker_cpus * params.default_mem_gb_per_cpu
     def cellpose_results = CELLPOSE_SEGMENTATION(
         seg_volume,
         params.skip_segmentation,
@@ -86,7 +87,7 @@ workflow SEGMENTATION {
         params.cellpose_dask_workers,
         params.cellpose_dask_min_workers,
         params.cellpose_dask_worker_cpus,
-        params.cellpose_dask_worker_mem_gb,
+        cellpose_dask_worker_mem_gb,
         params.cellpose_segmentation_cpus,
         params.cellpose_segmentation_mem_gb,
         params.multiscale_cpus,

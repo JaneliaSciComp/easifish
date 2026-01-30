@@ -14,13 +14,13 @@ process RS_FISH {
 
     output:
     tuple val(meta),
-          env(INPUT_IMG),
+          env('INPUT_IMG'),
           val(input_dataset),
           path(spots_output_dir),
           val(spots_result_name),
-          val(spark),                           emit: params
-    tuple val(meta), env(full_output_filename), emit: csv
-    path "versions.yml",                        emit: versions
+          val(spark),                             emit: params
+    tuple val(meta), env('full_output_filename'), emit: csv
+    path "versions.yml",                          emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -34,7 +34,7 @@ process RS_FISH {
     INPUT_IMG=\$(realpath ${input_image})
     full_spots_dir=\$(readlink -m ${spots_output_dir})
     mkdir -p \${full_spots_dir}
-    full_output_filename=\${full_spots_dir}/${output_filename}
+    export full_output_filename=\${full_spots_dir}/${output_filename}
     CMD=(
         /opt/scripts/runapp.sh
         "${workflow.containerEngine}"

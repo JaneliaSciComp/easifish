@@ -9,8 +9,8 @@ process LINK {
     path(output_dir, stageAs: 'out/*')
 
     output:
-    tuple val(samplesheet_row), env(input_fullpath), env(output_datalink), emit: tiles
-    path "versions.yml"                                                  , emit: versions
+    tuple val(samplesheet_row), env('input_fullpath'), env('output_datalink'), emit: tiles
+    path "versions.yml"                                                      , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
