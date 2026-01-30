@@ -62,7 +62,7 @@ workflow SAALFELD_STITCHING {
         [ meta, data_files ]
     }
 
-    prepared_data.view { "Prepared stitching input: $it" }
+    prepared_data.view { it -> log.debug "Prepared stitching input: $it" }
 
     if (!skip) {
         def stitching_input = SPARK_START(

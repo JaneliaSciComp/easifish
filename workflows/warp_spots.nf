@@ -15,7 +15,7 @@ workflow WARP_SPOTS {
     main:
     def transform = registration_results
     | map { it ->
-        def (meta_reg, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, transform_output, transform_name, transform_subpath, inv_transform_path, inv_transform_name, inv_transform_subpath) = it
+        def (meta_reg, _fix, _fix_subpath, _mov, _mov_subpath, _warped, _warped_subpath, _transform_output, _transform_name, _transform_subpath, inv_transform_path, inv_transform_name, inv_transform_subpath) = it
 
         def id = meta_reg.mov_id
         def r = [ id, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath ]
@@ -24,14 +24,14 @@ workflow WARP_SPOTS {
     }
 
     def registration_fix = registration_results
-    | map { meta_reg, rest ->
+    | map { it ->
+        def (meta_reg, _fix, _fix_subpath, _mov, _mov_subpath, _warped, _warped_subpath, _transform_output, _transform_name, _transform_subpath, _inv_transform_path, _inv_transform_name, _inv_transform_subpath) = it
         def id = meta_reg.fix_id
-        log.info "!!!! ARGS $meta_reg $rest"
         [ id, meta_reg ]
     }
-    | unique { it[0] } // unique by id
+    | unique { it -> it[0] } // unique by id
 
-    registration_fix.view { "Registration fix id: $it" }
+    registration_fix.view { it -> log.debug "Registration fix id: $it" }
 
     def spots = spot_extraction_results
     | map { it ->
@@ -94,7 +94,7 @@ workflow WARP_SPOTS {
         ]
     }
 
-    spots_warp_input.view { it -> "Warp spots input: $it " }
+    spots_warp_input.view { it -> log.debug "Warp spots input: $it " }
 
     def spots_warp_results
     if (!params.skip_warp_spots) {
@@ -111,7 +111,7 @@ workflow WARP_SPOTS {
 
         spots_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
 
-        spots_warp_results.view { it -> "Bigstream transform coords results: $it " }
+        spots_warp_results.view { it -> log.debug "Bigstream transform coords results: $it " }
     } else {
         // skip warp spots
         spots_warp_results = spots_warp_input.map { it ->

@@ -66,7 +66,7 @@ workflow SPOTS_STATS {
     }
     | unique { it[0].id }
 
-    spots_counts_input.view { "Spots counts input: $it" }
+    spots_counts_input.view { it -> log.debug "Spots counts input: $it" }
 
     def spots_counts_outputs
     if (params.skip_spots_counts) {

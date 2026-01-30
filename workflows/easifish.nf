@@ -49,21 +49,21 @@ workflow EASIFISH {
         session_work_dir
     )
 
-    stitching_results.view { "Stitching result: $it " }
+    stitching_results.view { it -> log.debug "Stitching result: $it " }
 
     def registration_results = REGISTRATION(
         stitching_results,
         outdir,
     )
 
-    registration_results.view { "Registration result: $it " }
+    registration_results.view { it -> log.debug "Registration result: $it " }
 
     def segmentation_results = SEGMENTATION(
         stitching_results,
         outdir,
     )
 
-    segmentation_results.view { "Segmentation result: $it " }
+    segmentation_results.view { it -> log.debug "Segmentation result: $it " }
 
     def spot_extraction_results = SPOT_EXTRACTION(
         stitching_results,
@@ -71,7 +71,7 @@ workflow EASIFISH {
         "${session_work_dir}/spot_extraction",
     )
 
-    spot_extraction_results.view { "Spot extraction result: $it " }
+    spot_extraction_results.view { it -> log.debug "Spot extraction result: $it " }
 
     def warped_spots_results = WARP_SPOTS(
         registration_results,
@@ -79,7 +79,7 @@ workflow EASIFISH {
         outdir,
     ) // final_spot_results includes spots for fixed and warped spots from the moving rounds
 
-    warped_spots_results.view { "Warped spots results: $it " }
+    warped_spots_results.view { it -> log.debug "Warped spots results: $it " }
 
     def spots_stats_results = SPOTS_STATS(
         warped_spots_results,
@@ -87,7 +87,7 @@ workflow EASIFISH {
         outdir,
     )
 
-    spots_stats_results.view { "Spots stats: $it " }
+    spots_stats_results.view { it -> log.debug "Spots stats: $it " }
 
     def spots_props = EXTRACT_SPOTS_PROPS(
         registration_results,
@@ -95,6 +95,6 @@ workflow EASIFISH {
         outdir,
     )
 
-    spots_props.view { "Spots props: $it " }
+    spots_props.view { it -> log.debug "Spots props: $it " }
 
 }

@@ -21,6 +21,9 @@ workflow SEGMENTATION {
     def session_work_dir = "${params.workdir}/${workflow.sessionId}"
     def segmentation_ids = ParamUtils.as_list(params.segmentation_ids)
 
+    if (segmentation_ids.empty) {
+        log.info "No segmentation ids were set"
+    }
     // get volumes to segment
     // typically this is done for the DAPI channel of the fixed round
     def seg_volume = ch_meta
@@ -59,17 +62,17 @@ workflow SEGMENTATION {
         }
 
         segmentation_subpaths.collect { input_seg_subpath ->
-            [
+            def r = [
                 meta,
                 input_img_dir,
                 input_seg_subpath,
                 "${outdir}/${params.segmentation_subdir}", // output dir
                 params.segmentation_imgname,
             ]
+            log.debug "Segmentation input: $r"
+            r
         }
     }
-
-    seg_volume.view { it -> "Segmentation input: $it" }
 
     def cellpose_dask_worker_mem_gb = params.cellpose_dask_worker_mem_gb ?: params.cellpose_dask_worker_cpus * params.default_mem_gb_per_cpu
     def cellpose_results = CELLPOSE_SEGMENTATION(
