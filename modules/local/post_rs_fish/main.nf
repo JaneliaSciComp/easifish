@@ -10,10 +10,10 @@ process POST_RS_FISH {
 
     output:
     tuple val(meta),
-          env(full_input_path),
+          env('full_input_path'),
           val(input_dataset),
-          env(spots_results)  , emit: results
-    path "versions.yml"       , emit: versions
+          env('spots_results')  , emit: results
+    path "versions.yml"         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

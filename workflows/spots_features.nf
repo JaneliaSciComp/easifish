@@ -1,6 +1,5 @@
 include { SPOTS_PROPS  } from '../modules/local/spots/props/main'
 include { SPOTS_COUNTS } from '../modules/local/spots/counts/main'
-include { as_list      } from './util_functions'
 
 /*
 SPOTS_STATS - aggregate all channel spot counts into a single csv output
@@ -13,7 +12,7 @@ workflow SPOTS_STATS {
 
     main:
     def ch_segmentation_with_id = ch_segmentation
-    | map {
+    | map { it ->
         def (meta, seg_input_image, seg_input_dataset, seg_labels) = it
         def id = meta.id
         def r = [ id, meta, seg_input_image, seg_input_dataset, seg_labels ]
@@ -22,7 +21,7 @@ workflow SPOTS_STATS {
     }
 
     def spots_counts_input = ch_spots
-    | filter {
+    | filter { it ->
         def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
         if (!final_spots) {
             log.debug "Filter out spots input for: $it"
@@ -30,7 +29,7 @@ workflow SPOTS_STATS {
         }
         return true
     }
-    | map {
+    | map { it ->
         def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
         def id = meta_reg.fix_id
         def r = [ id, meta_spots, spots_input_image, spots_input_dataset, source_spots, final_spots ]
@@ -39,15 +38,8 @@ workflow SPOTS_STATS {
     }
     | groupTuple(by: 0)
     | join(ch_segmentation_with_id, by: 0)
-    | flatMap {
-        def (id,
-             all_meta_spots,
-             all_spots_image_containers, all_spots_datasets,
-             all_source_spots, all_final_spots,
-             meta_seg,
-             seg_input_image,
-             seg_input_dataset,
-             seg_labels) = it
+    | flatMap { it ->
+        def (id, all_meta_spots, all_spots_image_containers, all_spots_datasets, all_source_spots, all_final_spots,meta_seg, seg_input_image, seg_input_dataset, seg_labels) = it
 
         [all_meta_spots,
          all_spots_image_containers,
@@ -74,18 +66,13 @@ workflow SPOTS_STATS {
     }
     | unique { it[0].id }
 
-    spots_counts_input.subscribe { log.debug "Spots counts input: $it" }
+    spots_counts_input.view { it -> log.debug "Spots counts input: $it" }
 
     def spots_counts_outputs
     if (params.skip_spots_counts) {
         spots_counts_outputs = spots_counts_input
-        | map {
-            def (meta_spots,
-                 spots_image_container, adjusted_spots_dataset,
-                 seg_labels, seg_input_dataset,
-                 spots_dir,
-                 spots_pattern,
-                 spots_counts_output_dir) = it
+        | map { it ->
+            def (meta_spots, spots_image_container, adjusted_spots_dataset, seg_labels, seg_input_dataset,spots_dir, spots_pattern, spots_counts_output_dir) = it
 
             log.debug "Skip spots counts $it"
             [
@@ -115,15 +102,8 @@ workflow EXTRACT_SPOTS_PROPS {
 
     main:
     def registered_images = ch_registration
-    | flatMap {
-        def (reg_meta,
-             fix, fix_subpath,
-             mov, mov_subpath,
-             warped, warped_subpath,
-             transform_output,
-             transform_name, transform_subpath,
-             inv_transform_output,
-             inv_transform_name, inv_transform_subpath) = it
+    | flatMap { it ->
+        def (reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, transform_output, transform_name, transform_subpath, inv_transform_output, inv_transform_name, inv_transform_subpath) = it
         log.debug "Get registered images for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.mov_id
@@ -171,15 +151,8 @@ workflow EXTRACT_SPOTS_PROPS {
     }
 
     def fixed_images = ch_registration
-    | flatMap {
-        def (reg_meta,
-             fix, fix_subpath,
-             mov, mov_subpath,
-             warped, warped_subpath,
-             transform_output,
-             transform_name, transform_subpath,
-             inv_transform_output,
-             inv_transform_name, inv_transform_subpath) = it
+    | flatMap { it ->
+        def (reg_meta, fix, fix_subpath,mov, mov_subpath,warped, warped_subpath,transform_output,transform_name, transform_subpath,inv_transform_output,inv_transform_name, inv_transform_subpath) = it
         log.debug "Get fixed image for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.fix_id
@@ -200,7 +173,7 @@ workflow EXTRACT_SPOTS_PROPS {
     }
 
     def ch_segmentation_with_id = ch_segmentation
-    | map {
+    | map { it ->
         def (meta, seg_input_image, seg_input_dataset, seg_labels) = it
         def id = meta.id
         def r = [ id, meta, seg_input_image, seg_input_dataset, seg_labels ]
@@ -215,11 +188,8 @@ workflow EXTRACT_SPOTS_PROPS {
         it
     }
     | combine(ch_segmentation_with_id, by: 0)
-    | map {
-        def (join_id,
-             image_id, image_container, image_dataset, image_ch, result_name, bleeding_channel, dapi_channel,
-             meta,
-             seg_input_image, seg_input_dataset, seg_labels) = it
+    | map { it ->
+        def (join_id, image_id, image_container, image_dataset, image_ch, result_name, bleeding_channel, dapi_channel, meta, seg_input_image, seg_input_dataset, seg_labels) = it
         log.debug "Combined cell images with segmentation: $it"
 
         def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${image_id}")
@@ -252,14 +222,8 @@ workflow EXTRACT_SPOTS_PROPS {
     def spots_props_results
     if (params.skip_region_props) {
         spots_props_results = regionprops_inputs
-        | map {
-            def (meta,
-                 image_container, image_dataset, image_ch,
-                 seg_labels, seg_input_dataset,
-                 dapi_dataset, dapi_ch,
-                 bleeding_dataset, bleeding_ch,
-                 regionprops_output_dir,
-                 result_name) = it
+        | map { it ->
+            def (meta, image_container, image_dataset, image_ch, seg_labels, seg_input_dataset, dapi_dataset, dapi_ch, bleeding_dataset, bleeding_ch, regionprops_output_dir, result_name) = it
             log.debug "Skip region props: $it"
             [
                 meta,
@@ -297,7 +261,7 @@ def get_spot_subpaths(id) {
         ]
     } else if (params.spot_subpaths) {
         // in this case the subpaths parameters must match exactly the container datasets
-        return as_list(params.spot_subpaths)
+        return ParamUtils.as_list(params.spot_subpaths)
             .collectMany { subpath ->
                 def spot_ch = get_dataset_channel(subpath)
                 if (spot_ch) {
@@ -321,7 +285,7 @@ def get_spot_subpaths(id) {
             }
     } else {
         def spot_channels = get_spot_channels_from_params();
-        def spot_scales = as_list(params.spot_scales)
+        def spot_scales = ParamUtils.as_list(params.spot_scales)
 
         return [spot_channels, spot_scales].combinations()
             .collect { ch, scale ->
@@ -355,13 +319,13 @@ def get_dataset_channel(image_dataset) {
 def get_spot_channels_from_params() {
     def spot_channels
     if (params.spot_channels) {
-        spot_channels = as_list(params.spot_channels)
+        spot_channels = ParamUtils.as_list(params.spot_channels)
         log.debug "Use specified spot channels: $spot_channels"
     } else {
         // all but the last channel which typically is DAPI
-        def all_channels = as_list(params.channels)
+        def all_channels = ParamUtils.as_list(params.channels)
         def excluded_channels = params.spot_excluded_channels
-            ? as_list(params.spot_excluded_channels)
+            ? ParamUtils.as_list(params.spot_excluded_channels)
             : params.dapi_channel
             ? [ params.dapi_channel ]
             : []

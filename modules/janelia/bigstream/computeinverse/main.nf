@@ -20,8 +20,8 @@ process BIGSTREAM_COMPUTEINVERSE {
 
     output:
     tuple val(meta),
-          env(full_deform_dir), val(deform_name), val(deform_subpath),
-          env(full_inv_deform_dir), val(inv_deform_name), val(inv_deform_subpath), emit: results
+          env('full_deform_dir'), val(deform_name), val(deform_subpath),
+          env('full_inv_deform_dir'), val(inv_deform_name), val(inv_deform_subpath), emit: results
 
     when:
     task.ext.when == null || task.ext.when

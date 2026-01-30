@@ -23,9 +23,9 @@ process BIGSTREAM_DEFORM {
 
     output:
     tuple val(meta),
-          env(fix_fullpath), val(fix_image_subpath),
-          env(mov_fullpath), val(mov_image_subpath),
-          env(output_fullpath), val(output_subpath)  , emit: results
+          env('fix_fullpath'), val(fix_image_subpath),
+          env('mov_fullpath'), val(mov_image_subpath),
+          env('output_fullpath'), val(output_subpath)  , emit: results
 
     when:
     task.ext.when == null || task.ext.when

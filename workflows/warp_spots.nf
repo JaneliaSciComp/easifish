@@ -14,17 +14,8 @@ workflow WARP_SPOTS {
 
     main:
     def transform = registration_results
-    | map {
-        def (
-            meta_reg,
-            fix, fix_subpath,
-            mov, mov_subpath,
-            warped, warped_subpath,
-            transform_output,
-            transform_name, transform_subpath,
-            inv_transform_path,
-            inv_transform_name, inv_transform_subpath
-        ) = it
+    | map { it ->
+        def (meta_reg, _fix, _fix_subpath, _mov, _mov_subpath, _warped, _warped_subpath, _transform_output, _transform_name, _transform_subpath, inv_transform_path, inv_transform_name, inv_transform_subpath) = it
 
         def id = meta_reg.mov_id
         def r = [ id, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath ]
@@ -33,24 +24,19 @@ workflow WARP_SPOTS {
     }
 
     def registration_fix = registration_results
-    | map {
-        def (meta_reg) = it
+    | map { it ->
+        def (meta_reg, _fix, _fix_subpath, _mov, _mov_subpath, _warped, _warped_subpath, _transform_output, _transform_name, _transform_subpath, _inv_transform_path, _inv_transform_name, _inv_transform_subpath) = it
         def id = meta_reg.fix_id
         [ id, meta_reg ]
     }
-    | unique { it[0] } // unique by id
+    | unique { it -> it[0] } // unique by id
 
-    registration_fix.subscribe { log.debug "Registration fix id: $it" }
+    registration_fix.view { it -> log.debug "Registration fix id: $it" }
 
     def spots = spot_extraction_results
-    | map {
+    | map { it ->
         log.debug "Extracted spot: $it"
-        def (
-            meta,
-            spots_image_container,
-            spots_dataset,
-            spots_file
-        ) = it
+        def (meta, spots_image_container, spots_dataset, spots_file) = it
 
         def id = meta.id
         def r = [
@@ -65,7 +51,7 @@ workflow WARP_SPOTS {
 
     def fixed_spots = registration_fix
     | combine(spots, by: 0)
-    | map {
+    | map { it ->
         def (id, meta_reg, meta_spots, spots_file) = it
         log.debug "Extract only fixed spots from $it"
         def r = [
@@ -78,19 +64,10 @@ workflow WARP_SPOTS {
     }
 
     def spots_warp_input = spots
-    | filter { it[2] /* spots_file must be defined */}
+    | filter { it -> it[2] /* spots_file must be defined */}
     | combine(transform, by: 0)
-    | map {
-        def (
-            id,
-            meta_spots,
-            spots_file,
-            spots_image_container, spots_dataset,
-            meta_reg,
-            inv_transform_path,
-            inv_transform_name,
-            inv_transform_subpath
-        ) = it
+    | map { it ->
+        def (id, meta_spots, spots_file, spots_image_container, spots_dataset, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath) = it
 
         def warped_spots_output_dir = file("${outdir}/${params.warped_spots_subdir}/${id}")
         def meta = [ meta_spots:meta_spots, meta_reg:meta_reg ]
@@ -117,27 +94,27 @@ workflow WARP_SPOTS {
         ]
     }
 
-    spots_warp_input.subscribe { log.debug "Warp spots input: $it " }
+    spots_warp_input.view { it -> log.debug "Warp spots input: $it " }
 
     def spots_warp_results
     if (!params.skip_warp_spots) {
         BIGSTREAM_TRANSFORMCOORDS(
-            spots_warp_input.map { it[0] },
-            spots_warp_input.map { it[1] },
-            spots_warp_input.map { it[2] },
-            spots_warp_input.map { it[3] },
-            spots_warp_input.map { it[4] },
-            spots_warp_input.map { it[5] },
+            spots_warp_input.map { it -> it[0] },
+            spots_warp_input.map { it -> it[1] },
+            spots_warp_input.map { it -> it[2] },
+            spots_warp_input.map { it -> it[3] },
+            spots_warp_input.map { it -> it[4] },
+            spots_warp_input.map { it -> it[5] },
             params.warp_spots_cpus,
             params.warp_spots_mem_in_gb,
         )
 
         spots_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
 
-        spots_warp_results.subscribe { log.debug "Bigstream transform coords results: $it " }
+        spots_warp_results.view { it -> log.debug "Bigstream transform coords results: $it " }
     } else {
         // skip warp spots
-        spots_warp_results = spots_warp_input.map {
+        spots_warp_results = spots_warp_input.map { it ->
             log.debug "Check warp spots input: $it"
 
             def (meta, spots_file, warped_spots_output_dir, warped_spots_filename) = it[0]
@@ -155,7 +132,7 @@ workflow WARP_SPOTS {
 
     def final_spot_results = fixed_spots
     | concat(spots_warp_results)
-    | map {
+    | map { it ->
         def (meta, source_spots, final_spots) = it
         def r = [
             meta.meta_spots,
@@ -166,9 +143,8 @@ workflow WARP_SPOTS {
         r
     }
     | join(spot_extraction_results, by: 0)
-    | map {
-        def (meta_spots, meta_reg, source_spots, final_spots,
-             spots_image_container, spots_dataset) = it
+    | map { it ->
+        def (meta_spots, meta_reg, source_spots, final_spots, spots_image_container, spots_dataset) = it
         log.debug "Add source spots image to spot results: $it"
         def r = [
             meta_spots,

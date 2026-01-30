@@ -8,8 +8,8 @@ process PREPARE_SPARK_CONFIG {
     val(spark_config)
 
     output:
-    tuple val(meta), val(spark), env(full_spark_work_dir), emit: spark_inputs
-    env(spark_config_filepath)                           , emit: spark_config_file
+    tuple val(meta), val(spark), env('full_spark_work_dir'), emit: spark_inputs
+    env('spark_config_filepath')                           , emit: spark_config_file
 
     script:
     def spark_local_dir = task.ext.spark_local_dir
@@ -58,7 +58,7 @@ process SPARK_STARTMANAGER {
     tuple val(meta), val(spark), path(spark_work_dir)
 
     output:
-    tuple val(meta), val(spark), env(full_spark_work_dir)
+    tuple val(meta), val(spark), env('full_spark_work_dir')
 
     when:
     task.ext.when == null || task.ext.when
@@ -114,7 +114,7 @@ process SPARK_WAITFORMANAGER {
     tuple val(meta), val(spark), path(spark_work_dir)
 
     output:
-    tuple val(meta), val(spark), env(full_spark_work_dir), env(spark_uri)
+    tuple val(meta), val(spark), env('full_spark_work_dir'), env('spark_uri')
 
     when:
     task.ext.when == null || task.ext.when
@@ -157,7 +157,7 @@ process SPARK_STARTWORKER {
     path(data_paths, stageAs: '?/*')
 
     output:
-    tuple val(meta), val(spark), env(full_spark_work_dir), val(worker_id)
+    tuple val(meta), val(spark), env('full_spark_work_dir'), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -206,7 +206,7 @@ process SPARK_WAITFORWORKER {
     tuple val(meta), val(spark), path(spark_work_dir), val(worker_id)
 
     output:
-    tuple val(meta), val(spark), env(full_spark_work_dir), val(worker_id)
+    tuple val(meta), val(spark), env('full_spark_work_dir'), val(worker_id)
 
     when:
     task.ext.when == null || task.ext.when
@@ -288,10 +288,10 @@ workflow SPARK_START {
     ]
 
     def spark_inputs = ch_meta
-    | map {
-        def (meta) = it // ch_meta: [ meta, [data_paths] ] - ignore data_paths
+    | map { it ->
+        def (meta, _data_paths) = it // ch_meta: [ meta, [data_paths] ] - ignore data_paths
         def spark_work_dir = file("${working_dir}/spark/${meta.id}")
-        def worker_cpus = spark_worker_cpus ?: 1 
+        def worker_cpus = spark_worker_cpus ?: 1
         def executor_cpus = spark_executor_cpus ?: 1
         def driver_cpus = spark_driver_cpus ?: 1
         def parallelism = n_spark_workers * (worker_cpus / executor_cpus) as int
@@ -334,7 +334,7 @@ workflow SPARK_START {
         // prepare all arguments for all workers
         def meta_workers_with_data = SPARK_WAITFORMANAGER.out
         | join(ch_meta, by:0) // join with ch_meta to get the data files in order to mount them in the workers
-        | flatMap {
+        | flatMap { it ->
             def (meta, spark, spark_work_dir, spark_uri, data_paths) = it
             log.debug "Spark manager available: ${meta}: ${spark} using spark work dir: ${spark_work_dir}"
             spark.uri = spark_uri
@@ -343,7 +343,7 @@ workflow SPARK_START {
                 [ meta, spark, spark_work_dir, worker_id, data_paths ]
             }
         }
-        | multiMap {
+        | multiMap { it ->
             def (meta, spark, spark_work_dir, worker_id, data_paths) = it
             log.debug "Spark worker input: $it"
             worker: [ meta, spark, spark_work_dir, worker_id ]

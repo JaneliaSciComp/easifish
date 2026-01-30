@@ -33,7 +33,7 @@ workflow CELLPOSE_SEGMENTATION {
     def final_segmentation_results
     if (!skip) {
         def segmentation_prep_inputs = ch_meta
-        | multiMap {
+        | multiMap { it ->
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
             log.debug "Start to prepare inputs for cellpose segmentation: $it"
             def segmentation_work_dir = work_dir
@@ -79,18 +79,14 @@ workflow CELLPOSE_SEGMENTATION {
             dask_worker_cpus,
             dask_worker_mem_gb
         )
-        dask_cluster.subscribe {
-            log.debug "Dask cluster info: $it"
+        dask_cluster.view { it ->
+            "Dask cluster info: $it"
         }
 
         def segmentation_inputs = dask_cluster
         | join(segmentation_prep_inputs.cellpose_data, by: 0)
-        | multiMap {
-            def (meta, cluster_context,
-                 img_container_dir, img_dataset,
-                 cellpose_models_dir, cellpose_model_name,
-                 segmentation_output_dir, segmentation_container, segmentation_dataset,
-                 segmentation_work_dir) = it
+        | multiMap { it ->
+            def (meta, cluster_context, img_container_dir, img_dataset, cellpose_models_dir, cellpose_model_name, segmentation_output_dir, segmentation_container, segmentation_dataset, segmentation_work_dir) = it
             def cellpose_data = [
                 meta,
                 img_container_dir,
@@ -122,20 +118,17 @@ workflow CELLPOSE_SEGMENTATION {
 
         final_segmentation_results = cellpose_outputs.results
 
-        final_segmentation_results.subscribe {
-            log.debug "Cellpose results: $it"
+        final_segmentation_results.view { it ->
+            "Cellpose results: $it"
         }
 
         // generate multiscale pyramid for the segmentation results
         def labels_multiscale_inputs = cellpose_outputs.results
         | combine(dask_cluster, by: 0)
-        | flatMap {
-            def (meta,
-                input_container, input_subpath,
-                labels_containers, labels_subpath,
-                cluster_context) = it
+        | flatMap { it ->
+            def (meta, _input_container, _input_subpath, labels_containers, labels_subpath, cluster_context) = it
             labels_containers.split('\n')
-            .findAll { it }
+            .findAll { lit -> lit }
             .collect { labels_container ->
                 def r = [
                     meta, labels_container, labels_subpath,

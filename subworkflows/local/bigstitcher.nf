@@ -38,7 +38,7 @@ workflow BIGSTITCHER {
 
     main:
     def prepared_data = ch_acquisition_data
-    | map {
+    | map { it ->
         def (meta, files) = it
         def stitching_meta = meta.clone()
 
@@ -74,8 +74,7 @@ workflow BIGSTITCHER {
 
     def stitching_results
     if (skip_all_steps || skip_create_dataset && skip_resave && skip_pairwise_stitch && skip_create_container && skip_affine_fusion) {
-        stitching_results = prepared_data.map {
-            def (meta) = it
+        stitching_results = prepared_data.map { meta, _data_files ->
             meta
         }
     } else {
@@ -97,11 +96,11 @@ workflow BIGSTITCHER {
         )
         | join(prepared_data, by: 0)
 
-        stitching_input.subscribe { log.debug "Stitching input: $it" }
+        stitching_input.view { it -> log.debug "Stitching input: $it" }
 
         // Split into two paths based on whether stitching_xml exists
-        def with_xml = stitching_input.branch {
-            def (meta, spark, files) = it
+        def with_xml = stitching_input.branch { it ->
+            def (meta, _spark, _files) = it
             has_xml: meta.stitching_xml != null
             no_xml: meta.stitching_xml == null
         }
@@ -109,13 +108,13 @@ workflow BIGSTITCHER {
         // Path 1: stitching_xml exists - use SparkPairwiseStitching directly
         def pairwise_stitch_with_xml_output
         if (skip_pairwise_stitch) {
-            pairwise_stitch_with_xml_output = with_xml.has_xml.map {
+            pairwise_stitch_with_xml_output = with_xml.has_xml.map { it ->
                 def (meta, spark) = it
                 [ meta, spark ]
             }
         } else {
             def pairwise_stitch_with_xml_inputs = with_xml.has_xml
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 def advanced_stitching_args = advanced_stitching_params
@@ -148,13 +147,13 @@ workflow BIGSTITCHER {
         // Step 1: create-dataset (conditionally executed)
         def create_dataset_output
         if (skip_create_dataset) {
-            create_dataset_output = with_xml.no_xml.map {
+            create_dataset_output = with_xml.no_xml.map { it ->
                 def (meta, spark) = it
                 [ meta, spark ]
             }
         } else {
             def create_dataset_inputs = with_xml.no_xml
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Create dataset ${stitching_xml} from ${meta.image_dir} (${meta.pattern})"
@@ -255,7 +254,7 @@ workflow BIGSTITCHER {
         // Combine both paths
         def pairwise_stitch_output = pairwise_stitch_with_xml_output.mix(pairwise_stitch_no_xml_output)
 
-        pairwise_stitch_output.subscribe { log.debug "Stitching output: $it" }
+        pairwise_stitch_output.view { it -> log.debug "Stitching output: $it" }
 
         def create_fused_container_output
         if (skip_create_container) {

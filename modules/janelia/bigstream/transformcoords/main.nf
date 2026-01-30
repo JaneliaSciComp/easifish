@@ -21,8 +21,8 @@ process BIGSTREAM_TRANSFORMCOORDS {
     val(bigstream_mem_in_gb)
 
     output:
-    tuple val(meta), env(full_input_coords), env(warped_coords),          emit: results
-    tuple val(meta), env(source_fullpath), val(source_image_subpath), emit: source
+    tuple val(meta), env('full_input_coords'), env('warped_coords'),    emit: results
+    tuple val(meta), env('source_fullpath'), val(source_image_subpath), emit: source
 
     when:
     task.ext.when == null || task.ext.when

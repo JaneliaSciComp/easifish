@@ -5,7 +5,6 @@
 */
 
 include { CELLPOSE_SEGMENTATION } from '../subworkflows/local/cellpose_segmentation'
-include { as_list               } from './util_functions'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,8 +19,11 @@ workflow SEGMENTATION {
 
     main:
     def session_work_dir = "${params.workdir}/${workflow.sessionId}"
-    def segmentation_ids = as_list(params.segmentation_ids)
+    def segmentation_ids = ParamUtils.as_list(params.segmentation_ids)
 
+    if (segmentation_ids.empty) {
+        log.info "No segmentation ids were set"
+    }
     // get volumes to segment
     // typically this is done for the DAPI channel of the fixed round
     def seg_volume = ch_meta
@@ -40,19 +42,19 @@ workflow SEGMENTATION {
             segmentation_subpaths = [ '' ] // empty subpath - the input image container contains the array data
         } else if (params.segmentation_subpaths) {
             // in this case the subpaths parameters must match exactly the container datasets
-            segmentation_subpaths = as_list(params.segmentation_subpaths)
+            segmentation_subpaths = ParamUtils.as_list(params.segmentation_subpaths)
                 .collect { subpath ->
                      "${meta.stitched_dataset}/${subpath}"
                 }
         } else {
             def seg_channels = params.seg_channels
-                ? as_list(params.seg_channels)
-                : as_list(params.dapi_channel)
+                ? ParamUtils.as_list(params.seg_channels)
+                : ParamUtils.as_list(params.dapi_channel)
 
-            def seg_scales = as_list(params.seg_scales)
+            def seg_scales = ParamUtils.as_list(params.seg_scales)
 
             segmentation_subpaths = [seg_channels, seg_scales].combinations()
-                .collect {
+                .collect { it ->
                     // when channel and scale is used we also prepend the stitched dataset
                     def dataset = it.join('/')
                     "${meta.stitched_dataset}/${dataset}"
@@ -60,18 +62,19 @@ workflow SEGMENTATION {
         }
 
         segmentation_subpaths.collect { input_seg_subpath ->
-            [
+            def r = [
                 meta,
                 input_img_dir,
                 input_seg_subpath,
                 "${outdir}/${params.segmentation_subdir}", // output dir
                 params.segmentation_imgname,
             ]
+            log.debug "Segmentation input: $r"
+            r
         }
     }
 
-    seg_volume.subscribe { log.debug "Segmentation input: $it" }
-
+    def cellpose_dask_worker_mem_gb = params.cellpose_dask_worker_mem_gb ?: params.cellpose_dask_worker_cpus * params.default_mem_gb_per_cpu
     def cellpose_results = CELLPOSE_SEGMENTATION(
         seg_volume,
         params.skip_segmentation,
@@ -86,7 +89,7 @@ workflow SEGMENTATION {
         params.cellpose_dask_workers,
         params.cellpose_dask_min_workers,
         params.cellpose_dask_worker_cpus,
-        params.cellpose_dask_worker_mem_gb,
+        cellpose_dask_worker_mem_gb,
         params.cellpose_segmentation_cpus,
         params.cellpose_segmentation_mem_gb,
         params.multiscale_cpus,

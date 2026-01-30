@@ -26,10 +26,10 @@ process BIGSTREAM_GLOBALALIGN {
 
     output:
     tuple val(meta),
-          env(full_fix_image), val(fix_image_subpath),
-          env(full_mov_image), val(mov_image_subpath),
-          env(full_transform_dir), val(transform_name),
-          env(full_align_dir), val(align_name), val(align_subpath) , emit: results
+          env('full_fix_image'), val(fix_image_subpath),
+          env('full_mov_image'), val(mov_image_subpath),
+          env('full_transform_dir'), val(transform_name),
+          env('full_align_dir'), val(align_name), val(align_subpath) , emit: results
 
     when:
     task.ext.when == null || task.ext.when
