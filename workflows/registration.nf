@@ -16,8 +16,6 @@ include { SPARK_STOP               } from '../subworkflows/janelia/spark_stop/ma
 
 include { MULTISCALE               } from '../subworkflows/local/multiscale'
 
-include { as_list                  } from './util_functions'
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN REGISTRATION WORKFLOW
@@ -34,25 +32,25 @@ workflow REGISTRATION {
 
     def ref_volume = ch_meta
     | filter { meta ->
-        log.debug "Check ${meta} if it is fixed image"
+        nextflow.Nextflow.log.debug "Check ${meta} if it is fixed image"
         meta.id == params.registration_fix_id
     }
 
-    ref_volume.view { "Fix image: $it" }
+    ref_volume.view { it -> "Fix image: $it" }
 
     def mov_volumes = ch_meta
     | filter { meta ->
-        log.debug "Check ${meta} if it is fixed image"
+        nextflow.Nextflow.log.debug "Check ${meta} if it is fixed image"
         meta.id != params.registration_fix_id
     }
 
-    mov_volumes.view { "Moving image: $it" }
+    mov_volumes.view { it -> "Moving image: $it" }
 
     def bigstream_config = params.bigstream_config ? file(params.bigstream_config) : []
 
     def registration_inputs = ref_volume
     | combine(mov_volumes)
-    | map {
+    | map { it ->
         def (fix_meta, mov_meta) = it
         def reg_meta = [
             id: "${fix_meta.id}-${mov_meta.id}",
@@ -60,7 +58,7 @@ workflow REGISTRATION {
             mov_id: mov_meta.id,
             warped_channels_mapping: mov_meta.warped_channels_mapping ?: [:],
         ]
-        log.debug "Prepare registration inputs: $it -> reg_meta:${reg_meta}, fix_meta:${fix_meta}, mov_meta:${mov_meta}"
+        nextflow.Nextflow.log.debug "Prepare registration inputs: $it -> reg_meta:${reg_meta}, fix_meta:${fix_meta}, mov_meta:${mov_meta}"
         [ reg_meta, fix_meta, mov_meta ]
     }
 
@@ -75,7 +73,7 @@ workflow REGISTRATION {
     global_registration_results.global_transforms.view { "Global affine transforms: $it" }
     global_registration_results.global_registration_results.view { "Global transformed results: $it" }
 
-    def additional_cluster_files = ParamUtils.getParamsAsListOfFiles(
+    def additional_cluster_files = ParamUtils.get_params_as_list_of_files(
         [
             params.local_fix_mask,
             params.local_mov_mask,
@@ -115,8 +113,8 @@ workflow REGISTRATION {
     def multiscale_warped_inputs = local_deformation_results
     | combine(local_registrations_cluster, by: 0)
     | map { it ->
-        def (reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, dask_meta, dask_context) = it
-        log.debug "Prepare multiscale input for warped image $it"
+        def (reg_meta, _fix, _fix_subpath, _mov, _mov_subpath, warped, warped_subpath, _dask_meta, dask_context) = it
+        nextflow.Nextflow.log.debug "Prepare multiscale input for warped image $it"
         def r = [
             [
                 reg_meta,
@@ -127,7 +125,7 @@ workflow REGISTRATION {
                 dask_context.config ?: [],
             ],
         ]
-        log.debug "Multiscale warped image input $r"
+        nextflow.Nextflow.log.debug "Multiscale warped image input $r"
         r
     }
 
@@ -145,7 +143,7 @@ workflow REGISTRATION {
     | combine(multiscale_results, by: 0)
     | map { it ->
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, dask_meta, dask_context, transform_output, transform_name, transform_subpath, inv_transform_output, inv_transform_name, inv_transform_subpath) = it
-        log.debug "Prepare all registration results: $it"
+        nextflow.Nextflow.log.debug "Prepare all registration results: $it"
         def r = [
             reg_meta,
             fix, fix_subpath,
@@ -157,8 +155,8 @@ workflow REGISTRATION {
             inv_transform_name, inv_transform_subpath,
             dask_meta, dask_context,
         ]
-        log.debug "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
-        log.debug "All registration results: $r"
+        nextflow.Nextflow.log.debug "Finished warping ${warped}, ${warped_subpath} on dask cluster ${dask_meta}, ${dask_context}"
+        nextflow.Nextflow.log.debug "All registration results: $r"
         r
     }
 
@@ -166,13 +164,13 @@ workflow REGISTRATION {
     | map { it ->
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, transform_output, transform_name, transform_subpath, inv_transform_output, inv_transform_name, inv_transform_subpath, dask_meta, dask_context) = it
         def r = [ dask_meta, dask_context, reg_meta ]
-        log.debug "Prepare to stop dask cluster $reg_meta"
+        nextflow.Nextflow.log.debug "Prepare to stop dask cluster $reg_meta"
         r
     }
     | groupTuple(by: [0, 1])
     | map { it ->
         def (dask_meta, dask_context, reg_metas) = it
-        log.debug "Prepare to stop dask cluster used for $reg_metas -> [ ${dask_meta}, ${dask_context} ]"
+        nextflow.Nextflow.log.debug "Prepare to stop dask cluster used for $reg_metas -> [ ${dask_meta}, ${dask_context} ]"
         [ dask_meta, dask_context ]
     }
     | DASK_STOP
@@ -192,7 +190,7 @@ workflow REGISTRATION {
             inv_transform_output,
             inv_transform_name, inv_transform_subpath,
         ]
-        log.debug "Final registration results: $it -> $r"
+        nextflow.Nextflow.log.debug "Final registration results: $it -> $r"
         r
     }
 
@@ -235,7 +233,7 @@ workflow RUN_GLOBAL_REGISTRATION {
         // get the corresponding output channel from the warped to output mapping if there is one
         def global_output_channel = reg_meta.warped_channels_mapping[global_mov_channel]
 
-        log.debug "Prepare global registration inputs: global_fix_channel=${global_fix_channel}, global_mov_channel=${global_mov_channel}, global_output_channel=${global_output_channel}, $it"
+        nextflow.Nextflow.log.debug "Prepare global registration inputs: global_fix_channel=${global_fix_channel}, global_mov_channel=${global_mov_channel}, global_output_channel=${global_output_channel}, $it"
 
         def ri =  [
             reg_meta,
@@ -259,7 +257,7 @@ workflow RUN_GLOBAL_REGISTRATION {
             '',    // global_alignment_subpath (defaults to mov_global_subpath)
             params.global_registration_timeindex, global_output_channel,
         ]
-        log.debug "Global registration inputs: $ri"
+        nextflow.Nextflow.log.debug "Global registration inputs: $ri"
         ri
     }
     if (!skip_global_align) {
@@ -280,7 +278,7 @@ workflow RUN_GLOBAL_REGISTRATION {
                 transform_dir, transform_name,
                 align_dir, align_name, align_subpath,
             ]
-            log.debug "Skip global alignment: $r"
+            nextflow.Nextflow.log.debug "Skip global alignment: $r"
             r
         }
     }
@@ -288,14 +286,14 @@ workflow RUN_GLOBAL_REGISTRATION {
     global_transforms = global_registration_results
     | map { it ->
         def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
-        log.debug "Completed global alignment: $it"
+        nextflow.Nextflow.log.debug "Completed global alignment: $it"
         def full_transform_path = transform_dir && transform_name
             ? "${transform_dir}/${transform_name}"
             : ''
         def r = [
             reg_meta, full_transform_path,
         ]
-        log.debug "Global transform $it -> $r"
+        nextflow.Nextflow.log.debug "Global transform $it -> $r"
         r
     }
 
@@ -355,7 +353,7 @@ workflow START_EASIFISH_DASK {
                 (dask_config_file ? [ dask_config_file ] : [] )
             ]
         }
-        log.debug "Collected files for dask: $r"
+        nextflow.Nextflow.log.debug "Collected files for dask: $r"
         r
     }
 
@@ -372,7 +370,7 @@ workflow START_EASIFISH_DASK {
 
     def local_registrations_dask_cluster = cluster_info
     | map { dask_meta, dask_context ->
-        log.debug "Dask cluster -> ${dask_meta}, ${dask_context}"
+        nextflow.Nextflow.log.debug "Dask cluster -> ${dask_meta}, ${dask_context}"
         [
             dask_meta.id /* fix_id */, dask_meta, dask_context,
         ]
@@ -385,7 +383,7 @@ workflow START_EASIFISH_DASK {
             dask_meta,
             dask_context + [ config: dask_config_file ],
         ]
-        log.debug "Use local registration cluster: ${registration_cluster}"
+        nextflow.Nextflow.log.debug "Use local registration cluster: ${registration_cluster}"
         registration_cluster
     }
 
@@ -445,7 +443,7 @@ workflow RUN_LOCAL_REGISTRATION {
             '',                               // local_aligned_name - do not apply the deform transform
             '',                               // local_alignment_subpath (defaults to mov_global_subpath)
         ]
-        log.debug "Prepare local registration inputs: $it -> $ri"
+        nextflow.Nextflow.log.debug "Prepare local registration inputs: $it -> $ri"
         ri
     }
     | join(local_registrations_dask_cluster, by:0)
@@ -484,9 +482,9 @@ workflow RUN_LOCAL_REGISTRATION {
             dask_context.scheduler_address,
             dask_context.config,
         ]
-        log.debug "Local registration inputs: $it -> $data, $cluster"
-        log.debug "Local registration cluster: $cluster"
-        log.debug "Local registration data: $data"
+        nextflow.Nextflow.log.debug "Local registration inputs: $it -> $data, $cluster"
+        nextflow.Nextflow.log.debug "Local registration cluster: $cluster"
+        nextflow.Nextflow.log.debug "Local registration data: $data"
 
         data: data
         cluster: cluster
@@ -528,7 +526,7 @@ workflow RUN_LOCAL_REGISTRATION {
                 local_registration_output,
                 local_align_name, local_align_subpath
             ]
-            log.debug "Skip local alignment: $r"
+            nextflow.Nextflow.log.debug "Skip local alignment: $r"
             r
         }
     }
@@ -549,8 +547,8 @@ workflow RUN_COMPUTE_INVERSE {
     | join(local_registration_results, by: 0)
     | join(local_registrations_cluster, by: 0)
     | map { it ->
-        def (reg_meta, fix_meta, mov_meta, fix, fix_subpath, mov, mov_subpath, affine_transform, local_transform_output, local_transform, local_transform_subpath, local_inv_transform, local_inv_transform_subpath, warped_output, local_warped_name, local_warped_subpath, dask_meta, dask_context) = it
-        log.debug "Prepare compute inverse inputs: $it"
+        def (reg_meta, _fix_meta, _mov_meta, _fix, _fix_subpath, _mov, _mov_subpath, _affine_transform, local_transform_output, local_transform, local_transform_subpath, _local_inv_transform, _local_inv_transform_subpath, _warped_output, _local_warped_name, _local_warped_subpath, _dask_meta, dask_context) = it
+        nextflow.Nextflow.log.debug "Prepare compute inverse inputs: $it"
         [
             [
                 reg_meta,
@@ -633,7 +631,7 @@ workflow RUN_LOCAL_DEFORMS {
                         deformation_input,
                         dask_context,
                     ]
-                    log.debug "Deformation input: ${warped_subpath} -> $r "
+                    nextflow.Nextflow.log.debug "Deformation input: ${warped_subpath} -> $r "
                     r
                 }
         r
@@ -647,20 +645,20 @@ workflow RUN_LOCAL_DEFORMS {
             params.local_deform_mem_gb ?: params.default_mem_gb_per_cpu * params.local_deform_cpus,
         )
 
-        deformation_results.view {
+        deformation_results.view { it ->
             "Completed deformation: $it"
         }
     } else {
         deformation_results = deformation_inputs
-        | map {
-            def (reg_meta, fix, fix_subpath, fix_timeindex, fix_channel, fix_spacing, mov, mov_subpath, mov_timeindex, mov_channel, mov_spacing, affine_transform, deform_transform, deform_transform_subpath, warped, warped_subpath) = it[0]
+        | map { it ->
+            def (reg_meta, fix, fix_subpath, _fix_timeindex, _fix_channel, _fix_spacing, mov, mov_subpath, _mov_timeindex, _mov_channel, _mov_spacing, _affine_transform, _deform_transform, _deform_transform_subpath, warped, warped_subpath) = it[0]
             def r = [
                 reg_meta,
                 fix, fix_subpath,
                 mov, mov_subpath,
                 warped, warped_subpath,
             ]
-            log.debug "Skip deformation: $r"
+            nextflow.Nextflow.log.debug "Skip deformation: $r"
             r
         }
     }

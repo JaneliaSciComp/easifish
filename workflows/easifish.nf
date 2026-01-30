@@ -34,8 +34,8 @@ workflow EASIFISH {
     def imagesdir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching"
 
     def ch_acquisitions = INPUT_CHECK (
-        ch_inputs.map { it[0] }, // samplesheet_file
-        ch_inputs.map { it[1] }, // inputdir
+        ch_inputs.map { it -> it[0] }, // samplesheet_file
+        ch_inputs.map { it -> it[1] }, // inputdir
         imagesdir,
         params.skip_stitching,
     )

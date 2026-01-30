@@ -9,8 +9,6 @@ include { POST_RS_FISH           } from '../modules/local/post_rs_fish'
 include { FISHSPOT_EXTRACTION    } from '../subworkflows/local/fishspot_extraction'
 include { RSFISH_SPOT_EXTRACTION } from '../subworkflows/local/rsfish_spot_extraction'
 
-include { as_list                } from './util_functions'
-
 workflow SPOT_EXTRACTION {
     take:
     ch_meta         // channel: [ meta ] - metadata containing stitching results
@@ -18,7 +16,7 @@ workflow SPOT_EXTRACTION {
     workdir         // file|string - work directory
 
     main:
-    def spot_volume_ids = as_list(params.spot_extraction_ids)
+    def spot_volume_ids = ParamUtils.as_list(params.spot_extraction_ids)
 
     def spots_inputs = ch_meta
     | filter { meta ->
@@ -119,7 +117,7 @@ def get_spot_subpaths(meta) {
         ]
     } else if (params.spot_subpaths) {
         // in this case the subpaths parameters must match exactly the container datasets
-        return as_list(params.spot_subpaths)
+        return ParamUtils.as_list(params.spot_subpaths)
             .collect { subpath ->
                 def spots_result_name = "spots-rsfish-${subpath.replace('/', '-')}.csv"
                 [ "${meta.stitched_dataset}/${subpath}", spots_result_name ]
@@ -127,11 +125,11 @@ def get_spot_subpaths(meta) {
     } else {
         def spot_channels;
         if (params.spot_channels) {
-            spot_channels = as_list(params.spot_channels)
+            spot_channels = ParamUtils.as_list(params.spot_channels)
             log.debug "Use specified spot channels: $spot_channels"
         } else {
             // all but the last channel which typically is DAPI
-            def all_channels = as_list(params.channels)
+            def all_channels = ParamUtils.as_list(params.channels)
             if (params.dapi_channel) {
                 spot_channels = all_channels.findAll { it != params.dapi_channel }
             } else {
@@ -141,7 +139,7 @@ def get_spot_subpaths(meta) {
             }
             log.debug "Spot channels: $spot_channels (all from ${params.channels} except the last one)"
         }
-        def spot_scales = as_list(params.spot_scales)
+        def spot_scales = ParamUtils.as_list(params.spot_scales)
 
         return [spot_channels, spot_scales].combinations()
             .collect { ch, scale ->

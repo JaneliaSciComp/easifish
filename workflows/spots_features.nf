@@ -1,6 +1,5 @@
 include { SPOTS_PROPS  } from '../modules/local/spots/props/main'
 include { SPOTS_COUNTS } from '../modules/local/spots/counts/main'
-include { as_list      } from './util_functions'
 
 /*
 SPOTS_STATS - aggregate all channel spot counts into a single csv output
@@ -262,7 +261,7 @@ def get_spot_subpaths(id) {
         ]
     } else if (params.spot_subpaths) {
         // in this case the subpaths parameters must match exactly the container datasets
-        return as_list(params.spot_subpaths)
+        return ParamUtils.as_list(params.spot_subpaths)
             .collectMany { subpath ->
                 def spot_ch = get_dataset_channel(subpath)
                 if (spot_ch) {
@@ -286,7 +285,7 @@ def get_spot_subpaths(id) {
             }
     } else {
         def spot_channels = get_spot_channels_from_params();
-        def spot_scales = as_list(params.spot_scales)
+        def spot_scales = ParamUtils.as_list(params.spot_scales)
 
         return [spot_channels, spot_scales].combinations()
             .collect { ch, scale ->
@@ -320,13 +319,13 @@ def get_dataset_channel(image_dataset) {
 def get_spot_channels_from_params() {
     def spot_channels
     if (params.spot_channels) {
-        spot_channels = as_list(params.spot_channels)
+        spot_channels = ParamUtils.as_list(params.spot_channels)
         log.debug "Use specified spot channels: $spot_channels"
     } else {
         // all but the last channel which typically is DAPI
-        def all_channels = as_list(params.channels)
+        def all_channels = ParamUtils.as_list(params.channels)
         def excluded_channels = params.spot_excluded_channels
-            ? as_list(params.spot_excluded_channels)
+            ? ParamUtils.as_list(params.spot_excluded_channels)
             : params.dapi_channel
             ? [ params.dapi_channel ]
             : []

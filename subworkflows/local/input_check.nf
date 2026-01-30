@@ -65,7 +65,7 @@ workflow INPUT_CHECK {
             }
     }
 
-    def acquisitions = prepare_acq
+    def prepared_acquisitions = prepare_acq
         .groupTuple() // Group by acquisition
         .map {
             def (id, metas, input_dirs, data_files, patterns) = it
@@ -83,7 +83,7 @@ workflow INPUT_CHECK {
         }
 
     emit:
-    acquisitions                              // channel: [ val(meta), [ filenames ] ]
+    acquisitions = prepared_acquisitions      // channel: [ val(meta), [ filenames ] ]
     versions = SAMPLESHEET_CHECK.out.versions // channel: [ versions.yml ]
 }
 
