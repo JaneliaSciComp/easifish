@@ -31,7 +31,7 @@ workflow WARP_SPOTS {
     }
     | unique { it -> it[0] } // unique by id
 
-    registration_fix.view { it -> log.debug "Registration fix id: $it" }
+    registration_fix.view { it -> log.debug "warp_spots - registration fix id: $it" }
 
     def spots = spot_extraction_results
     | map { it ->
@@ -64,7 +64,15 @@ workflow WARP_SPOTS {
     }
 
     def spots_warp_input = spots
-    | filter { it -> it[2] /* spots_file must be defined */}
+    | filter { it ->
+        /* spots_file must be defined */
+        def spots_file = it[2]
+        if (!spots_file) {
+            log.info "No spots file found in the parameter list: $it"
+            return false
+        }
+        return true
+    }
     | combine(transform, by: 0)
     | map { it ->
         def (id, meta_spots, spots_file, spots_image_container, spots_dataset, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath) = it

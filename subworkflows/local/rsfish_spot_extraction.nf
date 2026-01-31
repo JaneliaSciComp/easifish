@@ -77,22 +77,24 @@ workflow RSFISH_SPOT_EXTRACTION {
     }
 
     def final_rsfish_results = rsfish_results
-    | map {
+    | map { it ->
         log.debug "RS_FISH results: $it"
 
         def (meta, input_image, input_dataset, full_output_filename) = it
-        [
+        def r = [
             meta,
             input_image,
             input_dataset,
             full_output_filename,
         ]
+        log.debug "Final RS_FISH results: $r"
+        r
     }
 
     def prepare_spark_stop = rsfish_results
     | groupTuple(by: [0, 4]) // group by meta and spark
-    | map {
-        def (meta, input_image, input_dataset, output_filename, spark) = it
+    | map { it ->
+        def (meta, _input_image, _input_dataset, _output_filename, spark) = it
         [
             meta, spark,
         ]
