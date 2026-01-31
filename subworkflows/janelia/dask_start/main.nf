@@ -28,7 +28,7 @@ workflow DASK_START {
             dask_work_dir,
         )
         | join(meta_and_files, by: 0)
-        | map {
+        | map { it ->
             def (meta, dask_cluster_work_dir, data_paths) = it
             def dask_config_path = dask_config ? file(dask_config) : []
             def r = [meta, dask_config_path, dask_cluster_work_dir, data_paths]
@@ -41,8 +41,8 @@ workflow DASK_START {
 
         // wait for manager to start
         DASK_WAITFORMANAGER(
-            dask_prepare_result.map {
-                def (meta, dask_config_path, dask_cluster_work_dir, data_paths) = it
+            dask_prepare_result.map { it ->
+                def (meta, _dask_config_path, dask_cluster_work_dir, _data_paths) = it
                 [meta, dask_cluster_work_dir]
             }
         )
@@ -52,7 +52,7 @@ workflow DASK_START {
         // prepare inputs for dask workers
         def dask_workers_input = DASK_WAITFORMANAGER.out.cluster_info
             | join(meta_and_files, by: 0)
-            | flatMap {
+            | flatMap { it ->
                 def (meta, cluster_work_dir, scheduler_address, dashboard_port, data_paths) = it
                 def dashboard_address_parts = scheduler_address.split(':')
                 dashboard_address_parts[0] = 'http'
@@ -98,8 +98,8 @@ workflow DASK_START {
         // do not start a distributed cluster
         log.debug("No distributed dask cluster")
         dask_context = meta_and_files
-            | map {
-                def (meta, data_paths) = it
+            | map { it ->
+                def (meta, _data_paths) = it
                 [meta, [:]]
             }
     }

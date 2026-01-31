@@ -28,7 +28,7 @@ workflow SPARK_STOP {
     main:
     if (spark_cluster) {
         done = ch_meta_and_spark
-        | map {
+        | map { it ->
             def (meta, spark) = it
             log.debug "Stop spark: [$meta, $spark]"
             [ meta, spark, file(spark.work_dir) ]

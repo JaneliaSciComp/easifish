@@ -357,8 +357,8 @@ workflow SPARK_START {
             meta_workers_with_data.data,
         )
         SPARK_STARTWORKER.out.groupTuple(by:[0,1,2], size: n_spark_workers)
-        | map {
-            def (meta, spark, spark_work_dir, worker_ids) = it
+        | map { it ->
+            def (meta, spark, spark_work_dir, _worker_ids) = it
             // worker_ids are not needed for cleanup process
             [ meta, spark, spark_work_dir ]
         }
@@ -370,15 +370,15 @@ workflow SPARK_START {
                                 : min_workers
         spark_context = SPARK_WAITFORWORKER(meta_workers_with_data.worker)
         | groupTuple(by: [0,1], size: needed_workers)
-        | map {
-            def (meta, spark, spark_work_dir, worker_ids) = it
+        | map { it ->
+            def (meta, spark, _spark_work_dir, _worker_ids) = it
             log.debug "Create distributed Spark context: ${meta}, ${spark}"
             [ meta, spark ]
         }
     } else {
         // when running locally, the driver needs enough resources to run a spark worker
-        spark_context = PREPARE_SPARK_CONFIG.out.spark_inputs.map {
-            def (meta, spark, spark_work_dir) = it
+        spark_context = PREPARE_SPARK_CONFIG.out.spark_inputs.map { it ->
+            def (meta, spark, _spark_work_dir) = it
 
             spark.workers = 1
             spark.driver_cores = spark.driver_cores + spark.worker_cores

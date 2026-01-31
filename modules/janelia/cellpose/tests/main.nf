@@ -44,7 +44,7 @@ workflow test_cellpose {
             cellpose_working_path,
         ]
     }
-    cellpose_test_data.subscribe { log.info "Cellpose path inputs: $it" }
+    cellpose_test_data.view { it -> log.info "Cellpose path inputs: $it" }
 
     def cellpose_results = CELLPOSE(
         cellpose_test_data,

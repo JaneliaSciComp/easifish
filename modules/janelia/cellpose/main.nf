@@ -25,9 +25,9 @@ process CELLPOSE {
     tuple val(meta),
           env('input_image_fullpath'),
           val(image_subpath),
-          eval('(IFS=$"\n"; echo "${output_label_images[@]}")'),
-          val(output_labels_subpath)                           , emit: results
-    path('versions.yml')                                       , emit: versions
+          eval('printf "%s\n" "\${output_label_images[@]}"'),
+          val(output_labels_subpath)                        , emit: results
+    path('versions.yml')                                    , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -57,7 +57,7 @@ process CELLPOSE {
     def labels_image = labels ?: ''
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_config ? "--dask-config ${dask_config}" : ''
-    (labels_noext, labels_ext) = labels_image.lastIndexOf('.').with { pos ->
+    def (labels_noext, labels_ext) = labels_image.lastIndexOf('.').with { pos ->
         pos == -1
             ? [labels_image, '']
             : [labels_image[0..<pos], labels_image[(pos+1)..-1]]
@@ -113,9 +113,11 @@ process CELLPOSE {
     (exec "\${CMD[@]}")
 
     output_label_images=()
-    for sr in \$(ls \${output_fullpath} | grep "${labels_noext}.*${labels_ext}") ; do
+    for sr in \$(ls \${output_fullpath} | grep -e "${labels_noext}.*${labels_ext}") ; do
         output_label_images+=("\${output_fullpath}/\${sr}")
     done
+
+    echo "Output label images: \${output_label_images[@]}"
 
     cellpose_version=\$(python -m tools.main_distributed_cellpose \
                         --version | \
