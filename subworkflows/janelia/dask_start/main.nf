@@ -188,7 +188,7 @@ process DASK_STARTWORKER {
     tag "${meta.id}:${worker_id}"
     label 'process_long'
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2025.5.1-py12-ol9' }
-    cpus { worker_cpus }
+    cpus { worker_cpus + task.attempt - 1 }
     memory "${worker_mem_in_gb} GB"
 
     input:
