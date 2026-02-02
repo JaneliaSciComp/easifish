@@ -113,7 +113,11 @@ workflow REGISTRATION {
     def multiscale_warped_inputs = local_deformation_results
     | combine(local_registrations_cluster, by: 0)
     | map { it ->
-        def (reg_meta, _fix, _fix_subpath, _mov, _mov_subpath, warped, warped_subpath, _dask_meta, dask_context) = it
+        def (reg_meta,
+            _fix, _fix_subpath,
+            _mov, _mov_subpath,
+            warped, warped_subpath,
+            _dask_meta, dask_context) = it
         log.debug "Prepare multiscale input for warped image $it"
         def r = [
             [
@@ -142,7 +146,13 @@ workflow REGISTRATION {
     | combine(local_inverse_results, by: 0)
     | combine(multiscale_results, by: 0)
     | map { it ->
-        def (reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, dask_meta, dask_context, transform_output, transform_name, transform_subpath, inv_transform_output, inv_transform_name, inv_transform_subpath) = it
+        def (reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            dask_meta, dask_context,
+            transform_output, transform_name, transform_subpath,
+            inv_transform_output, inv_transform_name, inv_transform_subpath) = it
         log.debug "Prepare all registration results: $it"
         def r = [
             reg_meta,
@@ -162,7 +172,13 @@ workflow REGISTRATION {
 
     def stopped_clusters = all_registration_results
     | map { it ->
-        def (reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, transform_output, transform_name, transform_subpath, inv_transform_output, inv_transform_name, inv_transform_subpath, dask_meta, dask_context) = it
+        def (reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output, transform_name, transform_subpath,
+            inv_transform_output, inv_transform_name, inv_transform_subpath,
+            dask_meta, dask_context) = it
         def r = [ dask_meta, dask_context, reg_meta ]
         log.debug "Prepare to stop dask cluster $reg_meta"
         r
@@ -179,7 +195,13 @@ workflow REGISTRATION {
 
     def final_results = all_registration_results
     | map { it ->
-        def (reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, transform_output, transform_name, transform_subpath, inv_transform_output, inv_transform_name, inv_transform_subpath, dask_meta, dask_context) = it
+        def (reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            transform_output, transform_name, transform_subpath,
+            inv_transform_output, inv_transform_name, inv_transform_subpath,
+            dask_meta, dask_context) = it
         def r = [
             reg_meta,
             fix, fix_subpath,
@@ -270,7 +292,14 @@ workflow RUN_GLOBAL_REGISTRATION {
     } else {
         global_registration_results = global_registration_inputs
         | map { it ->
-            def (reg_meta, fix, fix_subpath, fix_timeindex, fix_channel, mov, mov_subpath, mov_timeindex, mov_channel, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath, steps, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
+            def (reg_meta,
+                fix, fix_subpath, fix_timeindex, fix_channel,
+                mov, mov_subpath, mov_timeindex, mov_channel,
+                fix_mask, fix_mask_subpath,
+                mov_mask, mov_mask_subpath,
+                steps,
+                transform_dir, transform_name,
+                align_dir, align_name, align_subpath) = it
             def r = [
                 reg_meta,
                 fix, fix_subpath,
@@ -285,7 +314,11 @@ workflow RUN_GLOBAL_REGISTRATION {
     // Prepare global transform output
     global_transforms = global_registration_results
     | map { it ->
-        def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
+        def (reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            transform_dir, transform_name,
+            align_dir, align_name, align_subpath) = it
         log.debug "Completed global alignment: $it"
         def full_transform_path = transform_dir && transform_name
             ? "${transform_dir}/${transform_name}"
@@ -316,7 +349,11 @@ workflow START_EASIFISH_DASK {
 
     def extended_global_registration_results = global_registration_results
     | map {
-        def (reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath) = it
+        def (reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            transform_dir, transform_name,
+            align_dir, align_name, align_subpath) = it
         [
            reg_meta.fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath,
         ]
@@ -377,7 +414,11 @@ workflow START_EASIFISH_DASK {
     }
     | combine(extended_global_registration_results, by:0)
     | map {
-        def (fix_id, dask_meta, dask_context, reg_meta, global_fix, global_fix_subpath, global_mov, global_mov_subpath, global_transform_dir,global_transform_name,global_align_dir, global_align_name, global_align_subpath) = it
+        def (fix_id, dask_meta, dask_context, reg_meta,
+            global_fix, global_fix_subpath,
+            global_mov, global_mov_subpath,
+            global_transform_dir, global_transform_name,
+            global_align_dir, global_align_name, global_align_subpath) = it
         def registration_cluster = [
             reg_meta,
             dask_meta,
@@ -448,7 +489,17 @@ workflow RUN_LOCAL_REGISTRATION {
     }
     | join(local_registrations_dask_cluster, by:0)
     | multiMap { it ->
-        def (reg_meta, local_fix, local_fix_subpath, local_mov, local_mov_subpath, local_fix_mask, local_fix_mask_subpath, local_mov_mask, local_mov_mask_subpath, global_transform, local_steps,local_registration_working_dir, local_transform_name, local_transform_subpath, local_inv_transform_name, local_inv_transform_subpath,local_registration_output, local_align_name, local_align_subpath, dask_meta, dask_context) = it
+        def (reg_meta,
+            local_fix, local_fix_subpath,
+            local_mov, local_mov_subpath,
+            local_fix_mask, local_fix_mask_subpath,
+            local_mov_mask, local_mov_mask_subpath,
+            global_transform,
+            local_steps, local_registration_working_dir,
+            local_transform_name, local_transform_subpath,
+            local_inv_transform_name, local_inv_transform_subpath,
+            local_registration_output, local_align_name, local_align_subpath,
+            dask_meta, dask_context) = it
 
         def local_fix_channel = params.fix_local_channel ?: params.reg_ch
         def local_mov_channel = params.mov_local_channel ?: local_fix_channel
@@ -514,7 +565,16 @@ workflow RUN_LOCAL_REGISTRATION {
     } else {
         local_registration_results = local_registration_inputs.data
         | map { it ->
-            def (reg_meta, local_fix, local_fix_subpath, _local_fix_timeindex, _local_fix_channel, local_mov, local_mov_subpath, _local_mov_timeindex, _local_mov_channel, _local_fix_mask, _local_fix_mask_subpath, _local_mov_mask, _local_mov_mask_subpath, global_transform, _local_steps, local_registration_working_dir, local_transform_name, local_transform_subpath, local_inv_transform_name, local_inv_transform_subpath, local_registration_output, local_align_name, local_align_subpath) = it
+            def (reg_meta,
+                local_fix, local_fix_subpath, _local_fix_timeindex, _local_fix_channel,
+                local_mov, local_mov_subpath, _local_mov_timeindex, _local_mov_channel,
+                _local_fix_mask, _local_fix_mask_subpath,
+                _local_mov_mask, _local_mov_mask_subpath,
+                global_transform,
+                _local_steps, local_registration_working_dir,
+                local_transform_name, local_transform_subpath,
+                local_inv_transform_name, local_inv_transform_subpath,
+                local_registration_output, local_align_name, local_align_subpath) = it
             def r = [
                 reg_meta,
                 local_fix, local_fix_subpath,
@@ -547,7 +607,17 @@ workflow RUN_COMPUTE_INVERSE {
     | join(local_registration_results, by: 0)
     | join(local_registrations_cluster, by: 0)
     | map { it ->
-        def (reg_meta, _fix_meta, _mov_meta, _fix, _fix_subpath, _mov, _mov_subpath, _affine_transform, local_transform_output, local_transform, local_transform_subpath, _local_inv_transform, _local_inv_transform_subpath, _warped_output, _local_warped_name, _local_warped_subpath, _dask_meta, dask_context) = it
+        def (reg_meta,
+            _fix_meta, _mov_meta,
+            _fix, _fix_subpath,
+            _mov, _mov_subpath,
+            _affine_transform,
+            local_transform_output,
+            local_transform, local_transform_subpath,
+            _local_inv_transform, _local_inv_transform_subpath,
+            _warped_output,
+            _local_warped_name, _local_warped_subpath,
+            _dask_meta, dask_context) = it
         log.debug "Prepare compute inverse inputs: $it"
         [
             [
@@ -594,7 +664,15 @@ workflow RUN_LOCAL_DEFORMS {
     | join(local_registration_results, by: 0)
     | join(local_registrations_cluster, by: 0)
     | flatMap { it ->
-        def (reg_meta, fix_meta, mov_meta, fix, _fix_subpath, mov, _mov_subpath, affine_transform, local_transform_output, local_deform, local_deform_subpath, _local_inv_deform, _local_inv_deform_subpath, warped_output, local_warped_name, local_warped_subpath, _dask_meta, dask_context) = it
+        def (reg_meta, fix_meta, mov_meta,
+            fix, _fix_subpath,
+            mov, _mov_subpath,
+            affine_transform,
+            local_transform_output,
+            local_deform, local_deform_subpath,
+            _local_inv_deform, _local_inv_deform_subpath,
+            warped_output, local_warped_name, local_warped_subpath,
+            _dask_meta, dask_context) = it
         log.debug "Prepare deformation inputs: $it"
         def warped_name = local_warped_name ?: params.local_registration_container
         def warped_subpaths = ParamUtils.get_warped_subpaths(params)
@@ -651,7 +729,12 @@ workflow RUN_LOCAL_DEFORMS {
     } else {
         deformation_results = deformation_inputs
         | map { it ->
-            def (reg_meta, fix, fix_subpath, _fix_timeindex, _fix_channel, _fix_spacing, mov, mov_subpath, _mov_timeindex, _mov_channel, _mov_spacing, _affine_transform, _deform_transform, _deform_transform_subpath, warped, warped_subpath) = it[0]
+            def (reg_meta,
+                fix, fix_subpath, _fix_timeindex, _fix_channel, _fix_spacing,
+                mov, mov_subpath, _mov_timeindex, _mov_channel, _mov_spacing,
+                _affine_transform,
+                _deform_transform, _deform_transform_subpath,
+                warped, warped_subpath) = it[0]
             def r = [
                 reg_meta,
                 fix, fix_subpath,
