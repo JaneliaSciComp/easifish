@@ -189,7 +189,7 @@ process DASK_STARTWORKER {
     label 'process_long'
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2025.5.1-py12-ol9' }
     cpus { worker_cpus + task.attempt - 1 }
-    memory "${worker_mem_in_gb} GB"
+    memory "${worker_mem_in_gb / worker_cpus * (worker_cpus + task.attempt - 1) as int} GB"
 
     input:
     tuple val(meta), path(dask_config), path(cluster_work_dir, stageAs: 'dask_work/*'), val(scheduler_address), val(worker_id), path(data, stageAs: '?/*')
