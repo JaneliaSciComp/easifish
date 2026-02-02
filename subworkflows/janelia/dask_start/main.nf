@@ -227,7 +227,7 @@ process DASK_STARTWORKER {
         --worker-dir ${dask_worker_work_dir} \
         --scheduler-address ${scheduler_address} \
         --pid-file ${dask_worker_pid_file} \
-        --memory-limit "${worker_mem_in_gb}G" \
+        --memory-limit "${worker_mem_in_gb / worker_cpus * (worker_cpus + task.attempt - 1}G" \
         --terminate-file ${terminate_file_name} \
         ${args}
 
