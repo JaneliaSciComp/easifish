@@ -731,8 +731,8 @@
                 },
                 "bigstream_dask_nprocs": {
                     "type": "integer",
-                    "default": 2,
-                    "description": "Number of Dask worker processes per worker node",
+                    "default": 0,
+                    "description": "Number of Dask worker processes per worker node. (Default to None)",
                     "fa_icon": "fas fa-cogs"
                 },
                 "global_registration_container": {
