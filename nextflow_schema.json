@@ -723,11 +723,17 @@
                     "description": "Bigstream dask scheduler port - if 0 the scheduler will pick a port that is available. The typical port for the dask scheduler is 8786",
                     "fa_icon": "fas fa-network-wired"
                 },
-                "bigstream_dask_threads": {
+                "bigstream_dask_nthreads": {
                     "type": "integer",
                     "default": 1,
-                    "description": "Number of concurrent tasks running on a bigstream Dask worker",
+                    "description": "Number of threads per Dask worker process",
                     "fa_icon": "fas fa-layer-group"
+                },
+                "bigstream_dask_nprocs": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Number of Dask worker processes per worker node",
+                    "fa_icon": "fas fa-cogs"
                 },
                 "global_registration_container": {
                     "type": "string",
