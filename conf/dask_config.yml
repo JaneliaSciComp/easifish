@@ -22,7 +22,7 @@ distributed:
     worker-ttl: 120s # default 5min
     unknown-task-duration: 60m
 
-    worker-saturation: 1
+    worker-saturation: 1.0
 
     locks:
       lease-timeout: 900s
