@@ -1,5 +1,5 @@
 array:
-  chunk-size: 128 MiB
+  chunk-size: 256 MiB
   rechunk:
     method: tasks
 
@@ -11,7 +11,7 @@ distributed:
 
   comm:
     retry:
-      count: 3
+      count: 5
 
     timeouts:
       connect: 600s
@@ -35,9 +35,9 @@ distributed:
       stagger: "5 minutes"
 
     memory:
-      transfer: 0.4 # default 0.1
-      target: 0.8 # default 0.6
-      spill: 0.7 # default 0.7
+      transfer: 0.1 # default 0.1
+      target: 0.9 # default 0.6
+      spill: 0.9 # default 0.7
       pause: false # default 0.8
       terminate: false # default 0.95
       recent-to-old-time: 300s

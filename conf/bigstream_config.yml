@@ -1,5 +1,6 @@
 ransac:
   blob_sizes: [6, 20]
+  alignment_spacing: 2.0
   nspots: 2000
   num_sigma_max: 7
   cc_radius: 20

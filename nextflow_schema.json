@@ -631,6 +631,18 @@
                     "hidden": true,
                     "fa_icon": "fas fa-memory"
                 },
+                "bigstream_worker_retry": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, retry bigstream Dask workers on certain exit statuses (130, 137)",
+                    "fa_icon": "fas fa-redo"
+                },
+                "bigstream_worker_max_retries": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Maximum number of retries for bigstream Dask workers when bigstream_worker_retry is enabled",
+                    "fa_icon": "fas fa-hashtag"
+                },
                 "bigstream_local_blocksize": {
                     "type": "string",
                     "hidden": true,
