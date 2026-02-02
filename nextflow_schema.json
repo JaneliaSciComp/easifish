@@ -612,12 +612,6 @@
                     "description": "Number of Dask workers used for bigstream registration",
                     "fa_icon": "fas fa-cogs"
                 },
-                "bigstream_max_dask_cluster_jobs": {
-                    "type": "integer",
-                    "default": 0,
-                    "description": "Maximum number of jobs sent by the local aligner to be scheduled on the Dask cluster (0 means unlimited)",
-                    "fa_icon": "fas fa-tasks"
-                },
                 "bigstream_dask_min_workers": {
                     "type": "integer",
                     "default": 1,
