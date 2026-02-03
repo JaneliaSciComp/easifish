@@ -82,7 +82,9 @@ workflow REGISTRATION {
     def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
         additional_cluster_files,
-        params.distributed_bigstream && !params.skip_registration,
+        params.distributed_bigstream &&
+        !params.skip_registration &&
+        (!params.skip_local_align || !params.skip_deformations || !params.skip_inverse),
         "${session_work_dir}/bigstream-dask/",
         params.dask_config,
     )
