@@ -12,27 +12,27 @@
                     },
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "7cd60b2647d24ead4206319a95e3e56814551ac6",
+                        "git_sha": "95ac79ccf27e5c163249484d31af3e388123dec6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "7cd60b2647d24ead4206319a95e3e56814551ac6",
+                        "git_sha": "95ac79ccf27e5c163249484d31af3e388123dec6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "7cd60b2647d24ead4206319a95e3e56814551ac6",
+                        "git_sha": "95ac79ccf27e5c163249484d31af3e388123dec6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "7cd60b2647d24ead4206319a95e3e56814551ac6",
+                        "git_sha": "95ac79ccf27e5c163249484d31af3e388123dec6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "7cd60b2647d24ead4206319a95e3e56814551ac6",
+                        "git_sha": "95ac79ccf27e5c163249484d31af3e388123dec6",
                         "installed_by": ["modules"]
                     },
                     "cellpose": {

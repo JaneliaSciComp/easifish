@@ -1,6 +1,6 @@
 process BIGSTREAM_GLOBALALIGN {
     tag "${meta.id}"
-    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/bigstream:5.0.2-omezarr-dask2025.11.0-py12-ol9' }
+    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9' }
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
     conda 'modules/janelia/bigstream/conda-env.yml'
@@ -133,7 +133,7 @@ process BIGSTREAM_GLOBALALIGN {
     fi
 
     CMD=(
-        python -m launchers.main_global_align_pipeline
+        python -m bigstream.tools.main_global_align_pipeline
         ${fix_image_arg} ${fix_image_subpath_arg}
         ${fix_timeindex_arg} ${fix_channel_arg}
         ${mov_image_arg} ${mov_image_subpath_arg}

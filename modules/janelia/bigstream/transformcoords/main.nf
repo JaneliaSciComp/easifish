@@ -1,6 +1,6 @@
 process BIGSTREAM_TRANSFORMCOORDS {
     tag "${meta.id}"
-    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/bigstream:5.0.2-omezarr-dask2025.11.0-py12-ol9' }
+    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9' }
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
     conda 'modules/janelia/bigstream/conda-env.yml'
@@ -61,7 +61,7 @@ process BIGSTREAM_TRANSFORMCOORDS {
     warped_coords="\${output_fullpath}/${warped_coords_name}"
 
     CMD=(
-        python -m launchers.main_apply_transform_coords
+        python -m bigstream.tools.main_apply_transform_coords
         --input-coords \${full_input_coords}
         --output-coords \${warped_coords}
         ${pixel_resolution_arg}

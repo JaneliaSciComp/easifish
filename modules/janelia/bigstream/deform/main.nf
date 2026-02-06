@@ -1,6 +1,6 @@
 process BIGSTREAM_DEFORM {
     tag "${meta.id}"
-    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/bigstream:5.0.2-omezarr-dask2025.11.0-py12-ol9' }
+    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9' }
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
     conda 'modules/janelia/bigstream/conda-env.yml'
@@ -65,7 +65,7 @@ process BIGSTREAM_DEFORM {
     mkdir -p \${output_fullpath}
 
     CMD=(
-        python -m launchers.main_apply_local_transform
+        python -m bigstream.tools.main_apply_local_transform
         --fix \${fix_fullpath} ${fix_image_subpath_arg}
         ${fix_timeindex_arg} ${fix_channel_arg} ${fix_spacing_arg}
         --moving \${mov_fullpath} ${mov_image_subpath_arg}
