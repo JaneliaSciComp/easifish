@@ -5,4 +5,4 @@ dependencies:
   - pip
   - pip:
     - git+https://github.com/GFleishman/ClusterWrap.git@fa718ac49
-    - git+https://github.com/JaneliaSciComp/bigstream@fdc9471
+    - git+https://github.com/JaneliaSciComp/bigstream@43c0d0c
