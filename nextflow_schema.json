@@ -454,9 +454,9 @@
                     "description": "Explicit channel for mov high resolution image",
                     "fa_icon": "fas fa-layer-group"
                 },
-                "global_initial_transform": {
+                "global_mov_origin_transform": {
                     "type": "string",
-                    "description": "Initial transformation applied to global registration",
+                    "description": "Initial transformation applied to the moving image origin for global registration",
                     "fa_icon": "fas fa-arrows-alt"
                 },
                 "global_static_transforms": {
@@ -484,9 +484,9 @@
                     "description": "Subpath of the global moving mask",
                     "fa_icon": "fas fa-database"
                 },
-                "local_initial_transform": {
+                "local_mov_origin_transform": {
                     "type": "string",
-                    "description": "Initial transformation applied to local registration",
+                    "description": "Initial transformation applied to the moving image origin for local registration",
                     "fa_icon": "fas fa-arrows-alt"
                 },
                 "local_static_transforms": {
