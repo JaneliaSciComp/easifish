@@ -116,19 +116,36 @@ workflow REGISTRATION {
     | combine(local_registrations_cluster, by: 0)
     | map { it ->
         def (reg_meta,
-            _fix, _fix_subpath,
-            _mov, _mov_subpath,
+            fix, fix_subpath,
+            mov, mov_subpath,
             warped, warped_subpath,
             _dask_meta, dask_context) = it
         log.debug "Prepare multiscale input for warped image $it"
+        [
+            reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            dask_context.scheduler_address ?: '',
+            dask_context.config ?: [],
+        ]
+    }
+    | groupTuple(by: [0, 1, 2, 3, 4, 5, 6])
+    | map { it ->
+        def (reg_meta,
+            fix, fix_subpath,
+            mov, mov_subpath,
+            warped, warped_subpath,
+            scheduler_addresses, dask_configs) = it
+        log.debug "Multiscale warped image input (grouped by ${reg_meta.id}): warped=${warped}, warped_subpath=${warped_subpath} (source: $it)"
         def r = [
             [
                 reg_meta,
                 warped, warped_subpath,
             ],
             [
-                dask_context.scheduler_address ?: '',
-                dask_context.config ?: [],
+                scheduler_addresses[0],
+                dask_configs[0],
             ],
         ]
         log.debug "Multiscale warped image input $r"
