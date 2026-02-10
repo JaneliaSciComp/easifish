@@ -84,7 +84,7 @@ workflow REGISTRATION {
         additional_cluster_files,
         params.distributed_bigstream &&
         !params.skip_registration &&
-        (!params.skip_local_align || !params.skip_deformations || !params.skip_inverse),
+        (!params.skip_local_align || !params.skip_deformations || !params.skip_inverse || !params.skip_multiscale_warped_image),
         "${session_work_dir}/bigstream-dask/",
         params.dask_config,
     )
