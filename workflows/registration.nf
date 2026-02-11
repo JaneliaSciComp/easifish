@@ -133,11 +133,11 @@ workflow REGISTRATION {
     | groupTuple(by: [0, 1, 2, 3, 4, 5, 6])
     | map { it ->
         def (reg_meta,
-            fix, fix_subpath,
-            mov, mov_subpath,
-            warped, warped_subpath,
-            scheduler_addresses, dask_configs) = it
-        log.debug "Multiscale warped image input (grouped by ${reg_meta.id}): warped=${warped}, warped_subpath=${warped_subpath} (source: $it)"
+             fix, fix_subpath,
+             mov, mov_subpath,
+             warped, warped_subpath,
+             scheduler_addresses, dask_configs) = it
+        log.debug "Grouped multiscale input by ${reg_meta.id}: warped=${warped}, warped_subpath=${warped_subpath} (source: $it)"
         def r = [
             [
                 reg_meta,
@@ -155,7 +155,7 @@ workflow REGISTRATION {
     def multiscale_results = MULTISCALE(
         multiscale_warped_inputs.map { it[0] },
         multiscale_warped_inputs.map { it[1] },
-        params.skip_multiscale_warped_image || params.skip_deformations || params.skip_registration,
+        (params.skip_multiscale_warped_image || params.skip_deformations || params.skip_registration) && !params.force_warped_pyramid,
         params.multiscale_cpus,
         params.multiscale_mem_gb,
     )

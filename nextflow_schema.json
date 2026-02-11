@@ -1276,6 +1276,12 @@
                     "description": "If true skip generating multiscale pyramid for warped images",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "force_warped_pyramid": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Override skip logic and force the multiscale warped pyramid to run. Useful when deformations were already run in a previous execution and you want to re-run only the pyramid step.",
+                    "fa_icon": "fas fa-toggle-on"
+                },
                 "multiscale_cpus": {
                     "type": "integer",
                     "default": 1,
