@@ -50,11 +50,11 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <summary>Output files</summary>
 
 - `registration/`
-  - Coarse alignment: `global_registration.n5`
-  - Final alignment: `registration.n5`
+  - Coarse alignment: `global_registration.zarr`
+  - Final alignment: `registration.zarr`
   - Global affine transformation: `global/<id>/global-affine.mat`
-  - Local deformation vectors: `local/<id>/deform.n5`
-  - Local inverse deformation vectors - `local/<id/>/inv-deform.n5`
+  - Local deformation vectors: `local/<id>/deform.zarr`
+  - Local inverse deformation vectors - `local/<id/>/inv-deform.zarr`
 
 </details>
 
@@ -64,7 +64,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <summary>Output files</summary>
 
 - `segmentation/`
-  - Segmentation labels: `segmentation.n5`
+  - Segmentation labels: `segmentation.zarr`
 
 </details>
 

@@ -768,6 +768,18 @@
                     "default": "0",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "global_transform_name": {
+                    "type": "string",
+                    "default": "global-affine.mat",
+                    "description": "Name of the global affine transform output file",
+                    "fa_icon": "fas fa-file"
+                },
+                "global_inv_transform_name": {
+                    "type": "string",
+                    "default": "inv-global-affine.mat",
+                    "description": "Name of the inverse global affine transform output file",
+                    "fa_icon": "fas fa-file"
+                },
                 "local_registration_container": {
                     "type": "string",
                     "default": "registration.n5",
