@@ -22,12 +22,12 @@
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "74fdc5862317cb627d3433165a50b7d9613c1789",
+                        "git_sha": "fd007545ace023b5f71d1386db0a8a149877042f",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "74fdc5862317cb627d3433165a50b7d9613c1789",
+                        "git_sha": "fd007545ace023b5f71d1386db0a8a149877042f",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {

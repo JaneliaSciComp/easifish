@@ -76,9 +76,17 @@ process BIGSTREAM_LOCALALIGN {
 
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
-    def bigstream_config_arg = bigstream_config ? "--align-config snapshot-${bigstream_config}" : ''
-    def cp_bigstream_config = bigstream_config ? "cp ${bigstream_config} snapshot-${bigstream_config}" : ''
-
+    def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
+    def cp_bigstream_config
+    if (bigstream_config) {
+        if (transform_dir) {
+            cp_bigstream_config = "cp ${bigstream_config} \${full_transform_dir}"
+        } else {
+            cp_bigstream_config = "cp ${bigstream_config} local-${bigstream_config}"
+        }
+    } else {
+        cp_bigstream_config = ''
+    }
     transform_subpath_output = transform_subpath ?: mov_image_subpath
     inv_transform_subpath_output = inv_transform_subpath ?: transform_subpath_output
 
