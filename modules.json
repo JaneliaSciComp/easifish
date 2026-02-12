@@ -22,7 +22,7 @@
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "fd007545ace023b5f71d1386db0a8a149877042f",
+                        "git_sha": "1bdec22e8de954d3000fe35af0925425b943a0d7",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {

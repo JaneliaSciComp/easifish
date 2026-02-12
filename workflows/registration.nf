@@ -292,7 +292,8 @@ workflow RUN_GLOBAL_REGISTRATION {
 
             params.global_steps,
             global_registration_working_dir, // global_transform_output
-            'global-affine.mat', // global_transform_name
+            params.global_transform_name,
+            params.global_inv_transform_name,
             global_registration_output, // global_align_output
             params.global_registration_container, // global_aligned_name
             '',    // global_alignment_subpath (defaults to mov_global_subpath)
@@ -317,13 +318,13 @@ workflow RUN_GLOBAL_REGISTRATION {
                 fix_mask, fix_mask_subpath,
                 mov_mask, mov_mask_subpath,
                 steps,
-                transform_dir, transform_name,
+                transform_dir, transform_name, inv_transform_name,
                 align_dir, align_name, align_subpath) = it
             def r = [
                 reg_meta,
                 fix, fix_subpath,
                 mov, mov_subpath,
-                transform_dir, transform_name,
+                transform_dir, transform_name, inv_transform_name,
                 align_dir, align_name, align_subpath,
             ]
             log.debug "Skip global alignment: $r"
@@ -336,14 +337,17 @@ workflow RUN_GLOBAL_REGISTRATION {
         def (reg_meta,
             fix, fix_subpath,
             mov, mov_subpath,
-            transform_dir, transform_name,
+            transform_dir, transform_name, inv_transform_name,
             align_dir, align_name, align_subpath) = it
         log.debug "Completed global alignment: $it"
         def full_transform_path = transform_dir && transform_name
             ? "${transform_dir}/${transform_name}"
             : ''
+        def full_inv_transform_path = transform_dir && inv_transform_name
+            ? "${transform_dir}/${inv_transform_name}"
+            : ''
         def r = [
-            reg_meta, full_transform_path,
+            reg_meta, full_transform_path, full_inv_transform_path,
         ]
         log.debug "Global transform $it -> $r"
         r
@@ -454,7 +458,7 @@ workflow START_EASIFISH_DASK {
 workflow RUN_LOCAL_REGISTRATION {
     take:
     registration_inputs // ch: [ reg_meta, fix_meta, mov_meta]
-    global_transforms   // ch: [ reg_meta, global_transform ]
+    global_transforms   // ch: [ reg_meta, global_transform, global_inv_transform ]
     local_registrations_dask_cluster // ch: [ reg_meta, dask_meta, dask_context ]
     bigstream_config    // string|file bigstream yaml config
     reg_outdir
@@ -474,7 +478,7 @@ workflow RUN_LOCAL_REGISTRATION {
     def local_registration_inputs = registration_inputs
     | join(global_transforms, by: 0)
     | map { it ->
-        def (reg_meta, fix_meta, mov_meta, global_transform) = it
+        def (reg_meta, fix_meta, mov_meta, global_transform, _global_inv_transform) = it
 
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
