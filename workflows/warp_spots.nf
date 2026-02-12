@@ -15,17 +15,32 @@ workflow WARP_SPOTS {
     main:
     def transform = registration_results
     | map { it ->
-        def (meta_reg, _fix, _fix_subpath, _mov, _mov_subpath, _warped, _warped_subpath, _transform_output, _transform_name, _transform_subpath, inv_transform_path, inv_transform_name, inv_transform_subpath) = it
+        def (meta_reg,
+            _fix, _fix_subpath,
+            _mov, _mov_subpath,
+            _warped, _warped_subpath,
+            _global_transform, global_inv_transform,
+            _deform_transform_output, _deform_transform_name, _deform_transform_subpath,
+            inv_deform_transform_path, inv_deform_transform_name, inv_deform_transform_subpath) = it
 
         def id = meta_reg.mov_id
-        def r = [ id, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath ]
+        def r = [ id, meta_reg,
+                  global_inv_transform,
+                  inv_deform_transform_path, inv_deform_transform_name, inv_deform_transform_subpath,
+                ]
         log.debug "Registration results considered for warping: $r"
         r
     }
 
     def registration_fix = registration_results
     | map { it ->
-        def (meta_reg, _fix, _fix_subpath, _mov, _mov_subpath, _warped, _warped_subpath, _transform_output, _transform_name, _transform_subpath, _inv_transform_path, _inv_transform_name, _inv_transform_subpath) = it
+        def (meta_reg,
+            _fix, _fix_subpath,
+            _mov, _mov_subpath,
+            _warped, _warped_subpath,
+            _global_transform, _global_inv_transform,
+            _transform_output, _transform_name, _transform_subpath,
+            _inv_transform_path, _inv_transform_name, _inv_transform_subpath) = it
         def id = meta_reg.fix_id
         [ id, meta_reg ]
     }
@@ -75,7 +90,10 @@ workflow WARP_SPOTS {
     }
     | combine(transform, by: 0)
     | map { it ->
-        def (id, meta_spots, spots_file, spots_image_container, spots_dataset, meta_reg, inv_transform_path, inv_transform_name, inv_transform_subpath) = it
+        def (id, meta_spots, spots_file, spots_image_container, spots_dataset,
+            meta_reg,
+            global_inv_transform,
+            inv_deform_transform_path, inv_deform_transform_name, inv_deform_transform_subpath) = it
 
         def warped_spots_output_dir = file("${outdir}/${params.warped_spots_subdir}/${id}")
         def meta = [ meta_spots:meta_spots, meta_reg:meta_reg ]
@@ -90,11 +108,10 @@ workflow WARP_SPOTS {
             [
                 '' /* resolution */, '' /* downsampling factors */
             ],
-            [], // affine transform
+            global_inv_transform ? file(global_inv_transform) : [], // inverse global affine transform
             [
-
-                "${inv_transform_path}/${inv_transform_name}",
-                inv_transform_subpath,
+                "${inv_deform_transform_path}/${inv_deform_transform_name}",
+                inv_deform_transform_subpath,
             ],
             [
                 '' /* dask scheduler */, [] /* dask config */

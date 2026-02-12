@@ -771,12 +771,14 @@
                 "global_transform_name": {
                     "type": "string",
                     "default": "global-affine.mat",
+                    "hidden": true,
                     "description": "Name of the global affine transform output file",
                     "fa_icon": "fas fa-file"
                 },
                 "global_inv_transform_name": {
                     "type": "string",
                     "default": "inv-global-affine.mat",
+                    "hidden": true,
                     "description": "Name of the inverse global affine transform output file",
                     "fa_icon": "fas fa-file"
                 },
@@ -1152,6 +1154,13 @@
                     "type": "boolean",
                     "description": "If set skip spots warping",
                     "default": false,
+                    "fa_icon": "fas fa-toggle-on"
+                },
+                "use_inverse_transforms": {
+                    "type": "boolean",
+                    "default": true,
+                    "hidden": true,
+                    "description": "If true, apply inverse transforms when warping spot coordinates.",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "warped_spots_subdir": {

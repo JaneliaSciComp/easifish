@@ -164,6 +164,7 @@ workflow REGISTRATION {
     | combine(local_registrations_cluster, by: 0)
     | combine(local_inverse_results, by: 0)
     | combine(multiscale_results, by: 0)
+    | combine(global_registration_results.global_transforms, by: 0)
     | map { it ->
         def (reg_meta,
             fix, fix_subpath,
@@ -171,13 +172,16 @@ workflow REGISTRATION {
             warped, warped_subpath,
             dask_meta, dask_context,
             transform_output, transform_name, transform_subpath,
-            inv_transform_output, inv_transform_name, inv_transform_subpath) = it
+            inv_transform_output, inv_transform_name, inv_transform_subpath,
+            _ms_warped, _ms_warped_subpath,
+            global_transform, global_inv_transform) = it
         log.debug "Prepare all registration results: $it"
         def r = [
             reg_meta,
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
+            global_transform, global_inv_transform,
             transform_output,
             transform_name, transform_subpath,
             inv_transform_output,
@@ -195,6 +199,7 @@ workflow REGISTRATION {
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
+            _global_transform, _global_inv_transform,
             transform_output, transform_name, transform_subpath,
             inv_transform_output, inv_transform_name, inv_transform_subpath,
             dask_meta, dask_context) = it
@@ -218,6 +223,7 @@ workflow REGISTRATION {
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
+            global_transform, global_inv_transform,
             transform_output, transform_name, transform_subpath,
             inv_transform_output, inv_transform_name, inv_transform_subpath,
             dask_meta, dask_context) = it
@@ -226,6 +232,7 @@ workflow REGISTRATION {
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
+            global_transform, global_inv_transform,
             transform_output,
             transform_name, transform_subpath,
             inv_transform_output,
