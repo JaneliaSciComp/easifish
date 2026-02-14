@@ -568,6 +568,11 @@
                     "description": "Name of the container for the local inverse deform transformation",
                     "fa_icon": "fas fa-cube"
                 },
+                "bigstream_deform_blocksize": {
+                    "type": "string",
+                    "description": "Deformation zarr spatial chunk size as sizex,sizey,sizez",
+                    "fa_icon": "fas fa-cube"
+                },
                 "warped_subpaths": {
                     "type": "string",
                     "description": "explicit datasets to be warped",
