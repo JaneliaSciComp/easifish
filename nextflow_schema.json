@@ -394,14 +394,24 @@
                     "description": "If True and global affine exists, reuse it",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "fix_mask_descriptor": {
+                "global_fix_mask_descriptor": {
                     "type": "string",
-                    "description": "tuple that describes fix mask.",
+                    "description": "Fix global mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
                 },
-                "mov_mask_descriptor": {
+                "global_mov_mask_descriptor": {
                     "type": "string",
-                    "description": "tuple that describes mov mask.",
+                    "description": "Moving global mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
+                    "fa_icon": "fas fa-cog"
+                },
+                "local_fix_mask_descriptor": {
+                    "type": "string",
+                    "description": "Fix local mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
+                    "fa_icon": "fas fa-cog"
+                },
+                "local_mov_mask_descriptor": {
+                    "type": "string",
+                    "description": "Moving local mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
                 },
                 "global_steps": {
