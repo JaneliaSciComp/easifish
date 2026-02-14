@@ -823,6 +823,12 @@
                     "description": "If set skip spot extraction",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "extract_spots_from_warped": {
+                    "type": "boolean",
+                    "description": "If true, extract spots from warped (registered) images instead of stitched images",
+                    "default": false,
+                    "fa_icon": "fas fa-toggle-on"
+                },
                 "spot_extraction_subdir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",

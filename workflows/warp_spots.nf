@@ -122,7 +122,7 @@ workflow WARP_SPOTS {
     spots_warp_input.view { it -> log.debug "Warp spots input: $it " }
 
     def spots_warp_results
-    if (!params.skip_warp_spots) {
+    if (!params.skip_warp_spots && !params.extract_spots_from_warped) {
         BIGSTREAM_TRANSFORMCOORDS(
             spots_warp_input.map { it -> it[0] },
             spots_warp_input.map { it -> it[1] },
