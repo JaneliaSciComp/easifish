@@ -43,6 +43,7 @@ local_align:
     alignment_spacing: 2.0
     shrink_factors: [2]
     smooth_sigmas: [1.0]
+    metric: C
     optimizer: RSGD
     optimizer_args:
       learningRate: 2.5
@@ -51,11 +52,12 @@ local_align:
   deform:
     alignment_spacing: 1.0
     control_point_spacing: 128.0
-    control_point_levels: [2,1]
-    shrink_factors: [4,2]
-    smooth_sigmas: [2.0,1.0]
+    control_point_levels: [1]
+    shrink_factors: [1]
+    smooth_sigmas: [1.0]
+    metric: C
     optimizer: GD
     optimizer_args:
       learningRate: 1.0
-      convergenceMinimumValue: 0.00001
+      convergenceMinimumValue: 0.0001
       numberOfIterations: 300

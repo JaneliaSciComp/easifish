@@ -684,6 +684,11 @@
                     "description": "Local alignment processing block size",
                     "fa_icon": "fas fa-cube"
                 },
+                "bigstream_align_blocksize": {
+                    "type": "string",
+                    "description": "Block size used for applying the alignment transform as sizex,sizey,sizez",
+                    "fa_icon": "fas fa-cube"
+                },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
                     "default": 0.125,
