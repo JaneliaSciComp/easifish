@@ -27,8 +27,8 @@ global_align:
   affine:
     initial_condition: CENTER
     alignment_spacing: 2.0
-    shrink_factors: [2, 1]
-    smooth_sigmas: [2.0, 1.0]
+    shrink_factors: [2]
+    smooth_sigmas: [2.0]
     optimizer: RSGD
     optimizer_args:
       learningRate: 2.0
@@ -36,7 +36,7 @@ global_align:
       numberOfIterations: 400
 
 local_align:
-  steps: [affine, deform]
+  steps: [ransac, affine, deform]
   block_size: [128, 128, 128]
   block_overlap: 0.125
   affine:
@@ -46,7 +46,7 @@ local_align:
     metric: MMI
     optimizer: RSGD
     optimizer_args:
-      learningRate: 2.5
+      learningRate: 0.25
       minStep: 0.0001
       numberOfIterations: 200
   deform:
@@ -55,7 +55,6 @@ local_align:
     control_point_levels: [1]
     shrink_factors: [1]
     smooth_sigmas: [1.0]
-    # C does not seem to work with as=1,cpl=1,sf=1,sigmas=1
     metric: MMI
     optimizer: GD
     optimizer_args:
