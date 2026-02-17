@@ -59,7 +59,7 @@ local_align:
     optimizer: RSGD
     optimizer_args:
       learningRate: 0.25
-      minStep: 0.0001
+      minStep: 0.001
       numberOfIterations: 100
   deform:
     sampling: NONE
@@ -72,6 +72,6 @@ local_align:
     metric: MMI
     optimizer: RSGD
     optimizer_args:
-      learningRate: 2
+      learningRate: 4
       minStep: 0.001
       numberOfIterations: 50
