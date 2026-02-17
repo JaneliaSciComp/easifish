@@ -320,6 +320,12 @@
                     "description": "Set verbosity for bigstream",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "registration_compression": {
+                    "type": "string",
+                    "default": "zstd",
+                    "description": "Compression codec used for registration output zarr containers",
+                    "fa_icon": "fas fa-file-archive"
+                },
                 "skip_registration": {
                     "type": "boolean",
                     "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse",
