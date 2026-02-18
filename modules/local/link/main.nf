@@ -9,7 +9,7 @@ process LINK {
     path(output_dir, stageAs: 'out/*')
 
     output:
-    tuple val(samplesheet_row), env('input_fullpath'), env('output_datalink'), emit: tiles
+    tuple val(samplesheet_row), env('input_fullpath'), env('output_fullpath'), emit: tiles
     path "versions.yml"                                                      , emit: versions
 
     when:
@@ -20,7 +20,6 @@ process LINK {
     input_fullpath=\$(readlink -e ${input_dir})
     output_fullpath=\$(readlink -m "${output_dir}/${samplesheet_row.id}")
     full_filepath="\${input_fullpath}/${samplesheet_row.filename}"
-    full_parentpath=\$(dirname \${full_filepath})
     if [[ ! -e \${output_fullpath} ]] ; then
         echo "Create output directory: \${output_fullpath}"
         mkdir -p \${output_fullpath}
@@ -36,8 +35,6 @@ process LINK {
     else
         echo "No links were needed"
     fi
-
-    output_datalink="\${output_fullpath}/${samplesheet_row.filename}"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
