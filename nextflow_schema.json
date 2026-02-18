@@ -1496,6 +1496,11 @@
                     "description": "Blocks overlap used for distributed segmentation",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "segmentation_output_chunksize": {
+                    "type": "string",
+                    "description": "Output blocksize (as CX,CY,CZ) for segmentation results. If not specified it defaults to 128x128x128",
+                    "fa_icon": "fas fa-cube"
+                },
                 "cellpose_use_gpu": {
                     "type": "boolean",
                     "default": true,
