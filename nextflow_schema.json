@@ -326,6 +326,12 @@
                     "description": "Compression codec used for registration output zarr containers",
                     "fa_icon": "fas fa-file-archive"
                 },
+                "bigstream_max_concurrent_reads": {
+                    "type": "integer",
+                    "description": "Maximum number of concurrent zarr reads for bigstream",
+                    "hidden": true,
+                    "fa_icon": "fas fa-stream"
+                },
                 "skip_registration": {
                     "type": "boolean",
                     "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse",
