@@ -5,10 +5,7 @@ class ParamUtils {
     static def get_params_as_list_of_files(List<String> lparams) {
         lparams
             .findAll { cond -> cond }
-            .collect { f ->
-                Nextflow.log.info "!!!!! F= $f"
-                file(f)
-            }
+            .collect { f -> Nextflow.file(f) }
     }
 
     static def get_warped_subpaths(params) {
