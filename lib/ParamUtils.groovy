@@ -6,7 +6,7 @@ class ParamUtils {
         lparams
             .findAll { cond -> cond }
             .collect { f ->
-                log.info "!!!!! F= $f"
+                Nextflow.log.info "!!!!! F= $f"
                 file(f)
             }
     }
