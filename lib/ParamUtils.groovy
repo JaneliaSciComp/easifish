@@ -5,7 +5,10 @@ class ParamUtils {
     static def get_params_as_list_of_files(List<String> lparams) {
         lparams
             .findAll { cond -> cond }
-            .collect { f -> file(f) }
+            .collect { f ->
+                log.info "!!!!! F= $f"
+                file(f)
+            }
     }
 
     static def get_warped_subpaths(params) {
