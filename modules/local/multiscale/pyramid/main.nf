@@ -1,6 +1,6 @@
 process MULTISCALE_PYRAMID {
     tag { meta.id }
-    container { task.ext.container ?: 'ghcr.io/janeliascicomp/zarr-tools:0.3.0-dask2025.11.0-py12-ol9' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/zarr-tools:0.3.1-dask2025.11.0-py12-ol9' }
     cpus { multiscale_cpus }
     memory { "${multiscale_mem_gb} GB" }
 
