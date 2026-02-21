@@ -708,6 +708,27 @@
                     "description": "Block overlap used for local alignment",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "bigstream_local_fg_pct": {
+                    "type": "number",
+                    "default": 0.5,
+                    "hidden": true,
+                    "description": "Foreground percentage threshold used for local alignment",
+                    "fa_icon": "fas fa-hashtag"
+                },
+                "bigstream_local_deform_overlap": {
+                    "type": "number",
+                    "default": 0.125,
+                    "hidden": true,
+                    "description": "Block overlap factor used for applying the deformation transform",
+                    "fa_icon": "fas fa-hashtag"
+                },
+                "bigstream_local_inv_overlap_factor": {
+                    "type": "number",
+                    "default": 0.25,
+                    "hidden": true,
+                    "description": "Processing overlap factor used for computing the inverse transform",
+                    "fa_icon": "fas fa-hashtag"
+                },
                 "bigstream_inv_step": {
                     "type": "number",
                     "default": 1,
@@ -1125,6 +1146,11 @@
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Channel (other than DAPI) that needs bleedthrough correction."
+                },
+                "spots_counts_process_blocksize": {
+                    "type": "string",
+                    "description": "Blocksize used to partition a large labels image into smaller blocks that fit in memory. Blocks are processed serially.",
+                    "fa_icon": "fas fa-cube"
                 },
                 "spots_counts_cores": {
                     "type": "integer",
