@@ -9,7 +9,7 @@ process LINK {
     path(output_dir, stageAs: 'out/*')
 
     output:
-    tuple val(samplesheet_row), env('input_fullpath'), env('output_datalink'), emit: tiles
+    tuple val(samplesheet_row), env('input_fullpath'), env('output_fullpath'), emit: tiles
     path "versions.yml"                                                      , emit: versions
 
     when:
@@ -18,9 +18,8 @@ process LINK {
     script: // This script is bundled with the pipeline, in ./bin
     """
     input_fullpath=\$(readlink -e ${input_dir})
-    output_fullpath=\$(readlink -m "${output_dir}")
+    output_fullpath=\$(readlink -m "${output_dir}/${samplesheet_row.id}")
     full_filepath="\${input_fullpath}/${samplesheet_row.filename}"
-    full_parentpath=\$(dirname \${full_filepath})
     if [[ ! -e \${output_fullpath} ]] ; then
         echo "Create output directory: \${output_fullpath}"
         mkdir -p \${output_fullpath}
@@ -28,15 +27,14 @@ process LINK {
         echo "Output directory: \${output_fullpath} - already exists"
     fi
 
-    if [[ "\${output_fullpath}/${samplesheet_row.id}" != "\${full_parentpath}" ]]; then
+    if [[ ! -s "\${output_fullpath}/${samplesheet_row.filename}" ]]; then
         pushd \${output_fullpath}
-        echo "Create link \${output_fullpath}/${samplesheet_row.id} to \${full_filepath}"
-        ln -sf \${full_parentpath} ${samplesheet_row.id}
+        echo "Create link \${output_fullpath}/${samplesheet_row.filename} to \${full_filepath}"
+        ln -sf \${full_filepath} ${samplesheet_row.filename}
         popd
     else
-        echo "No links created because \${output_fullpath} is the same as input"
+        echo "No links were needed"
     fi
-    output_datalink="\${output_fullpath}/${samplesheet_row.id}"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

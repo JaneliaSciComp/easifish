@@ -320,6 +320,18 @@
                     "description": "Set verbosity for bigstream",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "registration_compression": {
+                    "type": "string",
+                    "default": "zstd",
+                    "description": "Compression codec used for registration output zarr containers",
+                    "fa_icon": "fas fa-file-archive"
+                },
+                "bigstream_max_concurrent_reads": {
+                    "type": "integer",
+                    "description": "Maximum number of concurrent zarr reads for bigstream",
+                    "hidden": true,
+                    "fa_icon": "fas fa-stream"
+                },
                 "skip_registration": {
                     "type": "boolean",
                     "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse",
@@ -394,14 +406,24 @@
                     "description": "If True and global affine exists, reuse it",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "fix_mask_descriptor": {
+                "global_fix_mask_descriptor": {
                     "type": "string",
-                    "description": "tuple that describes fix mask.",
+                    "description": "Fix global mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
                 },
-                "mov_mask_descriptor": {
+                "global_mov_mask_descriptor": {
                     "type": "string",
-                    "description": "tuple that describes mov mask.",
+                    "description": "Moving global mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
+                    "fa_icon": "fas fa-cog"
+                },
+                "local_fix_mask_descriptor": {
+                    "type": "string",
+                    "description": "Fix local mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
+                    "fa_icon": "fas fa-cog"
+                },
+                "local_mov_mask_descriptor": {
+                    "type": "string",
+                    "description": "Moving local mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
                 },
                 "global_steps": {
@@ -568,6 +590,11 @@
                     "description": "Name of the container for the local inverse deform transformation",
                     "fa_icon": "fas fa-cube"
                 },
+                "bigstream_deform_blocksize": {
+                    "type": "string",
+                    "description": "Deformation zarr spatial chunk size as sizex,sizey,sizez",
+                    "fa_icon": "fas fa-cube"
+                },
                 "warped_subpaths": {
                     "type": "string",
                     "description": "explicit datasets to be warped",
@@ -669,11 +696,37 @@
                     "description": "Local alignment processing block size",
                     "fa_icon": "fas fa-cube"
                 },
+                "bigstream_align_blocksize": {
+                    "type": "string",
+                    "description": "Block size used for applying the alignment transform as sizex,sizey,sizez",
+                    "fa_icon": "fas fa-cube"
+                },
                 "bigstream_local_overlap_factor": {
                     "type": "number",
                     "default": 0.125,
                     "hidden": true,
                     "description": "Block overlap used for local alignment",
+                    "fa_icon": "fas fa-hashtag"
+                },
+                "bigstream_local_fg_pct": {
+                    "type": "number",
+                    "default": 0.5,
+                    "hidden": true,
+                    "description": "Foreground percentage threshold used for local alignment",
+                    "fa_icon": "fas fa-hashtag"
+                },
+                "bigstream_local_deform_overlap": {
+                    "type": "number",
+                    "default": 0.125,
+                    "hidden": true,
+                    "description": "Block overlap factor used for applying the deformation transform",
+                    "fa_icon": "fas fa-hashtag"
+                },
+                "bigstream_local_inv_overlap_factor": {
+                    "type": "number",
+                    "default": 0.25,
+                    "hidden": true,
+                    "description": "Processing overlap factor used for computing the inverse transform",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_inv_step": {
@@ -827,6 +880,12 @@
                     "type": "boolean",
                     "description": "If true, extract spots from warped (registered) images instead of stitched images",
                     "default": false,
+                    "fa_icon": "fas fa-toggle-on"
+                },
+                "run_only_post_spot_extraction": {
+                    "type": "boolean",
+                    "description": "If true only run the post processing for spot extraction even if spot extraction was skipped",
+                    "hidden": true,
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "spot_extraction_subdir": {
@@ -1093,6 +1152,11 @@
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Channel (other than DAPI) that needs bleedthrough correction."
+                },
+                "spots_counts_process_blocksize": {
+                    "type": "string",
+                    "description": "Blocksize used to partition a large labels image into smaller blocks that fit in memory. Blocks are processed serially.",
+                    "fa_icon": "fas fa-cube"
                 },
                 "spots_counts_cores": {
                     "type": "integer",
@@ -1475,6 +1539,11 @@
                     "type": "string",
                     "description": "Blocks overlap used for distributed segmentation",
                     "fa_icon": "fas fa-hashtag"
+                },
+                "segmentation_output_chunksize": {
+                    "type": "string",
+                    "description": "Output blocksize (as CX,CY,CZ) for segmentation results. If not specified it defaults to 128x128x128",
+                    "fa_icon": "fas fa-cube"
                 },
                 "cellpose_use_gpu": {
                     "type": "boolean",

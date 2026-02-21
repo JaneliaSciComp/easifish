@@ -92,13 +92,22 @@ workflow SPOT_EXTRACTION {
 
     def post_results
     if (params.skip_spot_extraction) {
-        post_results = spots_results
+        if (params.run_only_post_spot_extraction) {
+            spots_results.view { it -> log.debug "Post spot extraction (when spot extraction was skipped) input: $it" }
+            POST_RS_FISH(spots_results)
+            post_results = POST_RS_FISH.out.results
+            post_results.view { it -> log.debug "Post spot extraction (when spot extraction was skipped) result: $it" }
+        } else {
+            post_results = spots_results
+        }
     } else {
+        spots_results.view { it -> log.debug "Post spot extraction input: $it" }
         POST_RS_FISH(spots_results)
         post_results = POST_RS_FISH.out.results
+        post_results.view { it -> log.debug "Post spot extraction result: $it" }
     }
 
-    def final_spot_results = params.skip_spot_extraction
+    def final_spot_results = params.skip_spot_extraction && !params.run_only_post_spot_extraction
         ? post_results
         : expand_spot_results(post_results)
 

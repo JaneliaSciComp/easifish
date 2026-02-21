@@ -19,7 +19,7 @@ workflow INPUT_CHECK {
         .splitCsv ( header:true, sep:',' )
         .branch {
             row ->
-                remote: row.containsKey('uri')
+                remote: row.containsKey('uri') && row['uri']
                         log.debug "Remote tile: $row"
                         return row
                 local: true
