@@ -103,7 +103,12 @@ workflow EXTRACT_SPOTS_PROPS {
     main:
     def registered_images = ch_registration
     | flatMap { it ->
-        def (reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath, transform_output, transform_name, transform_subpath, inv_transform_output, inv_transform_name, inv_transform_subpath) = it
+        def (reg_meta,
+             fix, fix_subpath,
+             mov, mov_subpath,
+             warped, warped_subpath,
+             transform_output, transform_name, transform_subpath,
+             inv_transform_output, inv_transform_name, inv_transform_subpath) = it
         log.debug "Get registered images for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.mov_id
@@ -152,7 +157,12 @@ workflow EXTRACT_SPOTS_PROPS {
 
     def fixed_images = ch_registration
     | flatMap { it ->
-        def (reg_meta, fix, fix_subpath,mov, mov_subpath,warped, warped_subpath,transform_output,transform_name, transform_subpath,inv_transform_output,inv_transform_name, inv_transform_subpath) = it
+        def (reg_meta,
+             fix, fix_subpath,
+             mov, mov_subpath,
+             warped, warped_subpath,
+             transform_output, transform_name, transform_subpath,
+             inv_transform_output, inv_transform_name, inv_transform_subpath) = it
         log.debug "Get fixed image for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.fix_id
@@ -183,13 +193,17 @@ workflow EXTRACT_SPOTS_PROPS {
 
     def regionprops_inputs = fixed_images
     | concat(registered_images)
-    | map {
+    | map { it ->
         log.debug "All images for regionprops: $it"
         it
     }
     | combine(ch_segmentation_with_id, by: 0)
     | map { it ->
-        def (join_id, image_id, image_container, image_dataset, image_ch, result_name, bleeding_channel, dapi_channel, meta, seg_input_image, seg_input_dataset, seg_labels) = it
+        def (_join_id,
+             image_id,
+             image_container, image_dataset, image_ch,
+             result_name, bleeding_channel, dapi_channel,
+             meta, seg_input_image, seg_input_dataset, seg_labels) = it
         log.debug "Combined cell images with segmentation: $it"
 
         def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${image_id}")
