@@ -22,8 +22,8 @@ workflow RSFISH_SPOT_EXTRACTION {
 
     main:
     def spots_spark_input = ch_spots_input
-    | map {
-        def (meta, input_img, input_subpath, spots_output_dir, spots_output_name) = it
+    | map { it ->
+        def (meta, input_img, _input_subpath, spots_output_dir, _spots_output_name) = it
         [
             meta,
             [ input_img, spots_output_dir ],
@@ -65,8 +65,8 @@ workflow RSFISH_SPOT_EXTRACTION {
 
     def rsfish_results = RS_FISH.out.params
     | join(RS_FISH.out.csv, by: 0)
-    | map {
-        def (meta, input_image, input_dataset, spots_output_dir, spots_result_name, spark, full_output_filename) = it
+    | map { it ->
+        def (meta, input_image, input_dataset, _spots_output_dir, _spots_result_name, spark, full_output_filename) = it
         [
             meta,
             input_image,

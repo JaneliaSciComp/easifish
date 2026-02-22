@@ -67,10 +67,10 @@ workflow INPUT_CHECK {
 
     def prepared_acquisitions = prepare_acq
         .groupTuple() // Group by acquisition
-        .map {
+        .map { it ->
             def (id, metas, input_dirs, data_files, patterns) = it
             log.debug "Prepare acquisitions: $it"
-            def trimmed_patterns = patterns.findAll { it?.trim() }
+            def trimmed_patterns = patterns.findAll { pattern -> pattern?.trim() }
             def meta = metas.inject([id:id]) { acc, m -> acc << m }
 
             if (trimmed_patterns) {
@@ -94,6 +94,13 @@ def create_acq_channel(LinkedHashMap samplesheet_row, input_dir, image_dir) {
     def id = samplesheet_row.id
     if (samplesheet_row.warped_channels_map) {
         meta.warped_channels_mapping = extract_warped_channels_mapping(samplesheet_row.warped_channels_map)
+    }
+    if (samplesheet_row.sample_channels) {
+        // the separator for multiple channels is '|'
+        meta.sample_channels = samplesheet_row.sample_channels.replace('|', ',')
+    }
+    if (samplesheet_row.dapi_channel) {
+        meta.dapi_channel = samplesheet_row.dapi_channel
     }
     def filepath = file("${image_dir}/${image_name}")
     meta.image_dir = filepath.parent

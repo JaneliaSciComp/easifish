@@ -193,6 +193,10 @@ workflow EXTRACT_SPOTS_PROPS {
 
     def regionprops_inputs = fixed_images
     | concat(registered_images)
+    | unique { it ->
+        // get the unique values based join_id, image_id, image_ch
+        [it[0], it[1], it[4]]
+    } // deduplicate repeated images across registration rounds
     | map { it ->
         log.debug "All images for regionprops: $it"
         it
@@ -237,7 +241,12 @@ workflow EXTRACT_SPOTS_PROPS {
     if (params.skip_region_props) {
         spots_props_results = regionprops_inputs
         | map { it ->
-            def (meta, image_container, image_dataset, image_ch, seg_labels, seg_input_dataset, dapi_dataset, dapi_ch, bleeding_dataset, bleeding_ch, regionprops_output_dir, result_name) = it
+            def (meta,
+                 image_container, image_dataset, image_ch,
+                 seg_labels, seg_input_dataset,
+                 dapi_dataset, dapi_ch,
+                 bleeding_dataset, bleeding_ch,
+                 regionprops_output_dir, result_name) = it
             log.debug "Skip region props: $it"
             [
                 meta,
