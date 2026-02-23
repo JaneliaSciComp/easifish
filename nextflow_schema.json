@@ -1096,6 +1096,20 @@
                     "description": "Memory allocated for a fishspots Dask worker",
                     "fa_icon": "fas fa-memory"
                 },
+                "fishspots_dask_nthreads": {
+                    "type": "integer",
+                    "default": 1,
+                    "hidden": true,
+                    "description": "Number of threads or tasks per Dask worker for fishspots",
+                    "fa_icon": "fas fa-cogs"
+                },
+                "fishspots_dask_nprocs": {
+                    "type": "integer",
+                    "default": 1,
+                    "hidden": true,
+                    "description": "Number of processes per Dask worker for fishspots",
+                    "fa_icon": "fas fa-cogs"
+                },
                 "fishspots_local_workers": {
                     "type": "integer",
                     "description": "Number of local processes when a local dask cluster (distributed_spot_extraction=false) is used for fishspots",
@@ -1384,6 +1398,13 @@
                     "default": 15,
                     "description": "Memory resource in GB for multiscale",
                     "fa_icon": "fas fa-memory"
+                },
+                "multiscale_anisotropy": {
+                    "type": "boolean",
+                    "default": false,
+                    "hidden": true,
+                    "description": "If true, preserve anisotropy when generating multiscale pyramids",
+                    "fa_icon": "fas fa-toggle-on"
                 }
             }
         },
