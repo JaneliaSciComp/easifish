@@ -326,6 +326,13 @@
                     "description": "Compression codec used for registration output zarr containers",
                     "fa_icon": "fas fa-file-archive"
                 },
+                "registration_compression_opts": {
+                    "type": "string",
+                    "default": "{\"level\":5}",
+                    "hidden": true,
+                    "description": "Compression options (JSON) for registration output zarr containers",
+                    "fa_icon": "fas fa-file-archive"
+                },
                 "bigstream_max_concurrent_reads": {
                     "type": "integer",
                     "description": "Maximum number of concurrent zarr reads for bigstream",
@@ -1560,6 +1567,20 @@
                     "type": "string",
                     "description": "Blocks overlap used for distributed segmentation",
                     "fa_icon": "fas fa-hashtag"
+                },
+                "segmentation_compression": {
+                    "type": "string",
+                    "default": "zstd",
+                    "hidden": true,
+                    "description": "Compression codec used for segmentation output zarr containers",
+                    "fa_icon": "fas fa-file-archive"
+                },
+                "segmentation_compression_opts": {
+                    "type": "string",
+                    "default": "{\"level\": 5}",
+                    "hidden": true,
+                    "description": "Compression options (JSON) for segmentation output zarr containers",
+                    "fa_icon": "fas fa-file-archive"
                 },
                 "segmentation_output_chunksize": {
                     "type": "string",
