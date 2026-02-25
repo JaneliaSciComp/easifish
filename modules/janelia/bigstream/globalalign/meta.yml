@@ -7,7 +7,7 @@ keywords:
   - bigstream
 tools:
   - "bigstream":
-      description: "Algorithm to produce the global affine alignment using "bigstream"
+      description: "Tool for creating an alignment pipeline using different ITK algorithms"
       homepage: "https://github.com/JaneliaSciComp/bigstream"
       documentaton: "https://github.com/JaneliaSciComp/bigstream"
       tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"

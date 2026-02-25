@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: bigstream_transformcoords
+description: Apply affine and deformation transforms to coordinate sets using Bigstream
+keywords:
+  - bigstream
+  - coordinates
+  - transform
+tools:
+  - "bigstream":
+      description: "Tool for creating an alignment pipeline using different ITK algorithms"
+      homepage: "https://github.com/JaneliaSciComp/bigstream"
+      documentaton: "https://github.com/JaneliaSciComp/bigstream"
+      tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"
+      license: "['BSD-3-Clause']"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id
+  - input_coords:
+      type: file
+      description: Path to the input coordinates file
+  - output_dir:
+      type: directory
+      description: Output directory for the warped coordinates
+  - warped_coords_name:
+      type: string
+      description: Name of the output warped coordinates file
+  - source_image:
+      type: file|directory
+      description: Path to the source image (container) used for coordinate reference
+  - source_image_subpath:
+      type: string
+      description: If the source image is a zarr container this is the relative path
+                   to the dataset
+  - resolution:
+      type: string
+      description: Pixel resolution of the source image
+  - downsampling_factors:
+      type: string
+      description: Downsampling factors applied to the source image
+  - affine_transforms:
+      type: file
+      description: One or more affine transformation files (optional)
+  - deform_dir:
+      type: directory
+      description: Location of the vector displacement field (optional)
+  - deform_subpath:
+      type: string
+      description: Displacement vector subpath within the deform container
+  - dask_scheduler:
+      type: string
+      description: Dask scheduler address
+  - dask_config:
+      type: file
+      description: Dask configuration file (optional)
+  - bigstream_cpus:
+      type: integer
+      description: Number of CPUs allocated to the process
+  - bigstream_mem_in_gb:
+      type: integer
+      description: Memory in GB allocated to the process
+output:
+  - results:
+      type: tuple
+      description: |
+        Tuple containing:
+        - meta: Groovy map containing id
+        - full_input_coords: Full resolved path to the input coordinates
+        - warped_coords: Full path to the output warped coordinates file
+  - source:
+      type: tuple
+      description: |
+        Tuple containing:
+        - meta: Groovy map containing id
+        - source_fullpath: Full resolved path to the source image
+        - source_image_subpath: Subpath within the source image container

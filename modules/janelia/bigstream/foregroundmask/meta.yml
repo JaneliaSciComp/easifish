@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: bigstream_foregroundmask
+description: Generate a foreground mask for a 3-D volume using Bigstream
+keywords:
+  - bigstream
+  - foreground-mask
+  - segmentation
+tools:
+  - "bigstream":
+      description: "Tool for creating an alignment pipeline using different ITK algorithms"
+      homepage: "https://github.com/JaneliaSciComp/bigstream"
+      documentaton: "https://github.com/JaneliaSciComp/bigstream"
+      tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"
+      license: "['BSD-3-Clause']"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id
+  - image:
+      type: file|directory
+      description: Path to the image (container) for which to generate the foreground mask
+  - image_subpath:
+      type: string
+      description: If the image is a zarr container this is the relative path
+                   to the dataset
+  - timeindex:
+      type: string
+      description: Time index to select from the image
+  - channel:
+      type: string
+      description: Channel to select from the image
+  - mask:
+      type: file|directory
+      description: Path to the output mask (container)
+  - mask_subpath:
+      type: string
+      description: If the output mask is a zarr container this is the relative path
+                   to the mask dataset
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id
+  - full_image:
+      type: string
+      description: Full resolved path to the input image
+  - image_subpath:
+      type: string
+      description: Subpath within the input image container
+  - full_mask:
+      type: string
+      description: Full resolved path to the output mask
+  - mask_subpath:
+      type: string
+      description: Subpath within the output mask container

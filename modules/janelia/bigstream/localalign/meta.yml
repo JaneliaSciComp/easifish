@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: bigstream_localalign
+description: Local deformable alignment of a 3-D volume using Bigstream
+keywords:
+  - bigstream
+  - local-alignment
+  - deformable-registration
+tools:
+  - "bigstream":
+      description: "Tool for creating an alignment pipeline using different ITK algorithms"
+      homepage: "https://github.com/JaneliaSciComp/bigstream"
+      documentaton: "https://github.com/JaneliaSciComp/bigstream"
+      tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"
+      license: "['BSD-3-Clause']"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id
+  - fix_image:
+      type: file|directory
+      description: Path to the fixed (reference) image (container)
+  - fix_image_subpath:
+      type: string
+      description: If the fix image is a zarr container this is the relative path
+                   to the dataset
+  - fix_timeindex:
+      type: string
+      description: Time index to select from the fix image
+  - fix_channel:
+      type: string
+      description: Channel to select from the fix image
+  - mov_image:
+      type: file|directory
+      description: Path to the moving image (container)
+  - mov_image_subpath:
+      type: string
+      description: If the moving image is a zarr container this is the relative path
+                   to the dataset
+  - mov_timeindex:
+      type: string
+      description: Time index to select from the moving image
+  - mov_channel:
+      type: string
+      description: Channel to select from the moving image
+  - fix_mask:
+      type: file|directory
+      description: Path to the mask for the fixed image
+  - fix_mask_subpath:
+      type: string
+      description: If the fix mask is a zarr container this is the relative path
+                   to the mask dataset
+  - mov_mask:
+      type: file|directory
+      description: Path to the mask for the moving image
+  - mov_mask_subpath:
+      type: string
+      description: If the moving mask is a zarr container this is the relative path
+                   to the mask dataset
+  - affine_transform:
+      type: file
+      description: Global affine transformation file
+  - steps:
+      type: string
+      description: Comma delimited list of the local alignment steps
+  - transform_dir:
+      type: directory
+      description: Output directory for the local transform
+  - transform_name:
+      type: string
+      description: Name of the local deformation transform file
+  - transform_subpath:
+      type: string
+      description: Subpath for the local deformation transform
+  - inv_transform_name:
+      type: string
+      description: Name of the inverse local deformation transform file
+  - inv_transform_subpath:
+      type: string
+      description: Subpath for the inverse local deformation transform
+  - align_dir:
+      type: directory
+      description: Output directory for the aligned (warped) image
+  - align_name:
+      type: string
+      description: Name of the locally aligned image file
+  - align_subpath:
+      type: string
+      description: Subpath for the aligned image
+  - align_timeindex:
+      type: string
+      description: Time index for the aligned output image
+  - align_channel:
+      type: string
+      description: Channel for the aligned output image
+  - bigstream_config:
+      type: file
+      description: Bigstream pipeline YAML configuration file
+  - dask_scheduler:
+      type: string
+      description: Dask scheduler address
+  - dask_config:
+      type: file
+      description: Dask configuration file (optional)
+  - bigstream_cpus:
+      type: integer
+      description: Number of CPUs allocated to the process
+  - bigstream_mem_in_gb:
+      type: integer
+      description: Memory in GB allocated to the process
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id
+  - full_fix_image:
+      type: string
+      description: Full resolved path to the fix image
+  - fix_image_subpath:
+      type: string
+      description: Subpath within the fix image container
+  - full_mov_image:
+      type: string
+      description: Full resolved path to the moving image
+  - mov_image_subpath:
+      type: string
+      description: Subpath within the moving image container
+  - full_affine_transform:
+      type: string
+      description: Full resolved path to the affine transform
+  - full_transform_dir:
+      type: string
+      description: Full resolved path to the transform directory
+  - transform_name:
+      type: string
+      description: Name of the local deformation transform file
+  - transform_subpath:
+      type: string
+      description: Subpath for the local deformation transform (defaults to mov_image_subpath if not provided)
+  - inv_transform_name:
+      type: string
+      description: Name of the inverse local deformation transform file
+  - inv_transform_subpath:
+      type: string
+      description: Subpath for the inverse local deformation transform
+  - full_align_dir:
+      type: string
+      description: Full resolved path to the aligned output directory
+  - align_name:
+      type: string
+      description: Name of the locally aligned image file
+  - align_subpath:
+      type: string
+      description: Subpath for the aligned image

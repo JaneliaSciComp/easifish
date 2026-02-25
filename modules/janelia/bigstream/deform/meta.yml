@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: bigstream_deform
+description: Apply local deformation (and optional affine) transforms to warp a moving image onto a fixed image using Bigstream
+keywords:
+  - bigstream
+  - deformation
+  - warping
+  - registration
+tools:
+  - "bigstream":
+      description: "Tool for creating an alignment pipeline using different ITK algorithms"
+      homepage: "https://github.com/JaneliaSciComp/bigstream"
+      documentaton: "https://github.com/JaneliaSciComp/bigstream"
+      tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"
+      license: "['BSD-3-Clause']"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id
+  - fix_image:
+      type: file|directory
+      description: Path to the fixed (reference) image (container)
+  - fix_image_subpath:
+      type: string
+      description: If the fix image is a zarr container this is the relative path
+                   to the dataset
+  - fix_timeindex:
+      type: string
+      description: Time index to select from the fix image
+  - fix_channel:
+      type: string
+      description: Channel to select from the fix image
+  - fix_spacing:
+      type: string
+      description: Voxel spacing for the fix image
+  - mov_image:
+      type: file|directory
+      description: Path to the moving image (container)
+  - mov_image_subpath:
+      type: string
+      description: If the moving image is a zarr container this is the relative path
+                   to the dataset
+  - mov_timeindex:
+      type: string
+      description: Time index to select from the moving image
+  - mov_channel:
+      type: string
+      description: Channel to select from the moving image
+  - mov_spacing:
+      type: string
+      description: Voxel spacing for the moving image
+  - affine_transforms:
+      type: file
+      description: One or more affine transformation files (paths to the corresponding affine.mat)
+  - deform_dir:
+      type: directory
+      description: Location of the displacement vector field
+  - deform_subpath:
+      type: string
+      description: Displacement vector subpath within the deform container
+  - output_dir:
+      type: directory
+      description: Output directory for the warped image
+  - output_subpath:
+      type: string
+      description: Subpath within the output container
+  - output_timeindex:
+      type: string
+      description: Time index for the output image
+  - output_channel:
+      type: string
+      description: Channel for the output image
+  - dask_scheduler:
+      type: string
+      description: Dask scheduler address
+  - dask_config:
+      type: file
+      description: Dask configuration file (optional)
+  - bigstream_cpus:
+      type: integer
+      description: Number of CPUs allocated to the process
+  - bigstream_mem_in_gb:
+      type: integer
+      description: Memory in GB allocated to the process
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id
+  - fix_fullpath:
+      type: string
+      description: Full resolved path to the fix image
+  - fix_image_subpath:
+      type: string
+      description: Subpath within the fix image container
+  - mov_fullpath:
+      type: string
+      description: Full resolved path to the moving image
+  - mov_image_subpath:
+      type: string
+      description: Subpath within the moving image container
+  - output_fullpath:
+      type: string
+      description: Full resolved path to the output warped image
+  - output_subpath:
+      type: string
+      description: Subpath within the output container
