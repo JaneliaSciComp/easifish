@@ -22,7 +22,7 @@
                     },
                     "bigstream/foregroundmask": {
                         "branch": "main",
-                        "git_sha": "65b662eaefee3de98c0501044e125e52d75d7f6a",
+                        "git_sha": "e3814751eedd5810501a536f75876504b8e0c10c",
                         "installed_by": ["modules"]
                     },
                     "bigstream/globalalign": {

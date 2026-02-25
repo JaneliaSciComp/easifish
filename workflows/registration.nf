@@ -4,17 +4,20 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { BIGSTREAM_GLOBALALIGN    } from '../modules/janelia/bigstream/globalalign/main'
-include { BIGSTREAM_LOCALALIGN     } from '../modules/janelia/bigstream/localalign/main'
-include { BIGSTREAM_COMPUTEINVERSE } from '../modules/janelia/bigstream/computeinverse/main'
-include { BIGSTREAM_DEFORM         } from '../modules/janelia/bigstream/deform/main'
+include { BIGSTREAM_GLOBALALIGN                                    } from '../modules/janelia/bigstream/globalalign/main'
+include { BIGSTREAM_LOCALALIGN                                     } from '../modules/janelia/bigstream/localalign/main'
+include { BIGSTREAM_COMPUTEINVERSE                                 } from '../modules/janelia/bigstream/computeinverse/main'
+include { BIGSTREAM_DEFORM                                         } from '../modules/janelia/bigstream/deform/main'
 
-include { DASK_START               } from '../subworkflows/janelia/dask_start/main'
-include { DASK_STOP                } from '../subworkflows/janelia/dask_stop/main'
-include { SPARK_START              } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP               } from '../subworkflows/janelia/spark_stop/main'
+include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_FIX } from '../modules/janelia/bigstream/foregroundmask/main'
+include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_MOV } from '../modules/janelia/bigstream/foregroundmask/main'
 
-include { MULTISCALE               } from '../subworkflows/local/multiscale'
+include { DASK_START                                               } from '../subworkflows/janelia/dask_start/main'
+include { DASK_STOP                                                } from '../subworkflows/janelia/dask_stop/main'
+include { SPARK_START                                              } from '../subworkflows/janelia/spark_start/main'
+include { SPARK_STOP                                               } from '../subworkflows/janelia/spark_stop/main'
+
+include { MULTISCALE                                               } from '../subworkflows/local/multiscale'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,8 +66,15 @@ workflow REGISTRATION {
     }
 
     def reg_outdir = file("${outdir}/${params.registration_subdir}")
+
+    // Resolve fix and mov masks once; same generated mask is used for both global and local.
+    def resolved_masks = RESOLVE_MASKS(registration_inputs, reg_outdir)
+    resolved_masks.global_masks_per_pair.view { it -> log.debug "Resolved global masks: $it" }
+    resolved_masks.local_masks_per_pair.view  { it -> log.debug "Resolved local masks:  $it" }
+
     def global_registration_results = RUN_GLOBAL_REGISTRATION(
         registration_inputs,
+        resolved_masks.global_masks_per_pair,
         bigstream_config,
         reg_outdir,
         params.skip_global_align || params.skip_registration,
@@ -73,12 +83,20 @@ workflow REGISTRATION {
     global_registration_results.global_transforms.view { it -> log.debug "Global affine transforms: $it" }
     global_registration_results.global_registration_results.view { it -> log.debug "Global transformed results: $it" }
 
+    // Build the list of mask files the dask workers need access to.
+    // For generated masks the output path is deterministic so we can list it statically;
+    // all per-volume moving masks share the same masks/ subdirectory, so we mount the directory.
     def additional_cluster_files = ParamUtils.get_params_as_list_of_files(
         [
-            params.local_fix_mask,
-            params.local_mov_mask,
+            params.generate_fix_mask
+                ? "${reg_outdir}/masks/${params.fix_mask_container}"
+                : params.local_fix_mask,
+            params.generate_mov_mask
+                ? "${reg_outdir}/masks"
+                : params.local_mov_mask,
         ]
     )
+
     def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
         additional_cluster_files,
@@ -93,6 +111,7 @@ workflow REGISTRATION {
         registration_inputs,
         global_registration_results.global_transforms,
         local_registrations_cluster,
+        resolved_masks.local_masks_per_pair,
         bigstream_config,
         reg_outdir,
         params.skip_local_align || params.skip_registration,
@@ -250,6 +269,7 @@ workflow RUN_GLOBAL_REGISTRATION {
 
     take:
     registration_inputs
+    resolved_masks    // [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath]
     bigstream_config
     reg_outdir
     skip_global_align
@@ -262,12 +282,12 @@ workflow RUN_GLOBAL_REGISTRATION {
         ? params.mov_global_subpath
         : "${params.mov_global_channel ?: params.reg_ch}/${params.global_scale}"
 
-    def global_fix_mask_file = params.global_fix_mask ? file(params.global_fix_mask) : []
-    def global_mov_mask_file = params.global_mov_mask ? file(params.global_mov_mask) : []
-
     def global_registration_inputs = registration_inputs
-    | map { it ->
-        def (reg_meta, fix_meta, mov_meta) = it
+    | map { reg_meta, fix_meta, mov_meta -> [reg_meta.id, reg_meta, fix_meta, mov_meta] }
+    | join(resolved_masks, by: 0)
+    | map { _reg_id, reg_meta, fix_meta, mov_meta,
+            global_fix_mask_file, fix_mask_subpath,
+            global_mov_mask_file, mov_mask_subpath ->
 
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
@@ -281,7 +301,7 @@ workflow RUN_GLOBAL_REGISTRATION {
         // get the corresponding output channel from the warped to output mapping if there is one
         def global_output_channel = reg_meta.warped_channels_mapping[global_mov_channel]
 
-        log.debug "Prepare global registration inputs: global_fix_channel=${global_fix_channel}, global_mov_channel=${global_mov_channel}, global_output_channel=${global_output_channel}, $it"
+        log.debug "Prepare global registration inputs: global_fix_channel=${global_fix_channel}, global_mov_channel=${global_mov_channel}, global_output_channel=${global_output_channel}, fix_mask=${global_fix_mask_file}, mov_mask=${global_mov_mask_file}"
 
         def ri =  [
             reg_meta,
@@ -294,8 +314,8 @@ workflow RUN_GLOBAL_REGISTRATION {
             "${mov_meta.stitched_dataset}/${mov_global_subpath}", // global_moving_subpath
             params.mov_global_timeindex, global_mov_channel,
 
-            global_fix_mask_file, params.global_fix_mask_subpath,
-            global_mov_mask_file, params.global_mov_mask_subpath,
+            global_fix_mask_file, fix_mask_subpath,
+            global_mov_mask_file, mov_mask_subpath,
 
             params.global_steps,
             global_registration_working_dir, // global_transform_output
@@ -464,10 +484,11 @@ workflow START_EASIFISH_DASK {
 
 workflow RUN_LOCAL_REGISTRATION {
     take:
-    registration_inputs // ch: [ reg_meta, fix_meta, mov_meta]
-    global_transforms   // ch: [ reg_meta, global_transform, global_inv_transform ]
+    registration_inputs              // ch: [ reg_meta, fix_meta, mov_meta]
+    global_transforms                // ch: [ reg_meta, global_transform, global_inv_transform ]
     local_registrations_dask_cluster // ch: [ reg_meta, dask_meta, dask_context ]
-    bigstream_config    // string|file bigstream yaml config
+    resolved_masks                   // ch: [ reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath ]
+    bigstream_config                 // string|file bigstream yaml config
     reg_outdir
     skip_local_registration
 
@@ -479,13 +500,15 @@ workflow RUN_LOCAL_REGISTRATION {
         ? params.mov_local_subpath
         : "${params.mov_local_channel ?: params.reg_ch}/${params.local_scale}"
 
-    def local_fix_mask_file = params.local_fix_mask ? file(params.local_fix_mask) : []
-    def local_mov_mask_file = params.local_mov_mask ? file(params.local_mov_mask) : []
-
     def local_registration_inputs = registration_inputs
     | join(global_transforms, by: 0)
-    | map { it ->
-        def (reg_meta, fix_meta, mov_meta, global_transform, _global_inv_transform) = it
+    | map { reg_meta, fix_meta, mov_meta, global_transform, _global_inv_transform ->
+        [reg_meta.id, reg_meta, fix_meta, mov_meta, global_transform]
+    }
+    | join(resolved_masks, by: 0)
+    | map { _reg_id, reg_meta, fix_meta, mov_meta, global_transform,
+            local_fix_mask_file, fix_mask_subpath,
+            local_mov_mask_file, mov_mask_subpath ->
 
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
@@ -501,8 +524,8 @@ workflow RUN_LOCAL_REGISTRATION {
             mov, // local_moving
             "${mov_meta.stitched_dataset}/${mov_local_subpath}", // local_moving_subpath
 
-            local_fix_mask_file, params.local_fix_mask_subpath,
-            local_mov_mask_file, params.local_mov_mask_subpath,
+            local_fix_mask_file, fix_mask_subpath,
+            local_mov_mask_file, mov_mask_subpath,
 
             global_transform,
 
@@ -514,7 +537,7 @@ workflow RUN_LOCAL_REGISTRATION {
             '',                               // local_aligned_name - do not apply the deform transform
             '',                               // local_alignment_subpath (defaults to mov_global_subpath)
         ]
-        log.debug "Prepare local registration inputs: $it -> $ri"
+        log.debug "Prepare local registration inputs: $ri"
         ri
     }
     | join(local_registrations_dask_cluster, by:0)
@@ -778,4 +801,152 @@ workflow RUN_LOCAL_DEFORMS {
 
     emit:
     deformation_results
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FOREGROUND MASK RESOLUTION
+    Generates one fix mask and one mov mask (each used for both global and local alignment).
+    Logic per slot:
+      - generate_fix/mov_mask == true  → run BIGSTREAM_FOREGROUNDMASK, ignore *_mask params
+      - generate_fix/mov_mask == false → use file from global_<any>/local_<any> mask params as-is
+    Emits two named channels (global_masks_per_pair / local_masks_per_pair) carrying
+    [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath] so that existing
+    global_*_mask_subpath / local_*_mask_subpath params continue to be respected when
+    masks are supplied manually.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+workflow RESOLVE_MASKS {
+
+    take:
+    registration_inputs  // [reg_meta, fix_meta, mov_meta]
+    reg_outdir
+
+    main:
+    // Derive image subpath for mask generation from the global alignment params
+    // (global scale is typically a lower-res scale and faster to process)
+
+    def fix_global_ch     = params.fix_global_channel ?: params.reg_ch
+    def mov_global_ch     = params.mov_global_channel ?: fix_global_ch
+    def fix_global_sp_val = params.fix_global_subpath ?: "${fix_global_ch}/${params.global_scale}"
+    def mov_global_sp_val = params.mov_global_subpath ?: "${mov_global_ch}/${params.global_scale}"
+
+    // When we generate the mask we generate one mask for the fixed image and one mask for the moving image
+    // and these can be used both for local and global registration
+
+    // ── Fix mask ──────────────────────────────────────────────────────────────
+    // [fix_id, reg_id, image, image_subpath, timeindex, channel]
+    def fix_image_info = registration_inputs
+    | map { reg_meta, fix_meta, _mov_meta ->
+        def image = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
+        [
+            fix_meta.id,
+            reg_meta.id,
+            image,
+            "${fix_meta.stitched_dataset}/${fix_global_sp_val}",
+            params.fix_global_timeindex, fix_global_ch,
+        ]
+    }
+    | unique { it[0] }
+
+    // combined_fix: [fix_id, global_fix_mask, global_fix_sp, local_fix_mask, local_fix_sp]
+    def combined_fix
+    if (params.generate_fix_mask) {
+        fix_image_info.view { it -> log.debug "Fix image for generating mask: $it" }
+        // Generate one mask, shared for both global and local alignment.
+        // global_fix_mask_subpath controls the subpath written into the container;
+        // set local_fix_mask_subpath to the same value if needed.
+        def mask_out = file("${reg_outdir}/masks/${params.fix_mask_container}")
+        def fix_mask_result = BIGSTREAM_FOREGROUNDMASK_FIX(
+            fix_image_info.map { fix_id, _reg_id, img, sp, ti, ch ->
+                def mask_sp = fix_id
+                [[id: fix_id], file(img), sp, ti, ch, mask_out, mask_sp]
+            }
+        )
+        | map { meta, _img, _sp, full_mask, mask_sp -> [meta.id, file(full_mask), mask_sp] }
+        combined_fix = fix_mask_result
+        | map { fix_id, mask, sp -> [fix_id, mask, sp, mask, sp] }
+    } else {
+        def global_fix_mask_file = params.global_fix_mask ? file(params.global_fix_mask) : []
+        def local_fix_mask_file  = params.local_fix_mask  ? file(params.local_fix_mask)  : []
+        combined_fix = fix_image_info
+        | map { fix_id, _reg_id, _img, _sp, _ti, _ch ->
+            [fix_id,
+             global_fix_mask_file, params.global_fix_mask_subpath ?: '',
+             local_fix_mask_file,  params.local_fix_mask_subpath  ?: '']
+        }
+    }
+
+    // ── Mov mask ──────────────────────────────────────────────────────────────
+    // [mov_id, reg_id, image, image_subpath, timeindex, channel, mask_output_path]
+    def mov_image_info = registration_inputs
+    | map { reg_meta, _fix_meta, mov_meta ->
+        def image = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
+        [
+            mov_meta.id,
+            reg_meta.id,
+            image,
+            "${mov_meta.stitched_dataset}/${mov_global_sp_val}",
+            params.mov_global_timeindex, mov_global_ch
+        ]
+    }
+    | unique { it[0] }
+
+    // combined_mov: [mov_id, global_mov_mask, global_mov_sp, local_mov_mask, local_mov_sp]
+    def combined_mov
+    if (params.generate_mov_mask) {
+        mov_image_info.view { it -> log.debug "Mov image for generating mask: $it" }
+        def mask_out = file("${reg_outdir}/masks/${params.mov_mask_container}")
+        def mov_mask_result = BIGSTREAM_FOREGROUNDMASK_MOV(
+            mov_image_info.map { mov_id, _reg_id, img, sp, ti, ch ->
+                def mask_sp = mov_id
+                [[id: mov_id], file(img), sp, ti, ch, mask_out, mask_sp]
+            }
+        )
+        | map { meta, _img, _sp, full_mask, mask_sp -> [meta.id, file(full_mask), mask_sp] }
+        combined_mov = mov_mask_result
+        | map { mov_id, mask, sp -> [mov_id, mask, sp, mask, sp] }
+    } else {
+        def global_mov_mask_file = params.global_mov_mask ? file(params.global_mov_mask) : []
+        def local_mov_mask_file  = params.local_mov_mask  ? file(params.local_mov_mask)  : []
+        combined_mov = mov_image_info
+        | map { mov_id, _reg_id, _img, _sp, _ti, _ch, _mask_out ->
+            [mov_id,
+             global_mov_mask_file, params.global_mov_mask_subpath ?: '',
+             local_mov_mask_file,  params.local_mov_mask_subpath  ?: '']
+        }
+    }
+
+    // ── Join all masks back to registration pairs ────────────────────────────
+    // combined: [reg_id,
+    //            g_fix_mask, g_fix_sp, l_fix_mask, l_fix_sp,
+    //            g_mov_mask, g_mov_sp, l_mov_mask, l_mov_sp]
+    def pair_keys = registration_inputs
+    | map { reg_meta, fix_meta, mov_meta -> [fix_meta.id, mov_meta.id, reg_meta.id] }
+
+    def with_fix = pair_keys
+    | join(combined_fix, by: 0)
+    | map { _fix_id, mov_id, reg_id, g_fix, g_fix_sp, l_fix, l_fix_sp ->
+        [mov_id, reg_id, g_fix, g_fix_sp, l_fix, l_fix_sp]
+    }
+
+    def combined = with_fix
+    | join(combined_mov, by: 0)
+    | map { _mov_id, reg_id,
+            g_fix, g_fix_sp, l_fix, l_fix_sp,
+            g_mov, g_mov_sp, l_mov, l_mov_sp ->
+        [reg_id, g_fix, g_fix_sp, l_fix, l_fix_sp, g_mov, g_mov_sp, l_mov, l_mov_sp]
+    }
+
+    // Split into global and local channels via multiMap
+    def split = combined
+    | multiMap { reg_id, g_fix, g_fix_sp, l_fix, l_fix_sp, g_mov, g_mov_sp, l_mov, l_mov_sp ->
+        global: [reg_id, g_fix, g_fix_sp, g_mov, g_mov_sp]
+        local:  [reg_id, l_fix, l_fix_sp, l_mov, l_mov_sp]
+    }
+
+    emit:
+    global_masks_per_pair = split.global  // [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath]
+    local_masks_per_pair  = split.local // [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath]
 }

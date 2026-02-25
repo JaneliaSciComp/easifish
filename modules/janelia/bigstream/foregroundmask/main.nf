@@ -7,7 +7,7 @@ process BIGSTREAM_FOREGROUNDMASK {
     input:
     tuple val(meta),
           path(image, stageAs: 'image-input/*'), val(image_subpath),
-          val(timeindex), val(channel),
+          val(timeindex), val(ch),
           path(mask, stageAs: 'mask-output/*'), val(mask_subpath)
 
     output:
@@ -23,7 +23,7 @@ process BIGSTREAM_FOREGROUNDMASK {
     def image_arg = image ? "--image \${full_image}" : ''
     def image_subpath_arg = image_subpath ? "--image-subpath ${image_subpath}" : ''
     def timeindex_arg = timeindex ? "--timeindex ${timeindex}" : ''
-    def channel_arg = channel ? "--channel ${channel}" : ''
+    def channel_arg = ch ? "--channel ${ch}" : ''
     def mask_arg = mask ? "--output \${full_mask}" : ''
     def mask_subpath_arg = mask_subpath ? "--output-subpath ${mask_subpath}" : ''
     """
@@ -43,7 +43,7 @@ process BIGSTREAM_FOREGROUNDMASK {
     echo "Input image full path: \${full_image}"
 
     full_mask=\$(\${READLINK_TOOL} -m ${mask})
-    full_mask_outputdir = \$(dirname \${full_mask})
+    full_mask_outputdir=\$(dirname \${full_mask})
     if [[ ! -e \${full_mask_outputdir} ]] ; then
         echo "Create output mask directory: \${full_mask_outputdir}"
         mkdir -p \${full_mask_outputdir}

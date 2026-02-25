@@ -543,6 +543,60 @@
                     "description": "Subpath of the local moving mask",
                     "fa_icon": "fas fa-database"
                 },
+                "generate_fix_mask": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, generate the fix foreground mask using bigstream. The same mask is used for both global and local alignment. Ignores global_fix_mask and local_fix_mask when set.",
+                    "fa_icon": "fas fa-magic"
+                },
+                "generate_mov_mask": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, generate the moving foreground mask using bigstream. The same mask is used for both global and local alignment. Ignores global_mov_mask and local_mov_mask when set.",
+                    "fa_icon": "fas fa-magic"
+                },
+                "fix_mask_container": {
+                    "type": "string",
+                    "default": "fix-mask.zarr",
+                    "description": "Output container name for the generated fix mask",
+                    "fa_icon": "fas fa-cube"
+                },
+                "mov_mask_container": {
+                    "type": "string",
+                    "default": "mov-mask.zarr",
+                    "description": "Output container name for the generated moving mask (volume id is prepended automatically for multiple moving volumes)",
+                    "fa_icon": "fas fa-cube"
+                },
+                "foreground_mask_cpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of CPUs for foreground mask generation",
+                    "fa_icon": "fas fa-microchip"
+                },
+                "foreground_mask_mem_gb": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Memory (GB) for foreground mask generation. 0 = use default_mem_gb_per_cpu * foreground_mask_cpus",
+                    "fa_icon": "fas fa-memory"
+                },
+                "mask_subsampling": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Mask subsampling",
+                    "fa_icon": "fas fa-compress-arrows-alt"
+                },
+                "mask_lambda": {
+                    "type": "number",
+                    "default": 2,
+                    "description": "Controls the variance of the foreground region. A larger number means larger segment(s).",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "mask_smoothing": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of iterations to apply mask smoothing - smaller value results in a rougher mask",
+                    "fa_icon": "fas fa-magic"
+                },
                 "local_inverse_cpus": {
                     "type": "integer",
                     "default": 1,
