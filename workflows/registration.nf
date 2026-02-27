@@ -854,13 +854,10 @@ workflow RESOLVE_MASKS {
     def combined_fix
     if (params.generate_fix_mask) {
         fix_image_info.view { it -> log.debug "Fix image for generating mask: $it" }
-        // Generate one mask, shared for both global and local alignment.
-        // global_fix_mask_subpath controls the subpath written into the container;
-        // set local_fix_mask_subpath to the same value if needed.
         def mask_out = file("${reg_outdir}/masks/${params.fix_mask_container}")
         def fix_mask_result = BIGSTREAM_FOREGROUNDMASK_FIX(
             fix_image_info.map { fix_id, _reg_id, img, sp, ti, ch ->
-                def mask_sp = fix_id
+                def mask_sp = sp.startsWith(fix_id) ? sp : fix_id + '/' + sp.trim('/')
                 [[id: fix_id], file(img), sp, ti, ch, mask_out, mask_sp]
             }
         )
@@ -900,7 +897,7 @@ workflow RESOLVE_MASKS {
         def mask_out = file("${reg_outdir}/masks/${params.mov_mask_container}")
         def mov_mask_result = BIGSTREAM_FOREGROUNDMASK_MOV(
             mov_image_info.map { mov_id, _reg_id, img, sp, ti, ch ->
-                def mask_sp = mov_id
+                def mask_sp = sp.startsWith(mov_id) ? sp : mov_id + '/' + sp.trim('/')
                 [[id: mov_id], file(img), sp, ti, ch, mask_out, mask_sp]
             }
         )

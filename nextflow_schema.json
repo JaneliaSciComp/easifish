@@ -597,6 +597,16 @@
                     "description": "Number of iterations to apply mask smoothing - smaller value results in a rougher mask",
                     "fa_icon": "fas fa-magic"
                 },
+                "mask_sigma": {
+                    "type": "number",
+                    "description": "Gaussian smoothing sigma at the finest shrink factor; coarser shrink factors use proportionally larger sigmas",
+                    "fa_icon": "fas fa-wave-square"
+                },
+                "mask_thresh_percentile": {
+                    "type": "integer",
+                    "description": "Intensity percentile used for finding the foreground threshold; when set, uses a simple threshold cutoff instead of the MorphACWE method",
+                    "fa_icon": "fas fa-percentage"
+                },
                 "local_inverse_cpus": {
                     "type": "integer",
                     "default": 1,
