@@ -908,7 +908,7 @@ workflow RESOLVE_MASKS {
         def global_mov_mask_file = params.global_mov_mask ? file(params.global_mov_mask) : []
         def local_mov_mask_file  = params.local_mov_mask  ? file(params.local_mov_mask)  : []
         combined_mov = mov_image_info
-        | map { mov_id, _reg_id, _img, _sp, _ti, _ch, _mask_out ->
+        | map { mov_id, _reg_id, _img, _sp, _ti, _ch ->
             [mov_id,
              global_mov_mask_file, params.global_mov_mask_subpath ?: '',
              local_mov_mask_file,  params.local_mov_mask_subpath  ?: '']
