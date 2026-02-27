@@ -11,7 +11,7 @@ workflow CELLPOSE_SEGMENTATION {
                            //            img_container_dir, img_dataset,
                            //            output_dir,
                            //            segmentation_container ]
-    skip                   // boolean: if true skip segmentation completely and just return the meta as if it ran
+    skip_segmentation      // boolean: if true skip segmentation completely and just return the meta as if it ran
     models_dir             // string|file: directory
     model_name             // string model name
     preprocessing_config   // string|file
@@ -31,7 +31,7 @@ workflow CELLPOSE_SEGMENTATION {
 
     main:
     def final_segmentation_results
-    if (!skip) {
+    if (!skip_segmentation || !skip_multiscale) {
         def segmentation_prep_inputs = ch_meta
         | multiMap { it ->
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
@@ -80,13 +80,16 @@ workflow CELLPOSE_SEGMENTATION {
             dask_worker_mem_gb
         )
         dask_cluster.view { it ->
-            "Dask cluster info: $it"
+            log.debug "Dask cluster info: $it"
         }
 
         def segmentation_inputs = dask_cluster
         | join(segmentation_prep_inputs.cellpose_data, by: 0)
         | multiMap { it ->
-            def (meta, cluster_context, img_container_dir, img_dataset, cellpose_models_dir, cellpose_model_name, segmentation_output_dir, segmentation_container, segmentation_dataset, segmentation_work_dir) = it
+            def (meta, cluster_context,
+                 img_container_dir, img_dataset,
+                 cellpose_models_dir, cellpose_model_name,
+                 segmentation_output_dir, segmentation_container, segmentation_dataset, segmentation_work_dir) = it
             def cellpose_data = [
                 meta,
                 img_container_dir,
@@ -107,23 +110,38 @@ workflow CELLPOSE_SEGMENTATION {
             cluster_info: cluster_info
         }
 
-        def cellpose_outputs = CELLPOSE(
-            segmentation_inputs.cellpose_data,
-            segmentation_inputs.cluster_info,
-            preprocessing_config ? file(preprocessing_config) : [],
-            log_config ? file(log_config) : [],
-            segmentation_cpus,
-            segmentation_mem_gb,
-        )
-
-        final_segmentation_results = cellpose_outputs.results
-
-        final_segmentation_results.view { it ->
-            "Cellpose results: $it"
+        if (!skip_segmentation) {
+            final_segmentation_results = CELLPOSE(
+                segmentation_inputs.cellpose_data,
+                segmentation_inputs.cluster_info,
+                preprocessing_config ? file(preprocessing_config) : [],
+                log_config ? file(log_config) : [],
+                segmentation_cpus,
+                segmentation_mem_gb,
+            ).results
+        } else {
+            final_segmentation_results = segmentation_inputs.cellpose_data
+            | map { it ->
+                def (meta,
+                     img_container_dir, img_dataset,
+                     _cellpose_models_dir, _cellpose_model_name,
+                     segmentation_output_dir,
+                     segmentation_container, segmentation_dataset,
+                     _segmentation_work_dir) = it
+                log.debug "Skipped cellpose only but will run multiscale: $it"
+                [
+                    meta,
+                    img_container_dir, img_dataset,
+                    "${segmentation_output_dir}/${segmentation_container}",
+                    segmentation_dataset ?: img_dataset,
+                ]
+            }
         }
-
+        final_segmentation_results.view { it ->
+            log.debug "Cellpose results: $it"
+        }
         // generate multiscale pyramid for the segmentation results
-        def labels_multiscale_inputs = cellpose_outputs.results
+        def labels_multiscale_inputs = final_segmentation_results
         | combine(dask_cluster, by: 0)
         | flatMap { it ->
             def (meta, _input_container, _input_subpath, labels_containers, labels_subpath, cluster_context) = it
@@ -146,9 +164,9 @@ workflow CELLPOSE_SEGMENTATION {
         }
 
         def labels_multiscale_outputs = MULTISCALE(
-            labels_multiscale_inputs.map { it[0] },
-            labels_multiscale_inputs.map { it[1] },
-            skip_multiscale || skip, // skip this if cellpose was skipped
+            labels_multiscale_inputs.map { it -> it[0] },
+            labels_multiscale_inputs.map { it -> it[1] },
+            skip_multiscale,
             multiscale_cpus,
             multiscale_mem_gb,
         )
