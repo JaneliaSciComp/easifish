@@ -37,8 +37,8 @@ workflow CELLPOSE_SEGMENTATION {
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
             log.debug "Start to prepare inputs for cellpose segmentation: $it"
             def segmentation_work_dir = work_dir
-                ? file("${work_dir}/${meta.id}/${workflow.sessionId}/${img_dataset}")
-                : file("${output_dir}/${meta.id}/${workflow.sessionId}/${img_dataset}")
+                ? file("${work_dir}/${meta.id}/${img_dataset}")
+                : file("${output_dir}/${workflow.sessionId}/${meta.id}/${img_dataset}")
 
             def cellpose_models_dir = models_dir ? file(models_dir) : "${output_dir}/cellpose-models"
 
@@ -50,7 +50,7 @@ workflow CELLPOSE_SEGMENTATION {
                 model_name,
                 output_dir,
                 segmentation_container,
-                '', // use the same dataset for labels as the input dataset (img_dataset)
+                img_dataset, // use the same dataset for labels as the input dataset
                 segmentation_work_dir,
             ]
 
@@ -89,7 +89,9 @@ workflow CELLPOSE_SEGMENTATION {
             def (meta, cluster_context,
                  img_container_dir, img_dataset,
                  cellpose_models_dir, cellpose_model_name,
-                 segmentation_output_dir, segmentation_container, segmentation_dataset, segmentation_work_dir) = it
+                 segmentation_output_dir,
+                 segmentation_container, segmentation_dataset,
+                 segmentation_work_dir) = it
             def cellpose_data = [
                 meta,
                 img_container_dir,

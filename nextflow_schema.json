@@ -413,22 +413,12 @@
                     "description": "If True and global affine exists, reuse it",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "global_fix_mask_descriptor": {
-                    "type": "string",
-                    "description": "Fix global mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
-                    "fa_icon": "fas fa-cog"
-                },
-                "global_mov_mask_descriptor": {
-                    "type": "string",
-                    "description": "Moving global mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
-                    "fa_icon": "fas fa-cog"
-                },
-                "local_fix_mask_descriptor": {
+                "local_fix_roi": {
                     "type": "string",
                     "description": "Fix local mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
                 },
-                "local_mov_mask_descriptor": {
+                "local_mov_roi": {
                     "type": "string",
                     "description": "Moving local mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
@@ -557,13 +547,13 @@
                 },
                 "fix_mask_container": {
                     "type": "string",
-                    "default": "fix-mask.zarr",
+                    "default": "masks.zarr",
                     "description": "Output container name for the generated fix mask",
                     "fa_icon": "fas fa-cube"
                 },
                 "mov_mask_container": {
                     "type": "string",
-                    "default": "mov-mask.zarr",
+                    "default": "masks.zarr",
                     "description": "Output container name for the generated moving mask (volume id is prepended automatically for multiple moving volumes)",
                     "fa_icon": "fas fa-cube"
                 },
@@ -1620,6 +1610,11 @@
                     "description": "Dask configuration used for distributed cellpose",
                     "hidden": true,
                     "fa_icon": "fas fa-file"
+                },
+                "segmentation_roi": {
+                    "type": "string",
+                    "description": "ROI for segmentation as zmin,ymin,xmin,zmax,ymax,xmax",
+                    "fa_icon": "fas fa-cog"
                 },
                 "distributed_cellpose_blocksize": {
                     "type": "string",

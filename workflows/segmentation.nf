@@ -19,6 +19,7 @@ workflow SEGMENTATION {
 
     main:
     def session_work_dir = "${params.workdir}/${workflow.sessionId}"
+    log.info "Session work directory: ${session_work_dir}"
     def segmentation_ids = ParamUtils.as_list(params.segmentation_ids)
 
     if (segmentation_ids.empty) {
