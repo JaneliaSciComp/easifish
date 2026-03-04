@@ -1,6 +1,6 @@
 process POST_RS_FISH {
     tag { meta.id }
-    container { task && task.ext.container ? task.ext.container : 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome-dask2025.11.0' }
+    container 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome-dask2025.11.0'
 
     input:
     tuple val(meta),
