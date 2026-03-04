@@ -3,7 +3,7 @@ process BIGSTREAM_TRANSFORMCOORDS {
     container 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9'
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
-    conda 'modules/janelia/bigstream/conda-env.yml'
+    conda "${moduleDir}/conda-env.yml"
 
     input:
     tuple val(meta),
@@ -50,13 +50,24 @@ process BIGSTREAM_TRANSFORMCOORDS {
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
 
     """
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_TOOL="greadlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_TOOL="readlink"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
     if [[ "${source_image}" != "" ]] ; then
-        source_fullpath=\$(readlink ${source_image})
+        source_fullpath=\$(\${READLINK_TOOL} ${source_image})
     else
         source_fullpath=
     fi
-    full_input_coords=\$(readlink ${input_coords})
-    output_fullpath=\$(readlink ${output_dir})
+    full_input_coords=\$(\${READLINK_TOOL} ${input_coords})
+    output_fullpath=\$(\${READLINK_TOOL} ${output_dir})
     mkdir -p \${output_fullpath}
     warped_coords="\${output_fullpath}/${warped_coords_name}"
 

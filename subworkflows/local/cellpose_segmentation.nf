@@ -1,9 +1,9 @@
-include { CELLPOSE   } from '../../modules/janelia/cellpose/main.nf'
+include { DISTRIBUTEDCELLPOSE } from '../../modules/janelia/cellposetools/distributedcellpose/main.nf'
 
-include { DASK_START } from '../janelia/dask_start/main.nf'
-include { DASK_STOP  } from '../janelia/dask_stop/main.nf'
+include { DASK_START          } from '../janelia/dask_start/main.nf'
+include { DASK_STOP           } from '../janelia/dask_stop/main.nf'
 
-include { MULTISCALE } from './multiscale'
+include { MULTISCALE          } from './multiscale'
 
 workflow CELLPOSE_SEGMENTATION {
     take:
@@ -113,7 +113,7 @@ workflow CELLPOSE_SEGMENTATION {
         }
 
         if (!skip_segmentation) {
-            final_segmentation_results = CELLPOSE(
+            final_segmentation_results = DISTRIBUTEDCELLPOSE(
                 segmentation_inputs.cellpose_data,
                 segmentation_inputs.cluster_info,
                 preprocessing_config ? file(preprocessing_config) : [],

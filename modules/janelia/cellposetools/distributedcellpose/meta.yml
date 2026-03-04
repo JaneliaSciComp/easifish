@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: cellpose
+name: distributedcellpose
 description: Performs a 3-D segmentation using cellpose distributed on a dask cluster
 keywords:
   - dask

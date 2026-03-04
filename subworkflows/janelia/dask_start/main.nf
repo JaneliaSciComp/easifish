@@ -1,4 +1,3 @@
-
 workflow DASK_START {
     take:
     meta_and_files // channel: [val(meta), files...]
@@ -125,12 +124,13 @@ process DASK_PREPARE {
 
     script:
     """
+    ${set_readlink_tool()}
     if [[ "${dask_work_dir}" == "" ]]; then
         dwork="dask-\$(date -I)"
         mkdir -p \${dwork}
-        cluster_work_dir=\$(readlink -m \${dwork})
+        cluster_work_dir=\$(\${READLINK_TOOL} -m \${dwork})
     else
-        cluster_work_dir=\$(readlink -m ${dask_work_dir})
+        cluster_work_dir=\$(\${READLINK_TOOL} -m ${dask_work_dir})
     fi
     cluster_work_fullpath="\${cluster_work_dir}/${meta.id}"
     /opt/scripts/daskscripts/prepare.sh "\${cluster_work_fullpath}"
@@ -157,13 +157,14 @@ process DASK_STARTMANAGER {
     def args = task.ext.args ?: ''
     def container_engine = workflow.containerEngine
 
-    def set_dask_config_env = dask_config ? "export DASK_CONFIG=\$(readlink ${dask_config})" : ''
+    def set_dask_config_env = dask_config ? "export DASK_CONFIG=\$(\${READLINK_TOOL} ${dask_config})" : ''
     def dask_scheduler_pid_file = "${cluster_work_dir}/dask-scheduler.pid"
     def dask_scheduler_info_file = "${cluster_work_dir}/dask-scheduler-info.json"
     def terminate_file_name = "${cluster_work_dir}/terminate-dask"
 
     """
-    cluster_work_fullpath=\$(readlink ${cluster_work_dir})
+    ${set_readlink_tool()}
+    cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
     ${set_dask_config_env}
 
     echo "Scheduler's environment"
@@ -210,7 +211,7 @@ process DASK_STARTWORKER {
     def args = task.ext.args ?: ''
     def container_engine = workflow.containerEngine
 
-    def set_dask_config_env = dask_config ? "export DASK_CONFIG=\$(readlink ${dask_config})" : ''
+    def set_dask_config_env = dask_config ? "export DASK_CONFIG=\$(\${READLINK_TOOL} ${dask_config})" : ''
     def dask_worker_name = "worker-${worker_id}"
     def terminate_file_name = "${cluster_work_dir}/terminate-dask"
 
@@ -218,7 +219,8 @@ process DASK_STARTWORKER {
     def dask_worker_pid_file = "${dask_worker_work_dir}/${dask_worker_name}.pid"
 
     """
-    cluster_work_fullpath=\$(readlink ${cluster_work_dir})
+    ${set_readlink_tool()}
+    cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
 
     ${set_dask_config_env}
     echo "Worker's environment"
@@ -268,7 +270,8 @@ process DASK_WAITFORMANAGER {
     def terminate_file_name = "${cluster_work_dir}/terminate-dask"
 
     """
-    cluster_work_fullpath=\$(readlink ${cluster_work_dir})
+    ${set_readlink_tool()}
+    cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
 
     CMD=(
         /opt/scripts/daskscripts/waitformanager.sh
@@ -316,7 +319,8 @@ process DASK_WAITFORWORKERS {
     def terminate_file_name = "${cluster_work_dir}/terminate-dask"
 
     """
-    cluster_work_fullpath=\$(readlink ${cluster_work_dir})
+    ${set_readlink_tool()}
+    cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
 
     # waitforworkers.sh sets available_workers variable
     CMD=(
@@ -334,5 +338,21 @@ process DASK_WAITFORWORKERS {
     cat <<-END_VERSIONS > versions.yml
     "dask": \${dask_version}
     END_VERSIONS
+    """
+}
+
+def set_readlink_tool() {
+    """
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_TOOL="greadlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_TOOL="readlink"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
     """
 }

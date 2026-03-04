@@ -12,47 +12,42 @@
                     },
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "65b662eaefee3de98c0501044e125e52d75d7f6a",
+                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "65b662eaefee3de98c0501044e125e52d75d7f6a",
+                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
                         "installed_by": ["modules"]
                     },
                     "bigstream/foregroundmask": {
                         "branch": "main",
-                        "git_sha": "e3814751eedd5810501a536f75876504b8e0c10c",
+                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
                         "installed_by": ["modules"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "65b662eaefee3de98c0501044e125e52d75d7f6a",
+                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "65b662eaefee3de98c0501044e125e52d75d7f6a",
+                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "65b662eaefee3de98c0501044e125e52d75d7f6a",
+                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
                         "installed_by": ["modules"]
                     },
-                    "cellpose": {
+                    "cellposetools/distributedcellpose": {
                         "branch": "main",
-                        "git_sha": "614df3f8a161ec379d2d6ac8effd47d7d552fd83",
-                        "installed_by": ["modules"]
-                    },
-                    "cellpose/tests": {
-                        "branch": "main",
-                        "git_sha": "0f23c69d7b0102b13597dcfd202d936c97b92e4d",
+                        "git_sha": "73f16638ee60d6d024d7b56252400e32e2726196",
                         "installed_by": ["modules"]
                     },
                     "rs_fish": {
                         "branch": "main",
-                        "git_sha": "7cd60b2647d24ead4206319a95e3e56814551ac6",
+                        "git_sha": "8bd31d6007f0d8a733eae4cb0b64d5807459eefb",
                         "installed_by": ["modules"]
                     }
                 }
@@ -61,17 +56,17 @@
                 "janelia": {
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "3df6c85b68f4f4219c81386bef2d280afb098273",
+                        "git_sha": "8bd31d6007f0d8a733eae4cb0b64d5807459eefb",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_stop": {
                         "branch": "main",
-                        "git_sha": "65b662eaefee3de98c0501044e125e52d75d7f6a",
+                        "git_sha": "8bd31d6007f0d8a733eae4cb0b64d5807459eefb",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_start": {
                         "branch": "main",
-                        "git_sha": "4b2ade18717c975ef534bd74f9dc65c3364be7a9",
+                        "git_sha": "8bd31d6007f0d8a733eae4cb0b64d5807459eefb",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_stop": {
@@ -92,7 +87,7 @@
                     },
                     "utils_nfcore_pipeline": {
                         "branch": "master",
-                        "git_sha": "65f5e638d901a51534c68fd5c1c19e8112fb4df1",
+                        "git_sha": "f0b535b3ae20080f8db03dd5388876ad1ec29d70",
                         "installed_by": ["subworkflows"]
                     },
                     "utils_nfschema_plugin": {

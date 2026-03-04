@@ -3,7 +3,7 @@ process BIGSTREAM_LOCALALIGN {
     container 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9'
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
-    conda 'modules/janelia/bigstream/conda-env.yml'
+    conda "${moduleDir}/conda-env.yml"
 
     input:
     tuple val(meta),
@@ -56,9 +56,9 @@ process BIGSTREAM_LOCALALIGN {
     def mov_timeindex_arg = mov_timeindex ? "--local-mov-timeindex ${mov_timeindex}" : ''
     def mov_channel_arg = mov_channel ? "--local-mov-channel ${mov_channel}" : ''
 
-    def fix_mask_arg = fix_mask ? "--local-fix-mask \$(readlink ${fix_mask})" : ''
+    def fix_mask_arg = fix_mask ? "--local-fix-mask \$(\${READLINK_TOOL} ${fix_mask})" : ''
     def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--local-fix-mask-subpath ${fix_mask_subpath}" : ''
-    def mov_mask_arg = mov_mask ? "--local-mov-mask \$(readlink ${mov_mask})" : ''
+    def mov_mask_arg = mov_mask ? "--local-mov-mask \$(\${READLINK_TOOL} ${mov_mask})" : ''
     def mov_mask_subpath_arg = mov_mask && mov_mask_subpath ? "--local-mov-mask-subpath ${mov_mask_subpath}" : ''
     def affine_transform_arg = affine_transform ? "--global-affine-transform ${affine_transform}" : ''
     def steps_arg = steps ? "--local-registration-steps ${steps}" : ''
@@ -94,24 +94,24 @@ process BIGSTREAM_LOCALALIGN {
     case \$(uname) in
         Darwin)
             detected_os=OSX
-            READLINK_MISSING_OPT="readlink"
+            READLINK_TOOL="greadlink"
             ;;
         *)
             detected_os=Linux
-            READLINK_MISSING_OPT="readlink -m"
+            READLINK_TOOL="readlink"
             ;;
     esac
     echo "Detected OS: \${detected_os}"
 
     if [[ "${fix_image}" != "" ]];  then
-        full_fix_image=\$(readlink ${fix_image})
+        full_fix_image=\$(\${READLINK_TOOL} ${fix_image})
         echo "Fix volume full path: \${full_fix_image}"
     else
         full_fix_image=
         echo "No fix volume provided"
     fi
     if [[ "${mov_image}" != "" ]];  then
-        full_mov_image=\$(readlink ${mov_image})
+        full_mov_image=\$(\${READLINK_TOOL} ${mov_image})
         echo "Moving volume full path: \${full_mov_image}"
     else
         full_mov_image=
@@ -119,13 +119,13 @@ process BIGSTREAM_LOCALALIGN {
     fi
 
     if [[ "${affine_transform}" != "" ]] ; then
-        full_affine_transform=\$(readlink ${affine_transform})
+        full_affine_transform=\$(\${READLINK_TOOL} ${affine_transform})
     else
         full_affine_transform=
     fi
 
     if [[ "${transform_dir}" != "" ]] ; then
-        full_transform_dir=\$(\${READLINK_MISSING_OPT} ${transform_dir})
+        full_transform_dir=\$(\${READLINK_TOOL} -m ${transform_dir})
         if [[ ! -e \${full_transform_dir} ]] ; then
             echo "Create transform directory: \${full_transform_dir}"
             mkdir -p \${full_transform_dir}
@@ -155,7 +155,7 @@ process BIGSTREAM_LOCALALIGN {
     fi
 
     if [[ "${align_dir}" != "" ]] ; then
-        full_align_dir=\$(\${READLINK_MISSING_OPT} ${align_dir})
+        full_align_dir=\$(\${READLINK_TOOL} -m ${align_dir})
         if [[ ! -e \${full_align_dir} ]] ; then
             echo "Create align directory: \${full_align_dir}"
             mkdir -p \${full_align_dir}

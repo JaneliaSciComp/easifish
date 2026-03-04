@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+    - git+https://github.com/GFleishman/ClusterWrap.git@fa718ac49
+    - git+https://github.com/JaneliaSciComp/bigstream@b9fd374

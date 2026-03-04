@@ -34,8 +34,10 @@ process PREPARE_SPARK_CONFIG {
         "${acc}\n${k}=${v}"
     }
     """
-    full_spark_local_dir=\$(readlink -m ${spark_local_dir})
-    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+    ${set_readlink_tool()}
+    echo "Detected OS: \${detected_os}"
+    full_spark_local_dir=\$(\${READLINK_TOOL} -m ${spark_local_dir})
+    full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
     if [[ ! -e \${full_spark_work_dir} ]] ; then
         echo "Create spark work directory ${spark_work_dir} -> \${full_spark_work_dir}"
         mkdir -p \${full_spark_work_dir}
@@ -75,8 +77,9 @@ process SPARK_STARTMANAGER {
     def container_engine = workflow.containerEngine
     """
     set +x
-    full_spark_local_dir=\$(readlink -m ${spark_local_dir})
-    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+    ${set_readlink_tool()}
+    full_spark_local_dir=\$(\${READLINK_TOOL} -m ${spark_local_dir})
+    full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
     if [[ ! -e \${full_spark_work_dir} ]] ; then
         echo "Create spark work directory ${spark_work_dir} -> \${full_spark_work_dir}"
         mkdir -p \${full_spark_work_dir}
@@ -126,7 +129,8 @@ process SPARK_WAITFORMANAGER {
     def terminate_file_name = "\${full_spark_work_dir}/terminate-spark"
     """
     set +x
-    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+    ${set_readlink_tool()}
+    full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
 
     CMD=(
         /opt/scripts/waitformanager.sh
@@ -172,7 +176,9 @@ process SPARK_STARTWORKER {
     def container_engine = workflow.containerEngine
     """
     set +x
-    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+    ${set_readlink_tool()}
+    echo "Detected OS: \${detected_os}"
+    full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
 
     CMD=(
         /opt/scripts/startworker.sh
@@ -218,7 +224,8 @@ process SPARK_WAITFORWORKER {
     def terminate_file_name = "\${full_spark_work_dir}/terminate-spark"
     """
     set +x
-    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+    ${set_readlink_tool()}
+    full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
 
     CMD=(
         /opt/scripts/waitforworker.sh
@@ -246,7 +253,9 @@ process SPARK_CLEANUP {
 
     script:
     """
-    full_spark_work_dir=\$(readlink -m ${spark_work_dir})
+    ${set_readlink_tool()}
+    echo "Detected OS: \${detected_os}"
+    full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
 
     find \${full_spark_work_dir} -name app.jar -exec rm {} \\;
     """
@@ -391,4 +400,20 @@ workflow SPARK_START {
 
     emit:
     spark_context // channel: [ val(meta), val(spark) ]
+}
+
+def set_readlink_tool() {
+    """
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_TOOL="greadlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_TOOL="readlink"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
+    """
 }

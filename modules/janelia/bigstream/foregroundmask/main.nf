@@ -2,7 +2,7 @@ process BIGSTREAM_FOREGROUNDMASK {
     tag "${meta.id}"
     label 'process_single'
     container 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9'
-    conda 'modules/janelia/bigstream/conda-env.yml'
+    conda "${moduleDir}/conda-env.yml"
 
     input:
     tuple val(meta),

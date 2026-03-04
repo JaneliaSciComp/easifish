@@ -31,8 +31,19 @@ process RS_FISH {
     def executor_memory_gb = spark.executor_memory as int
     def driver_memory_gb = spark.driver_memory as int
     """
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_TOOL="greadlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_TOOL="readlink"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
     INPUT_IMG=\$(realpath ${input_image})
-    full_spots_dir=\$(readlink -m ${spots_output_dir})
+    full_spots_dir=\$(\${READLINK_TOOL} -m ${spots_output_dir})
     mkdir -p \${full_spots_dir}
     export full_output_filename=\${full_spots_dir}/${output_filename}
     CMD=(

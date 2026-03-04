@@ -3,7 +3,7 @@ process BIGSTREAM_COMPUTEINVERSE {
     container 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9'
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
-    conda 'modules/janelia/bigstream/conda-env.yml'
+    conda "${moduleDir}/conda-env.yml"
 
     input:
     tuple val(meta),
@@ -43,19 +43,19 @@ process BIGSTREAM_COMPUTEINVERSE {
     case \$(uname) in
         Darwin)
             detected_os=OSX
-            READLINK_MISSING_OPT="readlink"
+            READLINK_TOOL="greadlink"
             ;;
         *)
             detected_os=Linux
-            READLINK_MISSING_OPT="readlink -m"
+            READLINK_TOOL="readlink"
             ;;
     esac
     echo "Detected OS: \${detected_os}"
-    full_deform_dir=\$(readlink ${deform_dir})
+    full_deform_dir=\$(\${READLINK_TOOL} ${deform_dir})
     if [[ "${inv_deform_dir_arg}" == "" ]]; then
         full_inv_deform_dir=\${full_deform_dir}
     else
-        full_inv_deform_dir=\$(\${READLINK_MISSING_OPT} ${inv_deform_dir})
+        full_inv_deform_dir=\$(\${READLINK_TOOL} -m ${inv_deform_dir})
         mkdir -p \${full_inv_deform_dir}
     fi
 

@@ -3,7 +3,7 @@ process BIGSTREAM_DEFORM {
     container 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9'
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
-    conda 'modules/janelia/bigstream/conda-env.yml'
+    conda "${moduleDir}/conda-env.yml"
 
     input:
     tuple val(meta),
@@ -59,9 +59,20 @@ process BIGSTREAM_DEFORM {
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
 
     """
-    fix_fullpath=\$(readlink ${fix_image})
-    mov_fullpath=\$(readlink ${mov_image})
-    output_fullpath=\$(readlink ${output_dir})
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_TOOL="greadlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_TOOL="readlink"
+            ;;
+    esac
+    echo "Detected OS: \${detected_os}"
+    fix_fullpath=\$(\${READLINK_TOOL} ${fix_image})
+    mov_fullpath=\$(\${READLINK_TOOL} ${mov_image})
+    output_fullpath=\$(\${READLINK_TOOL} ${output_dir})
     mkdir -p \${output_fullpath}
 
     CMD=(
