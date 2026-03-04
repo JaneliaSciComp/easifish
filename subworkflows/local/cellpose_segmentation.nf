@@ -1,10 +1,10 @@
-include { DISTRIBUTEDCELLPOSE } from '../../modules/janelia/cellposetools/distributedcellpose/main.nf'
-include { MERGELABELS         } from '../../modules/janelia/cellposetools/mergelabels/main.nf'
+include { SEGTOOLS_DISTRIBUTED_CELLPOSE    } from '../../modules/janelia/segtools/distributed/cellpose/main.nf'
+include { SEGTOOLS_DISTRIBUTED_MERGELABELS } from '../../modules/janelia/segtools/distributed/mergelabels/main.nf'
 
-include { DASK_START          } from '../janelia/dask_start/main.nf'
-include { DASK_STOP           } from '../janelia/dask_stop/main.nf'
+include { DASK_START                       } from '../janelia/dask_start/main.nf'
+include { DASK_STOP                        } from '../janelia/dask_stop/main.nf'
 
-include { MULTISCALE          } from './multiscale'
+include { MULTISCALE                       } from './multiscale'
 
 workflow CELLPOSE_SEGMENTATION {
     take:
@@ -117,7 +117,7 @@ workflow CELLPOSE_SEGMENTATION {
         // build labels channel from DISTRIBUTEDCELLPOSE or existing output
         def labels_ch
         if (!skip_segmentation) {
-            labels_ch = DISTRIBUTEDCELLPOSE(
+            labels_ch = SEGTOOLS_DISTRIBUTED_CELLPOSE(
                 segmentation_inputs.cellpose_data,
                 segmentation_inputs.cluster_info,
                 preprocessing_config ? file(preprocessing_config) : [],
@@ -173,7 +173,7 @@ workflow CELLPOSE_SEGMENTATION {
                 }
             }
 
-            final_segmentation_results = MERGELABELS(
+            final_segmentation_results = SEGTOOLS_DISTRIBUTED_MERGELABELS(
                 mergelabels_inputs.map { it[0] },
                 mergelabels_inputs.map { it[1] },
                 log_config ? file(log_config) : [],

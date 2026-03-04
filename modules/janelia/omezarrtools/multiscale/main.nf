@@ -1,14 +1,14 @@
-process MULTISCALE_PYRAMID {
-    tag { meta.id }
-    container { task.ext.container ?: 'ghcr.io/janeliascicomp/zarr-tools:0.3.1-dask2025.11.0-py12-ol9' }
-    cpus { multiscale_cpus }
-    memory { "${multiscale_mem_gb} GB" }
+process OMEZARRTOOLS_MULTISCALE {
+    tag "${meta.id}"
+    container 'ghcr.io/janeliascicomp/zarr-tools:0.3.1-dask2025.11.0-py12-ol9'
+    cpus { cpus }
+    memory "${mem_gb} GB"
 
     input:
     tuple val(meta), path(data_container), val(dataset_subpath)
     tuple val(dask_scheduler), path(dask_config) // this is optional - if undefined pass in as empty list ([])
-    val(multiscale_cpus)
-    val(multiscale_mem_gb)
+    val(cpus)
+    val(mem_gb)
 
     output:
     tuple val(meta), env('full_data_container_path'), val(dataset_subpath), emit: data

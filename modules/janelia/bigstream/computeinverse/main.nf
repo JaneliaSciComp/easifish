@@ -1,8 +1,8 @@
 process BIGSTREAM_COMPUTEINVERSE {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9'
-    cpus { bigstream_cpus }
-    memory "${bigstream_mem_in_gb} GB"
+    cpus { cpus }
+    memory "${mem_in_gb} GB"
     conda "${moduleDir}/conda-env.yml"
 
     input:
@@ -15,8 +15,8 @@ process BIGSTREAM_COMPUTEINVERSE {
           val(inv_deform_subpath) // inverse displacement vector subpath
     tuple val(dask_scheduler),
           path(dask_config) // this is optional - if undefined pass in as empty list ([])
-    val(bigstream_cpus)
-    val(bigstream_mem_in_gb)
+    val(cpus)
+    val(mem_in_gb)
 
     output:
     tuple val(meta),

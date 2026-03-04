@@ -1,4 +1,4 @@
-include { CELLPOSE   } from '../../../../modules/janelia/cellpose/main'
+include { SEGTOOLS_DISTRIBUTED_CELLPOSE   } from '../main'
 
 process UNTAR_RAW_INPUT {
     container { task.ext.container }
@@ -46,7 +46,7 @@ workflow test_cellpose {
     }
     cellpose_test_data.view { it -> log.info "Cellpose path inputs: $it" }
 
-    def cellpose_results = CELLPOSE(
+    def cellpose_results = SEGTOOLS_DISTRIBUTED_CELLPOSE(
         cellpose_test_data,
         channel.of(['', []]),
         params.preprocessing_config ? file(params.preprocessing_config) : [],

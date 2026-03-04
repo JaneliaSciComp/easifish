@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: mergelabels
-description: Merge labels across block boundaries after a 3-D distributed cellpose segmentation
+name: segtools_distributed_mergelabels
+description: Merge labels across block boundaries after a 3-D distributed segmentation
 keywords:
   - dask
   - segmentation

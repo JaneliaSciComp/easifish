@@ -1,4 +1,4 @@
-include { MULTISCALE_PYRAMID } from '../../modules/local/multiscale/pyramid/main'
+include { OMEZARRTOOLS_MULTISCALE } from '../../modules/janelia/omezarrtools/multiscale'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,13 +20,12 @@ workflow MULTISCALE {
         multiscale_results = ch_meta
         multiscale_results.view { it -> log.debug "Skip multiscale pyramid: $it" }
     } else {
-        MULTISCALE_PYRAMID(
+        multiscale_results = OMEZARRTOOLS_MULTISCALE(
             ch_meta,
             ch_dask_info,
             cpus,
             mem_gb,
-        )
-        multiscale_results = MULTISCALE_PYRAMID.out.data
+        ).data
         multiscale_results.view { it -> log.debug "Multiscale pyramid: $it" }
     }
 

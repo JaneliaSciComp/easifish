@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: omezarrtools_multiscale
+description: Generates a multiscale pyramid for an OME-Zarr container
+keywords:
+  - dask
+  - image formats
+  - OME-Zarr
+  - multiscale
+  - pyramid
+components: []
+tools:
+  - "zarr-tools":
+      description: "Tools for working with Zarr and OME-Zarr arrays."
+      homepage: "https://github.com/JaneliaSciComp/zarr-tools"
+      tool_dev_url: "https://github.com/JaneliaSciComp/zarr-tools"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing sample metadata. Must include an 'id' field.
+  - data_container:
+      type: directory
+      description: Path to the OME-Zarr container for which to generate the multiscale pyramid
+  - dataset_subpath:
+      type: string
+      description: |
+        Relative path to the dataset within the container (for N5 or Zarr containers).
+        Pass as empty string if the dataset is at the root of the container.
+  - dask_scheduler:
+      type: string
+      description: |
+        Dask scheduler IP address. If not using a distributed cluster, pass as empty string.
+  - dask_config:
+      type: file
+      description: |
+        Optional path to a dask configuration file. If not specified, pass as empty list ([]).
+  - cpus:
+      type: integer
+      description: Number of CPUs to allocate for the process
+  - mem_gb:
+      type: integer
+      description: Amount of memory in GB to allocate for the process
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing sample metadata. Must include an 'id' field.
+  - full_data_container_path:
+      type: string
+      description: |
+        Resolved full path to the OME-Zarr container
+  - dataset_subpath:
+      type: string
+      description: |
+        Relative path to the dataset within the container
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+authors:
+  - "@cgoina"
+maintainers:
+  - "@cgoina"
