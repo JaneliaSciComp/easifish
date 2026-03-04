@@ -1525,6 +1525,16 @@
                     "description": "If true skip segmentation",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "run_standalone_merge_labels": {
+                    "type": "boolean",
+                    "description": "If true run merge labels as a standalone step (used together with skip_segmentation to merge labels from a previous run)",
+                    "fa_icon": "fas fa-object-group"
+                },
+                "skip_cellpose_merge_labels": {
+                    "type": "boolean",
+                    "description": "If true pass --skip-merge-labels to distributed cellpose, skipping internal label merging",
+                    "fa_icon": "fas fa-toggle-on"
+                },
                 "skip_multiscale_segmentation": {
                     "type": "boolean",
                     "description": "If true skip generating the pyramid for the labels image",

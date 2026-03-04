@@ -79,6 +79,7 @@ workflow SEGMENTATION {
     def cellpose_results = CELLPOSE_SEGMENTATION(
         seg_volume,
         params.skip_segmentation,
+        params.run_standalone_merge_labels,
         params.cellpose_models_dir,
         params.cellpose_model,
         params.cellpose_preprocessing_config_file,

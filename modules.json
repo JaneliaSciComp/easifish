@@ -45,6 +45,11 @@
                         "git_sha": "73f16638ee60d6d024d7b56252400e32e2726196",
                         "installed_by": ["modules"]
                     },
+                    "cellposetools/mergelabels": {
+                        "branch": "main",
+                        "git_sha": "61a3ca019e585a761530e689afc82ab95cf3e6e2",
+                        "installed_by": ["modules"]
+                    },
                     "rs_fish": {
                         "branch": "main",
                         "git_sha": "8bd31d6007f0d8a733eae4cb0b64d5807459eefb",

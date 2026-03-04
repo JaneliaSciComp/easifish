@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: mergelabels
+description: Merge labels across block boundaries after a 3-D distributed cellpose segmentation
+keywords:
+  - dask
+  - segmentation
+  - cellpose
+tools:
+  - "cellpose":
+      description: "A generalist algorithm for cell and nucleus segmentation."
+      homepage: "https://github.com/MouseLand/cellpose"
+      documentaton: "https://cellpose.readthedocs.io/en/latest/"
+      tool_dev_url: "https://github.com/MouseLand/cellpose"
+      license: "['BSD-3-Clause']"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id, input_image_dataset, output_image_name
+  - input_labels:
+      type: file
+      description: Path to the input labels container
+  - input_subpath:
+      type: string
+      description: Relative path to the image dataset if needed (for N5 or zarr containers)
+  - output_labels:
+      type: file
+      description: Path to the output labels container
+  - output_subpath:
+      type: string
+      description: Relative path to the image dataset if needed (for N5 or zarr containers)
+  - working_dir:
+      type: directory
+      description: |
+        Location of the temporary files created during the segmentation. This must have enough space to hold the temporary labels
+        before they are reassigned during the merge process
+  - dask_scheduler:
+      type: string
+      description: Dask scheduler IP
+  - dask_config:
+      type: file
+      description: |
+        Optional path to the dask config. If this is not specified pass in as empty list.
+  - logging_config:
+      type: file
+      description: Optional log config.
+  - cpus:
+      type: integer
+      description: Number of cpus needed to run the main cellpose program
+  - mem_in_gb:
+      type: integer
+      description: Memory needed for the main cellpose program
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id, input_image_dataset, output_image_name
+  - input_labels_fullpath:
+      type: string
+      description: |
+        Full path to the input labels container
+  - input_subpath:
+      type: string
+      description: |
+        Subpath to the input labels dataset
+  - output_labels_fullpath:
+      type: string
+      description: |
+        Fullpath to the merged labels container
+  - output_subpath:
+      type: string
+      description: merged labels subpath
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+authors:
+  - "@cgoina"
+maintainers:
+  - "@cgoina"

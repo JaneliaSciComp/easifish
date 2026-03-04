@@ -1,4 +1,5 @@
 include { DISTRIBUTEDCELLPOSE } from '../../modules/janelia/cellposetools/distributedcellpose/main.nf'
+include { MERGELABELS         } from '../../modules/janelia/cellposetools/mergelabels/main.nf'
 
 include { DASK_START          } from '../janelia/dask_start/main.nf'
 include { DASK_STOP           } from '../janelia/dask_stop/main.nf'
@@ -12,6 +13,7 @@ workflow CELLPOSE_SEGMENTATION {
                            //            output_dir,
                            //            segmentation_container ]
     skip_segmentation      // boolean: if true skip segmentation completely and just return the meta as if it ran
+    run_standalone_merge_labels  // boolean: if true run merge labels (after distributed cellpose if it ran, or standalone otherwise)
     models_dir             // string|file: directory
     model_name             // string model name
     preprocessing_config   // string|file
@@ -31,7 +33,7 @@ workflow CELLPOSE_SEGMENTATION {
 
     main:
     def final_segmentation_results
-    if (!skip_segmentation || !skip_multiscale) {
+    if (!skip_segmentation || run_standalone_merge_labels || !skip_multiscale) {
         def segmentation_prep_inputs = ch_meta
         | multiMap { it ->
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
@@ -112,8 +114,10 @@ workflow CELLPOSE_SEGMENTATION {
             cluster_info: cluster_info
         }
 
+        // build labels channel from DISTRIBUTEDCELLPOSE or existing output
+        def labels_ch
         if (!skip_segmentation) {
-            final_segmentation_results = DISTRIBUTEDCELLPOSE(
+            labels_ch = DISTRIBUTEDCELLPOSE(
                 segmentation_inputs.cellpose_data,
                 segmentation_inputs.cluster_info,
                 preprocessing_config ? file(preprocessing_config) : [],
@@ -122,7 +126,7 @@ workflow CELLPOSE_SEGMENTATION {
                 segmentation_mem_gb,
             ).results
         } else {
-            final_segmentation_results = segmentation_inputs.cellpose_data
+            labels_ch = segmentation_inputs.cellpose_data
             | map { it ->
                 def (meta,
                      img_container_dir, img_dataset,
@@ -130,7 +134,7 @@ workflow CELLPOSE_SEGMENTATION {
                      segmentation_output_dir,
                      segmentation_container, segmentation_dataset,
                      _segmentation_work_dir) = it
-                log.debug "Skipped cellpose only but will run multiscale: $it"
+                log.debug "Using existing segmentation output for: $meta"
                 [
                     meta,
                     img_container_dir, img_dataset,
@@ -138,6 +142,46 @@ workflow CELLPOSE_SEGMENTATION {
                     segmentation_dataset ?: img_dataset,
                 ]
             }
+        }
+
+        // optionally run merge labels (after cellpose or standalone)
+        if (run_standalone_merge_labels) {
+            def mergelabels_inputs = labels_ch
+            | combine(dask_cluster, by: 0)
+            | flatMap { it ->
+                def (meta, _input_image, _image_subpath,
+                     labels_containers, labels_subpath,
+                     cluster_context) = it
+                labels_containers.split('\n')
+                .findAll { lc -> lc }
+                .collect { labels_container ->
+                    log.debug "Prepare merge labels input: ${labels_container}"
+                    [
+                        [
+                            meta,
+                            file(labels_container),
+                            labels_subpath,
+                            [],            // output in-place
+                            labels_subpath,
+                            [],            // no working dir
+                        ],
+                        [
+                            cluster_context.scheduler_address,
+                            dask_config ? file(dask_config) : [],
+                        ]
+                    ]
+                }
+            }
+
+            final_segmentation_results = MERGELABELS(
+                mergelabels_inputs.map { it[0] },
+                mergelabels_inputs.map { it[1] },
+                log_config ? file(log_config) : [],
+                segmentation_cpus,
+                segmentation_mem_gb,
+            ).results
+        } else {
+            final_segmentation_results = labels_ch
         }
         final_segmentation_results.view { it ->
             log.debug "Cellpose results: $it"
