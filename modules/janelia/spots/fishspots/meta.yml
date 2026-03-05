@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: spots_fishspots
+description: Detects FISH spots in an OME-Zarr image using the easifish spot extraction pipeline
+keywords:
+  - dask
+  - FISH
+  - spot detection
+  - OME-Zarr
+components: []
+tools:
+  - "easifish-spots-utils":
+      description: "Spot extraction tools for the EASI-FISH (Expansion-Assisted Iterative fluorescence in situ hybridization) pipeline."
+      homepage: "https://github.com/JaneliaSciComp/easifish-spots-utils"
+      tool_dev_url: "https://github.com/JaneliaSciComp/easifish-spots-utils"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing sample metadata. Must include an 'id' field.
+  - input_path:
+      type: directory
+      description: Path to the OME-Zarr image container
+  - input_dataset:
+      type: string
+      description: Dataset subpath within the image container
+  - spots_output_dir:
+      type: directory
+      description: Path to the directory where spot detection results will be written
+  - spots_result_name:
+      type: string
+      description: |
+        Name of the output CSV file containing detected spot coordinates.
+        If not specified, defaults to '<meta.id>-points.csv'.
+  - dask_scheduler:
+      type: string
+      description: |
+        Dask scheduler IP address. If not using a distributed cluster, pass as empty string.
+  - dask_config:
+      type: file
+      description: |
+        Optional path to a dask configuration file. If not specified, pass as empty list ([]).
+  - fishspots_config:
+      type: file
+      description: |
+        Optional YAML configuration file for the fishspots spot extraction parameters
+        (thresholds, scales, etc.). If not specified, defaults are used.
+  - fishspots_cpus:
+      type: integer
+      description: Number of CPUs to allocate for the process
+  - fishspots_mem_gb:
+      type: integer
+      description: Amount of memory in GB to allocate for the process
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing sample metadata. Must include an 'id' field.
+  - INPUT_IMG:
+      type: string
+      description: Resolved full path to the input image container
+  - input_dataset:
+      type: string
+      description: Dataset subpath within the image container
+  - spots_output_dir:
+      type: directory
+      description: Path to the directory containing spot detection results
+  - spots_result_name:
+      type: string
+      description: Name of the output CSV file
+  - dask_scheduler:
+      type: string
+      description: Dask scheduler IP address (passed through for downstream processes)
+  - full_output_filename:
+      type: string
+      description: Resolved full path to the output CSV file containing detected spot coordinates
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+authors:
+  - "@cgoina"
+  - "@fleishmang"
+maintainers:
+  - "@cgoina"

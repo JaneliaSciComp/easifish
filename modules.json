@@ -12,42 +12,42 @@
                     },
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "55870e39751134a934ac9497ca71b8410cf617cc",
+                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
+                        "installed_by": ["modules"]
+                    },
+                    "bigstream/correlationmetric": {
+                        "branch": "main",
+                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
+                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
                         "installed_by": ["modules"]
                     },
                     "bigstream/foregroundmask": {
                         "branch": "main",
-                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
+                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
                         "installed_by": ["modules"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
+                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
+                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "fb11f5a6eda8757e8a6eaa612b38c17ad23737c7",
+                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
                         "installed_by": ["modules"]
                     },
                     "omezarrtools/multiscale": {
                         "branch": "main",
                         "git_sha": "55870e39751134a934ac9497ca71b8410cf617cc",
-                        "installed_by": ["modules"]
-                    },
-                    "rs_fish": {
-                        "branch": "main",
-                        "git_sha": "ba80af83170e531f8d7c828767431559a749060d",
                         "installed_by": ["modules"]
                     },
                     "segtools/distributed/cellpose": {
@@ -58,6 +58,16 @@
                     "segtools/distributed/mergelabels": {
                         "branch": "main",
                         "git_sha": "d42be7013deb896c2c2e69b9b1a7b055ac7e9284",
+                        "installed_by": ["modules"]
+                    },
+                    "spots/fishspots": {
+                        "branch": "main",
+                        "git_sha": "f62f2584ccf66572076ce90dfdf317af84096a11",
+                        "installed_by": ["modules"]
+                    },
+                    "spots/rsfish": {
+                        "branch": "main",
+                        "git_sha": "cf8e8630c5982e003c4e4cba607a6a8e762db024",
                         "installed_by": ["modules"]
                     }
                 }

@@ -12,6 +12,7 @@ tools:
       documentaton: "https://github.com/JaneliaSciComp/bigstream"
       tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"
       license: "['BSD-3-Clause']"
+components: []
 input:
   - meta:
       type: map
@@ -60,3 +61,6 @@ input:
   - bigstream_config:
       type: file
       description: bigstream pipeline yaml configuration file
+authors:
+  - "@cgoina"
+  - "@fleishmang"

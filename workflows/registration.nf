@@ -12,6 +12,8 @@ include { BIGSTREAM_DEFORM                                         } from '../mo
 include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_FIX } from '../modules/janelia/bigstream/foregroundmask/main'
 include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_MOV } from '../modules/janelia/bigstream/foregroundmask/main'
 
+include { BIGSTREAM_CORRELATIONMETRIC                                       } from '../modules/janelia/bigstream/correlationmetric/main'
+
 include { DASK_START                                               } from '../subworkflows/janelia/dask_start/main'
 include { DASK_STOP                                                } from '../subworkflows/janelia/dask_stop/main'
 include { SPARK_START                                              } from '../subworkflows/janelia/spark_start/main'
@@ -130,6 +132,62 @@ workflow REGISTRATION {
         local_registrations_cluster,
         params.skip_deformations || params.skip_registration,
     )
+
+    if (params.run_global_metric) {
+        def global_metric_ch = registration_inputs
+        | join(global_registration_results.global_registration_results, by: 0)
+        | map { reg_meta, fix_meta, _mov_meta,
+                fix, fix_sp, _mov, _mov_sp,
+                _transform_dir, _transform_name, _inv_transform_name,
+                align_dir, align_name, align_subpath ->
+            def mov_container = "${align_dir}/${align_name ?: params.global_registration_container}"
+            def global_fix_channel = params.fix_global_channel ?: params.reg_ch
+            def global_mov_channel = params.mov_global_channel ?: global_fix_channel
+            // get the corresponding output channel from the warped to output mapping if there is one
+            def global_aligned_channel = reg_meta.warped_channels_mapping[global_mov_channel]
+            def r = [
+                reg_meta,
+                file(fix), fix_sp,
+                params.fix_global_timeindex, global_fix_channel,
+                file(mov_container), align_subpath ?: '',
+                params.global_registration_timeindex, global_aligned_channel,
+                file("${reg_outdir}/metrics/${reg_meta.id}/global"), '',
+            ]
+            log.debug "Global metric inputs: $r"
+            r
+        }
+        RUN_CORRELATION_METRIC(global_metric_ch)
+    }
+
+    if (params.run_local_metric) {
+        def fix_local_subpath = params.fix_local_subpath
+            ?: "${params.fix_local_channel ?: params.reg_ch}/${params.local_scale}"
+        // Deduplicate: multiple deformation results per reg_meta (one per channel/subpath);
+        // all share the same fix and warped containers, so take the first of each.
+        def dedup_local = local_deformation_results
+        | groupTuple(by: 0)
+        | map { reg_meta, fixes, _fix_sps, _movs, _mov_sps, warpeds, _warped_sps ->
+            [reg_meta, fixes[0], warpeds[0]]
+        }
+        def local_metric_ch = registration_inputs
+        | join(dedup_local, by: 0)
+        | map { reg_meta, fix_meta, _mov_meta, fix, warped ->
+            def local_fix_channel = params.fix_local_channel ?: params.reg_ch
+            def local_mov_channel = params.mov_local_channel ?: local_fix_channel
+            def local_aligned_channel = reg_meta.warped_channels_mapping[local_mov_channel]
+            def r = [
+                reg_meta,
+                file(fix), "${fix_meta.stitched_dataset}/${fix_local_subpath}",
+                params.fix_local_timeindex, local_fix_channel,
+                file(warped), params.local_aligned_metric_subpath,
+                params.local_registration_timeindex, local_aligned_channel,
+                file("${reg_outdir}/metrics/${reg_meta.id}/local"), '',
+            ]
+            log.debug "Local metric inputs: $r"
+            r
+        }
+        RUN_CORRELATION_METRIC(local_metric_ch)
+    }
 
     def multiscale_warped_inputs = local_deformation_results
     | combine(local_registrations_cluster, by: 0)
@@ -946,4 +1004,37 @@ workflow RESOLVE_MASKS {
     emit:
     global_masks_per_pair = split.global  // [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath]
     local_masks_per_pair  = split.local // [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath]
+}
+
+workflow RUN_CORRELATION_METRIC {
+    take:
+    ch_inputs  // [reg_meta,
+               //  fix_image, fix_dataset,
+               //  fix_timeindex, fix_channel
+               //  mov_image, mov_dataset,
+               //  mov_timeindex, mov_channel,
+               //  output_container, output_dataset]
+
+    main:
+    BIGSTREAM_CORRELATIONMETRIC(
+        ch_inputs
+        | map { it ->
+            def (reg_meta,
+                 fix_image, fix_dataset,
+                 fix_timeindex, fix_channel,
+                 mov_image, mov_dataset,
+                 mov_timeindex, mov_channel,
+                 output_container, output_dataset) = it
+            [
+                reg_meta,
+                fix_image, fix_dataset,
+                fix_timeindex, fix_channel,
+                '',   // fix_spacing
+                mov_image, mov_dataset,
+                mov_timeindex, mov_channel,
+                '',   // mov_spacing
+                output_container, output_dataset,
+            ]
+        }
+    )
 }

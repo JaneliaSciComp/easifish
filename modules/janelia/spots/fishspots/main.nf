@@ -1,4 +1,4 @@
-process FISHSPOTS {
+process SPOTS_FISHSPOTS {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome-dask2025.11.0'
     cpus { fishspots_cpus }

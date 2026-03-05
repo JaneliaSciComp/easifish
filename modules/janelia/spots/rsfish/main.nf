@@ -1,4 +1,4 @@
-process RS_FISH {
+process SPOTS_RSFISH {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/rs-fish-spark:8f8954f'
     cpus { spark.driver_cores }

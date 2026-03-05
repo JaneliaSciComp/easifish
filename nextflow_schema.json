@@ -354,6 +354,23 @@
                     "description": "If true skip local blockwise alignment",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "run_global_metric": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, compute correlation metric after global registration using the same images and subpaths as global alignment",
+                    "fa_icon": "fas fa-chart-bar"
+                },
+                "run_local_metric": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, compute correlation metric after local registration (deformations)",
+                    "fa_icon": "fas fa-chart-bar"
+                },
+                "local_aligned_metric_subpath": {
+                    "type": "string",
+                    "description": "Warped image subpath to use as moving image for the local correlation metric",
+                    "fa_icon": "fas fa-folder"
+                },
                 "skip_inverse": {
                     "type": "boolean",
                     "description": "If true skip computing the inverse transformation",

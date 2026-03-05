@@ -1,4 +1,4 @@
-include { RS_FISH      } from '../../modules/janelia/rs_fish'
+include { SPOTS_RSFISH } from '../../modules/janelia/spots/rsfish'
 
 include { SPARK_START  } from '../janelia/spark_start'
 include { SPARK_STOP   } from '../janelia/spark_stop'
@@ -61,10 +61,10 @@ workflow RSFISH_SPOT_EXTRACTION {
         r
     }
 
-    RS_FISH(rsfish_input)
+    SPOTS_RSFISH(rsfish_input)
 
-    def rsfish_results = RS_FISH.out.params
-    | join(RS_FISH.out.csv, by: 0)
+    def rsfish_results = SPOTS_RSFISH.out.params
+    | join(SPOTS_RSFISH.out.csv, by: 0)
     | map { it ->
         def (meta, input_image, input_dataset, _spots_output_dir, _spots_result_name, spark, full_output_filename) = it
         [

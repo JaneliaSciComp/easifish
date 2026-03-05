@@ -1,7 +1,7 @@
-include { FISHSPOTS  } from '../../modules/local/fishspots'
+include { SPOTS_FISHSPOTS } from '../../modules/janelia/spots/fishspots'
 
-include { DASK_START } from '../janelia/dask_start'
-include { DASK_STOP  } from '../janelia/dask_stop'
+include { DASK_START      } from '../janelia/dask_start'
+include { DASK_STOP       } from '../janelia/dask_stop'
 
 workflow FISHSPOT_EXTRACTION {
     take:
@@ -59,7 +59,7 @@ workflow FISHSPOT_EXTRACTION {
         cluster_info: cluster_info
     }
 
-    def _fishspots_outputs = FISHSPOTS(
+    def _fishspots_outputs = SPOTS_FISHSPOTS(
         fishspots_inputs.fishspots_data,
         fishspots_inputs.cluster_info,
         fishspots_config ? file(fishspots_config) : [],
@@ -67,8 +67,8 @@ workflow FISHSPOT_EXTRACTION {
         fishspots_mem_gb,
     )
 
-    def fishspots_results = FISHSPOTS.out.params
-    | join(FISHSPOTS.out.csv, by: 0)
+    def fishspots_results = SPOTS_FISHSPOTS.out.params
+    | join(SPOTS_FISHSPOTS.out.csv, by: 0)
     | map { it ->
         def (meta, input_image, input_dataset, _spots_output_dir, _spots_result_name, dask_scheduler, full_output_filename) = it
         [

@@ -12,6 +12,7 @@ tools:
       documentaton: "https://github.com/JaneliaSciComp/bigstream"
       tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"
       license: "['BSD-3-Clause']"
+components: []
 input:
   - meta:
       type: map
@@ -54,3 +55,6 @@ output:
   - mask_subpath:
       type: string
       description: Subpath within the output mask container
+authors:
+  - "@cgoina"
+  - "@fleishmang"

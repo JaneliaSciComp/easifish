@@ -12,6 +12,7 @@ tools:
       documentaton: "https://github.com/JaneliaSciComp/bigstream"
       tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"
       license: "['BSD-3-Clause']"
+components: []
 input:
   - meta:
       type: map
@@ -75,3 +76,6 @@ output:
         - meta: Groovy map containing id
         - source_fullpath: Full resolved path to the source image
         - source_image_subpath: Subpath within the source image container
+authors:
+  - "@cgoina"
+  - "@fleishmang"
