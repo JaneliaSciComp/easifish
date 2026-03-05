@@ -360,15 +360,37 @@
                     "description": "If true, compute correlation metric after global registration using the same images and subpaths as global alignment",
                     "fa_icon": "fas fa-chart-bar"
                 },
+                "global_correlation_container": {
+                    "type": "string",
+                    "default": "correlation-metric.zarr",
+                    "description": "Output zarr container name for the global correlation metric",
+                    "fa_icon": "fas fa-folder"
+                },
+                "global_correlation_output_subpath": {
+                    "type": "string",
+                    "description": "Subpath within the global correlation metric output container",
+                    "fa_icon": "fas fa-folder"
+                },
                 "run_local_metric": {
                     "type": "boolean",
                     "default": false,
                     "description": "If true, compute correlation metric after local registration (deformations)",
                     "fa_icon": "fas fa-chart-bar"
                 },
-                "local_aligned_metric_subpath": {
+                "local_correlation_container": {
                     "type": "string",
-                    "description": "Warped image subpath to use as moving image for the local correlation metric",
+                    "default": "correlation-metric.zarr",
+                    "description": "Output zarr container name for the local correlation metric",
+                    "fa_icon": "fas fa-folder"
+                },
+                "local_correlation_input_subpath": {
+                    "type": "string",
+                    "description": "Subpath of the registered image with the deform field to use for the correlation metric",
+                    "fa_icon": "fas fa-folder"
+                },
+                "local_correlation_output_subpath": {
+                    "type": "string",
+                    "description": "Subpath within the local correlation metric output container",
                     "fa_icon": "fas fa-folder"
                 },
                 "skip_inverse": {

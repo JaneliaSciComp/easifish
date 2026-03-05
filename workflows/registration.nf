@@ -140,6 +140,7 @@ workflow REGISTRATION {
                 fix, fix_sp, _mov, _mov_sp,
                 _transform_dir, _transform_name, _inv_transform_name,
                 align_dir, align_name, align_subpath ->
+            def metrics_container = params.global_correlation_container
             def mov_container = "${align_dir}/${align_name ?: params.global_registration_container}"
             def global_fix_channel = params.fix_global_channel ?: params.reg_ch
             def global_mov_channel = params.mov_global_channel ?: global_fix_channel
@@ -151,7 +152,7 @@ workflow REGISTRATION {
                 params.fix_global_timeindex, global_fix_channel,
                 file(mov_container), align_subpath ?: '',
                 params.global_registration_timeindex, global_aligned_channel,
-                file("${reg_outdir}/metrics/${reg_meta.id}/global"), '',
+                file("${reg_outdir}/${metrics_container}"), "${reg_meta.id}/${params.global_correlation_output_subpath}",
             ]
             log.debug "Global metric inputs: $r"
             r
@@ -172,6 +173,7 @@ workflow REGISTRATION {
         def local_metric_ch = registration_inputs
         | join(dedup_local, by: 0)
         | map { reg_meta, fix_meta, _mov_meta, fix, warped ->
+            def metrics_container = params.local_correlation_container
             def local_fix_channel = params.fix_local_channel ?: params.reg_ch
             def local_mov_channel = params.mov_local_channel ?: local_fix_channel
             def local_aligned_channel = reg_meta.warped_channels_mapping[local_mov_channel]
@@ -179,9 +181,9 @@ workflow REGISTRATION {
                 reg_meta,
                 file(fix), "${fix_meta.stitched_dataset}/${fix_local_subpath}",
                 params.fix_local_timeindex, local_fix_channel,
-                file(warped), params.local_aligned_metric_subpath,
+                file(warped), params.local_correlation_input_subpath,
                 params.local_registration_timeindex, local_aligned_channel,
-                file("${reg_outdir}/metrics/${reg_meta.id}/local"), '',
+                file("${reg_outdir}/${metrics_container}"), "${reg_meta.id}/${params.local_correlation_output_subpath}",
             ]
             log.debug "Local metric inputs: $r"
             r
