@@ -954,6 +954,20 @@
                     "default": "registration",
                     "description": "Subdirectory used for registration results",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "global_results_subdir": {
+                    "type": "string",
+                    "hidden": true,
+                    "default": "global",
+                    "description": "Subdirectory used for global registration results",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "local_results_subdir": {
+                    "type": "string",
+                    "hidden": true,
+                    "default": "local",
+                    "description": "Subdirectory used for local registration results",
+                    "fa_icon": "fas fa-folder-open"
                 }
             },
             "help_text": "Registration parameters"

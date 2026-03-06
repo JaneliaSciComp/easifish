@@ -12,7 +12,7 @@ include { BIGSTREAM_DEFORM                                         } from '../mo
 include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_FIX } from '../modules/janelia/bigstream/foregroundmask/main'
 include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_MOV } from '../modules/janelia/bigstream/foregroundmask/main'
 
-include { BIGSTREAM_CORRELATIONMETRIC                                       } from '../modules/janelia/bigstream/correlationmetric/main'
+include { BIGSTREAM_CORRELATIONMETRIC                              } from '../modules/janelia/bigstream/correlationmetric/main'
 
 include { DASK_START                                               } from '../subworkflows/janelia/dask_start/main'
 include { DASK_STOP                                                } from '../subworkflows/janelia/dask_stop/main'
@@ -341,7 +341,7 @@ workflow RUN_GLOBAL_REGISTRATION {
     def mov_global_subpath = params.mov_global_subpath
         ? params.mov_global_subpath
         : "${params.mov_global_channel ?: params.reg_ch}/${params.global_scale}"
-
+    def global_results_subdir = params.global_results_subdir ?: 'global'
     def global_registration_inputs = registration_inputs
     | map { reg_meta, fix_meta, mov_meta -> [reg_meta.id, reg_meta, fix_meta, mov_meta] }
     | join(resolved_masks, by: 0)
@@ -352,7 +352,7 @@ workflow RUN_GLOBAL_REGISTRATION {
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
 
-        def global_registration_working_dir = file("${reg_outdir}/global/${reg_meta.id}")
+        def global_registration_working_dir = file("${reg_outdir}/${global_results_subdir}/${reg_meta.id}")
         def global_registration_output = file("${reg_outdir}")
 
         def global_fix_channel = params.fix_global_channel ?: params.reg_ch // default to reg_ch
@@ -559,7 +559,7 @@ workflow RUN_LOCAL_REGISTRATION {
     def mov_local_subpath = params.mov_local_subpath
         ? params.mov_local_subpath
         : "${params.mov_local_channel ?: params.reg_ch}/${params.local_scale}"
-
+    def local_results_subdir = params.local_results_subdir ?: 'local'
     def local_registration_inputs = registration_inputs
     | join(global_transforms, by: 0)
     | map { reg_meta, fix_meta, mov_meta, global_transform, _global_inv_transform ->
@@ -573,7 +573,7 @@ workflow RUN_LOCAL_REGISTRATION {
         def fix = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def mov = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
 
-        def local_registration_working_dir = file("${reg_outdir}/local/${reg_meta.id}")
+        def local_registration_working_dir = file("${reg_outdir}/${local_results_subdir}/${reg_meta.id}")
         def local_registration_output = file("${reg_outdir}")
 
         def ri =  [
