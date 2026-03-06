@@ -44,10 +44,10 @@ input:
       description: |
         Optional YAML configuration file for the fishspots spot extraction parameters
         (thresholds, scales, etc.). If not specified, defaults are used.
-  - fishspots_cpus:
+  - cpus:
       type: integer
       description: Number of CPUs to allocate for the process
-  - fishspots_mem_gb:
+  - mem_gb:
       type: integer
       description: Amount of memory in GB to allocate for the process
 output:

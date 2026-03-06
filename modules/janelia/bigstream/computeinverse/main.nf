@@ -2,7 +2,7 @@ process BIGSTREAM_COMPUTEINVERSE {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/bigstream:5.1.2-omezarr-dask2025.11.0-py12-ol9'
     cpus { cpus }
-    memory "${mem_in_gb} GB"
+    memory "${mem_gb} GB"
     conda "${moduleDir}/conda-env.yml"
 
     input:
@@ -16,7 +16,7 @@ process BIGSTREAM_COMPUTEINVERSE {
     tuple val(dask_scheduler),
           path(dask_config) // this is optional - if undefined pass in as empty list ([])
     val(cpus)
-    val(mem_in_gb)
+    val(mem_gb)
 
     output:
     tuple val(meta),

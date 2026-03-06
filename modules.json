@@ -12,17 +12,17 @@
                     },
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
+                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
                         "installed_by": ["modules"]
                     },
                     "bigstream/correlationmetric": {
                         "branch": "main",
-                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
+                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
+                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
                         "installed_by": ["modules"]
                     },
                     "bigstream/foregroundmask": {
@@ -32,17 +32,17 @@
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
+                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
+                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
+                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
                         "installed_by": ["modules"]
                     },
                     "omezarrtools/multiscale": {
@@ -62,7 +62,7 @@
                     },
                     "spots/fishspots": {
                         "branch": "main",
-                        "git_sha": "f62f2584ccf66572076ce90dfdf317af84096a11",
+                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
                         "installed_by": ["modules"]
                     },
                     "spots/rsfish": {

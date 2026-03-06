@@ -1,8 +1,8 @@
 process SPOTS_FISHSPOTS {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/easifish-spots-utils:v1.2-ome-dask2025.11.0'
-    cpus { fishspots_cpus }
-    memory { "${fishspots_mem_gb} GB" }
+    cpus { cpus }
+    memory { "${mem_gb} GB" }
 
     input:
     tuple val(meta),
@@ -12,8 +12,8 @@ process SPOTS_FISHSPOTS {
           val(spots_result_name)
     tuple val(dask_scheduler), path(dask_config) // this is optional - if undefined pass in as empty list ([])
     path(fishspots_config)
-    val(fishspots_cpus)
-    val(fishspots_mem_gb)
+    val(cpus)
+    val(mem_gb)
 
     output:
     tuple val(meta),
