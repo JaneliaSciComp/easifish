@@ -1785,6 +1785,18 @@
                     "description": "Max memory allocated for the segmentation driver",
                     "fa_icon": "fas fa-memory"
                 },
+                "cellpose_mergelabels_cpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Number of CPUs allocated for the merge labels driver",
+                    "fa_icon": "fas fa-microchip"
+                },
+                "cellpose_mergelabels_mem_gb": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Max memory allocated for the merge labels driver",
+                    "fa_icon": "fas fa-memory"
+                },
                 "cellpose_dask_workers": {
                     "type": "integer",
                     "default": 8,
