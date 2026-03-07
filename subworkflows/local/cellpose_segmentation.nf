@@ -133,13 +133,14 @@ workflow CELLPOSE_SEGMENTATION {
                      _cellpose_models_dir, _cellpose_model_name,
                      segmentation_output_dir,
                      segmentation_container, segmentation_dataset,
-                     _segmentation_work_dir) = it
+                     segmentation_work_dir) = it
                 log.debug "Using existing segmentation output for: $meta"
                 [
                     meta,
                     img_container_dir, img_dataset,
                     "${segmentation_output_dir}/${segmentation_container}",
                     segmentation_dataset ?: img_dataset,
+                    segmentation_work_dir,
                 ]
             }
         }
@@ -151,6 +152,7 @@ workflow CELLPOSE_SEGMENTATION {
             | flatMap { it ->
                 def (meta, _input_image, _image_subpath,
                      labels_containers, labels_subpath,
+                     segmentation_working_dir,
                      cluster_context) = it
                 labels_containers.split('\n')
                 .findAll { lc -> lc }
@@ -163,7 +165,7 @@ workflow CELLPOSE_SEGMENTATION {
                             labels_subpath,
                             [],            // output in-place
                             labels_subpath,
-                            [],            // no working dir
+                            segmentation_working_dir,
                         ],
                         [
                             cluster_context.scheduler_address,
