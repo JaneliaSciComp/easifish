@@ -194,7 +194,12 @@ workflow CELLPOSE_SEGMENTATION {
         def labels_multiscale_inputs = final_segmentation_results
         | combine(dask_cluster, by: 0)
         | flatMap { it ->
-            def (meta, _input_container, _input_subpath, labels_containers, labels_subpath, cluster_context) = it
+            def (meta,
+                _input_container, _input_subpath,
+                labels_containers, labels_subpath,
+                segmentation_working_dir,
+                cluster_context) = it
+            log.debug "Prepare to generate labels multiscale $it -> ${cluster_context}"
             labels_containers.split('\n')
             .findAll { lit -> lit }
             .collect { labels_container ->
@@ -205,7 +210,7 @@ workflow CELLPOSE_SEGMENTATION {
                     cluster_context.scheduler_address,
                     dask_config ? file(dask_config) : [],
                 ]
-                log.info "Prepare cellpose multiscale inputs: $r on $cluster_info"
+                log.debug "Prepare cellpose multiscale inputs: $r on $cluster_info"
                 [
                     r,
                     cluster_info
