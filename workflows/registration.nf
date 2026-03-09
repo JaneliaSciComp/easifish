@@ -104,7 +104,7 @@ workflow REGISTRATION {
         additional_cluster_files,
         params.distributed_bigstream &&
         !params.skip_registration &&
-        (!params.skip_local_align || !params.skip_deformations || !params.skip_inverse || !params.skip_multiscale_warped_image),
+        (!params.skip_local_align || !params.skip_deformations || !params.skip_inverse || params.run_warped_multiscale),
         "${session_work_dir}/bigstream-dask/",
         params.dask_config,
     )
@@ -190,7 +190,7 @@ workflow REGISTRATION {
     def multiscale_results = MULTISCALE(
         multiscale_warped_inputs.map { it[0] },
         multiscale_warped_inputs.map { it[1] },
-        (params.skip_multiscale_warped_image || params.skip_deformations || params.skip_registration) && !params.force_warped_pyramid,
+        !params.run_warped_multiscale,
         params.multiscale_cpus,
         params.multiscale_mem_gb,
     )

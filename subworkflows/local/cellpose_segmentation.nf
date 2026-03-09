@@ -8,34 +8,34 @@ include { MULTISCALE                       } from './multiscale'
 
 workflow CELLPOSE_SEGMENTATION {
     take:
-    ch_meta                // channel: [ meta,
-                           //            img_container_dir, img_dataset,
-                           //            output_dir,
-                           //            segmentation_container ]
-    skip_segmentation      // boolean: if true skip segmentation completely and just return the meta as if it ran
-    run_standalone_merge_labels  // boolean: if true run merge labels (after distributed cellpose if it ran, or standalone otherwise)
-    models_dir             // string|file: directory
-    model_name             // string model name
-    preprocessing_config   // string|file
-    log_config             // string|file: log configuration file
-    skip_multiscale        // boolean: if true skip multiscale pyramid for segmented image
-    distributed            // boolean: use a distributed dask cluster
-    dask_config            // string|file: dask configuration file
-    work_dir               // string|file: dask work dir
-    dask_workers           // int: number of workers in the cluster (ignored if distributed is false)
-    dask_min_workers       // int: min required dask workers
-    dask_worker_cpus       // int: number of cores per worker
-    dask_worker_mem_gb     // int: number of GB of memory per worker
-    segmentation_cpus      // int: number of cores to use for segmentation main process
-    segmentation_mem_gb    // int: number of GB of memory to use for segmentation main process
-    mergelabels_cpus       // int: number of cores to use for merge labels main process
-    mergelabels_mem_gb     // int: number of GB of memory to use for merge labels main process
-    multiscale_cpus        // int: number of CPUs allocated for labels multiscale driver
-    multiscale_mem_gb      // int: memory size in GB allocated for the labels multiscale driver
+    ch_meta                     // channel: [ meta,
+                                //            img_container_dir, img_dataset,
+                                //            output_dir,
+                                //            segmentation_container ]
+    skip_segmentation           // boolean: if true skip segmentation completely and just return the meta as if it ran
+    run_standalone_merge_labels // boolean: if true run merge labels (after distributed cellpose if it ran, or standalone otherwise)
+    models_dir                  // string|file: directory
+    model_name                  // string model name
+    preprocessing_config        // string|file
+    log_config                  // string|file: log configuration file
+    run_segmentation_multiscale // boolean: if true skip multiscale pyramid for segmented image
+    distributed                 // boolean: use a distributed dask cluster
+    dask_config                 // string|file: dask configuration file
+    work_dir                    // string|file: dask work dir
+    dask_workers                // int: number of workers in the cluster (ignored if distributed is false)
+    dask_min_workers            // int: min required dask workers
+    dask_worker_cpus            // int: number of cores per worker
+    dask_worker_mem_gb          // int: number of GB of memory per worker
+    segmentation_cpus           // int: number of cores to use for segmentation main process
+    segmentation_mem_gb         // int: number of GB of memory to use for segmentation main process
+    mergelabels_cpus            // int: number of cores to use for merge labels main process
+    mergelabels_mem_gb          // int: number of GB of memory to use for merge labels main process
+    multiscale_cpus             // int: number of CPUs allocated for labels multiscale driver
+    multiscale_mem_gb           // int: memory size in GB allocated for the labels multiscale driver
 
     main:
     def final_segmentation_results
-    if (!skip_segmentation || run_standalone_merge_labels || !skip_multiscale) {
+    if (!skip_segmentation || run_standalone_merge_labels || run_segmentation_multiscale) {
         def segmentation_prep_inputs = ch_meta
         | multiMap { it ->
             def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
@@ -186,6 +186,7 @@ workflow CELLPOSE_SEGMENTATION {
             ).results
         } else {
             final_segmentation_results = labels_ch
+            | map { it -> it[0..-2] }
         }
         final_segmentation_results.view { it ->
             log.debug "Cellpose results: $it"
@@ -197,7 +198,6 @@ workflow CELLPOSE_SEGMENTATION {
             def (meta,
                 _input_container, _input_subpath,
                 labels_containers, labels_subpath,
-                segmentation_working_dir,
                 cluster_context) = it
             log.debug "Prepare to generate labels multiscale $it -> ${cluster_context}"
             labels_containers.split('\n')
@@ -221,7 +221,7 @@ workflow CELLPOSE_SEGMENTATION {
         def labels_multiscale_outputs = MULTISCALE(
             labels_multiscale_inputs.map { it -> it[0] },
             labels_multiscale_inputs.map { it -> it[1] },
-            skip_multiscale,
+            !run_segmentation_multiscale,
             multiscale_cpus,
             multiscale_mem_gb,
         )
