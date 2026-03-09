@@ -54,7 +54,6 @@ process SEGTOOLS_DISTRIBUTED_MERGELABELS {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     ${set_output_labels}
     input_labels_fullpath=\$(\${READLINK_TOOL} -m ${input_labels})
     echo "Input labels: \${input_labels_fullpath}"

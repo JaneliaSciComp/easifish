@@ -37,8 +37,6 @@ process BIGSTREAM_FOREGROUNDMASK {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
-
     full_image=\$(\${READLINK_TOOL} -m ${image})
     echo "Input image full path: \${full_image}"
 

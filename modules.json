@@ -12,37 +12,37 @@
                     },
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "bigstream/correlationmetric": {
                         "branch": "main",
-                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "bigstream/foregroundmask": {
                         "branch": "main",
-                        "git_sha": "1453bbe5d64d1011531b384209218c553c9d4f02",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "omezarrtools/multiscale": {
@@ -52,12 +52,12 @@
                     },
                     "segtools/distributed/cellpose": {
                         "branch": "main",
-                        "git_sha": "55870e39751134a934ac9497ca71b8410cf617cc",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "segtools/distributed/mergelabels": {
                         "branch": "main",
-                        "git_sha": "d42be7013deb896c2c2e69b9b1a7b055ac7e9284",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     },
                     "spots/fishspots": {
@@ -67,7 +67,7 @@
                     },
                     "spots/rsfish": {
                         "branch": "main",
-                        "git_sha": "cf8e8630c5982e003c4e4cba607a6a8e762db024",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["modules"]
                     }
                 }
@@ -76,17 +76,17 @@
                 "janelia": {
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "8bd31d6007f0d8a733eae4cb0b64d5807459eefb",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_stop": {
                         "branch": "main",
-                        "git_sha": "8bd31d6007f0d8a733eae4cb0b64d5807459eefb",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_start": {
                         "branch": "main",
-                        "git_sha": "8bd31d6007f0d8a733eae4cb0b64d5807459eefb",
+                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_stop": {

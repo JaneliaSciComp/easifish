@@ -41,7 +41,6 @@ process SPOTS_RSFISH {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     INPUT_IMG=\$(realpath ${input_image})
     full_spots_dir=\$(\${READLINK_TOOL} -m ${spots_output_dir})
     mkdir -p \${full_spots_dir}

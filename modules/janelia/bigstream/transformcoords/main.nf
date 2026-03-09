@@ -60,7 +60,6 @@ process BIGSTREAM_TRANSFORMCOORDS {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     if [[ "${source_image}" != "" ]] ; then
         source_fullpath=\$(\${READLINK_TOOL} ${source_image})
     else

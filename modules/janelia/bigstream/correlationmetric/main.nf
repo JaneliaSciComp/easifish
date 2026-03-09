@@ -43,7 +43,6 @@ process BIGSTREAM_CORRELATIONMETRIC {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     fix_fullpath=\$(\${READLINK_TOOL} ${fix_image})
     mov_fullpath=\$(\${READLINK_TOOL} ${mov_image})
     output_fullpath=\$(\${READLINK_TOOL} -m ${output_dir})

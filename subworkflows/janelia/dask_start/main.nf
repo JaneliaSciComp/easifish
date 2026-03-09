@@ -353,6 +353,5 @@ def set_readlink_tool() {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     """
 }

@@ -100,8 +100,6 @@ process BIGSTREAM_LOCALALIGN {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
-
     if [[ "${fix_image}" != "" ]];  then
         full_fix_image=\$(\${READLINK_TOOL} ${fix_image})
         echo "Fix volume full path: \${full_fix_image}"

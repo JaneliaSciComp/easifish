@@ -50,7 +50,6 @@ process BIGSTREAM_COMPUTEINVERSE {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     full_deform_dir=\$(\${READLINK_TOOL} ${deform_dir})
     if [[ "${inv_deform_dir_arg}" == "" ]]; then
         full_inv_deform_dir=\${full_deform_dir}

@@ -25,7 +25,6 @@ process DASK_TERMINATE {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
 
     echo "\$(date): Terminate DASK Scheduler: ${cluster_work_path}"

@@ -76,7 +76,6 @@ process SEGTOOLS_DISTRIBUTED_CELLPOSE {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     input_image_fullpath=\$(\${READLINK_TOOL} ${image})
     echo "Input image: \${input_image_fullpath}"
     # create the output directory using the canonical name

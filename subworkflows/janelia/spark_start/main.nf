@@ -35,7 +35,6 @@ process PREPARE_SPARK_CONFIG {
     }
     """
     ${set_readlink_tool()}
-    echo "Detected OS: \${detected_os}"
     full_spark_local_dir=\$(\${READLINK_TOOL} -m ${spark_local_dir})
     full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
     if [[ ! -e \${full_spark_work_dir} ]] ; then
@@ -177,7 +176,6 @@ process SPARK_STARTWORKER {
     """
     set +x
     ${set_readlink_tool()}
-    echo "Detected OS: \${detected_os}"
     full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
 
     CMD=(
@@ -254,7 +252,6 @@ process SPARK_CLEANUP {
     script:
     """
     ${set_readlink_tool()}
-    echo "Detected OS: \${detected_os}"
     full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
 
     find \${full_spark_work_dir} -name app.jar -exec rm {} \\;
@@ -414,6 +411,5 @@ def set_readlink_tool() {
             READLINK_TOOL="readlink"
             ;;
     esac
-    echo "Detected OS: \${detected_os}"
     """
 }
