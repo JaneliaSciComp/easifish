@@ -133,64 +133,19 @@ workflow REGISTRATION {
         params.skip_deformations || params.skip_registration,
     )
 
-    if (params.run_global_metric) {
-        def global_metric_ch = registration_inputs
-        | join(global_registration_results.global_registration_results, by: 0)
-        | map { reg_meta, fix_meta, mov_meta,
-                fix, fix_sp, _mov, mov_sp,
-                _transform_dir, _transform_name, _inv_transform_name,
-                align_dir, align_name, align_subpath ->
-            def global_results_subdir = params.global_results_subdir ?: 'global'
-            def metrics_container = params.global_correlation_container
-            def mov_container = "${align_dir}/${align_name ?: params.global_registration_container}"
-            def global_fix_channel = params.fix_global_channel ?: params.reg_ch
-            def global_mov_channel = params.mov_global_channel ?: global_fix_channel
-            def global_align_subpath = align_subpath ?: mov_sp
-            // get the corresponding output channel from the warped to output mapping if there is one
-            def global_aligned_channel = reg_meta.warped_channels_mapping[global_mov_channel] ?: global_mov_channel
-            def r = [
-                reg_meta,
-                file(fix), fix_sp,
-                params.fix_global_timeindex, global_fix_channel,
-                file(mov_container), global_align_subpath,
-                params.global_registration_timeindex, global_aligned_channel,
-                file("${reg_outdir}/${global_results_subdir}/${metrics_container}"), "${reg_meta.id}/${params.global_correlation_output_subpath}",
-            ]
-            log.debug "Global metric inputs: $r"
-            r
-        }
-        RUN_CORRELATION_METRIC(global_metric_ch)
-    }
+    RUN_GLOBAL_ALIGNMENT_CORRELATION(
+        registration_inputs,
+        global_registration_results.global_registration_results,
+        reg_outdir,
+        params.run_global_metric,
+    )
 
-    if (params.run_local_metric) {
-        def fix_local_subpath = params.fix_local_subpath
-            ?: "${params.fix_local_channel ?: params.reg_ch}/${params.local_scale}"
-        def mov_local_subpath = params.mov_local_subpath
-            ?: "${params.mov_local_channel ?: params.reg_ch}/${params.local_scale}"
-        def local_metric_ch = registration_inputs
-        | join(local_deformation_results, by: 0)
-        | map { reg_meta, fix_meta, mov_meta,
-                 fix, fix_sp, mov, mov_sp,
-                 warped, warped_sp ->
-            def local_results_subdir = params.local_results_subdir ?: 'local'
-            def metrics_container = params.local_correlation_container
-            def local_fix_channel = params.fix_local_channel ?: params.reg_ch
-            def local_mov_channel = params.mov_local_channel ?: local_fix_channel
-            def local_align_subpath = params.local_correlation_input_subpath ?: "${mov_meta.stitched_dataset}/${mov_local_subpath}"
-            def local_aligned_channel = reg_meta.warped_channels_mapping[local_mov_channel] ?: local_mov_channel
-            def r = [
-                reg_meta,
-                file(fix), "${fix_meta.stitched_dataset}/${fix_local_subpath}",
-                params.fix_local_timeindex, local_fix_channel,
-                file(warped), local_align_subpath,
-                params.local_registration_timeindex, local_aligned_channel,
-                file("${reg_outdir}/${local_results_subdir}/${metrics_container}"), "${reg_meta.id}/${params.local_correlation_output_subpath}",
-            ]
-            log.debug "Local metric inputs: $r"
-            r
-        }
-        RUN_CORRELATION_METRIC(local_metric_ch)
-    }
+    RUN_LOCAL_ALIGNMENT_CORRELATION(
+        registration_inputs,
+        local_deformation_results,
+        reg_outdir,
+        params.run_local_metric,
+    )
 
     def multiscale_warped_inputs = local_deformation_results
     | combine(local_registrations_cluster, by: 0)
@@ -1010,35 +965,83 @@ workflow RESOLVE_MASKS {
     local_masks_per_pair  = split.local // [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath]
 }
 
-workflow RUN_CORRELATION_METRIC {
+workflow RUN_GLOBAL_ALIGNMENT_CORRELATION {
     take:
-    ch_inputs  // [reg_meta,
-               //  fix_image, fix_dataset,
-               //  fix_timeindex, fix_channel
-               //  mov_image, mov_dataset,
-               //  mov_timeindex, mov_channel,
-               //  output_container, output_dataset]
+    registration_inputs         // ch: [ reg_meta, fix_meta, mov_meta ]
+    global_registration_results // ch: [ reg_meta, fix, fix_sp, mov, mov_sp, transform_dir, transform_name, inv_transform_name, align_dir, align_name, align_subpath ]
+    reg_outdir                  // file: registration output directory
+    run_global_metric           // boolean: if true compute the global correlation metric
 
     main:
-    BIGSTREAM_CORRELATIONMETRIC(
-        ch_inputs
-        | map { it ->
-            def (reg_meta,
-                 fix_image, fix_dataset,
-                 fix_timeindex, fix_channel,
-                 mov_image, mov_dataset,
-                 mov_timeindex, mov_channel,
-                 output_container, output_dataset) = it
-            [
+    if (run_global_metric) {
+        def global_metric_ch = registration_inputs
+        | join(global_registration_results, by: 0)
+        | map { reg_meta, fix_meta, mov_meta,
+                fix, fix_sp, _mov, mov_sp,
+                _transform_dir, _transform_name, _inv_transform_name,
+                align_dir, align_name, align_subpath ->
+            def global_results_subdir = params.global_results_subdir ?: 'global'
+            def metrics_container = params.global_correlation_container
+            def mov_container = "${align_dir}/${align_name ?: params.global_registration_container}"
+            def global_fix_channel = params.fix_global_channel ?: params.reg_ch
+            def global_mov_channel = params.mov_global_channel ?: global_fix_channel
+            def global_align_subpath = align_subpath ?: mov_sp
+            // get the corresponding output channel from the warped to output mapping if there is one
+            def global_aligned_channel = reg_meta.warped_channels_mapping[global_mov_channel] ?: global_mov_channel
+            def r = [
                 reg_meta,
-                fix_image, fix_dataset,
-                fix_timeindex, fix_channel,
-                '',   // fix_spacing
-                mov_image, mov_dataset,
-                mov_timeindex, mov_channel,
-                '',   // mov_spacing
-                output_container, output_dataset,
+                file(fix), fix_sp,
+                params.fix_global_timeindex, global_fix_channel,
+                '', // fix_spacing
+                file(mov_container), global_align_subpath,
+                params.global_registration_timeindex, global_aligned_channel,
+                '', // alignment_spacing
+                file("${reg_outdir}/${global_results_subdir}/${metrics_container}"), "${reg_meta.id}/${params.global_correlation_output_subpath}",
             ]
+            log.debug "Global metric inputs: $r"
+            r
         }
-    )
+        BIGSTREAM_CORRELATIONMETRIC(global_metric_ch)
+    }
+}
+
+workflow RUN_LOCAL_ALIGNMENT_CORRELATION {
+    take:
+    registration_inputs       // ch: [ reg_meta, fix_meta, mov_meta ]
+    local_deformation_results // ch: [ reg_meta, fix, fix_subpath, mov, mov_subpath, warped, warped_subpath ]
+    reg_outdir                // file: registration output directory
+    run_local_metric          // boolean: if true compute the local correlation metric
+
+    main:
+    if (run_local_metric) {
+        def fix_local_subpath = params.fix_local_subpath
+            ?: "${params.fix_local_channel ?: params.reg_ch}/${params.local_scale}"
+        def mov_local_subpath = params.mov_local_subpath
+            ?: "${params.mov_local_channel ?: params.reg_ch}/${params.local_scale}"
+        def local_metric_ch = registration_inputs
+        | join(local_deformation_results, by: 0)
+        | map { reg_meta, fix_meta, mov_meta,
+                 fix, fix_sp, mov, mov_sp,
+                 warped, warped_sp ->
+            def local_results_subdir = params.local_results_subdir ?: 'local'
+            def metrics_container = params.local_correlation_container
+            def local_fix_channel = params.fix_local_channel ?: params.reg_ch
+            def local_mov_channel = params.mov_local_channel ?: local_fix_channel
+            def local_align_subpath = params.local_correlation_input_subpath ?: "${mov_meta.stitched_dataset}/${mov_local_subpath}"
+            def local_aligned_channel = reg_meta.warped_channels_mapping[local_mov_channel] ?: local_mov_channel
+            def r = [
+                reg_meta,
+                file(fix), "${fix_meta.stitched_dataset}/${fix_local_subpath}",
+                params.fix_local_timeindex, local_fix_channel,
+                '', // fix_spacing
+                file(warped), local_align_subpath,
+                params.local_registration_timeindex, local_aligned_channel,
+                '', // alignment_spacing
+                file("${reg_outdir}/${local_results_subdir}/${metrics_container}"), "${reg_meta.id}/${params.local_correlation_output_subpath}",
+            ]
+            log.debug "Local metric inputs: $r"
+            r
+        }
+        BIGSTREAM_CORRELATIONMETRIC(local_metric_ch)
+    }
 }
