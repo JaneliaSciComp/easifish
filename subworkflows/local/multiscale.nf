@@ -17,9 +17,6 @@ workflow MULTISCALE {
     main:
     def multiscale_results
     if (generate_pyramid) {
-        multiscale_results = ch_meta
-        multiscale_results.view { it -> log.debug "Skip multiscale pyramid: $it" }
-    } else {
         multiscale_results = OMEZARRTOOLS_MULTISCALE(
             ch_meta,
             ch_dask_info,
@@ -27,6 +24,9 @@ workflow MULTISCALE {
             mem_gb,
         ).data
         multiscale_results.view { it -> log.debug "Multiscale pyramid: $it" }
+    } else {
+        multiscale_results = ch_meta
+        multiscale_results.view { it -> log.debug "Skip multiscale pyramid: $it" }
     }
 
     emit:
