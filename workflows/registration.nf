@@ -893,7 +893,8 @@ workflow RESOLVE_MASKS {
     def mov_global_sp_val = params.mov_global_subpath ?: "${mov_global_ch}/${params.global_scale}"
 
     // When we generate the mask we generate one mask for the fixed image and one mask for the moving image
-    // and these can be used both for local and global registration
+    // at the same scale we use for global registration
+    // and these masks will be used both for local and global registration
 
     // ── Fix mask ──────────────────────────────────────────────────────────────
     // [fix_id, reg_id, image, image_subpath, timeindex, channel]
