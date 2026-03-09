@@ -108,7 +108,7 @@ workflow CELLPOSE_SEGMENTATION {
                 segmentation_work_dir,
             ]
             def cluster_info = [
-                cluster_context.scheduler_address,
+                cluster_context ? cluster_context.scheduler_address : '',
                 dask_config ? file(dask_config) : [],
             ]
             log.debug "Cellpose segmentation input: $it -> {cellpose: ${cellpose_data}, cluster: ${cluster_info}}"
@@ -159,7 +159,7 @@ workflow CELLPOSE_SEGMENTATION {
                 labels_containers.split('\n')
                 .findAll { lc -> lc }
                 .collect { labels_container ->
-                    log.debug "Prepare merge labels input: ${labels_container}"
+                    log.debug "Prepare merge labels input: ${labels_container}:${labels_subpath} on dask_cluster ${cluster_context}"
                     [
                         [
                             meta,
@@ -170,7 +170,7 @@ workflow CELLPOSE_SEGMENTATION {
                             segmentation_working_dir,
                         ],
                         [
-                            cluster_context.scheduler_address,
+                            cluster_context ? cluster_context.scheduler_address : '',
                             dask_config ? file(dask_config) : [],
                         ]
                     ]
@@ -207,7 +207,7 @@ workflow CELLPOSE_SEGMENTATION {
                     meta, labels_container, labels_subpath,
                 ]
                 def cluster_info = [
-                    cluster_context.scheduler_address,
+                    cluster_context ? cluster_context.scheduler_address : '',
                     dask_config ? file(dask_config) : [],
                 ]
                 log.debug "Prepare cellpose multiscale inputs: $r on $cluster_info"
