@@ -221,7 +221,7 @@ workflow CELLPOSE_SEGMENTATION {
         def labels_multiscale_outputs = MULTISCALE(
             labels_multiscale_inputs.map { it -> it[0] },
             labels_multiscale_inputs.map { it -> it[1] },
-            !run_segmentation_multiscale,
+            run_segmentation_multiscale,
             multiscale_cpus,
             multiscale_mem_gb,
         )

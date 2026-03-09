@@ -190,7 +190,7 @@ workflow REGISTRATION {
     def multiscale_results = MULTISCALE(
         multiscale_warped_inputs.map { it[0] },
         multiscale_warped_inputs.map { it[1] },
-        !params.run_warped_multiscale,
+        params.run_warped_multiscale,
         params.multiscale_cpus,
         params.multiscale_mem_gb,
     )

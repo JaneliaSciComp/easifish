@@ -8,15 +8,15 @@ include { OMEZARRTOOLS_MULTISCALE } from '../../modules/janelia/omezarrtools/mul
 
 workflow MULTISCALE {
     take:
-    ch_meta       // ch: [ meta, img_container, img_dataset ]
-    ch_dask_info  // ch: [ dask_scheduler, dask_config ]
-    skip_flag     // boolean
-    cpus          // number
-    mem_gb        // number
+    ch_meta           // ch: [ meta, img_container, img_dataset ]
+    ch_dask_info      // ch: [ dask_scheduler, dask_config ]
+    generate_pyramid  // boolean
+    cpus              // number
+    mem_gb            // number
 
     main:
     def multiscale_results
-    if (skip_flag) {
+    if (generate_pyramid) {
         multiscale_results = ch_meta
         multiscale_results.view { it -> log.debug "Skip multiscale pyramid: $it" }
     } else {

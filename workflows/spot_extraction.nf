@@ -178,7 +178,7 @@ def create_rsfish_spark_config() {
 def expand_spot_results(results) {
     results.flatMap { it ->
         def (meta, input_img_dir, input_spot_subpath, spots_results) = it
-        log.info "Expand spot results ${spots_results} (coming from: $it)"
+        log.debug "Expand spot results ${spots_results} (coming from: $it)"
         spots_results.split(/[ \n]+/)
         .collect { spots_file ->
             [
