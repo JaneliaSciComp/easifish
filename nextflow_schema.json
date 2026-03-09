@@ -799,12 +799,12 @@
                 "bigstream_local_blocksize": {
                     "type": "string",
                     "hidden": true,
-                    "description": "Local alignment processing block size",
+                    "description": "Processing size for computing the local alignment as sizex,sizey,sizez",
                     "fa_icon": "fas fa-cube"
                 },
                 "bigstream_align_blocksize": {
                     "type": "string",
-                    "description": "Block size used for applying the alignment transform as sizex,sizey,sizez",
+                    "description": "Block size used for applying the alignment transform as sizex,sizey,sizez as well as deformed image chunksize",
                     "fa_icon": "fas fa-cube"
                 },
                 "bigstream_local_overlap_factor": {
