@@ -393,6 +393,12 @@
                     "description": "Subpath within the local correlation metric output container",
                     "fa_icon": "fas fa-folder"
                 },
+                "neighborhood_for_metric_eval": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Radius of the neighborhood used for correlation metric evaluation",
+                    "fa_icon": "fas fa-expand"
+                },
                 "skip_inverse": {
                     "type": "boolean",
                     "description": "If true skip computing the inverse transformation",

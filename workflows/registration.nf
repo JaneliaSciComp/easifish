@@ -136,23 +136,25 @@ workflow REGISTRATION {
     if (params.run_global_metric) {
         def global_metric_ch = registration_inputs
         | join(global_registration_results.global_registration_results, by: 0)
-        | map { reg_meta, fix_meta, _mov_meta,
-                fix, fix_sp, _mov, _mov_sp,
+        | map { reg_meta, fix_meta, mov_meta,
+                fix, fix_sp, _mov, mov_sp,
                 _transform_dir, _transform_name, _inv_transform_name,
                 align_dir, align_name, align_subpath ->
+            def global_results_subdir = params.global_results_subdir ?: 'global'
             def metrics_container = params.global_correlation_container
             def mov_container = "${align_dir}/${align_name ?: params.global_registration_container}"
             def global_fix_channel = params.fix_global_channel ?: params.reg_ch
             def global_mov_channel = params.mov_global_channel ?: global_fix_channel
+            def global_align_subpath = align_subpath ?: mov_sp
             // get the corresponding output channel from the warped to output mapping if there is one
-            def global_aligned_channel = reg_meta.warped_channels_mapping[global_mov_channel]
+            def global_aligned_channel = reg_meta.warped_channels_mapping[global_mov_channel] ?: global_mov_channel
             def r = [
                 reg_meta,
                 file(fix), fix_sp,
                 params.fix_global_timeindex, global_fix_channel,
-                file(mov_container), align_subpath ?: '',
+                file(mov_container), global_align_subpath,
                 params.global_registration_timeindex, global_aligned_channel,
-                file("${reg_outdir}/${metrics_container}"), "${reg_meta.id}/${params.global_correlation_output_subpath}",
+                file("${reg_outdir}/${global_results_subdir}/${metrics_container}"), "${reg_meta.id}/${params.global_correlation_output_subpath}",
             ]
             log.debug "Global metric inputs: $r"
             r
@@ -163,27 +165,26 @@ workflow REGISTRATION {
     if (params.run_local_metric) {
         def fix_local_subpath = params.fix_local_subpath
             ?: "${params.fix_local_channel ?: params.reg_ch}/${params.local_scale}"
-        // Deduplicate: multiple deformation results per reg_meta (one per channel/subpath);
-        // all share the same fix and warped containers, so take the first of each.
-        def dedup_local = local_deformation_results
-        | groupTuple(by: 0)
-        | map { reg_meta, fixes, _fix_sps, _movs, _mov_sps, warpeds, _warped_sps ->
-            [reg_meta, fixes[0], warpeds[0]]
-        }
+        def mov_local_subpath = params.mov_local_subpath
+            ?: "${params.mov_local_channel ?: params.reg_ch}/${params.local_scale}"
         def local_metric_ch = registration_inputs
-        | join(dedup_local, by: 0)
-        | map { reg_meta, fix_meta, _mov_meta, fix, warped ->
+        | join(local_deformation_results, by: 0)
+        | map { reg_meta, fix_meta, mov_meta,
+                 fix, fix_sp, mov, mov_sp,
+                 warped, warped_sp ->
+            def local_results_subdir = params.local_results_subdir ?: 'local'
             def metrics_container = params.local_correlation_container
             def local_fix_channel = params.fix_local_channel ?: params.reg_ch
             def local_mov_channel = params.mov_local_channel ?: local_fix_channel
-            def local_aligned_channel = reg_meta.warped_channels_mapping[local_mov_channel]
+            def local_align_subpath = params.local_correlation_input_subpath ?: "${mov_meta.stitched_dataset}/${mov_local_subpath}"
+            def local_aligned_channel = reg_meta.warped_channels_mapping[local_mov_channel] ?: local_mov_channel
             def r = [
                 reg_meta,
                 file(fix), "${fix_meta.stitched_dataset}/${fix_local_subpath}",
                 params.fix_local_timeindex, local_fix_channel,
-                file(warped), params.local_correlation_input_subpath,
+                file(warped), local_align_subpath,
                 params.local_registration_timeindex, local_aligned_channel,
-                file("${reg_outdir}/${metrics_container}"), "${reg_meta.id}/${params.local_correlation_output_subpath}",
+                file("${reg_outdir}/${local_results_subdir}/${metrics_container}"), "${reg_meta.id}/${params.local_correlation_output_subpath}",
             ]
             log.debug "Local metric inputs: $r"
             r
