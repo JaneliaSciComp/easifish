@@ -93,16 +93,10 @@ workflow SPOT_EXTRACTION {
 
     def post_results
     if (params.skip_spot_extraction) {
-        if (params.run_only_post_spot_extraction) {
-            spots_results.view { it -> log.debug "Spot post-processing input (when spot extraction was skipped): $it" }
-            POST_RS_FISH(spots_results)
-            post_results = POST_RS_FISH.out.results
-            post_results.view { it -> log.debug "Spot post-processing result (when spot extraction was skipped): $it" }
-        } else {
-            VERIFY_RS_FISH(spots_results)
-            post_results = VERIFY_RS_FISH.out.results
-            post_results.view { it -> log.debug "Spot post-processing result (when both spot extraction and post-process was skipped): $it" }
-        }
+        spots_results.view { it -> log.debug "Verify spots input: $it" }
+        VERIFY_RS_FISH(spots_results)
+        post_results = VERIFY_RS_FISH.out.results
+        post_results.view { it -> log.debug "Verify spots result: $it" }
     } else {
         spots_results.view { it -> log.debug "Spot post-processing input: $it" }
         POST_RS_FISH(spots_results)

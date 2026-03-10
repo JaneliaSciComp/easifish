@@ -118,6 +118,7 @@ workflow WARP_SPOTS {
             ],
         ]
     }
+    | unique { it -> it[0][0].id }
 
     spots_warp_input.view { it -> log.debug "Warp spots input: $it " }
 

@@ -1002,12 +1002,6 @@
                     "default": false,
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "run_only_post_spot_extraction": {
-                    "type": "boolean",
-                    "description": "If true only run the post processing for spot extraction even if spot extraction was skipped",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
                 "spot_extraction_subdir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
