@@ -96,8 +96,8 @@ workflow WARP_SPOTS {
             inv_deform_transform_path, inv_deform_transform_name, inv_deform_transform_subpath) = it
 
         def warped_spots_output_dir = file("${outdir}/${params.warped_spots_subdir}/${id}")
-        def meta = [ meta_spots:meta_spots, meta_reg:meta_reg ]
         def spots_filename = file(spots_file).name
+        def meta = [ id: "${id}/${spots_filename}", meta_spots:meta_spots, meta_reg:meta_reg ]
         [
             [
                 meta, spots_file, warped_spots_output_dir, "warped-${spots_filename}",

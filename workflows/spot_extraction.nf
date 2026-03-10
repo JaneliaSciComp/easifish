@@ -4,10 +4,11 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { POST_RS_FISH           } from '../modules/local/post_rs_fish'
+include { POST_RS_FISH                   } from '../modules/local/post_rs_fish'
+include { POST_RS_FISH as VERIFY_RS_FISH } from '../modules/local/post_rs_fish'
 
-include { FISHSPOT_EXTRACTION    } from '../subworkflows/local/fishspot_extraction'
-include { RSFISH_SPOT_EXTRACTION } from '../subworkflows/local/rsfish_spot_extraction'
+include { FISHSPOT_EXTRACTION            } from '../subworkflows/local/fishspot_extraction'
+include { RSFISH_SPOT_EXTRACTION         } from '../subworkflows/local/rsfish_spot_extraction'
 
 workflow SPOT_EXTRACTION {
     take:
@@ -93,23 +94,23 @@ workflow SPOT_EXTRACTION {
     def post_results
     if (params.skip_spot_extraction) {
         if (params.run_only_post_spot_extraction) {
-            spots_results.view { it -> log.debug "Post spot extraction (when spot extraction was skipped) input: $it" }
+            spots_results.view { it -> log.debug "Spot post-processing input (when spot extraction was skipped): $it" }
             POST_RS_FISH(spots_results)
             post_results = POST_RS_FISH.out.results
-            post_results.view { it -> log.debug "Post spot extraction (when spot extraction was skipped) result: $it" }
+            post_results.view { it -> log.debug "Spot post-processing result (when spot extraction was skipped): $it" }
         } else {
-            post_results = spots_results
+            VERIFY_RS_FISH(spots_results)
+            post_results = VERIFY_RS_FISH.out.results
+            post_results.view { it -> log.debug "Spot post-processing result (when both spot extraction and post-process was skipped): $it" }
         }
     } else {
-        spots_results.view { it -> log.debug "Post spot extraction input: $it" }
+        spots_results.view { it -> log.debug "Spot post-processing input: $it" }
         POST_RS_FISH(spots_results)
         post_results = POST_RS_FISH.out.results
-        post_results.view { it -> log.debug "Post spot extraction result: $it" }
+        post_results.view { it -> log.debug "Spot post-processing result: $it" }
     }
 
-    def final_spot_results = params.skip_spot_extraction && !params.run_only_post_spot_extraction
-        ? post_results
-        : expand_spot_results(post_results)
+    def final_spot_results = expand_spot_results(post_results)
 
     emit:
     done = final_spot_results
