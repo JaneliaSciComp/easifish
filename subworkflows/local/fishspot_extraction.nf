@@ -20,7 +20,7 @@ workflow FISHSPOT_EXTRACTION {
     main:
     def dask_data = ch_spots_input
     | map { it ->
-        def (meta, input_img, input_subpath, spots_output_dir, spots_output_name) = it
+        def (meta, input_img, _input_subpath, spots_output_dir, _spots_output_name) = it
         [
             meta,
             [ input_img, spots_output_dir],
