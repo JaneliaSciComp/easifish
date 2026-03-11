@@ -124,5 +124,4 @@ workflow EASIFISH {
     )
 
     spots_props.view { it -> log.debug "Spots props: $it " }
-
 }
