@@ -11,7 +11,7 @@ include { REGISTRATION        } from './registration'
 include { SEGMENTATION        } from './segmentation'
 include { SPOT_EXTRACTION     } from './spot_extraction'
 include { WARP_SPOTS          } from './warp_spots'
-include { SPOTS_STATS         } from './spots_features'
+include { SPOT_COUNT_ASSIGN   } from './spot_assignment'
 include { EXTRACT_SPOTS_PROPS } from './spots_features'
 
 
@@ -109,7 +109,7 @@ workflow EASIFISH {
 
     warped_spots_results.view { it -> log.debug "Warped spots results: $it " }
 
-    def spots_stats_results = SPOTS_STATS(
+    def spots_stats_results = SPOT_COUNT_ASSIGN(
         warped_spots_results,
         segmentation_results,
         outdir,

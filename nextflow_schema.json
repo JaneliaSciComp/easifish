@@ -1255,9 +1255,9 @@
                     "description": "If set skip spots count",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "skip_region_props": {
+                "skip_spots_properties": {
                     "type": "boolean",
-                    "description": "If set skip spots region properties",
+                    "description": "If set skip retrieving spot region properties (intensity,...)",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "spots_counts_subdir": {
@@ -1309,7 +1309,6 @@
                     "type": "string",
                     "pattern": "^\\d*$",
                     "description": "This applies only to OME-ZARR inputs and specify which labels timeindex to be used for extracting spot region properties",
-                    "default": "0",
                     "hidden": true,
                     "fa_icon": "fas fa-hashtag"
                 },
@@ -1317,7 +1316,6 @@
                     "type": "string",
                     "pattern": "^\\d*$",
                     "description": "This applies only to OME-ZARR inputs and specify which labels channel to be used for extracting spot region properties",
-                    "default": "",
                     "hidden": true,
                     "fa_icon": "fas fa-layer-group"
                 },

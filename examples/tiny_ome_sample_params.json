@@ -32,7 +32,7 @@
     "skip_spot_extraction": false,
     "skip_warp_spots": false,
     "skip_spots_counts": false,
-    "skip_region_props": false,
+    "skip_spots_properties": false,
 
     "stitching_channel": "1",
     "preserve_anisotropy": false,
