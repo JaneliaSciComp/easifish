@@ -3,8 +3,7 @@
     RUN SPOT WARPING
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-include { BIGSTREAM_TRANSFORMCOORDS } from '../modules/janelia/bigstream/transformcoords/main'
+include { BIGSTREAM_TRANSFORMCOORDS } from '../modules/janelia/bigstream/transformcoords'
 
 workflow WARP_SPOTS {
     take:
