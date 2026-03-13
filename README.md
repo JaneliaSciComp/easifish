@@ -10,7 +10,7 @@
 
 ![EASI-FISH pipeline](docs/images/pipeline_diagram.png)
 
-1. Stitch the image tiles from the source CZI using [Saalfeld stitcher](https://github.com/saalfeldlab/stitching-spark) or [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark)
+1. Stitch the image tiles from the source CZI using either [Saalfeld stitcher](https://github.com/saalfeldlab/stitching-spark) or [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark)
 2. Register low resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
 3. Register high resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
 4. Apply deformation to the specified scale of the moving image using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
@@ -38,6 +38,11 @@ LHA3_R5_tiny,LHA3_R5_tiny.mvl,
 ```
 
 Each row represents a file in the input data set. The identifier (`id`) groups files together into acquisition rounds. In the example above, each acquisition is a single CZI file containing all of the tiles and channels, and an MVL file containing the acquisition metadata (e.g. stage coordinates for each tile.)
+
+> **Note:**
+> If you use [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark) for the registration the MVL is not required, for [Saalfeld stitcher](https://github.com/saalfeldlab/stitching-spark) you must have it.
+> Also with [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark) the samplesheet.csv may have the BDV project file (dataset.xml), and then you can skip the stitching step and only run create-container and fuse.
+
 
 Now, you can run the pipeline using:
 
