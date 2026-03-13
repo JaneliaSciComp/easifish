@@ -1,4 +1,4 @@
-# (Future) EASI-FISH Analysis Pipeline
+# EASI-FISH Analysis Pipeline
 
 > [!WARNING]
 > This pipeline is under development.
@@ -6,22 +6,17 @@
 
 ## Introduction
 
-**JaneliaSciComp/easifish** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes flatfield correction and tile stitching, and outputs a multi-resolution image pyramid in N5 format. The pipeline also supports registration to a reference round as well as segmentation of selected rounds.  In the future this pipeline will support additional input formats as well as deconvolution and other image processing methods.
+**JaneliaSciComp/easifish** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes tile stitching, and outputs a multi-resolution image pyramid in OME-ZARR or N5 format. The pipeline also supports registration to a reference round as well as segmentation of selected rounds.
 
-![EASI-FISH metro map](docs/images/JaneliaSciComp-easifish_metro_map.png)
+![EASI-FISH pipeline](docs/images/pipeline-diagram.png)
 
-1. Spin up a Spark cluster if configured
-2. Read image metadata from MVL metadata file ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/ParseCZITilesMetadata.java))
-3. Convert the CZI images to N5 format ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/ConvertCZITilesToN5Spark.java))
-4. Compute flatfield correction ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/flatfield/FlatfieldCorrection.java))
-5. Compute stitching ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/PipelineStitchingStepExecutor.java))
-6. Fuse files and export to N5 ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/PipelineFusionStepExecutor.java))
-7. Stop Spark cluster if configured
-8. Register low resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
-9. Spin up a [Dask cluster](https://github.com/dask) for the fine grain registration.
-10. Register high resolution moving rounds with respect to the corresponding high resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
-11. Generate the [multiscale pyramid](https://github.com/saalfeldlab/n5-spark/tree/master/src/main/java/org/janelia/saalfeldlab/n5/spark/downsample) for the aligned moving rounds
-12. Generate the segmentation for the selected round(s) using [Cellpose](https://github.com/MouseLand/cellpose).
+1. Stitch the image tiles from the source CZI using [Saalfeld stitcher](https://github.com/saalfeldlab/stitching-spark) or [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark)
+2. Register low resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
+3. Register high resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
+4. Apply deformation to the specified scale of the moving image using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
+5. Generate multiscale pyramid for the warped moving image.
+4. Generate the segmentation for the selected round(s) using [Cellpose](https://github.com/MouseLand/cellpose).
+5. Extract the spots from the stitched images using either [RS-FISH](https://github.com/PreibischLab/RS-FISH-Spark) or [FISHSPOT](https://github.com/GFleishman/fishspot)
 
 ## Usage
 
