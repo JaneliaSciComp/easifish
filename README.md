@@ -8,7 +8,7 @@
 
 **JaneliaSciComp/easifish** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes tile stitching, and outputs a multi-resolution image pyramid in OME-ZARR or N5 format. The pipeline also supports registration to a reference round as well as segmentation of selected rounds.
 
-![EASI-FISH pipeline](docs/images/pipeline-diagram.png)
+![EASI-FISH pipeline](docs/images/pipeline_diagram.png)
 
 1. Stitch the image tiles from the source CZI using [Saalfeld stitcher](https://github.com/saalfeldlab/stitching-spark) or [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark)
 2. Register low resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
