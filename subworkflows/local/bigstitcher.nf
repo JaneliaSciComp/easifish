@@ -7,6 +7,9 @@ include { BIGSTITCHER_MODULE as STITCH_EXISTING_DATASET } from '../../modules/ja
 include { BIGSTITCHER_MODULE as STITCH_NEW_DATASET      } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as CREATE_CONTAINER        } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as FUSE                    } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as DETECT_INTERESTPOINTS   } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as MATCH_INTERESTPOINTS    } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as SOLVER                  } from '../../modules/janelia/bigstitcher/module'
 
 workflow BIGSTITCHER {
 
@@ -21,6 +24,9 @@ workflow BIGSTITCHER {
     skip_create_dataset           // skip dataset creation (when stitching_xml doesn't exist)
     skip_resave                   // skip resave step (when stitching_xml doesn't exist)
     skip_pairwise_stitch          // skip stitching
+    run_detect_interestpoints     // boolean: run interest point detection
+    run_match_interestpoints      // boolean: run interest point matching
+    run_solver                    // boolean: run global solver
     skip_create_container         // in case the container already exists this option allows the user to skip the step
     skip_affine_fusion            // skip affine fusion step
     spark_workdir                 // string|file: spark work dir
@@ -256,12 +262,84 @@ workflow BIGSTITCHER {
 
         pairwise_stitch_output.view { it -> log.debug "Stitching output: $it" }
 
+        // Step: detect-interestpoints (opt-in)
+        def detect_interestpoints_output
+        if (!run_detect_interestpoints) {
+            detect_interestpoints_output = pairwise_stitch_output
+        } else {
+            def detect_interestpoints_inputs = stitching_input
+            | join(pairwise_stitch_output, by: 0)
+            | multiMap {
+                def (meta, spark, files) = it
+                def stitching_xml = get_stitching_xml_or_default(meta)
+                log.debug "Detect interestpoints in dataset ${stitching_xml}"
+                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkInterestPointDetection'
+                def bigstitcher_params = [ '-x', stitching_xml ]
+                def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
+                module_args: module_args
+                data_files: files
+            }
+
+            detect_interestpoints_output = DETECT_INTERESTPOINTS(
+                detect_interestpoints_inputs.module_args,
+                detect_interestpoints_inputs.data_files,
+            )
+        }
+
+        // Step: match-interestpoints (opt-in)
+        def match_interestpoints_output
+        if (!run_match_interestpoints) {
+            match_interestpoints_output = detect_interestpoints_output
+        } else {
+            def match_interestpoints_inputs = stitching_input
+            | join(detect_interestpoints_output, by: 0)
+            | multiMap {
+                def (meta, spark, files) = it
+                def stitching_xml = get_stitching_xml_or_default(meta)
+                log.debug "Match interestpoints in dataset ${stitching_xml}"
+                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching'
+                def bigstitcher_params = [ '-x', stitching_xml ]
+                def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
+                module_args: module_args
+                data_files: files
+            }
+
+            match_interestpoints_output = MATCH_INTERESTPOINTS(
+                match_interestpoints_inputs.module_args,
+                match_interestpoints_inputs.data_files,
+            )
+        }
+
+        // Step: solver (opt-in)
+        def solver_output
+        if (!run_solver) {
+            solver_output = match_interestpoints_output
+        } else {
+            def solver_inputs = stitching_input
+            | join(match_interestpoints_output, by: 0)
+            | multiMap {
+                def (meta, spark, files) = it
+                def stitching_xml = get_stitching_xml_or_default(meta)
+                log.debug "Run solver on dataset ${stitching_xml}"
+                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.Solver'
+                def bigstitcher_params = [ '-x', stitching_xml ]
+                def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
+                module_args: module_args
+                data_files: files
+            }
+
+            solver_output = SOLVER(
+                solver_inputs.module_args,
+                solver_inputs.data_files,
+            )
+        }
+
         def create_fused_container_output
         if (skip_create_container) {
-            create_fused_container_output = pairwise_stitch_output
+            create_fused_container_output = solver_output
         } else {
             def create_fused_container_inputs = stitching_input
-            | join(pairwise_stitch_output, by: 0)
+            | join(solver_output, by: 0)
             | multiMap {
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)

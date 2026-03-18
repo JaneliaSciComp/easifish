@@ -225,6 +225,27 @@
                     "hidden": true,
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "run_bigstitcher_detect_interestpoints": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run interest point detection with BigStitcher (SparkInterestPointDetection)",
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
+                },
+                "run_bigstitcher_match_interestpoints": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run interest point matching with BigStitcher (SparkGeometricDescriptorMatching)",
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
+                },
+                "run_bigstitcher_solver": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run global solver with BigStitcher (Solver)",
+                    "hidden": true,
+                    "fa_icon": "fas fa-toggle-on"
+                },
                 "advanced_stitching_params": {
                     "type": "string",
                     "description": "BigStitcher stitching advanced args such as --ds --channels",
