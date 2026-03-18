@@ -222,7 +222,7 @@ workflow BIGSTITCHER {
         } else {
             def pairwise_stitch_no_xml_inputs = with_xml.no_xml
             | join(resave_output, by: 0)
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 def advanced_stitching_args = advanced_stitching_params
@@ -262,7 +262,7 @@ workflow BIGSTITCHER {
         } else {
             def create_fused_container_inputs = stitching_input
             | join(pairwise_stitch_output, by: 0)
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 def preserve_anisotropy_arg = preserve_anisotropy ? '--preserveAnisotropy' : ''
@@ -298,7 +298,7 @@ workflow BIGSTITCHER {
         } else {
             def fuse_inputs = stitching_input
             | join(create_fused_container_output, by: 0)
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def module_args = [
                     meta,
