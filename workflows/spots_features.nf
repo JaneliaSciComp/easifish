@@ -1,98 +1,4 @@
 include { SPOTS_PROPS  } from '../modules/local/spots/props/main'
-include { SPOTS_COUNTS } from '../modules/local/spots/counts/main'
-
-/*
-SPOTS_STATS - aggregate all channel spot counts into a single csv output
-*/
-workflow SPOTS_STATS {
-    take:
-    ch_spots        // channel: [ meta_spots, meta_reg, spots_input_image, spots_input_dataset, spots, warped_spots ]
-    ch_segmentation // channel: [ meta, seg_input_image, seg_input_dataset, seg_labels ]
-    outputdir
-
-    main:
-    def ch_segmentation_with_id = ch_segmentation
-    | map { it ->
-        def (meta, seg_input_image, seg_input_dataset, seg_labels) = it
-        def id = meta.id
-        def r = [ id, meta, seg_input_image, seg_input_dataset, seg_labels ]
-        log.debug "Segmentation data for spots sizes: $r"
-        r
-    }
-
-    def spots_counts_input = ch_spots
-    | filter { it ->
-        def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
-        if (!final_spots) {
-            log.debug "Filter out spots input for: $it"
-            return false
-        }
-        return true
-    }
-    | map { it ->
-        def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
-        def id = meta_reg.fix_id
-        def r = [ id, meta_spots, spots_input_image, spots_input_dataset, source_spots, final_spots ]
-        log.debug "Spots data for spots counts: $it -> $r"
-        r
-    }
-    | groupTuple(by: 0)
-    | join(ch_segmentation_with_id, by: 0)
-    | flatMap { it ->
-        def (id, all_meta_spots, all_spots_image_containers, all_spots_datasets, all_source_spots, all_final_spots,meta_seg, seg_input_image, seg_input_dataset, seg_labels) = it
-
-        [all_meta_spots,
-         all_spots_image_containers,
-         all_spots_datasets,
-         all_source_spots,
-         all_final_spots].transpose()
-         .collect {
-            def (meta_spots, spots_image_container, spots_dataset, source_spots, final_spots) = it
-            def spots_dir = file(final_spots).parent
-            def spots_counts_output_dir = file("${outputdir}/${params.spots_counts_subdir}/${meta_spots.id}")
-            def adjusted_spots_dataset = sync_image_scale_with_labels_scale(spots_dataset, seg_input_dataset)
-
-            def r = [
-                meta_spots,
-                spots_image_container, adjusted_spots_dataset,
-                seg_labels, seg_input_dataset,
-                spots_dir,
-                params.spots_counts_pattern,
-                spots_counts_output_dir,
-            ]
-            log.debug "Spots counts input before removing duplicates: $r"
-            r
-         }
-    }
-    | unique { it[0].id }
-
-    spots_counts_input.view { it -> log.debug "Spots counts input: $it" }
-
-    def spots_counts_outputs
-    if (params.skip_spots_counts) {
-        spots_counts_outputs = spots_counts_input
-        | map { it ->
-            def (meta_spots, spots_image_container, adjusted_spots_dataset, seg_labels, seg_input_dataset,spots_dir, spots_pattern, spots_counts_output_dir) = it
-
-            log.debug "Skip spots counts $it"
-            [
-                meta_spots,
-                spots_image_container, adjusted_spots_dataset,
-                spots_dir,
-                spots_counts_output_dir,
-            ]
-        }
-    } else {
-        spots_counts_outputs = SPOTS_COUNTS(
-            spots_counts_input,
-            params.spots_counts_cores,
-            params.spots_counts_mem_gb,
-        ).results
-    }
-
-    emit:
-    done = spots_counts_outputs
-}
 
 workflow EXTRACT_SPOTS_PROPS {
     take:
@@ -211,7 +117,7 @@ workflow EXTRACT_SPOTS_PROPS {
         log.debug "Combined cell images with segmentation: $it"
 
         def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${image_id}")
-        def adjusted_image_dataset = sync_image_scale_with_labels_scale(image_dataset, seg_input_dataset)
+        def adjusted_image_dataset = sync_image_scale_with_labels_scale_for_spot_properties(image_dataset, seg_input_dataset)
 
         log.debug "Synced image and label datasets: ${image_dataset}, ${seg_input_dataset} -> ${adjusted_image_dataset}"
 
@@ -238,7 +144,7 @@ workflow EXTRACT_SPOTS_PROPS {
     }
 
     def spots_props_results
-    if (params.skip_region_props) {
+    if (params.skip_spots_properties) {
         spots_props_results = regionprops_inputs
         | map { it ->
             def (meta,
@@ -267,7 +173,7 @@ workflow EXTRACT_SPOTS_PROPS {
 }
 
 
-def sync_image_scale_with_labels_scale(image_dataset, labels_dataset) {
+def sync_image_scale_with_labels_scale_for_spot_properties(image_dataset, labels_dataset) {
     def image_dataset_comps = image_dataset.split('/')
     def labels_dataset_comps = labels_dataset.split('/')
     if (labels_dataset_comps && labels_dataset_comps[-1] != image_dataset[-1]) {

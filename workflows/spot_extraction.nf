@@ -4,10 +4,11 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { POST_RS_FISH           } from '../modules/local/post_rs_fish'
+include { POST_RS_FISH                   } from '../modules/local/post_rs_fish'
+include { POST_RS_FISH as VERIFY_RS_FISH } from '../modules/local/post_rs_fish'
 
-include { FISHSPOT_EXTRACTION    } from '../subworkflows/local/fishspot_extraction'
-include { RSFISH_SPOT_EXTRACTION } from '../subworkflows/local/rsfish_spot_extraction'
+include { FISHSPOT_EXTRACTION            } from '../subworkflows/local/fishspot_extraction'
+include { RSFISH_SPOT_EXTRACTION         } from '../subworkflows/local/rsfish_spot_extraction'
 
 workflow SPOT_EXTRACTION {
     take:
@@ -24,9 +25,7 @@ workflow SPOT_EXTRACTION {
     }
     | flatMap { meta ->
         // Spot extraction is typically done for all cell (no DAPI) channels from all rounds
-        def input_img_dir = get_spot_extraction_input_volume(meta)
-        def spots_output_dir = file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}")
-
+        def (input_img_dir, spots_output_dir) = get_spot_extraction_input_output(meta, outputdir)
         get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
             def r = [
                 meta,
@@ -92,31 +91,37 @@ workflow SPOT_EXTRACTION {
 
     def post_results
     if (params.skip_spot_extraction) {
-        if (params.run_only_post_spot_extraction) {
-            spots_results.view { it -> log.debug "Post spot extraction (when spot extraction was skipped) input: $it" }
-            POST_RS_FISH(spots_results)
-            post_results = POST_RS_FISH.out.results
-            post_results.view { it -> log.debug "Post spot extraction (when spot extraction was skipped) result: $it" }
-        } else {
-            post_results = spots_results
-        }
+        spots_results.view { it -> log.debug "Verify spots input: $it" }
+        VERIFY_RS_FISH(spots_results)
+        post_results = VERIFY_RS_FISH.out.results
+        post_results.view { it -> log.debug "Verify spots result: $it" }
     } else {
-        spots_results.view { it -> log.debug "Post spot extraction input: $it" }
+        spots_results.view { it -> log.debug "Spot post-processing input: $it" }
         POST_RS_FISH(spots_results)
         post_results = POST_RS_FISH.out.results
-        post_results.view { it -> log.debug "Post spot extraction result: $it" }
+        post_results.view { it -> log.debug "Spot post-processing result: $it" }
     }
 
-    def final_spot_results = params.skip_spot_extraction && !params.run_only_post_spot_extraction
-        ? post_results
-        : expand_spot_results(post_results)
+    def final_spot_results = expand_spot_results(post_results)
 
     emit:
     done = final_spot_results
 }
 
-def get_spot_extraction_input_volume(meta) {
-    return "${meta.stitching_result_dir}/${meta.stitching_container}"
+def get_spot_extraction_input_output(meta, outputdir) {
+    if (!params.extract_spots_from_warped || meta.id == params.registration_fix_id) {
+        // extract the spots from the stitched image
+        return [
+            "${meta.stitching_result_dir}/${meta.stitching_container}",
+            file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}"),
+        ]
+    } else {
+        // extract the spots from the aligned (moving) image
+        return [
+            file("${outputdir}/${params.registration_subdir}/${params.local_registration_container}"),
+            file("${outputdir}/${params.warped_spots_subdir}/${meta.id}"),
+        ]
+    }
 }
 
 def get_spot_subpaths(meta) {
@@ -178,7 +183,7 @@ def create_rsfish_spark_config() {
 def expand_spot_results(results) {
     results.flatMap { it ->
         def (meta, input_img_dir, input_spot_subpath, spots_results) = it
-        log.info "Expand spot results ${spots_results} (coming from: $it)"
+        log.debug "Expand spot results ${spots_results} (coming from: $it)"
         spots_results.split(/[ \n]+/)
         .collect { spots_file ->
             [

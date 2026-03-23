@@ -11,7 +11,7 @@ include { REGISTRATION        } from './registration'
 include { SEGMENTATION        } from './segmentation'
 include { SPOT_EXTRACTION     } from './spot_extraction'
 include { WARP_SPOTS          } from './warp_spots'
-include { SPOTS_STATS         } from './spots_features'
+include { SPOT_COUNT_ASSIGN   } from './spot_assignment'
 include { EXTRACT_SPOTS_PROPS } from './spots_features'
 
 
@@ -65,36 +65,8 @@ workflow EASIFISH {
 
     segmentation_results.view { it -> log.debug "Segmentation result: $it " }
 
-    def spot_extraction_input
-    if (params.extract_spots_from_warped) {
-        // Fixed volumes: use stitching results as-is (already in reference space)
-        def fixed_spot_meta = stitching_results
-        | filter { meta -> meta.id == params.registration_fix_id }
-
-        // Moving volumes: create metadata pointing to warped images
-        def warped_containers = registration_results
-        | map { it -> [ it[0].mov_id, it[5] /* warped */ ] }
-        | unique { entry -> entry[0] }
-
-        def warped_spot_meta = stitching_results
-        | filter { meta -> meta.id != params.registration_fix_id }
-        | map { meta -> [ meta.id, meta ] }
-        | combine(warped_containers, by: 0)
-        | map { _id, meta, warped ->
-            def warped_file = file(warped)
-            meta + [
-                stitching_result_dir: warped_file.parent.toString(),
-                stitching_container: warped_file.name,
-            ]
-        }
-
-        spot_extraction_input = fixed_spot_meta.concat(warped_spot_meta)
-    } else {
-        spot_extraction_input = stitching_results
-    }
-
     def spot_extraction_results = SPOT_EXTRACTION(
-        spot_extraction_input,
+        stitching_results,
         outdir,
         "${session_work_dir}/spot_extraction",
     )
@@ -109,7 +81,7 @@ workflow EASIFISH {
 
     warped_spots_results.view { it -> log.debug "Warped spots results: $it " }
 
-    def spots_stats_results = SPOTS_STATS(
+    def spots_stats_results = SPOT_COUNT_ASSIGN(
         warped_spots_results,
         segmentation_results,
         outdir,
@@ -124,5 +96,4 @@ workflow EASIFISH {
     )
 
     spots_props.view { it -> log.debug "Spots props: $it " }
-
 }

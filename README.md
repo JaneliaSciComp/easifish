@@ -1,4 +1,4 @@
-# (Future) EASI-FISH Analysis Pipeline
+# EASI-FISH Analysis Pipeline
 
 > [!WARNING]
 > This pipeline is under development.
@@ -6,22 +6,17 @@
 
 ## Introduction
 
-**JaneliaSciComp/easifish** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes flatfield correction and tile stitching, and outputs a multi-resolution image pyramid in N5 format. The pipeline also supports registration to a reference round as well as segmentation of selected rounds.  In the future this pipeline will support additional input formats as well as deconvolution and other image processing methods.
+**JaneliaSciComp/easifish** is a bioimage analysis pipeline that reconstructs large microscopy image volumes. It ingests raw images in CZI format from Zeiss Lightsheet microscopes, computes tile stitching, and outputs a multi-resolution image pyramid in OME-ZARR or N5 format. The pipeline also supports registration to a reference round as well as segmentation of selected rounds.
 
-![EASI-FISH metro map](docs/images/JaneliaSciComp-easifish_metro_map.png)
+![EASI-FISH pipeline](docs/images/pipeline_diagram.png)
 
-1. Spin up a Spark cluster if configured
-2. Read image metadata from MVL metadata file ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/ParseCZITilesMetadata.java))
-3. Convert the CZI images to N5 format ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/ConvertCZITilesToN5Spark.java))
-4. Compute flatfield correction ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/flatfield/FlatfieldCorrection.java))
-5. Compute stitching ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/PipelineStitchingStepExecutor.java))
-6. Fuse files and export to N5 ([stitching-spark](https://github.com/saalfeldlab/stitching-spark/blob/master/src/main/java/org/janelia/stitching/PipelineFusionStepExecutor.java))
-7. Stop Spark cluster if configured
-8. Register low resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
-9. Spin up a [Dask cluster](https://github.com/dask) for the fine grain registration.
-10. Register high resolution moving rounds with respect to the corresponding high resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
-11. Generate the [multiscale pyramid](https://github.com/saalfeldlab/n5-spark/tree/master/src/main/java/org/janelia/saalfeldlab/n5/spark/downsample) for the aligned moving rounds
-12. Generate the segmentation for the selected round(s) using [Cellpose](https://github.com/MouseLand/cellpose).
+1. Stitch the image tiles from the source CZI using either [Saalfeld stitcher](https://github.com/saalfeldlab/stitching-spark) or [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark)
+2. Register low resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
+3. Register high resolution moving rounds with respect to the corresponding low resolution fixed round using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
+4. Apply deformation to the specified scale of the moving image using [Bigstream](https://github.com/JaneliaSciComp/bigstream).
+5. Generate multiscale pyramid for the warped moving image.
+4. Generate the segmentation for the selected round(s) using [Cellpose](https://github.com/MouseLand/cellpose).
+5. Extract the spots from the stitched images using either [RS-FISH](https://github.com/PreibischLab/RS-FISH-Spark) or [FISHSPOT](https://github.com/GFleishman/fishspot)
 
 ## Usage
 
@@ -44,6 +39,11 @@ LHA3_R5_tiny,LHA3_R5_tiny.mvl,
 
 Each row represents a file in the input data set. The identifier (`id`) groups files together into acquisition rounds. In the example above, each acquisition is a single CZI file containing all of the tiles and channels, and an MVL file containing the acquisition metadata (e.g. stage coordinates for each tile.)
 
+> **Note:**
+> If you use [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark) for the registration the MVL is not required, for [Saalfeld stitcher](https://github.com/saalfeldlab/stitching-spark) you must have it.
+> Also with [BigStitcher](https://github.com/JaneliaSciComp/bigstitcher-spark) the samplesheet.csv may have the BDV project file (dataset.xml), and then you can skip the stitching step and only run create-container and fuse.
+
+
 Now, you can run the pipeline using:
 
 ```bash
@@ -60,6 +60,79 @@ see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 :::
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/easifish/usage) and the [parameter documentation](https://nf-co.re/easifish/parameters).
+
+## Stitching
+
+The pipeline supports two stitching methods, selected via `--stitching_method`:
+
+- **BigStitcher** (default) — Uses [bigstitcher-spark](https://github.com/JaneliaSciComp/bigstitcher-spark). Recommended for most cases. Does not require an MVL file. Supports fine-grained step skipping (e.g., `--skip_bigstitcher_resave`, `--skip_bigstitcher_pairwise_stitch`). If the samplesheet includes a pre-existing BDV project file (`dataset.xml`), you can skip directly to the create-container and fuse steps.
+- **SaalfeldStitcher** — Uses [stitching-spark](https://github.com/saalfeldlab/stitching-spark). Requires an MVL file with stage coordinates.
+
+Both methods use Apache Spark for distributed processing. Key Spark parameters:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--spark_workers` | 10 | Number of Spark worker processes |
+| `--spark_worker_cores` | 1 | CPU cores per worker |
+| `--spark_gb_per_core` | 15 | Memory (GB) allocated per core |
+| `--spark_driver_mem_gb` | 14 | Memory (GB) for the Spark driver |
+
+Key stitching parameters:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--stitching_method` | BigStitcher | `BigStitcher` or `SaalfeldStitcher` |
+| `--resolution` | 0.23,0.23,0.42 | Voxel resolution in X,Y,Z (microns) |
+| `--axis_mapping` | -x,y,z | Axis orientation (`-x` flips the X axis) |
+| `--stitching_channel` | all | Channel(s) used for computing tile alignment |
+| `--stitching_block_size` | 128,128,64 | N5 block size during tile conversion (X,Y,Z) |
+| `--stitching_blur_sigma` | 2 | Gaussian blur sigma applied before alignment |
+| `--stitching_result_container` | stitched.n5 | Output container name (`.n5`, `.zarr`, `.h5`) |
+| `--skip_stitching` | false | Skip stitching and use pre-stitched data |
+
+## Spot Extraction
+
+The pipeline supports two spot detection methods, selected via `--spot_extraction_method`:
+
+- **RS-FISH** (default) — Uses [RS-FISH-Spark](https://github.com/PreibischLab/RS-FISH-Spark) with a Difference-of-Gaussians (DoG) detector. Fast and straightforward to configure. Runs on a Spark cluster.
+- **FISHSPOTS** — Uses [fishspot](https://github.com/GFleishman/fishspot) with a Dask-based distributed backend. Supports PSF estimation and Richardson-Lucy deconvolution for higher accuracy on challenging images. Requires a FISHSPOTS config file (`--fishspots_config`).
+
+By default, spots are extracted from the stitched images. Set `--extract_spots_from_warped true` to extract from the registered (warped) images instead.
+
+Key RS-FISH parameters:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--rsfish_sigma` | 1.5 | Gaussian sigma for DoG smoothing |
+| `--rsfish_threshold` | 0.007 | DoG detection threshold |
+| `--rsfish_anisotropy` | 0.7 | Z-anisotropy ratio (voxel_z / voxel_xy) |
+| `--rsfish_min_intensity` | 0 | Minimum pixel intensity to consider |
+| `--rsfish_max_intensity` | 4096 | Maximum pixel intensity |
+| `--rsfish_spark_workers` | 1 | Number of Spark workers for RS-FISH |
+| `--rsfish_spark_worker_cores` | 5 | CPU cores per RS-FISH Spark worker |
+
+All RS-FISH detection parameters (`--rsfish_sigma`, `--rsfish_threshold`, etc.) accept comma-separated per-channel values (e.g., `--rsfish_sigma "1.5,2.0,1.5"`).
+
+Key FISHSPOTS parameters:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--fishspots_config` | conf/fishspots_config.yml | FISHSPOTS algorithm config file |
+| `--fishspots_psf_file` | (none) | PSF file for deconvolution (estimated from data if omitted) |
+| `--fishspots_intensity_threshold` | 0 | Post-detection intensity threshold |
+| `--fishspots_blocksize` | 128,128,128 | Processing block size (X,Y,Z) |
+| `--fishspots_dask_workers` | 1 | Number of Dask workers |
+| `--fishspots_dask_worker_mem_gb` | 4 | Memory (GB) per Dask worker |
+
+Common spot extraction parameters:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--spot_extraction_method` | RS_FISH | `RS_FISH` or `FISHSPOTS` |
+| `--spot_channels` | (all non-DAPI) | Channels to run spot detection on |
+| `--dapi_channel` | (auto-detected) | DAPI channel name (excluded from detection) |
+| `--extract_spots_from_warped` | false | Extract from warped registered images |
+| `--skip_spot_extraction` | false | Skip spot extraction entirely |
 
 ## Pipeline output
 

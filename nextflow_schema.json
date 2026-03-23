@@ -1023,12 +1023,6 @@
                     "default": false,
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "run_only_post_spot_extraction": {
-                    "type": "boolean",
-                    "description": "If true only run the post processing for spot extraction even if spot extraction was skipped",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
                 "spot_extraction_subdir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
@@ -1288,9 +1282,9 @@
                     "description": "If set skip spots count",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "skip_region_props": {
+                "skip_spots_properties": {
                     "type": "boolean",
-                    "description": "If set skip spots region properties",
+                    "description": "If set skip retrieving spot region properties (intensity,...)",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "spots_counts_subdir": {
@@ -1342,7 +1336,6 @@
                     "type": "string",
                     "pattern": "^\\d*$",
                     "description": "This applies only to OME-ZARR inputs and specify which labels timeindex to be used for extracting spot region properties",
-                    "default": "0",
                     "hidden": true,
                     "fa_icon": "fas fa-hashtag"
                 },
@@ -1350,7 +1343,6 @@
                     "type": "string",
                     "pattern": "^\\d*$",
                     "description": "This applies only to OME-ZARR inputs and specify which labels channel to be used for extracting spot region properties",
-                    "default": "",
                     "hidden": true,
                     "fa_icon": "fas fa-layer-group"
                 },
@@ -1523,12 +1515,7 @@
             "description": "",
             "default": "",
             "properties": {
-                "skip_multiscale_warped_image": {
-                    "type": "boolean",
-                    "description": "If true skip generating multiscale pyramid for warped images",
-                    "fa_icon": "fas fa-toggle-on"
-                },
-                "force_warped_pyramid": {
+                "run_warped_multiscale": {
                     "type": "boolean",
                     "default": false,
                     "description": "Override skip logic and force the multiscale warped pyramid to run. Useful when deformations were already run in a previous execution and you want to re-run only the pyramid step.",
@@ -1621,9 +1608,9 @@
                     "description": "If true pass --skip-merge-labels to distributed cellpose, skipping internal label merging",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "skip_multiscale_segmentation": {
+                "run_segmentation_multiscale": {
                     "type": "boolean",
-                    "description": "If true skip generating the pyramid for the labels image",
+                    "description": "If true generate the pyramid for the labels image",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "sample_anisotropy": {

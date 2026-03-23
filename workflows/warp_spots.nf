@@ -3,8 +3,7 @@
     RUN SPOT WARPING
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-include { BIGSTREAM_TRANSFORMCOORDS } from '../modules/janelia/bigstream/transformcoords/main'
+include { BIGSTREAM_TRANSFORMCOORDS } from '../modules/janelia/bigstream/transformcoords'
 
 workflow WARP_SPOTS {
     take:
@@ -96,8 +95,8 @@ workflow WARP_SPOTS {
             inv_deform_transform_path, inv_deform_transform_name, inv_deform_transform_subpath) = it
 
         def warped_spots_output_dir = file("${outdir}/${params.warped_spots_subdir}/${id}")
-        def meta = [ meta_spots:meta_spots, meta_reg:meta_reg ]
         def spots_filename = file(spots_file).name
+        def meta = [ id: "${id}/${spots_filename}", meta_spots:meta_spots, meta_reg:meta_reg ]
         [
             [
                 meta, spots_file, warped_spots_output_dir, "warped-${spots_filename}",
@@ -118,6 +117,7 @@ workflow WARP_SPOTS {
             ],
         ]
     }
+    | unique { it -> it[0][0].id }
 
     spots_warp_input.view { it -> log.debug "Warp spots input: $it " }
 
