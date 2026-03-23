@@ -1197,6 +1197,12 @@
                     "description": "Fishspots intensity threshold",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "fishspots_intensity_threshold_minimum": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Fishspots minimum intensity threshold",
+                    "fa_icon": "fas fa-hashtag"
+                },
                 "fishspots_config": {
                     "type": "string",
                     "description": "Fishspots YML config file containing various fishspots parameters",
