@@ -186,7 +186,18 @@ workflow CELLPOSE_SEGMENTATION {
             ).results
         } else {
             final_segmentation_results = labels_ch
-            | map { it -> it[0..-2] }
+            | map { it ->
+                def (meta,
+                     input_container, input_subpath,
+                     labels_containers, labels_subpath,
+                     _segmentation_work_dir) = it
+                log.debug "Inputs automatically transferred to results: $it"
+                return [
+                    meta,
+                    input_container, input_subpath,
+                    labels_containers, labels_subpath,
+                ]
+            }
         }
         final_segmentation_results.view { it ->
             log.debug "Cellpose results: $it"
