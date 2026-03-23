@@ -38,10 +38,15 @@ process SPOTS_PROPS {
     def dapi_ch_arg = dapi_channel ? "--dapi-channel ${dapi_channel}" : ''
     def bleeding_ch_arg = bleeding_channel ? "--bleeding-channel ${bleeding_channel}" : ''
     """
-    if [[ ! -e ${input_image_path} ]];
+    if [[ ! -e ${input_image_path} ]]; then
         echo "Input image ${input_image_path} not found"
+        exit 1
     fi
     full_input_image_path=\$(readlink -e ${input_image_path})
+    if [[ ! -e ${labels_path} ]]; then
+        echo "Labels image ${labels_path} not found"
+        exit 1
+    fi
     full_labels_path=\$(readlink -e ${labels_path})
     full_output_dir=\$(readlink ${output_dir})
 

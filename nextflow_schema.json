@@ -354,6 +354,12 @@
                     "description": "Compression options (JSON) for registration output zarr containers",
                     "fa_icon": "fas fa-file-archive"
                 },
+                "volume_expansion": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Volume expansion applied to both fixed and moving volumes during registration and spot extraction",
+                    "fa_icon": "fas fa-expand-arrows-alt"
+                },
                 "bigstream_max_concurrent_reads": {
                     "type": "integer",
                     "description": "Maximum number of concurrent zarr reads for bigstream",
