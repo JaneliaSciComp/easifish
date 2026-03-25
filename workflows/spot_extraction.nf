@@ -39,25 +39,45 @@ workflow SPOT_EXTRACTION {
         }
     }
 
-    def spots_results
+    def skipped_spot_extraction_rounds_list = ParamUtils.as_list(params.skipped_spot_extraction_rounds)
+
+    def spots_to_skip_ch
+    def spots_to_process_ch
     if (params.skip_spot_extraction) {
-        log.debug "Skipping spot extraction"
-        spots_results = spots_inputs
-        | map {
-            def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name) = it
-            def r = [
-                meta,
-                input_img_dir,
-                input_spot_subpath,
-                "${spots_output_dir}/${spots_result_name}",
-            ]
-            log.debug "Skipped spot extraction, but verify any spot files at: $r"
-            r
+        log.debug "Skipping spot extraction for all rounds"
+        spots_to_skip_ch = spots_inputs
+        spots_to_process_ch = channel.empty()
+    } else if (!skipped_spot_extraction_rounds_list.empty) {
+        log.debug "Skipping spot extraction for rounds: ${skipped_spot_extraction_rounds_list}"
+        def branched = spots_inputs.branch { it ->
+            skipped: it[0].id in skipped_spot_extraction_rounds_list
+            active: true
         }
-    } else if (params.spot_extraction_method == 'FISHSPOTS') {
+        spots_to_skip_ch = branched.skipped
+        spots_to_process_ch = branched.active
+    } else {
+        spots_to_skip_ch = channel.empty()
+        spots_to_process_ch = spots_inputs
+    }
+
+    def spots_verify_inputs = spots_to_skip_ch
+    | map {
+        def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name) = it
+        def r = [
+            meta,
+            input_img_dir,
+            input_spot_subpath,
+            "${spots_output_dir}/${spots_result_name}",
+        ]
+        log.debug "Skipped spot extraction for round ${meta.id}, but verify any spot files at: $r"
+        r
+    }
+
+    def spots_results
+    if (params.spot_extraction_method == 'FISHSPOT') {
         log.debug "Extract spots using Fishspot"
         spots_results = FISHSPOT_EXTRACTION(
-            spots_inputs,
+            spots_to_process_ch,
             params.distributed_spot_extraction,
             params.fishspots_config,
             params.fishspots_dask_config,
@@ -72,7 +92,7 @@ workflow SPOT_EXTRACTION {
     } else {
         log.debug "Extract spots using RS_FISH"
         spots_results = RSFISH_SPOT_EXTRACTION(
-            spots_inputs,
+            spots_to_process_ch,
             params.distributed_spot_extraction,
             workdir,
             params.rsfish_spark_workers,
@@ -89,18 +109,17 @@ workflow SPOT_EXTRACTION {
         )
     }
 
-    def post_results
-    if (params.skip_spot_extraction) {
-        spots_results.view { it -> log.debug "Verify spots input: $it" }
-        VERIFY_RS_FISH(spots_results)
-        post_results = VERIFY_RS_FISH.out.results
-        post_results.view { it -> log.debug "Verify spots result: $it" }
-    } else {
-        spots_results.view { it -> log.debug "Spot post-processing input: $it" }
-        POST_RS_FISH(spots_results)
-        post_results = POST_RS_FISH.out.results
-        post_results.view { it -> log.debug "Spot post-processing result: $it" }
-    }
+    spots_verify_inputs.view { it -> log.debug "Verify spots input: $it" }
+    VERIFY_RS_FISH(spots_verify_inputs)
+    def verify_results = VERIFY_RS_FISH.out.results
+    verify_results.view { it -> log.debug "Verify spots result: $it" }
+
+    spots_results.view { it -> log.debug "Spot post-processing input: $it" }
+    POST_RS_FISH(spots_results)
+    def processed_results = POST_RS_FISH.out.results
+    processed_results.view { it -> log.debug "Spot post-processing result: $it" }
+
+    def post_results = verify_results.mix(processed_results)
 
     def final_spot_results = expand_spot_results(post_results)
 

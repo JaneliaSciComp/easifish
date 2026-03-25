@@ -1023,6 +1023,11 @@
                     "description": "If set skip spot extraction",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "skipped_spot_extraction_rounds": {
+                    "type": "string",
+                    "description": "Comma-delimited list of round IDs for which spot extraction is skipped and default results are generated instead",
+                    "fa_icon": "fas fa-forward"
+                },
                 "extract_spots_from_warped": {
                     "type": "boolean",
                     "description": "If true, extract spots from warped (registered) images instead of stitched images",
@@ -1059,6 +1064,16 @@
                     "type": "string",
                     "description": "alternative for defining the datasets used for spot extraction. If this is defined it takes priority over spot_channels and spot_scales.",
                     "fa_icon": "fas fa-database"
+                },
+                "spots_image_name": {
+                    "type": "string",
+                    "description": "NRRD filename for saving extracted spots as an image for inspection purposes.",
+                    "fa_icon": "fas fa-file-image"
+                },
+                "spots_image_subpath_ref": {
+                    "type": "string",
+                    "description": "Dataset subpath used to determine the shape of the output spots image. Typically a lower-resolution dataset to reduce the size of the inspection image.",
+                    "fa_icon": "fas fa-compress-arrows-alt"
                 },
                 "rsfish_min_intensity": {
                     "type": "string",
@@ -1175,7 +1190,7 @@
                 },
                 "spot_extraction_method": {
                     "type": "string",
-                    "enum": ["RS_FISH", "FISHSPOTS"],
+                    "enum": ["RS_FISH", "FISHSPOT"],
                     "default": "RS_FISH",
                     "description": "Spot extraction method to use: RS_FISH or FISHSPOTS",
                     "fa_icon": "fas fa-cog"
