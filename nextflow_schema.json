@@ -1757,9 +1757,9 @@
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "cellpose_diameter": {
-                    "type": "integer",
-                    "default": 30,
-                    "description": "Default cellpose cell size",
+                    "type": "string",
+                    "default": "30,30,30",
+                    "description": "Default cellpose cell size in X,Y,Z",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_min_size": {
