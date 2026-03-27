@@ -31,6 +31,10 @@ input:
       description: |
         Name of the output CSV file containing detected spot coordinates.
         If not specified, defaults to '<meta.id>-points.csv'.
+  - spots_image_subpath_ref:
+      type: string
+      description: |
+        Reference dataset subpath used for creating the output spots image
   - dask_scheduler:
       type: string
       description: |

@@ -99,6 +99,9 @@ def create_acq_channel(LinkedHashMap samplesheet_row, input_dir, image_dir) {
         // the separator for multiple channels is '|'
         meta.sample_channels = samplesheet_row.sample_channels.replace('|', ',')
     }
+    if (samplesheet_row.spots_channels) {
+        meta.spots_channels = samplesheet_row.spots_channels
+    }
     if (samplesheet_row.dapi_channel) {
         meta.dapi_channel = samplesheet_row.dapi_channel
     }
@@ -110,7 +113,7 @@ def create_acq_channel(LinkedHashMap samplesheet_row, input_dir, image_dir) {
 
 def extract_warped_channels_mapping(warped_channels_map) {
     warped_channels_map.tokenize(';')
-        .findAll { it.trim() }
+        .findAll { it -> it.trim() }
         .collect { schannel_mapping ->
             def channel_mapping = schannel_mapping.trim().tokenize(':')
             if (channel_mapping.size == 1) {
@@ -123,5 +126,5 @@ def extract_warped_channels_mapping(warped_channels_map) {
                 ]
             }
         }
-        .collectEntries { it }
+        .collectEntries
 }

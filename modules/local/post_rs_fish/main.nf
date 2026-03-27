@@ -6,7 +6,8 @@ process POST_RS_FISH {
     tuple val(meta),
           path(input_path),
           val(input_dataset),
-          path(voxel_spots_csv_file)
+          path(voxel_spots_csv_file),
+          val(spots_image_subpath_ref)
 
     output:
     tuple val(meta),

@@ -26,13 +26,14 @@ workflow SPOT_EXTRACTION {
     | flatMap { meta ->
         // Spot extraction is typically done for all cell (no DAPI) channels from all rounds
         def (input_img_dir, spots_output_dir) = get_spot_extraction_input_output(meta, outputdir)
-        get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name ->
+        get_spot_subpaths(meta).collect { input_spot_subpath, spots_result_name, spots_image_subpath_ref ->
             def r = [
                 meta,
                 input_img_dir,
                 input_spot_subpath,
                 spots_output_dir,
                 spots_result_name,
+                spots_image_subpath_ref,
             ]
             log.debug "Spot extraction input: $r"
             r
@@ -61,13 +62,14 @@ workflow SPOT_EXTRACTION {
     }
 
     def spots_verify_inputs = spots_to_skip_ch
-    | map {
-        def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name) = it
+    | map { it ->
+        def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name, spots_image_subpath_ref) = it
         def r = [
             meta,
             input_img_dir,
             input_spot_subpath,
             "${spots_output_dir}/${spots_result_name}",
+            spots_image_subpath_ref,
         ]
         log.debug "Skipped spot extraction for round ${meta.id}, but verify any spot files at: $r"
         r
@@ -109,13 +111,32 @@ workflow SPOT_EXTRACTION {
         )
     }
 
+    def post_spots_processing_input = spots_results
+    | join(spots_to_process_ch, by: 0)
+    | map { it ->
+        def (meta,
+             input_img_dir, input_spot_subpath,
+             _spots_output_dir, _spots_result_name,
+             spots_image_subpath_ref,
+             _img_dir, _img_subpath,
+             full_spots_result_file) = it
+        def r = [
+            meta,
+            input_img_dir, input_spot_subpath,
+            full_spots_result_file,
+            spots_image_subpath_ref,
+        ]
+        log.debug "Prepare post spot processing $it -> $r"
+        r
+    }
+
     spots_verify_inputs.view { it -> log.debug "Verify spots input: $it" }
     VERIFY_RS_FISH(spots_verify_inputs)
     def verify_results = VERIFY_RS_FISH.out.results
     verify_results.view { it -> log.debug "Verify spots result: $it" }
 
-    spots_results.view { it -> log.debug "Spot post-processing input: $it" }
-    POST_RS_FISH(spots_results)
+    post_spots_processing_input.view { it -> log.debug "Spot post-processing input: $it" }
+    POST_RS_FISH(post_spots_processing_input)
     def processed_results = POST_RS_FISH.out.results
     processed_results.view { it -> log.debug "Spot post-processing result: $it" }
 
@@ -146,14 +167,18 @@ def get_spot_extraction_input_output(meta, outputdir) {
 def get_spot_subpaths(meta) {
     if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
         return [
-            ['', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
+            ['', '', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
         ]
     } else if (params.spot_subpaths) {
         // in this case the subpaths parameters must match exactly the container datasets
         return ParamUtils.as_list(params.spot_subpaths)
             .collect { subpath ->
                 def spots_result_name = "spots-rsfish-${subpath.replace('/', '-')}.csv"
-                [ "${meta.stitched_dataset}/${subpath}", spots_result_name ]
+                [
+                    "${meta.stitched_dataset}/${subpath}",
+                    spots_result_name,
+                    params.spots_image_subpath_ref ? "${meta.stitched_dataset}/${params.spots_image_subpath_ref}" : '',
+                ]
             }
     } else {
         def spot_channels;
@@ -164,7 +189,7 @@ def get_spot_subpaths(meta) {
             // all but the last channel which typically is DAPI
             def all_channels = ParamUtils.as_list(params.channels)
             if (params.dapi_channel) {
-                spot_channels = all_channels.findAll { it != params.dapi_channel }
+                spot_channels = all_channels.findAll { sc -> sc != params.dapi_channel }
             } else {
                 // automatically consider DAPI the last channel
                 // this may throw an exception if the channel list is empty or a singleton
@@ -180,7 +205,8 @@ def get_spot_subpaths(meta) {
                 def dataset = "${ch}/${scale}"
                 def r = [
                     "${meta.stitched_dataset}/${dataset}",
-                    "spots-rsfish-${ch}.csv"
+                    "spots-rsfish-${ch}.csv",
+                    params.spots_image_subpath_ref ? "${meta.stitched_dataset}/${params.spots_image_subpath_ref}" : '',
                 ]
                 log.debug "Spot dataset: $r"
                 r

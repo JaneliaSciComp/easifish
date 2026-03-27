@@ -45,10 +45,10 @@ workflow FISHSPOT_EXTRACTION {
     def fishspots_inputs = dask_cluster
     | join(ch_spots_input, by: 0)
     | multiMap {it ->
-        def (meta, cluster_context, input_img, input_subpath, spots_output_dir, spots_output_name) = it
+        def (meta, cluster_context, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref) = it
 
         def fishspots_data = [
-            meta, input_img, input_subpath, spots_output_dir, spots_output_name,
+            meta, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref
         ]
         def cluster_info = [
             cluster_context.scheduler_address,
@@ -94,7 +94,7 @@ workflow FISHSPOT_EXTRACTION {
     }
 
     def all_fishspots_results = fishspots_results
-    | groupTuple(by: [0, 4]) // group by meta and spark
+    | groupTuple(by: [0, 4]) // group by meta and dask scheduler
 
     dask_cluster.join(all_fishspots_results, by:0)
     | map { it ->

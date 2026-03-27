@@ -62,7 +62,7 @@
                     },
                     "spots/fishspots": {
                         "branch": "main",
-                        "git_sha": "43e7d5a9286a0b47a4b005e947f94092d7eef3a5",
+                        "git_sha": "be9d86f6b28f6d7b2d1e757cccdad22aef4a15fd",
                         "installed_by": ["modules"]
                     },
                     "spots/rsfish": {

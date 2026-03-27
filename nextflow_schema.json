@@ -555,24 +555,24 @@
                     "description": "List of static transformations applied to global registration",
                     "fa_icon": "fas fa-arrows-alt"
                 },
-                "global_fix_mask": {
+                "fix_mask": {
                     "type": "string",
-                    "description": "Mask used for the global fix image",
+                    "description": "Mask used for the fix image (applied to both global and local alignment). Absolute path, path relative to the registration output directory, or container filename when generate_fix_mask is true.",
                     "fa_icon": "fas fa-image"
                 },
-                "global_fix_mask_subpath": {
+                "fix_mask_subpath": {
                     "type": "string",
-                    "description": "Subpath of the global fix mask",
+                    "description": "Dataset subpath within the fix mask container (used for both global and local alignment)",
                     "fa_icon": "fas fa-database"
                 },
-                "global_mov_mask": {
+                "mov_mask": {
                     "type": "string",
-                    "description": "Mask used for the global moving image",
+                    "description": "Mask used for the moving image (applied to both global and local alignment). Absolute path, path relative to the registration output directory, or container filename when generate_mov_mask is true.",
                     "fa_icon": "fas fa-image"
                 },
-                "global_mov_mask_subpath": {
+                "mov_mask_subpath": {
                     "type": "string",
-                    "description": "Subpath of the global moving mask",
+                    "description": "Dataset subpath within the moving mask container (used for both global and local alignment)",
                     "fa_icon": "fas fa-database"
                 },
                 "local_mov_origin_transform": {
@@ -585,49 +585,17 @@
                     "description": "List of static transformations applied to local registration",
                     "fa_icon": "fas fa-arrows-alt"
                 },
-                "local_fix_mask": {
-                    "type": "string",
-                    "description": "Mask used for the local fix image",
-                    "fa_icon": "fas fa-image"
-                },
-                "local_fix_mask_subpath": {
-                    "type": "string",
-                    "description": "Subpath of the local fix mask",
-                    "fa_icon": "fas fa-database"
-                },
-                "local_mov_mask": {
-                    "type": "string",
-                    "description": "Mask used for the local moving image",
-                    "fa_icon": "fas fa-image"
-                },
-                "local_mov_mask_subpath": {
-                    "type": "string",
-                    "description": "Subpath of the local moving mask",
-                    "fa_icon": "fas fa-database"
-                },
                 "generate_fix_mask": {
                     "type": "boolean",
                     "default": false,
-                    "description": "If true, generate the fix foreground mask using bigstream. The same mask is used for both global and local alignment. Ignores global_fix_mask and local_fix_mask when set.",
+                    "description": "If true, generate the fix foreground mask using bigstream. The same mask is used for both global and local alignment. Uses fix_mask as the output container filename.",
                     "fa_icon": "fas fa-magic"
                 },
                 "generate_mov_mask": {
                     "type": "boolean",
                     "default": false,
-                    "description": "If true, generate the moving foreground mask using bigstream. The same mask is used for both global and local alignment. Ignores global_mov_mask and local_mov_mask when set.",
+                    "description": "If true, generate the moving foreground mask using bigstream. The same mask is used for both global and local alignment. Uses mov_mask as the output container filename.",
                     "fa_icon": "fas fa-magic"
-                },
-                "fix_mask_container": {
-                    "type": "string",
-                    "default": "masks.zarr",
-                    "description": "Output container name for the generated fix mask",
-                    "fa_icon": "fas fa-cube"
-                },
-                "mov_mask_container": {
-                    "type": "string",
-                    "default": "masks.zarr",
-                    "description": "Output container name for the generated moving mask (volume id is prepended automatically for multiple moving volumes)",
-                    "fa_icon": "fas fa-cube"
                 },
                 "foreground_mask_cpus": {
                     "type": "integer",
