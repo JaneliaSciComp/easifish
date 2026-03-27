@@ -116,10 +116,10 @@ workflow SPOT_EXTRACTION {
     | map { it ->
         def (meta,
              input_img_dir, input_spot_subpath,
-             _spots_output_dir, _spots_result_name,
-             spots_image_subpath_ref,
+             full_spots_result_file,
              _img_dir, _img_subpath,
-             full_spots_result_file) = it
+             _spots_output_dir, _spots_result_name,
+             spots_image_subpath_ref) = it
         def r = [
             meta,
             input_img_dir, input_spot_subpath,
