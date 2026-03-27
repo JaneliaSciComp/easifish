@@ -88,16 +88,19 @@ workflow REGISTRATION {
     // Build the list of mask files the dask workers need access to.
     // For generated masks the output path is deterministic so we can list it statically;
     // all per-volume moving masks share the same masks/ subdirectory, so we mount the directory.
-    def additional_cluster_files = ParamUtils.get_params_as_list_of_files(
-        [
-            params.generate_fix_mask
-                ? "${reg_outdir}/masks/${params.fix_mask_container}"
-                : params.local_fix_mask,
-            params.generate_mov_mask
-                ? "${reg_outdir}/masks"
-                : params.local_mov_mask,
-        ]
-    )
+    def cluster_mask_files = []
+
+    if (params.generate_fix_mask)
+        cluster_mask_files << "${reg_outdir}/masks/${params.fix_mask}"
+    else if (params.fix_mask?.startsWith('/'))
+        cluster_mask_files << params.fix_mask
+
+    if (params.generate_mov_mask)
+        cluster_mask_files << "${reg_outdir}/masks"
+    else if (params.mov_mask?.startsWith('/'))
+        cluster_mask_files << params.mov_mask
+
+    def additional_cluster_files = ParamUtils.get_params_as_list_of_files(cluster_mask_files)
 
     def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
@@ -871,7 +874,7 @@ workflow RESOLVE_MASKS {
     def combined_fix
     if (params.generate_fix_mask) {
         fix_image_info.view { it -> log.debug "Fix image for generating mask: $it" }
-        def mask_out = file("${reg_outdir}/masks/${params.fix_mask_container}")
+        def mask_out = file("${reg_outdir}/${params.fix_mask}")
         def fix_mask_result = BIGSTREAM_FOREGROUNDMASK_FIX(
             fix_image_info.map { fix_id, _reg_id, img, sp, ti, ch ->
                 def mask_sp = sp.startsWith(fix_id) ? sp : fix_id + '/' + sp.trim('/')
@@ -882,13 +885,29 @@ workflow RESOLVE_MASKS {
         combined_fix = fix_mask_result
         | map { fix_id, mask, sp -> [fix_id, mask, sp, mask, sp] }
     } else {
-        def global_fix_mask_file = params.global_fix_mask ? file(params.global_fix_mask) : []
-        def local_fix_mask_file  = params.local_fix_mask  ? file(params.local_fix_mask)  : []
+        def fix_mask_file
+        if (!params.fix_mask) {
+            fix_mask_file = []
+        } else if (params.fix_mask.startsWith('/')) {
+            // this is an absolute path
+            fix_mask_file = file(params.fix_mask)
+        } else {
+            // use a path relative to reg_outdir
+            fix_mask_file = file("${reg_outdir}/${params.fix_mask}")
+        }
+
         combined_fix = fix_image_info
         | map { fix_id, _reg_id, _img, _sp, _ti, _ch ->
-            [fix_id,
-             global_fix_mask_file, params.global_fix_mask_subpath ?: '',
-             local_fix_mask_file,  params.local_fix_mask_subpath  ?: '']
+            def mask_sp = params.fix_mask_subpath
+                            ? (params.fix_mask_subpath.startsWith(fix_id)
+                                ? params.fix_mask_subpath
+                                : "${fix_id}/${params.fix_mask_subpath}")
+                            : ''
+            [
+                fix_id,
+                fix_mask_file, mask_sp,
+                fix_mask_file, mask_sp,
+            ]
         }
     }
 
@@ -911,7 +930,7 @@ workflow RESOLVE_MASKS {
     def combined_mov
     if (params.generate_mov_mask) {
         mov_image_info.view { it -> log.debug "Mov image for generating mask: $it" }
-        def mask_out = file("${reg_outdir}/masks/${params.mov_mask_container}")
+        def mask_out = file("${reg_outdir}/${params.mov_mask}")
         def mov_mask_result = BIGSTREAM_FOREGROUNDMASK_MOV(
             mov_image_info.map { mov_id, _reg_id, img, sp, ti, ch ->
                 def mask_sp = sp.startsWith(mov_id) ? sp : mov_id + '/' + sp.trim('/')
@@ -922,13 +941,28 @@ workflow RESOLVE_MASKS {
         combined_mov = mov_mask_result
         | map { mov_id, mask, sp -> [mov_id, mask, sp, mask, sp] }
     } else {
-        def global_mov_mask_file = params.global_mov_mask ? file(params.global_mov_mask) : []
-        def local_mov_mask_file  = params.local_mov_mask  ? file(params.local_mov_mask)  : []
+        def mov_mask_file
+        if (!params.mov_mask) {
+            mov_mask_file = []
+        } else if (params.mov_mask.startsWith('/')) {
+            // this is an absolute path
+            mov_mask_file = file(params.mov_mask)
+        } else {
+            // use a path relative to reg_outdir
+            mov_mask_file = file("${reg_outdir}/${params.mov_mask}")
+        }
         combined_mov = mov_image_info
         | map { mov_id, _reg_id, _img, _sp, _ti, _ch ->
-            [mov_id,
-             global_mov_mask_file, params.global_mov_mask_subpath ?: '',
-             local_mov_mask_file,  params.local_mov_mask_subpath  ?: '']
+            def mask_sp = params.mov_mask_subpath
+                            ? (params.mov_mask_subpath.startsWith(mov_id)
+                                ? params.mov_mask_subpath
+                                : "${mov_id}/${params.mov_mask_subpath}")
+                            : ''
+            [
+                mov_id,
+                mov_mask_file, mask_sp,
+                mov_mask_file, mask_sp,
+            ]
         }
     }
 
