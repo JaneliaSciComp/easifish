@@ -1257,6 +1257,12 @@
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the head fishspots task. Default: 12g",
                     "default": 4
+                },
+                "fishspots_verbose": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-comment-alt",
+                    "description": "If true, enable verbose logging for fishspots",
+                    "default": false
                 }
             }
         },
