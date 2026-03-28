@@ -1,9 +1,9 @@
 white_tophat_args:
-  radius: 50
+  radius: 4
 
 psf_estimation_args:
   n_propose_model: 10
-  n_spots: 4000
+  n_spots: 1000
   max_iterations: 1000
   inlier_threshold: 0.4
   min_inliers: 10
@@ -15,7 +15,8 @@ deconvolution_args:
   filter_epsilon: 0.000001
 
 spot_detection_args:
-  min_radius: 1
-  max_radius: 6
-  num_sigma: 5
-  threshold_rel: 0.1
+  min_radius: [0.25,0.5,0.5]
+  max_radius: [3,6,6]
+  num_sigma: 10
+  threshold_rel: 0.001
+  exclude_border: 0
