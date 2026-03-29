@@ -26,7 +26,7 @@ workflow SPOT_EXTRACTION {
     | flatMap { meta ->
         // Spot extraction is typically done for all cell (no DAPI) channels from all rounds
         def (input_img_dir, spots_output_dir) = get_spot_extraction_input_output(meta, outputdir)
-        SpotsUtils.get_spots_subpaths(meta, params).collect { input_spot_subpath, spots_result_name, spots_image_subpath_ref ->
+        get_spots_subpaths(meta).collect { input_spot_subpath, spots_result_name, spots_image_subpath_ref, spots_channels ->
             def r = [
                 meta,
                 input_img_dir,
@@ -34,6 +34,7 @@ workflow SPOT_EXTRACTION {
                 spots_output_dir,
                 spots_result_name,
                 spots_image_subpath_ref,
+                spots_channels,
             ]
             log.debug "Spot extraction input: $r"
             r
@@ -63,13 +64,14 @@ workflow SPOT_EXTRACTION {
 
     def spots_verify_inputs = spots_to_skip_ch
     | map { it ->
-        def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name, spots_image_subpath_ref) = it
+        def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name, spots_image_subpath_ref, spots_channels) = it
         def r = [
             meta,
             input_img_dir,
             input_spot_subpath,
             "${spots_output_dir}/${spots_result_name}",
             spots_image_subpath_ref,
+            spots_channels,
         ]
         log.debug "Skipped spot extraction for round ${meta.id}, but verify any spot files at: $r"
         r
@@ -173,6 +175,40 @@ def create_rsfish_spark_config() {
         spark_config['spark.task.cpus'] = params.rsfish_spark_task_cores
     }
     return spark_config
+}
+
+def get_spots_subpaths(meta) {
+    def spots_channels = SpotsUtils.get_spots_channels(meta, params)
+    def spots_subpath = params.spots_subpath ?: ''
+    def spots_scale = params.spots_scale ?: ''
+    if (spots_subpath) {
+        def spots_result_name = "spots-rsfish-${spots_subpath.replace('/', '-')}.csv"
+        return [
+            [
+                "${meta.id}/${spots_subpath}",
+                spots_result_name,
+                params.spots_image_subpath_ref ? "${meta.id}/${params.spots_image_subpath_ref}" : '',
+                spots_channels.join(','),
+            ]
+        ]
+    }
+    if (!spots_channels.empty) {
+        return spots_channels.collect { ch ->
+            def dataset = spots_scale ? "${ch}/${spots_scale}" : "${ch}"
+            def r = [
+                "${meta.id}/${dataset}",
+                "spots-rsfish-${ch}.csv",
+                params.spots_image_subpath_ref ? "${meta.id}/${params.spots_image_subpath_ref}" : '',
+                "${ch}"
+            ]
+            log.debug "Spot dataset: $r"
+            r
+        }
+    } else {
+        return [
+            // empty result
+        ]
+    }
 }
 
 def expand_spot_results(results) {

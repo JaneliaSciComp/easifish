@@ -58,9 +58,19 @@ workflow REGISTRATION {
     | map { it ->
         def (fix_meta, mov_meta) = it
         def reg_meta = [
+            // ids
             id: "${fix_meta.id}-${mov_meta.id}",
             fix_id: fix_meta.id,
             mov_id: mov_meta.id,
+            // fix channels info
+            fix_sample_channels: fix_meta.sample_channels,
+            fix_spots_channels: fix_meta.spots_channels,
+            fix_dapi_channel: fix_meta.dapi_channel,
+            // mov channels info
+            mov_sample_channels: mov_meta.sample_channels,
+            mov_spots_channels: mov_meta.spots_channels,
+            mov_dapi_channel: mov_meta.dapi_channel,
+            // mov channels output mapping
             warped_channels_mapping: mov_meta.warped_channels_mapping ?: [:],
         ]
         log.debug "Prepare registration inputs: $it -> reg_meta:${reg_meta}, fix_meta:${fix_meta}, mov_meta:${mov_meta}"

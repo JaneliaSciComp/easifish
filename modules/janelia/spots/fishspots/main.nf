@@ -10,7 +10,8 @@ process SPOTS_FISHSPOTS {
           val(input_dataset),
           path(spots_output_dir, stageAs: 'spots/*'),
           val(spots_result_name),
-          val(spots_image_subpath_ref)
+          val(spots_image_subpath_ref),
+          val(spots_channels)
     tuple val(dask_scheduler), path(dask_config) // this is optional - if undefined pass in as empty list ([])
     path(fishspots_config)
     val(cpus)
@@ -34,6 +35,7 @@ process SPOTS_FISHSPOTS {
     def output_filename = spots_result_name ?: "${meta.id}-points.csv"
     def fishspots_config_arg = fishspots_config ? "--fishspots-config ${fishspots_config}" : ''
     def spots_image_subpath_ref_arg = spots_image_subpath_ref ? "--spots-image-subpath-reference ${spots_image_subpath_ref}" : ''
+    def spots_channels_arg = spots_channels ? "--included-channels ${spots_channels}" : ''
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_config ? "--dask-config ${dask_config}" : ''
 
@@ -49,6 +51,7 @@ process SPOTS_FISHSPOTS {
         --input_subpath ${input_dataset}
         --output \${full_output_filename}
         ${fishspots_config_arg}
+        ${spots_channels_arg}
         ${spots_image_subpath_ref_arg}
         ${dask_scheduler_arg}
         ${dask_config_arg}

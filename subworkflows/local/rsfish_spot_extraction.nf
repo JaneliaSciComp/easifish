@@ -5,7 +5,7 @@ include { SPARK_STOP   } from '../janelia/spark_stop'
 
 workflow RSFISH_SPOT_EXTRACTION {
     take:
-    ch_spots_input             // ch: [ meta, input_img, input_subpath, spots_output_dir, spots_output_name ]
+    ch_spots_input             // ch: [ meta, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref, spots_channels ]
     distributed                // boolean
     workdir
     spark_workers
@@ -23,7 +23,10 @@ workflow RSFISH_SPOT_EXTRACTION {
     main:
     def spots_spark_input = ch_spots_input
     | map { it ->
-        def (meta, input_img, _input_subpath, spots_output_dir, _spots_output_name, _spots_image_subpath_ref) = it
+        def (meta,
+             input_img, _input_subpath,
+             spots_output_dir, _spots_output_name,
+             _spots_image_subpath_ref, _spots_channels) = it
         [
             meta,
             [ input_img, spots_output_dir ],
@@ -48,7 +51,7 @@ workflow RSFISH_SPOT_EXTRACTION {
     ) // ch: [ meta, spark ]
     | join(ch_spots_input, by:0)
     | map { it ->
-        def (meta, rsfish_spark, input_img, input_subpath, spots_output_dir, spots_output_name, _spots_image_subpath_ref) = it
+        def (meta, rsfish_spark, input_img, input_subpath, spots_output_dir, spots_output_name, _spots_image_subpath_ref, _spots_channels) = it
         def r = [
             meta,
             input_img,

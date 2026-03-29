@@ -5,7 +5,7 @@ include { DASK_STOP       } from '../janelia/dask_stop'
 
 workflow FISHSPOT_EXTRACTION {
     take:
-    ch_spots_input             // ch: [ meta, input_img, input_subpath, spots_output_dir, spots_output_name ]
+    ch_spots_input             // ch: [ meta, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref, spots_channels ]
     distributed                // boolean
     fishspots_config           // String|file fishspots config
     dask_config                // String|file dask config
@@ -20,7 +20,10 @@ workflow FISHSPOT_EXTRACTION {
     main:
     def dask_data = ch_spots_input
     | map { it ->
-        def (meta, input_img, _input_subpath, spots_output_dir, _spots_output_name) = it
+        def (meta,
+             input_img, _input_subpath,
+             spots_output_dir, _spots_output_name,
+             _spots_image_subpath_ref, _spots_channels) = it
         [
             meta,
             [ input_img, spots_output_dir],
@@ -45,10 +48,10 @@ workflow FISHSPOT_EXTRACTION {
     def fishspots_inputs = dask_cluster
     | join(ch_spots_input, by: 0)
     | multiMap {it ->
-        def (meta, cluster_context, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref) = it
+        def (meta, cluster_context, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref, spots_channels) = it
 
         def fishspots_data = [
-            meta, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref
+            meta, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref, spots_channels,
         ]
         def cluster_info = [
             cluster_context.scheduler_address,

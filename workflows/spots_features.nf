@@ -18,7 +18,13 @@ workflow EXTRACT_SPOTS_PROPS {
         log.debug "Get registered images for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.mov_id
-        get_spots_subpath(reg_meta.mov_id).collect { subpath, result_name, image_ch ->
+        def spots_meta = [
+            id: reg_meta.mov_id,
+            sample_channels: reg_meta.mov_sample_channels,
+            spots_channels: reg_meta.mov_spots_channels,
+            dapi_channel: reg_meta.mov_dapi_channel,
+        ]
+        get_spots_features_subpath(spots_meta).collect { subpath, result_name, image_ch ->
             def warped_image_ch
             def bleeding_channel
             def dapi_channel
@@ -72,7 +78,13 @@ workflow EXTRACT_SPOTS_PROPS {
         log.debug "Get fixed image for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.fix_id
-        get_spots_subpath(reg_meta.fix_id).collect { subpath, result_name, image_ch ->
+        def spots_meta = [
+            id: reg_meta.fix_id,
+            sample_channels: reg_meta.fix_sample_channels,
+            spots_channels: reg_meta.fix_spots_channels,
+            dapi_channel: reg_meta.fix_dapi_channel,
+        ]
+        get_spots_features_subpath(spots_meta).collect { subpath, result_name, image_ch ->
             def r = [
                 join_id,
                 image_id,
@@ -183,51 +195,32 @@ def sync_image_scale_with_labels_scale_for_spot_properties(image_dataset, labels
     return image_dataset_comps.join('/')
 }
 
-def get_spots_subpath(id) {
-    if (!params.spots_subpath && !params.spots_channels && !params.spots_scale) {
+def get_spots_features_subpath(meta) {
+    def spots_channels = SpotsUtils.get_spots_channels(meta, params)
+    def spots_subpath = params.spots_subpath ?: ''
+    def spots_scale = params.spots_scale ?: ''
+    if (spots_channels.empty) {
         return [
-            ['', '', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
         ]
-    } else if (params.spots_subpath) {
-        // in this case the subpaths parameters must match exactly the container datasets
-        return ParamUtils.as_list(params.spots_subpath)
-            .collectMany { subpath ->
-                def spot_ch = get_dataset_channel(subpath)
-                if (spot_ch) {
-                    [
-                        [
-                            "${id}/${subpath}",
-                            "${id}-${spot_ch}-props.csv",
-                            "${spot_ch}",
-                        ]
-                    ]
-                } else {
-                    get_spots_channels_from_params()
-                    .collect { ch ->
-                        [
-                            "${id}/${subpath}",
-                            "${id}-${ch}-props.csv",
-                            "${ch}",
-                        ]
-                    }
-                }
-            }
-    } else {
-        def spots_channels = get_spots_channels_from_params();
-        def spots_scale = ParamUtils.as_list(params.spots_scale)
-
-        return [spots_channels, spots_scale].combinations()
-            .collect { ch, scale ->
-                // when channel and scale is used we also prepend the stitched dataset
-                def dataset = "${ch}/${scale}"
-                def r = [
-                    "${id}/${dataset}",
-                    "${id}-${ch}-props.csv",
-                    "${ch}",
-                ]
-                log.debug "Spot dataset: $r"
-                r
+    }
+    if (spots_subpath) {
+        return spots_channels.collect { ch ->
+            [
+                "${meta.id}/${spots_subpath}",
+                "${meta.id}-${ch}-props.csv",
+                "${ch}",
+            ]
         }
+    } else if (spots_scale) {
+        return spots_channels.collect { ch ->
+            [
+                "${meta.id}/${ch}/${spots_scale}",
+                "${meta.id}-${ch}-props.csv",
+                "${ch}",
+            ]
+        }
+    } else {
+        return []
     }
 }
 
@@ -237,30 +230,4 @@ def change_dataset_channel(image_dataset, channel) {
         image_dataset_comps[-2] = channel
     }
     return image_dataset_comps.join('/')
-}
-
-def get_dataset_channel(image_dataset) {
-    def image_dataset_comps = image_dataset.split('/')
-    log.debug "Get dataset channel from ${image_dataset_comps}"
-    return image_dataset_comps && image_dataset_comps.size() >= 2 ? image_dataset_comps[-2] : ''
-}
-
-def get_spots_channels_from_params() {
-    def spots_channels
-    if (params.spots_channels) {
-        spots_channels = ParamUtils.as_list(params.spots_channels)
-        log.debug "Use specified spot channels: $spots_channels"
-    } else {
-        // all but the last channel which typically is DAPI
-        def all_channels = ParamUtils.as_list(params.channels)
-        def excluded_channels = params.spots_excluded_channels
-            ? ParamUtils.as_list(params.spots_excluded_channels)
-            : params.dapi_channel
-            ? [ params.dapi_channel ]
-            : []
-
-        spots_channels = all_channels.findAll { ch ->  !(ch in excluded_channels) }
-        log.debug "Use all spot channels w/out excluded ones: $spots_channels"
-    }
-    return spots_channels
 }
