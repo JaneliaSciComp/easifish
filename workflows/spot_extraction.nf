@@ -26,7 +26,7 @@ workflow SPOT_EXTRACTION {
     | flatMap { meta ->
         // Spot extraction is typically done for all cell (no DAPI) channels from all rounds
         def (input_img_dir, spots_output_dir) = get_spot_extraction_input_output(meta, outputdir)
-        get_spots_subpaths(meta).collect { input_spot_subpath, spots_result_name, spots_image_subpath_ref ->
+        SpotsUtils.get_spots_subpaths(meta, params).collect { input_spot_subpath, spots_result_name, spots_image_subpath_ref ->
             def r = [
                 meta,
                 input_img_dir,
@@ -161,78 +161,6 @@ def get_spot_extraction_input_output(meta, outputdir) {
             file("${outputdir}/${params.registration_subdir}/${params.local_registration_container}"),
             file("${outputdir}/${params.warped_spots_subdir}/${meta.id}"),
         ]
-    }
-}
-
-def get_spots_subpaths(meta) {
-    def sample_channels
-    if (meta.sample_channels) {
-        sample_channels = ParamUtils.as_list(meta.sample_channels)
-        log.debug "Sample channels for ${meta.id}: ${sample_channels}"
-    } else {
-        sample_channels = ParamUtils.as_list(params.channels)
-        log.debug "All channels ${sample_channels}"
-    }
-    def dapi_channel = meta.dapi_channel ?: params.dapi_channel
-
-    def spots_channels
-    if (meta.spots_channels) {
-        spots_channels = ParamUtils.as_list(meta.spots_channels)
-        log.debug "Spot channels for ${meta.id}: ${spots_channels}"
-    } else if (params.spots_channels) {
-        spots_channels = ParamUtils.as_list(params.spots_channels)
-        log.debug "Spot channels param: ${spots_channels}"
-    } else {
-        if (dapi_channel) {
-            spots_channels = sample_channels.findAll { sc -> sc != dapi_channel }
-            log.debug "Spot channels from sample channels ${sample_channels} - DAPI channel ${dapi_channel} -> ${spots_channels}"
-        } else {
-            // automatically consider DAPI the last channel
-            // so return all but the last channel
-            // this may throw an exception if the channel list is empty or a singleton
-            spots_channels = sample_channels[0..-2]
-            log.debug "Spot channels from sample channels ${sample_channels} - last channel -> ${spots_channels}"
-        }
-    }
-    def spots_subpath = params.spots_subpath ?: ''
-    def spots_scale = params.spots_scale ?: ''
-    if (!spots_subpath && !spots_scale && spots_channels.empty) {
-        return [
-            ['', '', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
-        ]
-    }
-    if (spots_subpath) {
-        def spots_result_name = "spots-rsfish-${spots_subpath.replace('/', '-')}.csv"
-        return [
-            [
-                "${meta.stitched_dataset}/${spots_subpath}",
-                spots_result_name,
-                params.spots_image_subpath_ref ? "${meta.stitched_dataset}/${params.spots_image_subpath_ref}" : '',
-            ]
-        ]
-    }
-    if (spots_channels.empty) {
-        def spots_result_name = "spots-rsfish-${spots_scale}.csv"
-        return [
-            [
-                "${meta.stitched_dataset}/${spots_scale}",
-                spots_result_name,
-                params.spots_image_subpath_ref ? "${meta.stitched_dataset}/${params.spots_image_subpath_ref}" : '',
-            ]
-        ]
-    } else {
-        return spots_channels
-            .collect { ch ->
-                // when channel and scale is used we also prepend the stitched dataset
-                def dataset = "${ch}/${spots_scale}"
-                def r = [
-                    "${meta.stitched_dataset}/${dataset}",
-                    "spots-rsfish-${ch}.csv",
-                    params.spots_image_subpath_ref ? "${meta.stitched_dataset}/${params.spots_image_subpath_ref}" : '',
-                ]
-                log.debug "Spot dataset: $r"
-                r
-        }
     }
 }
 
