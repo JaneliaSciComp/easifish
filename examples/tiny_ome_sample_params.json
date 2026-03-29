@@ -84,7 +84,7 @@
     "cellpose_worker_runtime_opts": "--nv",
     "cellpose_worker_cluster_opts": "-q gpu_l4 -gpu 'num=1'",
 
-    "spot_subpaths": "0",
+    "spots_subpath": "0",
     "spot_extraction_method": "RS_FISH",
     "distributed_spot_extraction": false,
 

@@ -129,7 +129,7 @@ Common spot extraction parameters:
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `--spot_extraction_method` | RS_FISH | `RS_FISH` or `FISHSPOT` |
-| `--spot_channels` | (all non-DAPI) | Channels to run spot detection on |
+| `--spots_channels` | (all non-DAPI) | Channels to run spot detection on |
 | `--dapi_channel` | (auto-detected) | DAPI channel name (excluded from detection) |
 | `--extract_spots_from_warped` | false | Extract from warped registered images |
 | `--skip_spot_extraction` | false | Skip spot extraction entirely |

@@ -18,7 +18,7 @@ workflow EXTRACT_SPOTS_PROPS {
         log.debug "Get registered images for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.mov_id
-        get_spot_subpaths(reg_meta.mov_id).collect { subpath, result_name, image_ch ->
+        get_spots_subpath(reg_meta.mov_id).collect { subpath, result_name, image_ch ->
             def warped_image_ch
             def bleeding_channel
             def dapi_channel
@@ -72,7 +72,7 @@ workflow EXTRACT_SPOTS_PROPS {
         log.debug "Get fixed image for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.fix_id
-        get_spot_subpaths(reg_meta.fix_id).collect { subpath, result_name, image_ch ->
+        get_spots_subpath(reg_meta.fix_id).collect { subpath, result_name, image_ch ->
             def r = [
                 join_id,
                 image_id,
@@ -183,14 +183,14 @@ def sync_image_scale_with_labels_scale_for_spot_properties(image_dataset, labels
     return image_dataset_comps.join('/')
 }
 
-def get_spot_subpaths(id) {
-    if (!params.spot_subpaths && !params.spot_channels && !params.spot_scales) {
+def get_spots_subpath(id) {
+    if (!params.spots_subpath && !params.spots_channels && !params.spots_scale) {
         return [
             ['', '', ''],  // empty subpath, empty resultnane - the input image container contains the array dataset
         ]
-    } else if (params.spot_subpaths) {
+    } else if (params.spots_subpath) {
         // in this case the subpaths parameters must match exactly the container datasets
-        return ParamUtils.as_list(params.spot_subpaths)
+        return ParamUtils.as_list(params.spots_subpath)
             .collectMany { subpath ->
                 def spot_ch = get_dataset_channel(subpath)
                 if (spot_ch) {
@@ -202,7 +202,7 @@ def get_spot_subpaths(id) {
                         ]
                     ]
                 } else {
-                    get_spot_channels_from_params()
+                    get_spots_channels_from_params()
                     .collect { ch ->
                         [
                             "${id}/${subpath}",
@@ -213,10 +213,10 @@ def get_spot_subpaths(id) {
                 }
             }
     } else {
-        def spot_channels = get_spot_channels_from_params();
-        def spot_scales = ParamUtils.as_list(params.spot_scales)
+        def spots_channels = get_spots_channels_from_params();
+        def spots_scale = ParamUtils.as_list(params.spots_scale)
 
-        return [spot_channels, spot_scales].combinations()
+        return [spots_channels, spots_scale].combinations()
             .collect { ch, scale ->
                 // when channel and scale is used we also prepend the stitched dataset
                 def dataset = "${ch}/${scale}"
@@ -245,22 +245,22 @@ def get_dataset_channel(image_dataset) {
     return image_dataset_comps && image_dataset_comps.size() >= 2 ? image_dataset_comps[-2] : ''
 }
 
-def get_spot_channels_from_params() {
-    def spot_channels
-    if (params.spot_channels) {
-        spot_channels = ParamUtils.as_list(params.spot_channels)
-        log.debug "Use specified spot channels: $spot_channels"
+def get_spots_channels_from_params() {
+    def spots_channels
+    if (params.spots_channels) {
+        spots_channels = ParamUtils.as_list(params.spots_channels)
+        log.debug "Use specified spot channels: $spots_channels"
     } else {
         // all but the last channel which typically is DAPI
         def all_channels = ParamUtils.as_list(params.channels)
-        def excluded_channels = params.spot_excluded_channels
-            ? ParamUtils.as_list(params.spot_excluded_channels)
+        def excluded_channels = params.spots_excluded_channels
+            ? ParamUtils.as_list(params.spots_excluded_channels)
             : params.dapi_channel
             ? [ params.dapi_channel ]
             : []
 
-        spot_channels = all_channels.findAll { ch ->  !(ch in excluded_channels) }
-        log.debug "Use all spot channels w/out excluded ones: $spot_channels"
+        spots_channels = all_channels.findAll { ch ->  !(ch in excluded_channels) }
+        log.debug "Use all spot channels w/out excluded ones: $spots_channels"
     }
-    return spot_channels
+    return spots_channels
 }

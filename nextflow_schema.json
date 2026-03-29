@@ -1013,24 +1013,24 @@
                     "description": "rounds used for extracting spots",
                     "fa_icon": "fas fa-hashtag"
                 },
-                "spot_channels": {
+                "spots_channels": {
                     "type": "string",
-                    "description": "Comma delimited list of spot channels. This together with spot_scales is used for determining the datasets used for spot extraction.",
+                    "description": "Comma delimited list of spots channels. This together with spots_scale is used for determining the datasets used for spot extraction.",
                     "fa_icon": "fas fa-layer-group"
                 },
-                "spot_excluded_channels": {
+                "spots_excluded_channels": {
                     "type": "string",
-                    "description": "Comma delimited list of spot channels excluded from spot extraction. This together with spot_scales is used for determining the datasets used for.",
+                    "description": "Comma delimited list of spot channels excluded from spot extraction. This together with spots_scale is used for determining the datasets used for.",
                     "fa_icon": "fas fa-layer-group"
                 },
-                "spot_scales": {
+                "spots_scale": {
                     "type": "string",
-                    "description": "image scale used for spot extraction. This together with spot_channels is used for determining the datasets used for spot extraction.",
+                    "description": "image scale used for spot extraction. This together with spots_channels can be used for determining the datasets used for spot extraction if spots_subpath is not set.",
                     "fa_icon": "fas fa-ruler"
                 },
-                "spot_subpaths": {
+                "spots_subpath": {
                     "type": "string",
-                    "description": "alternative for defining the datasets used for spot extraction. If this is defined it takes priority over spot_channels and spot_scales.",
+                    "description": "alternative for defining the datasets used for spot extraction. If this is defined it takes priority over spots_channels and spots_scale.",
                     "fa_icon": "fas fa-database"
                 },
                 "spots_image_name": {
