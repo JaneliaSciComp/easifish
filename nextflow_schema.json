@@ -1751,10 +1751,22 @@
                     "hidden": true,
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "cellpose_no_resampling": {
+                    "type": "boolean",
+                    "description": "This is the cellpose no_resample command line argument which if set disables flows resampling to original image size before computing masks.",
+                    "default": false,
+                    "fa_icon": "fas fa-toggle-on"
+                },
+                "cellpose_inference_batch_size": {
+                    "type": "integer",
+                    "description": "Cellpose inference batch size.",
+                    "default": 8,
+                    "fa_icon": "fas fa-hashtag"
+                },
                 "cellpose_diameter": {
                     "type": "string",
-                    "default": "30,30,30",
-                    "description": "Default cellpose cell size in X,Y,Z",
+                    "default": "30",
+                    "description": "Default cellpose cell size in X,Y,Z. It can specify the dimension for on each axis or if it's a single value the value is the same",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_min_size": {

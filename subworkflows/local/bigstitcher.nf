@@ -66,7 +66,7 @@ workflow BIGSTITCHER {
 
         def data_files = files + [ stitching_result_dir ]
 
-        stitching_meta.stitching_xml = files.find { it.extension == 'xml' }
+        stitching_meta.stitching_xml = files.find { fn -> fn.extension == 'xml' }
         if (stitching_meta.stitching_xml == null) {
             log.debug 'No XML project found for BigStitcher.'
         } else {
@@ -293,7 +293,7 @@ workflow BIGSTITCHER {
         } else {
             def match_interestpoints_inputs = stitching_input
             | join(detect_interestpoints_output, by: 0)
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Match interestpoints in dataset ${stitching_xml}"
@@ -317,7 +317,7 @@ workflow BIGSTITCHER {
         } else {
             def solver_inputs = stitching_input
             | join(match_interestpoints_output, by: 0)
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Run solver on dataset ${stitching_xml}"
@@ -405,7 +405,7 @@ workflow BIGSTITCHER {
             fuse_output,
             with_spark_cluster,
         )
-        | map {
+        | map { it ->
             // Only meta contains data relevant for the next steps
             def (meta, spark) = it
             log.debug "Stopped spark ${spark} - stitching result: $meta"
