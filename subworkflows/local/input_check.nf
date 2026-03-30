@@ -100,7 +100,7 @@ def create_acq_channel(LinkedHashMap samplesheet_row, input_dir, image_dir) {
         meta.sample_channels = samplesheet_row.sample_channels.replace('|', ',')
     }
     if (samplesheet_row.spots_channels) {
-        meta.spots_channels = samplesheet_row.spots_channels
+        meta.spots_channels = samplesheet_row.spots_channels.replace('|', ',')
     }
     if (samplesheet_row.dapi_channel) {
         meta.dapi_channel = samplesheet_row.dapi_channel

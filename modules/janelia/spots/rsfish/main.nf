@@ -10,6 +10,7 @@ process SPOTS_RSFISH {
           val(input_dataset),
           path(spots_output_dir, stageAs: 'spots/*'),
           val(spots_result_name),
+          val(spots_channels),
           val(spark)
 
     output:
@@ -28,6 +29,7 @@ process SPOTS_RSFISH {
     script:
     def extra_args = task.ext.args ?: ''
     def output_filename = spots_result_name ?: "${meta.id}-points.csv"
+    def spots_channels_arg = spots_channels ? "--included-channels=${spots_channels}" : ''
     def executor_memory_gb = spark.executor_memory as int
     def driver_memory_gb = spark.driver_memory as int
     """
@@ -64,6 +66,7 @@ process SPOTS_RSFISH {
         --image=\${INPUT_IMG}
         --dataset=${input_dataset}
         --output=\${full_output_filename}
+        ${spots_channels_arg}
         ${extra_args}
     )
     echo "CMD: \${CMD[@]}"

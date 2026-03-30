@@ -51,13 +51,14 @@ workflow RSFISH_SPOT_EXTRACTION {
     ) // ch: [ meta, spark ]
     | join(ch_spots_input, by:0)
     | map { it ->
-        def (meta, rsfish_spark, input_img, input_subpath, spots_output_dir, spots_output_name, _spots_image_subpath_ref, _spots_channels) = it
+        def (meta, rsfish_spark, input_img, input_subpath, spots_output_dir, spots_output_name, _spots_image_subpath_ref, spots_channels) = it
         def r = [
             meta,
             input_img,
             input_subpath,
             spots_output_dir,
             spots_output_name,
+            spots_channels,
             rsfish_spark,
         ]
         log.debug "RS_FISH input: $r"

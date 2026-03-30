@@ -13,6 +13,11 @@ input:
       description: |
         Channel of tuples containing a meta map
         Structure: [ val(meta), path(input_image), val(input_dataset), val(spark) ]
+  - spots_channels:
+      type: string
+      description: |
+        Comma separated list of channels to be used for spot extraction.
+        If empty all channels will be included.
 output:
   - params:
       type: tuple
