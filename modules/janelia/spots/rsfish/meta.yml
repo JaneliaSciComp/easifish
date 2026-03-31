@@ -11,22 +11,26 @@ input:
   - ch_meta:
       type: tuple
       description: |
-        Channel of tuples containing a meta map
-        Structure: [ val(meta), path(input_image), val(input_dataset), val(spark) ]
-  - spots_channels:
-      type: string
-      description: |
-        Comma separated list of channels to be used for spot extraction.
-        If empty all channels will be included.
+        Channel of tuples containing a meta map and spot detection parameters.
+        Structure: [ val(meta), path(input_image), val(input_dataset), path(spots_output_dir), val(spots_result_name), val(spots_channels), val(spark) ]
+        - meta: map with sample metadata (must include 'id')
+        - input_image: path to the input N5/Zarr image
+        - input_dataset: dataset path within the image container
+        - spots_output_dir: output directory for spot results (staged as 'spots/*')
+        - spots_result_name: name of the output CSV file; defaults to '<meta.id>-points.csv' if empty
+        - spots_channels: comma-separated list of channel indices to include; if empty all channels are used
+        - spark: map with Spark cluster configuration (uri, work_dir, parallelism, executor_cores, executor_memory, driver_cores, driver_memory)
 output:
   - params:
       type: tuple
       description: |
-        Same as the input tuple
+        Tuple echoing back key parameters for downstream chaining.
+        Structure: [ val(meta), env(INPUT_IMG), val(input_dataset), path(spots_output_dir), val(spots_result_name), val(spark) ]
   - csv:
-      type: file
+      type: tuple
       description: |
-        Output CSV file
+        Tuple of the meta map and the full path to the output CSV file produced by RS-FISH.
+        Structure: [ val(meta), env(full_output_filename) ]
   - versions:
       type: file
       description: File containing software versions

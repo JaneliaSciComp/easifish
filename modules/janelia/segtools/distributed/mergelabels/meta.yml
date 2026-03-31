@@ -23,6 +23,13 @@ input:
   - input_subpath:
       type: string
       description: Relative path to the image dataset if needed (for N5 or zarr containers)
+  - mask:
+      type: string
+      description: |
+        Optional path to a mask that can be used to select a subvolume to be segmented with cellpose. If this is not specified pass in as empty list.
+  - mask_subpath:
+      type: string
+      description: The mask subpath.
   - output_labels:
       type: file
       description: Path to the output labels container

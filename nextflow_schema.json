@@ -1002,7 +1002,7 @@
                     "default": false,
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "spot_extraction_subdir": {
+                "spots_extraction_subdir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
                     "description": "Spot extraction results sub-directory",
@@ -1156,7 +1156,7 @@
                     "fa_icon": "fas fa-database",
                     "description": "Maximum number of bytes to pack into a single partition when reading files. If empty, uses Spark default."
                 },
-                "spot_extraction_method": {
+                "spots_extraction_method": {
                     "type": "string",
                     "enum": ["RS_FISH", "FISHSPOT"],
                     "default": "RS_FISH",
@@ -1593,6 +1593,16 @@
                     "type": "string",
                     "description": "One or more comma separated channels used for segmentation.",
                     "fa_icon": "fas fa-layer-group"
+                },
+                "cellpose_mask": {
+                    "type": "string",
+                    "description": "Path to an existing cellpose mask file. If relative, it is resolved against the output directory.",
+                    "fa_icon": "fas fa-file"
+                },
+                "cellpose_mask_subpath": {
+                    "type": "string",
+                    "description": "Subpath within the cellpose mask file to use as the mask.",
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "skip_segmentation": {
                     "type": "boolean",

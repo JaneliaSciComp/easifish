@@ -92,7 +92,7 @@ Key stitching parameters:
 
 ## Spot Extraction
 
-The pipeline supports two spot detection methods, selected via `--spot_extraction_method`:
+The pipeline supports two spot detection methods, selected via `--spots_extraction_method`:
 
 - **RS-FISH** (default) — Uses [RS-FISH-Spark](https://github.com/PreibischLab/RS-FISH-Spark) with a Difference-of-Gaussians (DoG) detector. Fast and straightforward to configure. Runs on a Spark cluster.
 - **FISHSPOTS** — Uses [fishspot](https://github.com/GFleishman/fishspot) with a Dask-based distributed backend. Supports PSF estimation and Richardson-Lucy deconvolution for higher accuracy on challenging images. Requires a FISHSPOTS config file (`--fishspots_config`).
@@ -128,7 +128,7 @@ Common spot extraction parameters:
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `--spot_extraction_method` | RS_FISH | `RS_FISH` or `FISHSPOT` |
+| `--spots_extraction_method` | RS_FISH | `RS_FISH` or `FISHSPOT` |
 | `--spots_channels` | (all non-DAPI) | Channels to run spot detection on |
 | `--dapi_channel` | (auto-detected) | DAPI channel name (excluded from detection) |
 | `--extract_spots_from_warped` | false | Extract from warped registered images |

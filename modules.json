@@ -12,37 +12,37 @@
                     },
                     "bigstream/computeinverse": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/correlationmetric": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/foregroundmask": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "omezarrtools/multiscale": {
@@ -52,12 +52,12 @@
                     },
                     "segtools/distributed/cellpose": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "segtools/distributed/mergelabels": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "c082c9b6b3cdcf9766d8837a4f04cc69b0e235e6",
                         "installed_by": ["modules"]
                     },
                     "spots/fishspots": {
@@ -67,7 +67,7 @@
                     },
                     "spots/rsfish": {
                         "branch": "main",
-                        "git_sha": "8e1790e4ec4682e117e89a348bae4adf9b180940",
+                        "git_sha": "95caf8b71c5928c5a643cc46adb1cf5a393c3f00",
                         "installed_by": ["modules"]
                     }
                 }

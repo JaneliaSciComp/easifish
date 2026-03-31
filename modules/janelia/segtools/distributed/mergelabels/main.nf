@@ -9,6 +9,8 @@ process SEGTOOLS_DISTRIBUTED_MERGELABELS {
     tuple val(meta),
           path(input_labels, stageAs: 'input-labels/*'),
           val(input_subpath),
+          path(mask, stageAs: 'input-mask/*'), // this is optional
+          val(mask_subpath),
           path(output_labels, stageAs: 'output-labels/*'),
           val(output_subpath),
           path(working_dir, stageAs: 'cellpose-work/*') // this is optional
@@ -34,6 +36,8 @@ process SEGTOOLS_DISTRIBUTED_MERGELABELS {
     def input_subpath_arg = input_subpath
                                ? "--input-subpath ${input_subpath}"
                                : ''
+    def mask_arg = mask ? "--mask \$(\${READLINK_TOOL} ${mask})" : ''
+    def mask_subpath_arg = mask_subpath ? "--mask-subpath ${mask_subpath}" : ''
     def set_output_labels = output_labels ? "output_labels_fullpath=\$(\${READLINK_TOOL} -m ${output_labels})" : 'output_labels_fullpath='
     def output_labels_arg = output_labels ? "-o \${output_labels_fullpath}" : ''
     def output_subpath_arg = output_subpath
@@ -71,6 +75,7 @@ process SEGTOOLS_DISTRIBUTED_MERGELABELS {
         python -m tools.main_merge_labels
         -i \${input_labels_fullpath} ${input_subpath_arg}
         ${output_labels_arg} ${output_subpath_arg}
+        ${mask_arg} ${mask_subpath_arg}
         ${working_dir_arg}
         ${dask_scheduler_arg}
         ${dask_config_arg}

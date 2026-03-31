@@ -38,18 +38,21 @@ workflow CELLPOSE_SEGMENTATION {
     if (!skip_segmentation || run_standalone_merge_labels || run_segmentation_multiscale) {
         def segmentation_prep_inputs = ch_meta
         | multiMap { it ->
-            def (meta, img_container_dir, img_dataset, output_dir, segmentation_container) = it
+            def (meta, img_container_dir, img_dataset, mask, mask_sp, output_dir, segmentation_container) = it
             log.debug "Start to prepare inputs for cellpose segmentation: $it"
             def segmentation_work_dir = work_dir
                 ? file("${work_dir}/${meta.id}/${img_dataset}")
                 : file("${output_dir}/${workflow.sessionId}/${meta.id}/${img_dataset}")
 
+            def mask_dir = mask ? mask.parent : ''
             def cellpose_models_dir = models_dir ? file(models_dir) : "${output_dir}/cellpose-models"
 
             def cellpose_data = [
                 meta,
                 img_container_dir,
                 img_dataset,
+                mask,
+                mask_sp,
                 cellpose_models_dir,
                 model_name,
                 output_dir,
@@ -61,7 +64,7 @@ workflow CELLPOSE_SEGMENTATION {
             def cluster_dirs = [
                 img_container_dir,
                 output_dir,
-            ] + (cellpose_models_dir ? [ cellpose_models_dir ] : [])
+            ] + (mask_dir ? [mask_dir] : []) + (cellpose_models_dir ? [ cellpose_models_dir ] : [])
 
             def cluster_data = [
                 meta,
@@ -92,6 +95,7 @@ workflow CELLPOSE_SEGMENTATION {
         | multiMap { it ->
             def (meta, cluster_context,
                  img_container_dir, img_dataset,
+                 mask, mask_sp,
                  cellpose_models_dir, cellpose_model_name,
                  segmentation_output_dir,
                  segmentation_container, segmentation_dataset,
@@ -100,6 +104,7 @@ workflow CELLPOSE_SEGMENTATION {
                 meta,
                 img_container_dir,
                 img_dataset,
+                mask, mask_sp,
                 cellpose_models_dir ?: [],
                 cellpose_model_name,
                 segmentation_output_dir,
@@ -132,6 +137,7 @@ workflow CELLPOSE_SEGMENTATION {
             | map { it ->
                 def (meta,
                      img_container_dir, img_dataset,
+                     mask, mask_sp,
                      _cellpose_models_dir, _cellpose_model_name,
                      segmentation_output_dir,
                      segmentation_container, segmentation_dataset,
@@ -140,6 +146,7 @@ workflow CELLPOSE_SEGMENTATION {
                 [
                     meta,
                     img_container_dir, img_dataset,
+                    mask, mask_sp,
                     "${segmentation_output_dir}/${segmentation_container}",
                     segmentation_dataset ?: img_dataset,
                     segmentation_work_dir,
@@ -153,6 +160,7 @@ workflow CELLPOSE_SEGMENTATION {
             | combine(dask_cluster, by: 0)
             | flatMap { it ->
                 def (meta, _input_image, _image_subpath,
+                     mask, mask_sp,
                      labels_containers, labels_subpath,
                      segmentation_working_dir,
                      cluster_context) = it
@@ -165,6 +173,7 @@ workflow CELLPOSE_SEGMENTATION {
                             meta,
                             file(labels_container),
                             labels_subpath,
+                            mask, mask_sp,
                             [],            // output in-place
                             labels_subpath,
                             segmentation_working_dir,

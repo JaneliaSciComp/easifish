@@ -62,11 +62,28 @@ workflow SEGMENTATION {
             }
         }
 
+        def mask_file
+        if (!params.cellpose_mask) {
+            mask_file = []
+        } else if (params.cellpose_mask.startsWith('/')) {
+            // this is an absolute mask
+            mask_file = file(params.cellpose_mask)
+        } else {
+            // use a path relative to outdir
+            mask_file = file("${outdir}/${params.cellpose_mask}")
+        }
+        def mask_sp = params.cellpose_mask_subpath
+                        ? (params.cellpose_mask_subpath.startsWith(meta.id)
+                            ? params.cellpose_mask_subpath
+                            : "${meta.id}/${params.cellpose_mask_subpath}")
+                        : ''
         segmentation_subpaths.collect { input_seg_subpath ->
             def r = [
                 meta,
                 input_img_dir,
                 input_seg_subpath,
+                mask_file,
+                mask_sp,
                 "${outdir}/${params.segmentation_subdir}", // output dir
                 params.segmentation_imgname,
             ]

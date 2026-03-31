@@ -78,7 +78,7 @@ workflow SPOT_EXTRACTION {
     }
 
     def spots_results
-    if (params.spot_extraction_method == 'FISHSPOT') {
+    if (params.spots_extraction_method == 'FISHSPOT') {
         log.debug "Extract spots using Fishspot"
         spots_results = FISHSPOT_EXTRACTION(
             spots_to_process_ch,
@@ -155,7 +155,7 @@ def get_spot_extraction_input_output(meta, outputdir) {
         // extract the spots from the stitched image
         return [
             "${meta.stitching_result_dir}/${meta.stitching_container}",
-            file("${outputdir}/${params.spot_extraction_subdir}/${meta.id}"),
+            file("${outputdir}/${params.spots_extraction_subdir}/${meta.id}"),
         ]
     } else {
         // extract the spots from the aligned (moving) image
