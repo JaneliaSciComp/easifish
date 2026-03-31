@@ -857,8 +857,8 @@ workflow RESOLVE_MASKS {
 
     def fix_global_ch     = params.fix_global_channel ?: params.reg_ch
     def mov_global_ch     = params.mov_global_channel ?: fix_global_ch
-    def fix_global_sp_val = params.fix_global_subpath ?: "${fix_global_ch}/${params.global_scale}"
-    def mov_global_sp_val = params.mov_global_subpath ?: "${mov_global_ch}/${params.global_scale}"
+    def fix_global_sp_val = params.fix_mask_subpath ?: params.fix_global_subpath ?: "${fix_global_ch}/${params.global_scale}"
+    def mov_global_sp_val = params.mov_mask_subpath ?: params.mov_global_subpath ?: "${mov_global_ch}/${params.global_scale}"
 
     // When we generate the mask we generate one mask for the fixed image and one mask for the moving image
     // at the same scale we use for global registration
