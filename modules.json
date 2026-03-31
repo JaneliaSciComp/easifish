@@ -52,12 +52,12 @@
                     },
                     "segtools/distributed/cellpose": {
                         "branch": "main",
-                        "git_sha": "e0e3fd351319d926aba8c62a06c4234a093ff7eb",
+                        "git_sha": "2907b6751db2c118da8e3c3d0cf74d18fdf90e27",
                         "installed_by": ["modules"]
                     },
                     "segtools/distributed/mergelabels": {
                         "branch": "main",
-                        "git_sha": "e0e3fd351319d926aba8c62a06c4234a093ff7eb",
+                        "git_sha": "2907b6751db2c118da8e3c3d0cf74d18fdf90e27",
                         "installed_by": ["modules"]
                     },
                     "spots/fishspots": {

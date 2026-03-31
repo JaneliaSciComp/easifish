@@ -5,4 +5,4 @@ dependencies:
   - pip
   - psutil>=7.1.3
   - pip:
-    - git+https://github.com/JaneliaSciComp/cellpose-tools@8fbf812
+    - git+https://github.com/JaneliaSciComp/cellpose-tools@d55cc2a
