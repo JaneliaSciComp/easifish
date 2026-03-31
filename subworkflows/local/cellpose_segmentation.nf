@@ -124,7 +124,7 @@ workflow CELLPOSE_SEGMENTATION {
         // build labels channel from DISTRIBUTEDCELLPOSE or existing output
         def labels_ch
         if (!skip_segmentation) {
-            labels_ch = SEGTOOLS_DISTRIBUTED_CELLPOSE(
+            def cellpose_results = SEGTOOLS_DISTRIBUTED_CELLPOSE(
                 segmentation_inputs.cellpose_data,
                 segmentation_inputs.cluster_info,
                 preprocessing_config ? file(preprocessing_config) : [],
@@ -132,18 +132,47 @@ workflow CELLPOSE_SEGMENTATION {
                 segmentation_cpus,
                 segmentation_mem_gb,
             ).results
+
+            cellpose_results.view { it -> log.debug "Cellpose results: $it" }
+
+            labels_ch = cellpose_results
+            | join (segmentation_inputs.cellpose_data, by:0)
+            | map { it ->
+                def (meta,
+                     img_container, img_dataset,
+                     labels_containers, labels_subpath,
+                     _input_img_container,
+                     _input_img_dataset,
+                     input_mask, input_mask_sp,
+                     _cellpose_models_dir,
+                     _cellpose_model_name,
+                    _segmentation_output_dir,
+                    _segmentation_container,
+                    _segmentation_dataset,
+                    segmentation_work_dir) = it
+
+                log.debug "Cellpose results + input: $it"
+                def r = [
+                    meta,
+                    img_container, img_dataset,
+                    input_mask, input_mask_sp,
+                    labels_containers, labels_subpath,
+                    segmentation_work_dir,
+                ]
+                log.debug "Cellpose segmentation output for: $meta -> $r"
+                r
+            }
         } else {
             labels_ch = segmentation_inputs.cellpose_data
             | map { it ->
                 def (meta,
-                     img_container_dir, img_dataset,
+                     img_container_dir, img_subpath,
                      mask, mask_sp,
                      _cellpose_models_dir, _cellpose_model_name,
                      segmentation_output_dir,
                      segmentation_container, segmentation_dataset,
                      segmentation_work_dir) = it
-                log.debug "Using existing segmentation output for: $meta"
-                [
+                def r = [
                     meta,
                     img_container_dir, img_dataset,
                     mask, mask_sp,
@@ -151,6 +180,8 @@ workflow CELLPOSE_SEGMENTATION {
                     segmentation_dataset ?: img_dataset,
                     segmentation_work_dir,
                 ]
+                log.debug "Using existing segmentation output for: $meta -> $r"
+                r
             }
         }
 

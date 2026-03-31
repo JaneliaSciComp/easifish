@@ -64,14 +64,13 @@ workflow SPOT_EXTRACTION {
 
     def spots_verify_inputs = spots_to_skip_ch
     | map { it ->
-        def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name, spots_image_subpath_ref, spots_channels) = it
+        def (meta, input_img_dir, input_spot_subpath, spots_output_dir, spots_result_name, spots_image_subpath_ref, _spots_channels) = it
         def r = [
             meta,
             input_img_dir,
             input_spot_subpath,
             "${spots_output_dir}/${spots_result_name}",
             spots_image_subpath_ref,
-            spots_channels,
         ]
         log.debug "Skipped spot extraction for round ${meta.id}, but verify any spot files at: $r"
         r
