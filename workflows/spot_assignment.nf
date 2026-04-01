@@ -38,7 +38,12 @@ workflow SPOT_COUNT_ASSIGN {
     | groupTuple(by: 0)
     | join(ch_segmentation_with_id, by: 0)
     | flatMap { it ->
-        def (_id, all_meta_spots, all_spots_image_containers, all_spots_datasets, all_source_spots, all_final_spots,meta_seg, seg_input_image, seg_input_dataset, seg_labels) = it
+        def (_id,
+             all_meta_spots, all_spots_image_containers, all_spots_datasets,
+             all_source_spots, all_final_spots,
+             _meta_seg, _seg_input_image, seg_input_dataset, seg_labels) = it
+
+        log.debug "Collected info for spots inputs: $it"
 
         [all_meta_spots,
          all_spots_image_containers,

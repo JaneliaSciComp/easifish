@@ -291,7 +291,7 @@ workflow CELLPOSE_SEGMENTATION {
     } else { // skip segmentation
         final_segmentation_results = ch_meta
         | map {
-            def (meta, img_container, img_subpath, output_dir, segmentation_container) = it
+            def (meta, img_container, img_subpath, _mask, _mask_sp, output_dir, segmentation_container) = it
             log.debug "Skip cellpose segmentation: $it"
             [
                 meta,
