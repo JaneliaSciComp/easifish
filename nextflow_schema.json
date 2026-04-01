@@ -1186,6 +1186,12 @@
                     "description": "Fishspots minimum intensity threshold",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "fishspots_intensity_th_percentiles": {
+                    "type": "string",
+                    "pattern": "^$|^(100(\\.0+)?|[0-9]{1,2}(\\.[0-9]+)?),\\s*(100(\\.0+)?|[0-9]{1,2}(\\.[0-9]+)?)$",
+                    "description": "Fishspots intensity threshold percentiles defined as 2 float values separated by comma between [0,100].",
+                    "fa_icon": "fas fa-hashtag"
+                },
                 "fishspots_config": {
                     "type": "string",
                     "description": "Fishspots YML config file containing various fishspots parameters",
