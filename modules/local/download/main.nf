@@ -1,6 +1,6 @@
 process DOWNLOAD {
     tag "${samplesheet_row.filename}"
-    label 'process_single'
+    label 'process_long'
     container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0-rc2'
     errorStrategy 'terminate'
 
