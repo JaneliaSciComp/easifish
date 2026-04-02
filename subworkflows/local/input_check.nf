@@ -52,9 +52,9 @@ workflow INPUT_CHECK {
                     return [ row, input_image_dir, output_image_dir ]
                 }
         def linked_tiles = LINK(
-            link_inputs.map { it[0] }, // row
-            link_inputs.map { it[1] }, // image_dir
-            link_inputs.map { it[2] }, // output_dir
+            link_inputs.map { it -> it[0] }, // row
+            link_inputs.map { it -> it[1] }, // image_dir
+            link_inputs.map { it -> it[2] }, // output_dir
         ).tiles
 
         prepare_acq = downloaded_tiles

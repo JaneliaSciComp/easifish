@@ -194,7 +194,7 @@ workflow BIGSTITCHER {
         } else {
             def resave_inputs = with_xml.no_xml
             | join(create_dataset_output, by: 0)
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Resave dataset ${stitching_xml} to ${meta.image_dir}/dataset.zarr"
