@@ -33,15 +33,23 @@ workflow EASIFISH {
     def outdir = file(params.outdir).toAbsolutePath().normalize() as String
     def imagesdir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching"
 
-    def ch_acquisitions = INPUT_CHECK (
+    def ch_acquisitions_raw = INPUT_CHECK (
         ch_inputs.map { it -> it[0] }, // samplesheet_file
         ch_inputs.map { it -> it[1] }, // inputdir
         imagesdir,
-        params.skip_stitching,
+        params.skip_stitching && !params.download_all_first,
     )
     .acquisitions
 
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
+    // If download_all_first is set, wait for all INPUT_CHECK processes to complete
+    // before starting STITCHING by collecting all acquisitions then re-emitting them
+    def ch_acquisitions = params.download_all_first
+        ? ch_acquisitions_raw.collect(flat: false).flatMap { it -> it }
+        : ch_acquisitions_raw
+
+    ch_acquisitions.view { it -> log.debug "Finished preparing channel acquisition: $it" }
 
     def stitching_results = STITCHING(
         ch_acquisitions,

@@ -61,6 +61,12 @@
                     "description": "Voxel resolution in all 3 dimensions. Default: 0.23,0.23,0.42",
                     "help_text": "This is a comma-delimited tuple as x,y,z.",
                     "default": "0.23,0.23,0.42"
+                },
+                "download_all_first": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set, wait for all input checks (downloads) to complete before starting stitching.",
+                    "fa_icon": "fas fa-download"
                 }
             }
         },
