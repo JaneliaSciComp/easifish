@@ -20,6 +20,7 @@ process POST_RS_FISH {
     task.ext.when == null || task.ext.when
 
     script:
+    def args = task.ext.args ?: ''
     def rsfish_spots_filename = file(voxel_spots_csv_file).name
     def spots_filename = rsfish_spots_filename.replace('rsfish-', '').replace('.csv', '-coord.csv')
     def spots_filepattern = rsfish_spots_filename.replace('rsfish-', '').replace('.csv', '-coord*.csv')
@@ -49,6 +50,7 @@ process POST_RS_FISH {
                 --image-subpath ${input_dataset}
                 --input \${full_voxel_spots_csv_file}
                 --output \${coord_spots_csv_file}
+                ${args}
             )
             echo "CMD: \${CMD[@]}"
             (exec "\${CMD[@]}")
