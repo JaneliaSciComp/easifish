@@ -1198,6 +1198,11 @@
                     "description": "Fishspots intensity threshold percentiles defined as 2 float values separated by comma between [0,100].",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "fishspots_roi": {
+                    "type": "string",
+                    "description": "Region of interest for fishspots detection defined in voxels as minx,miny,minz,maxx,maxy,maxz.",
+                    "fa_icon": "fas fa-crop-alt"
+                },
                 "fishspots_config": {
                     "type": "string",
                     "description": "Fishspots YML config file containing various fishspots parameters",
