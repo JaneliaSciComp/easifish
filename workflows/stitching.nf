@@ -31,6 +31,7 @@ workflow STITCHING {
             params.skip_bigstitcher_create_container,
             params.skip_bigstitcher_affine_fusion,
             "${workdir}/stitching",
+            params.spark_local_dir,
             params.spark_workers as int,
             params.min_spark_workers as int,
             params.spark_worker_cores as int,

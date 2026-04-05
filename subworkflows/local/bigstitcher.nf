@@ -30,6 +30,7 @@ workflow BIGSTITCHER {
     skip_create_container         // in case the container already exists this option allows the user to skip the step
     skip_affine_fusion            // skip affine fusion step
     spark_workdir                 // string|file: spark work dir
+    spark_local_dir,
     spark_workers                 // int: number of workers in the cluster (ignored if spark_cluster is false)
     min_spark_workers             // int: min required spark workers
     spark_worker_cores            // int: number of cores per worker
@@ -64,7 +65,8 @@ workflow BIGSTITCHER {
             stitching_meta.stitching_container_storage = 'ZARR'
         }
 
-        def data_files = files + [ stitching_result_dir ]
+        def data_files = files + [ stitching_result_dir ] +
+                         (spark_local_dir ? [file(spark_local_dir)] : [])
 
         stitching_meta.stitching_xml = files.find { fn -> fn.extension == 'xml' }
         if (stitching_meta.stitching_xml == null) {
