@@ -30,7 +30,7 @@ workflow BIGSTITCHER {
     skip_create_container         // in case the container already exists this option allows the user to skip the step
     skip_affine_fusion            // skip affine fusion step
     spark_workdir                 // string|file: spark work dir
-    spark_local_dir,
+    spark_local_dir               // string|file: spark local dir
     spark_workers                 // int: number of workers in the cluster (ignored if spark_cluster is false)
     min_spark_workers             // int: min required spark workers
     spark_worker_cores            // int: number of cores per worker
