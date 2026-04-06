@@ -231,14 +231,14 @@
                     "hidden": true,
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "run_bigstitcher_detect_interestpoints": {
+                "run_bigstitcher_detect_intpts": {
                     "type": "boolean",
                     "default": false,
                     "description": "Run interest point detection with BigStitcher (SparkInterestPointDetection)",
                     "hidden": true,
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "run_bigstitcher_match_interestpoints": {
+                "run_bigstitcher_match_intpts": {
                     "type": "boolean",
                     "default": false,
                     "description": "Run interest point matching with BigStitcher (SparkGeometricDescriptorMatching)",
@@ -252,10 +252,11 @@
                     "hidden": true,
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "advanced_stitching_params": {
+                "bigstitcher_config": {
                     "type": "string",
-                    "description": "BigStitcher stitching advanced args such as --ds --channels",
-                    "fa_icon": "fas fa-cog"
+                    "format": "file-path",
+                    "description": "Path to a YAML config file with per-step advancedArgs for BigStitcher. Supported step keys: createDataset, resave, stitch, detectInterestPoints, matchInterestPoints, solver, createContainer, fuse.",
+                    "fa_icon": "fas fa-file-code"
                 },
                 "preserve_anisotropy": {
                     "type": "boolean",

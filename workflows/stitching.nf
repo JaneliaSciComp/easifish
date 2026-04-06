@@ -14,19 +14,22 @@ workflow STITCHING {
 
     def stitching_results
     if (params.stitching_method == 'BigStitcher') {
+        def bigstitcher_config = params.bigstitcher_config
+            ? new org.yaml.snakeyaml.Yaml().load(new java.io.FileInputStream(params.bigstitcher_config))
+            : [:]
         stitching_results = BIGSTITCHER(
             ch_acquisition_data,
             params.spark_cluster,
             stitching_result_dir,
             params.stitching_result_container,
-            params.advanced_stitching_params,
+            bigstitcher_config,
             params.preserve_anisotropy,
             params.skip_stitching,
             params.skip_bigstitcher_create_dataset,
             params.skip_bigstitcher_resave,
             params.skip_bigstitcher_pairwise_stitch,
-            params.run_bigstitcher_detect_interestpoints,
-            params.run_bigstitcher_match_interestpoints,
+            params.run_bigstitcher_detect_intpts,
+            params.run_bigstitcher_match_intpts,
             params.run_bigstitcher_solver,
             params.skip_bigstitcher_create_container,
             params.skip_bigstitcher_affine_fusion,

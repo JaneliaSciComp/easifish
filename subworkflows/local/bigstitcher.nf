@@ -18,7 +18,7 @@ workflow BIGSTITCHER {
     with_spark_cluster            // boolean: use a distributed spark cluster
     stitching_result_dir
     stitched_image_name           // stitched container name
-    advanced_stitching_params
+    bigstitcher_config
     preserve_anisotropy
     skip_all_steps
     skip_create_dataset           // skip dataset creation (when stitching_xml doesn't exist)
@@ -125,14 +125,11 @@ workflow BIGSTITCHER {
             | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
-                def advanced_stitching_args = advanced_stitching_params
-                    ? [ advanced_stitching_params ]
-                    : []
                 log.debug "Stitch using dataset ${stitching_xml}"
                 def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
                 def bigstitcher_params = [
                     '-x', stitching_xml,
-                ] + advanced_stitching_args
+                ] + get_advanced_args(bigstitcher_config, 'stitch')
                 log.debug "Bigstitcher parameters: ${bigstitcher_class}: ${bigstitcher_params}"
                 def module_args = [
                     meta,
@@ -170,7 +167,7 @@ workflow BIGSTITCHER {
                     '--input-pattern', meta.pattern,
                     '--input-path', meta.image_dir,
                     '-x', stitching_xml,
-                ]
+                ] + get_advanced_args(bigstitcher_config, 'createDataset')
                 log.debug "Create dataset parameters: ${bigstitcher_class}: ${bigstitcher_params}"
                 def module_args = [
                     meta,
@@ -204,7 +201,7 @@ workflow BIGSTITCHER {
                 def bigstitcher_params = [
                     '-x', stitching_xml,
                     '-o', "${meta.image_dir}/dataset.zarr",
-                ]
+                ] + get_advanced_args(bigstitcher_config, 'resave')
                 log.debug "Resave parameters: ${bigstitcher_class}: ${bigstitcher_params}"
                 def module_args = [
                     meta,
@@ -233,14 +230,11 @@ workflow BIGSTITCHER {
             | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
-                def advanced_stitching_args = advanced_stitching_params
-                    ? [ advanced_stitching_params ]
-                    : []
                 log.debug "Stitch dataset ${stitching_xml}"
                 def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
                 def bigstitcher_params = [
                     '-x', stitching_xml,
-                ] + advanced_stitching_args
+                ] + get_advanced_args(bigstitcher_config, 'stitch')
                 log.debug "Pairwise stitching parameters: ${bigstitcher_class}: ${bigstitcher_params}"
                 def module_args = [
                     meta,
@@ -271,12 +265,12 @@ workflow BIGSTITCHER {
         } else {
             def detect_interestpoints_inputs = stitching_input
             | join(pairwise_stitch_output, by: 0)
-            | multiMap {
+            | multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Detect interestpoints in dataset ${stitching_xml}"
                 def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkInterestPointDetection'
-                def bigstitcher_params = [ '-x', stitching_xml ]
+                def bigstitcher_params = [ '-x', stitching_xml ] + get_advanced_args(bigstitcher_config, 'detectInterestPoints')
                 def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
                 module_args: module_args
                 data_files: files
@@ -300,7 +294,7 @@ workflow BIGSTITCHER {
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Match interestpoints in dataset ${stitching_xml}"
                 def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching'
-                def bigstitcher_params = [ '-x', stitching_xml ]
+                def bigstitcher_params = [ '-x', stitching_xml ] + get_advanced_args(bigstitcher_config, 'matchInterestPoints')
                 def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
                 module_args: module_args
                 data_files: files
@@ -324,7 +318,7 @@ workflow BIGSTITCHER {
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Run solver on dataset ${stitching_xml}"
                 def bigstitcher_class = 'net.preibisch.bigstitcher.spark.Solver'
-                def bigstitcher_params = [ '-x', stitching_xml ]
+                def bigstitcher_params = [ '-x', stitching_xml ] + get_advanced_args(bigstitcher_config, 'solver')
                 def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
                 module_args: module_args
                 data_files: files
@@ -357,7 +351,7 @@ workflow BIGSTITCHER {
                         '-s', meta.stitching_container_storage,
                         '--multiRes', // always generate the multiresolution pyramid
                         preserve_anisotropy_arg,
-                    ]
+                    ] + get_advanced_args(bigstitcher_config, 'createContainer')
                 ]
                 log.debug "Create-container module args: $module_args"
 
@@ -388,7 +382,7 @@ workflow BIGSTITCHER {
                         '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
                         "--group", meta.id,
                         '-s', meta.stitching_container_storage,
-                    ]
+                    ] + get_advanced_args(bigstitcher_config, 'fuse')
                 ]
                 log.debug "Affine fuse module args: $module_args"
 
@@ -421,4 +415,8 @@ workflow BIGSTITCHER {
 
 def get_stitching_xml_or_default(meta) {
     return meta.stitching_xml ?: "${meta.image_dir}/dataset.xml"
+}
+
+def get_advanced_args(Map config, String step) {
+    config?.get(step)?.get('advancedArgs') ?: []
 }

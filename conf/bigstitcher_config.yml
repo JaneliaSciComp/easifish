@@ -1,0 +1,23 @@
+createDataset:
+  advancedArgs: []
+
+resave:
+  advancedArgs: []
+
+stitch:
+  advancedArgs: []
+
+detectInterestPoints:
+  advancedArgs: []
+
+matchInterestPoints:
+  advancedArgs: []
+
+solver:
+  advancedArgs: []
+
+createContainer:
+  advancedArgs: []
+
+fuse:
+  advancedArgs: []
