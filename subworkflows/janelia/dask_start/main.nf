@@ -6,7 +6,7 @@ workflow DASK_START {
     dask_work_path // dask work directory
     total_workers // int: number of total workers in the cluster
     required_workers // int: number of required workers in the cluster
-    dask_worker_cpus // int: number of cores per worker
+    dask_worker_cpus // int: number of cpus per worker
     dask_worker_mem_gb // int: worker memory in GB
 
     main:
@@ -26,8 +26,8 @@ workflow DASK_START {
             meta_and_files,
             dask_work_dir,
         )
-        | join(meta_and_files, by: 0)
-        | map { it ->
+        .join(meta_and_files, by: 0)
+        .map { it ->
             def (meta, dask_cluster_work_dir, data_paths) = it
             def dask_config_path = dask_config ? file(dask_config) : []
             def r = [meta, dask_config_path, dask_cluster_work_dir, data_paths]
@@ -39,7 +39,7 @@ workflow DASK_START {
         DASK_STARTMANAGER(dask_prepare_result)
 
         // wait for manager to start
-        DASK_WAITFORMANAGER(
+        def wait_manager_results = DASK_WAITFORMANAGER(
             dask_prepare_result.map { it ->
                 def (meta, _dask_config_path, dask_cluster_work_dir, _data_paths) = it
                 [meta, dask_cluster_work_dir]
@@ -49,9 +49,9 @@ workflow DASK_START {
         def nworkers = total_workers ?: 1
 
         // prepare inputs for dask workers
-        def dask_workers_input = DASK_WAITFORMANAGER.out.cluster_info
-            | join(meta_and_files, by: 0)
-            | flatMap { it ->
+        def dask_workers_input = wait_manager_results.cluster_info
+            .join(meta_and_files, by: 0)
+            .flatMap { it ->
                 def (meta, cluster_work_dir, scheduler_address, dashboard_port, data_paths) = it
                 def dashboard_address_parts = scheduler_address.split(':')
                 dashboard_address_parts[0] = 'http'
@@ -76,13 +76,13 @@ workflow DASK_START {
 
         // check dask workers
         def cluster = DASK_WAITFORWORKERS(
-            DASK_WAITFORMANAGER.out.cluster_info,
+            wait_manager_results.cluster_info,
             nworkers,
             required_workers ?: 1,
         )
 
         dask_context = cluster.cluster_info
-            | map { it ->
+            .map { it ->
                 def (meta, cluster_work_dir, scheduler_address, available_workers) = it
                 def dask_info = [
                     scheduler_address: scheduler_address,
@@ -97,7 +97,7 @@ workflow DASK_START {
         // do not start a distributed cluster
         log.debug("No distributed dask cluster")
         dask_context = meta_and_files
-            | map { it ->
+            .map { it ->
                 def (meta, _data_paths) = it
                 [meta, [:]]
             }

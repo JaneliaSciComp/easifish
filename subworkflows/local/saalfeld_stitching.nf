@@ -21,14 +21,16 @@ workflow SAALFELD_STITCHING {
     stitched_container_name    // final stitched container name - defaults to export.n5
     skip                       // boolean: if true skip stitching completely and just return the meta as if it ran
     spark_workdir              // string|file: spark work dir
+    spark_localdir             // string|file: spark local dir
     spark_workers              // int: number of workers in the cluster (ignored if spark_cluster is false)
     min_spark_workers          // int: min required spark workers
-    spark_worker_cores         // int: number of cores per worker
+    spark_worker_cpus          // int: number of cpus per worker
     spark_worker_mem_gb        // int: number of GB of memory per worker
-    spark_executor_cores       // int: number of cores per executor
+    spark_executor_cpus        // int: number of cpus per executor
     spark_executor_mem_gb      // int: number of GB of memory per executor
     spark_executor_overhead_mem_gb // int: executor memory overhead in GB
-    spark_driver_cores         // int: number of cores for the driver
+    spark_task_cpus            // int: spark executor task CPUs
+    spark_driver_cpus          // int: number of cpus for the driver
     spark_driver_mem_gb        // int: number of GB of memory for the driver
     spark_gb_per_core          // int: number of GB of memory per worker core
     spark_config               // map: additional spark configuration
@@ -37,26 +39,27 @@ workflow SAALFELD_STITCHING {
     def darkfield_file = darkfield ? file(darkfield) : []
     def flatfield_file = flatfield ? file(flatfield) : []
 
-    def prepared_data = acquisition_data
-    | map {
-        def (meta, files) = it
-        // set output subdirectories for each acquisition
-        meta.session_work_dir = "${spark_workdir}/${meta.id}"
-        meta.stitching_dir = "${stitching_dir}/${meta.id}"
-        meta.stitching_result_dir = stitching_result_dir
-        meta.stitched_dataset = meta.id
-        meta.stitching_container = stitched_container_name ?: "export.n5"
-        // Add output dir here so that it will get mounted into the Spark processes
-        def data_files = files +
-            [stitching_dir, stitching_result_dir] +
-            (darkfield_file ? [darkfield_file] : []) +
-            (flatfield_file ? [flatfield_file] : [])
-        def r = [ meta, data_files ]
-        log.debug "Input acquisitions to stitch: ${data_files} -> $r"
-        r
-    }
-    | STITCHING_PREPARE
-    | map {
+    def prepared_data = STITCHING_PREPARE(
+        acquisition_data
+            .map { it ->
+                def (meta, files) = it
+                // set output subdirectories for each acquisition
+                meta.session_work_dir = "${spark_workdir}/${meta.id}"
+                meta.stitching_dir = "${stitching_dir}/${meta.id}"
+                meta.stitching_result_dir = stitching_result_dir
+                meta.stitched_dataset = meta.id
+                meta.stitching_container = stitched_container_name ?: "export.n5"
+                // Add output dir here so that it will get mounted into the Spark processes
+                def data_files = files +
+                    [stitching_dir, stitching_result_dir] +
+                    (darkfield_file ? [darkfield_file] : []) +
+                    (flatfield_file ? [flatfield_file] : [])
+                def r = [ meta, data_files ]
+                log.debug "Input acquisitions to stitch: ${data_files} -> $r"
+                r
+            }
+    )
+    .map { it ->
         def (meta, sfiles) = it
         def data_files = sfiles.tokenize().collect { file(it) }
         [ meta, data_files ]
@@ -70,19 +73,21 @@ workflow SAALFELD_STITCHING {
             spark_config,       // spark default config
             with_spark_cluster,
             spark_workdir,
+            spark_localdir,
             spark_workers,
             min_spark_workers,
-            spark_worker_cores,
+            spark_worker_cpus,
             spark_worker_mem_gb,
-            spark_executor_cores,
+            spark_executor_cpus,
             spark_executor_mem_gb,
             spark_executor_overhead_mem_gb,
-            spark_driver_cores,
+            spark_task_cpus,
+            spark_driver_cpus,
             spark_driver_mem_gb,
             spark_gb_per_core,
         ) // ch: [ meta, spark ]
-        | join(prepared_data, by: 0) // join to add the files
-        | map {
+        .join(prepared_data, by: 0) // join to add the files
+        .map { it ->
             def (meta, spark, files) = it
             // rearrange input args
             def r = [
@@ -119,7 +124,7 @@ workflow SAALFELD_STITCHING {
         )
 
         def spark_stop_input = STITCHING_FUSE.out.acquisitions
-        | map {
+        .map {
             def (meta, files, spark) = it
             log.debug "Finished stitching for $meta; prepare to stop $spark"
             // spark_stop only needs meta and spark
@@ -128,7 +133,7 @@ workflow SAALFELD_STITCHING {
         }
 
         completed_stitching_result = SPARK_STOP(spark_stop_input, with_spark_cluster)
-        | map {
+        .map {
             // Only meta contains data relevant for the next steps
             def (meta, spark) = it
             log.debug "Stopped spark ${spark} - stitching result: $meta"
@@ -136,8 +141,8 @@ workflow SAALFELD_STITCHING {
         }
     } else {
         completed_stitching_result = prepared_data
-        | map {
-            def (meta, data_files) = it
+        .map { it ->
+            def (meta, _data_files) = it
             log.debug "Stitching result (skipped): $meta"
             meta
         }

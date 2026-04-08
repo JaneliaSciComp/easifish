@@ -1,7 +1,7 @@
 process BIGSTITCHER_MODULE {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/bigstitcher:2.4.1-spark3.3.2-scala2.12-java17-ubuntu24.04'
-    cpus { spark.driver_cores }
+    cpus { spark.driver_cpus }
     memory { "${spark.driver_memory as int}g" }
 
     input:
@@ -28,9 +28,9 @@ process BIGSTITCHER_MODULE {
         /app/app.jar
         ${module_class}
         ${spark.parallelism}
-        ${spark.executor_cores}
+        ${spark.executor_cpus}
         "${executor_memory_gb}g"
-        ${spark.driver_cores}
+        ${spark.driver_cpus}
         "${driver_memory_gb}g"
         --spark-conf "spark.driver.extraClassPath=${app_jar}"
         --spark-conf "spark.executor.extraClassPath=${app_jar}"

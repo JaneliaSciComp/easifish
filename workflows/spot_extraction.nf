@@ -98,6 +98,7 @@ workflow SPOT_EXTRACTION {
             spots_to_process_ch,
             params.distributed_spot_extraction,
             workdir,
+            params.rsfish_spark_local_dir,
             params.rsfish_spark_workers,
             params.rsfish_min_spark_workers,
             params.rsfish_spark_worker_cores,
@@ -105,6 +106,7 @@ workflow SPOT_EXTRACTION {
             params.rsfish_spark_executor_cores,
             params.rsfish_spark_executor_mem_gb,
             params.rsfish_spark_executor_overhead_mem_gb,
+            params.rsfish_spark_task_cores,
             params.rsfish_spark_driver_cores,
             params.rsfish_spark_driver_mem_gb,
             params.rsfish_spark_gb_per_core,
@@ -169,9 +171,6 @@ def create_rsfish_spark_config() {
     def spark_config = [:]
     if (params.rsfish_spark_max_partition_bytes) {
         spark_config['spark.sql.files.maxPartitionBytes'] = params.rsfish_spark_max_partition_bytes
-    }
-    if (params.rsfish_spark_task_cores) {
-        spark_config['spark.task.cpus'] = params.rsfish_spark_task_cores
     }
     return spark_config
 }

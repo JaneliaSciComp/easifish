@@ -16,8 +16,6 @@ include { BIGSTREAM_CORRELATIONMETRIC                              } from '../mo
 
 include { DASK_START                                               } from '../subworkflows/janelia/dask_start/main'
 include { DASK_STOP                                                } from '../subworkflows/janelia/dask_stop/main'
-include { SPARK_START                                              } from '../subworkflows/janelia/spark_start/main'
-include { SPARK_STOP                                               } from '../subworkflows/janelia/spark_stop/main'
 
 include { MULTISCALE                                               } from '../subworkflows/local/multiscale'
 

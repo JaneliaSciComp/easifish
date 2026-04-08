@@ -1,7 +1,7 @@
 process STITCHING_CZI2N5 {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0-rc2'
-    cpus { spark.driver_cores }
+    cpus { spark.driver_cpus }
     memory { "${spark.driver_memory as int}g" }
 \
     input:
@@ -28,9 +28,9 @@ process STITCHING_CZI2N5 {
         /app/app.jar
         org.janelia.stitching.ConvertCZITilesToN5Spark
         ${spark.parallelism}
-        ${spark.executor_cores}
+        ${spark.executor_cpus}
         "${executor_memory_gb}g"
-        ${spark.driver_cores}
+        ${spark.driver_cpus}
         "${driver_memory_gb}g"
         ${app_args}
         ${extra_args}
@@ -59,9 +59,9 @@ process STITCHING_CZI2N5 {
         /app/app.jar
         org.janelia.stitching.fake.FakeCZITilesToN5Spark
         ${spark.parallelism}
-        ${spark.worker_cores}
+        ${spark.worker_cpus}
         "${executor_memory_gb}g"
-        ${spark.driver_cores}
+        ${spark.driver_cpus}
         "${driver_memory_gb}g"
         ${app_args}
         ${extra_args}

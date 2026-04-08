@@ -5,17 +5,19 @@ include { SPARK_STOP   } from '../janelia/spark_stop'
 
 workflow RSFISH_SPOT_EXTRACTION {
     take:
-    ch_spots_input             // ch: [ meta, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref, spots_channels ]
-    distributed                // boolean
+    ch_spots_input                 // ch: [ meta, input_img, input_subpath, spots_output_dir, spots_output_name, spots_image_subpath_ref, spots_channels ]
+    distributed                    // boolean
     workdir
+    localdir
     spark_workers
     min_spark_workers              // int: min required spark workers
-    spark_worker_cores             // int: number of cores per worker
+    spark_worker_cpus              // int: number of cpus per worker
     spark_worker_mem_gb            // int: number of GB of memory per worker
-    spark_executor_cores           // int: number of cores per executor
+    spark_executor_cpus            // int: number of cpus per executor
     spark_executor_mem_gb          // number: number of GB of memory per executor
     spark_executor_overhead_mem_gb // number: executor memory overhead in GB
-    spark_driver_cores             // int: number of cores for the driver
+    spark_task_cpus                // int: number of cpus required for a spark executor task
+    spark_driver_cpus              // int: number of cpus for the driver
     spark_driver_mem_gb            // int: number of GB of memory for the driver
     spark_gb_per_core              // int: number of GB of memory per worker core
     spark_config
@@ -38,14 +40,16 @@ workflow RSFISH_SPOT_EXTRACTION {
         spark_config,
         distributed,
         workdir,
+        localdir,
         spark_workers,
         min_spark_workers,
-        spark_worker_cores,
+        spark_worker_cpus,
         spark_worker_mem_gb,
-        spark_executor_cores,
+        spark_executor_cpus,
         spark_executor_mem_gb,
         spark_executor_overhead_mem_gb,
-        spark_driver_cores,
+        spark_task_cpus,
+        spark_driver_cpus,
         spark_driver_mem_gb,
         spark_gb_per_core,
     ) // ch: [ meta, spark ]

@@ -24,11 +24,11 @@ workflow CELLPOSE_SEGMENTATION {
     work_dir                    // string|file: dask work dir
     dask_workers                // int: number of workers in the cluster (ignored if distributed is false)
     dask_min_workers            // int: min required dask workers
-    dask_worker_cpus            // int: number of cores per worker
+    dask_worker_cpus            // int: number of CPUs per worker
     dask_worker_mem_gb          // int: number of GB of memory per worker
-    segmentation_cpus           // int: number of cores to use for segmentation main process
+    segmentation_cpus           // int: number of CPUs to use for segmentation main process
     segmentation_mem_gb         // int: number of GB of memory to use for segmentation main process
-    mergelabels_cpus            // int: number of cores to use for merge labels main process
+    mergelabels_cpus            // int: number of CPUs to use for merge labels main process
     mergelabels_mem_gb          // int: number of GB of memory to use for merge labels main process
     multiscale_cpus             // int: number of CPUs allocated for labels multiscale driver
     multiscale_mem_gb           // int: memory size in GB allocated for the labels multiscale driver

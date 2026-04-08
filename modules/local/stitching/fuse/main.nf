@@ -1,7 +1,7 @@
 process STITCHING_FUSE {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0-rc2'
-    cpus { spark.driver_cores }
+    cpus { spark.driver_cpus }
     memory { "${spark.driver_memory}g" }
 
     input:
@@ -41,9 +41,9 @@ process STITCHING_FUSE {
         /app/app.jar
         org.janelia.stitching.StitchingSpark
         ${spark.parallelism}
-        ${spark.executor_cores}
+        ${spark.executor_cpus}
         "${executor_memory_gb}g"
-        ${spark.driver_cores}
+        ${spark.driver_cpus}
         "${driver_memory_gb}g"
         --fuse
         \${app_args[@]}

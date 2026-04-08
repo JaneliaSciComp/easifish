@@ -7,7 +7,7 @@
                 "janelia": {
                     "bigstitcher/module": {
                         "branch": "main",
-                        "git_sha": "ba80af83170e531f8d7c828767431559a749060d",
+                        "git_sha": "a846116933da2c8cb95fe3ba945a6c95e4a0921d",
                         "installed_by": ["modules"]
                     },
                     "bigstream/computeinverse": {
@@ -67,7 +67,7 @@
                     },
                     "spots/rsfish": {
                         "branch": "main",
-                        "git_sha": "95caf8b71c5928c5a643cc46adb1cf5a393c3f00",
+                        "git_sha": "a846116933da2c8cb95fe3ba945a6c95e4a0921d",
                         "installed_by": ["modules"]
                     }
                 }
@@ -76,7 +76,7 @@
                 "janelia": {
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "a846116933da2c8cb95fe3ba945a6c95e4a0921d",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_stop": {
@@ -86,7 +86,7 @@
                     },
                     "spark_start": {
                         "branch": "main",
-                        "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "git_sha": "a846116933da2c8cb95fe3ba945a6c95e4a0921d",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_stop": {

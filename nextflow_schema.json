@@ -186,7 +186,7 @@
                 "spark_local_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "description": "Temporary local folder for Spark processing. Must exist on all cluster nodes. Default: /tmp/spark-${workflow.sessionId}"
+                    "description": "Temporary local folder for Spark processing. Default: /tmp/spark-${workflow.sessionId}"
                 },
                 "spark_max_partition_bytes": {
                     "type": "string",
@@ -1090,6 +1090,11 @@
                     "type": "string",
                     "description": "Intensity calculation method, 0 == Linear Interpolation, 1 == Gaussian fit (on inlier pixels), 2 == Integrate spot intensities (on candidate pixels). Default: 0 (Linear Interpolation)",
                     "fa_icon": "fas fa-level-down-alt"
+                },
+                "rsfish_spark_local_dir": {
+                    "type": "string",
+                    "fa_icon": "fas fa-folder-open",
+                    "description": "Temporary local folder for Spark processing. Default: /tmp/spark-${workflow.sessionId}"
                 },
                 "rsfish_spark_workers": {
                     "type": "integer",

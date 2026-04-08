@@ -14,38 +14,39 @@ include { BIGSTITCHER_MODULE as SOLVER                  } from '../../modules/ja
 workflow BIGSTITCHER {
 
     take:
-    ch_acquisition_data           // channel: [ meta, files ]
-    with_spark_cluster            // boolean: use a distributed spark cluster
-    stitching_result_dir
-    stitched_image_name           // stitched container name
-    bigstitcher_config
+    ch_acquisition_data            // channel: [ meta, files ]
+    with_spark_cluster             // boolean: use a distributed spark cluster
+    stitching_result_dir           // stitching output dir
+    stitched_image_name            // stitched container name
+    bigstitcher_config             // BigStitcher advanced config as a YAML file
     preserve_anisotropy
     skip_all_steps
-    skip_create_dataset           // skip dataset creation (when stitching_xml doesn't exist)
-    skip_resave                   // skip resave step (when stitching_xml doesn't exist)
-    skip_pairwise_stitch          // skip stitching
-    run_detect_interestpoints     // boolean: run interest point detection
-    run_match_interestpoints      // boolean: run interest point matching
-    run_solver                    // boolean: run global solver
-    skip_create_container         // in case the container already exists this option allows the user to skip the step
-    skip_affine_fusion            // skip affine fusion step
-    spark_workdir                 // string|file: spark work dir
-    spark_local_dir               // string|file: spark local dir
-    spark_workers                 // int: number of workers in the cluster (ignored if spark_cluster is false)
-    min_spark_workers             // int: min required spark workers
-    spark_worker_cores            // int: number of cores per worker
-    spark_worker_mem_gb           // int: number of GB of memory per worker
-    spark_executor_cores          // int: number of cores per executor
-    spark_executor_mem_gb         // int: number of GB of memory per executor
+    skip_create_dataset            // skip dataset creation (when stitching_xml doesn't exist)
+    skip_resave                    // skip resave step (when stitching_xml doesn't exist)
+    skip_pairwise_stitch           // skip stitching
+    run_detect_interestpoints      // boolean: run interest point detection
+    run_match_interestpoints       // boolean: run interest point matching
+    run_solver                     // boolean: run global solver
+    skip_create_container          // in case the container already exists this option allows the user to skip the step
+    skip_affine_fusion             // skip affine fusion step
+    spark_workdir                  // string|file: spark work dir
+    spark_local_dir                // string|file: spark local dir
+    spark_workers                  // int: number of workers in the cluster (ignored if spark_cluster is false)
+    min_spark_workers              // int: min required spark workers
+    spark_worker_cpus              // int: number of cpus per worker
+    spark_worker_mem_gb            // int: number of GB of memory per worker
+    spark_executor_cpus            // int: number of cpus per executor
+    spark_executor_mem_gb          // int: number of GB of memory per executor
     spark_executor_overhead_mem_gb // int: executor memory overhead in GB
-    spark_driver_cores            // int: number of cores for the driver
-    spark_driver_mem_gb           // int: number of GB of memory for the driver
-    spark_gb_per_core             // int: number of GB of memory per worker core
-    spark_config                  // map: additional spark configuration
+    spark_task_cpus                // int: cpus allocated per task
+    spark_driver_cpus              // int: number of cpus for the driver
+    spark_driver_mem_gb            // int: number of GB of memory for the driver
+    spark_gb_per_core              // int: number of GB of memory per worker core
+    spark_config                   // map: additional spark configuration
 
     main:
     def prepared_data = ch_acquisition_data
-    | map { it ->
+    .map { it ->
         def (meta, files) = it
         def stitching_meta = meta.clone()
 
@@ -91,18 +92,20 @@ workflow BIGSTITCHER {
             spark_config,
             with_spark_cluster,
             spark_workdir,
+            spark_local_dir,
             spark_workers,
             min_spark_workers,
-            spark_worker_cores,
+            spark_worker_cpus,
             spark_worker_mem_gb,
-            spark_executor_cores,
+            spark_executor_cpus,
             spark_executor_mem_gb,
             spark_executor_overhead_mem_gb,
-            spark_driver_cores,
+            spark_task_cpus,
+            spark_driver_cpus,
             spark_driver_mem_gb,
             spark_gb_per_core,
         )
-        | join(prepared_data, by: 0)
+        .join(prepared_data, by: 0)
 
         stitching_input.view { it -> log.debug "Stitching input: $it" }
 
@@ -122,7 +125,7 @@ workflow BIGSTITCHER {
             }
         } else {
             def pairwise_stitch_with_xml_inputs = with_xml.has_xml
-            | multiMap { it ->
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Stitch using dataset ${stitching_xml}"
@@ -158,7 +161,7 @@ workflow BIGSTITCHER {
             }
         } else {
             def create_dataset_inputs = with_xml.no_xml
-            | multiMap { it ->
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Create dataset ${stitching_xml} from ${meta.image_dir} (${meta.pattern})"
@@ -192,8 +195,8 @@ workflow BIGSTITCHER {
             resave_output = create_dataset_output
         } else {
             def resave_inputs = with_xml.no_xml
-            | join(create_dataset_output, by: 0)
-            | multiMap { it ->
+            .join(create_dataset_output, by: 0)
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Resave dataset ${stitching_xml} to ${meta.image_dir}/dataset.zarr"
@@ -226,8 +229,8 @@ workflow BIGSTITCHER {
             pairwise_stitch_no_xml_output = resave_output
         } else {
             def pairwise_stitch_no_xml_inputs = with_xml.no_xml
-            | join(resave_output, by: 0)
-            | multiMap { it ->
+            .join(resave_output, by: 0)
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Stitch dataset ${stitching_xml}"
@@ -264,8 +267,8 @@ workflow BIGSTITCHER {
             detect_interestpoints_output = pairwise_stitch_output
         } else {
             def detect_interestpoints_inputs = stitching_input
-            | join(pairwise_stitch_output, by: 0)
-            | multiMap { it ->
+            .join(pairwise_stitch_output, by: 0)
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Detect interestpoints in dataset ${stitching_xml}"
@@ -288,8 +291,8 @@ workflow BIGSTITCHER {
             match_interestpoints_output = detect_interestpoints_output
         } else {
             def match_interestpoints_inputs = stitching_input
-            | join(detect_interestpoints_output, by: 0)
-            | multiMap { it ->
+            .join(detect_interestpoints_output, by: 0)
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Match interestpoints in dataset ${stitching_xml}"
@@ -312,8 +315,8 @@ workflow BIGSTITCHER {
             solver_output = match_interestpoints_output
         } else {
             def solver_inputs = stitching_input
-            | join(match_interestpoints_output, by: 0)
-            | multiMap { it ->
+            .join(match_interestpoints_output, by: 0)
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 log.debug "Run solver on dataset ${stitching_xml}"
@@ -335,8 +338,8 @@ workflow BIGSTITCHER {
             create_fused_container_output = solver_output
         } else {
             def create_fused_container_inputs = stitching_input
-            | join(solver_output, by: 0)
-            | multiMap { it ->
+            .join(solver_output, by: 0)
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def stitching_xml = get_stitching_xml_or_default(meta)
                 def preserve_anisotropy_arg = preserve_anisotropy ? '--preserveAnisotropy' : ''
@@ -371,8 +374,8 @@ workflow BIGSTITCHER {
             fuse_output = create_fused_container_output
         } else {
             def fuse_inputs = stitching_input
-            | join(create_fused_container_output, by: 0)
-            | multiMap { it ->
+            .join(create_fused_container_output, by: 0)
+            .multiMap { it ->
                 def (meta, spark, files) = it
                 def module_args = [
                     meta,
@@ -401,7 +404,7 @@ workflow BIGSTITCHER {
             fuse_output,
             with_spark_cluster,
         )
-        | map { it ->
+        .map { it ->
             // Only meta contains data relevant for the next steps
             def (meta, spark) = it
             log.debug "Stopped spark ${spark} - stitching result: $meta"

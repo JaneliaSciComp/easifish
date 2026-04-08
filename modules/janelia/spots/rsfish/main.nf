@@ -1,7 +1,7 @@
 process SPOTS_RSFISH {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/rs-fish-spark:8f8954f'
-    cpus { spark.driver_cores }
+    cpus { spark.driver_cpus }
     memory { "${spark.driver_memory as int}g" }
 
     input:
@@ -55,9 +55,9 @@ process SPOTS_RSFISH {
         /app/app.jar
         net.preibisch.rsfish.spark.SparkRSFISH
         ${spark.parallelism}
-        ${spark.executor_cores}
+        ${spark.executor_cpus}
         "${executor_memory_gb}g"
-        ${spark.driver_cores}
+        ${spark.driver_cpus}
         "${driver_memory_gb}g"
         --spark-conf "spark.jars.ivy=/tmp/.ivy2"
         --spark-conf "spark.driver.extraClassPath=/app/app.jar"

@@ -12,9 +12,9 @@ workflow FISHSPOT_EXTRACTION {
     workdir
     dask_workers
     dask_min_workers           // int: min required spark workers
-    dask_worker_cpus           // int: number of cores per worker
+    dask_worker_cpus           // int: number of CPUs per worker
     dask_worker_mem_gb         // int: number of GB of memory per worker core
-    fishspots_cpus             // int: number of cores for the driver
+    fishspots_cpus             // int: number of CPUs for the driver
     fishspots_mem_gb           // int: number of GB of memory for the driver
 
     main:
