@@ -64,8 +64,11 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     def ch_inputs = channel.of([params.input, params.indir])
-    | map { input_arg, inputdir_arg ->
-        def samplesheet_file = file(input_arg, checkIfExists: true)
+    .flatMap { input_arg, inputdir_arg ->
+        [ParamUtils.as_list(input_arg), [inputdir_arg]].combinations()
+    }
+    .map { input_samplesheet, inputdir_arg ->
+        def samplesheet_file = file(input_samplesheet, checkIfExists: true)
         log.debug "Samplesheet file: ${samplesheet_file}"
         def inputdir = inputdir_arg
                             ? file(inputdir_arg, checkIfExists: true)
