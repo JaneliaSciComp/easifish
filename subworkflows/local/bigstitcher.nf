@@ -82,7 +82,7 @@ workflow BIGSTITCHER {
     }
 
     def stitching_results
-    if (skip_all_steps || skip_create_dataset && skip_resave && skip_pairwise_stitch && skip_create_container && skip_affine_fusion) {
+    if (skip_all_steps || skip_create_dataset && skip_resave && skip_pairwise_stitch && !run_detect_interestpoints && skip_create_container && skip_affine_fusion) {
         stitching_results = prepared_data.map { meta, _data_files ->
             meta
         }
