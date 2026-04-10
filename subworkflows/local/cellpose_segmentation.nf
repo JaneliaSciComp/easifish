@@ -133,7 +133,7 @@ workflow CELLPOSE_SEGMENTATION {
                 segmentation_mem_gb,
             ).results
 
-            cellpose_results.view { it -> log.debug "Cellpose results: $it" }
+            cellpose_results.view { it -> log.debug "Distributed cellpose results: $it" }
 
             labels_ch = cellpose_results
             | join (segmentation_inputs.cellpose_data, by:0)
@@ -141,11 +141,9 @@ workflow CELLPOSE_SEGMENTATION {
                 def (meta,
                      img_container, img_subpath,
                      labels_containers, labels_subpath,
-                     _input_img_container,
-                     _input_img_subpath,
+                     _input_img_container, _input_img_subpath,
                      input_mask, input_mask_sp,
-                     _cellpose_models_dir,
-                     _cellpose_model_name,
+                     _cellpose_models_dir, _cellpose_model_name,
                     _segmentation_output_dir,
                     _segmentation_container,
                     _segmentation_dataset,
@@ -229,6 +227,7 @@ workflow CELLPOSE_SEGMENTATION {
             | map { it ->
                 def (meta,
                      img_container, img_subpath,
+                     input_mask, input_mask_sp,
                      labels_containers, labels_subpath,
                      _segmentation_work_dir) = it
                 log.debug "Inputs automatically transferred to results: $it"

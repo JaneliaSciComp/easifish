@@ -50,12 +50,12 @@ workflow EASIFISH {
         ? ch_acquisitions_raw
             .collect(flat: false)
             .flatMap { aq ->
-                log.info "Downloaded acquisition: $aq"
+                log.debug "Downloaded acquisition: $aq"
                 aq
             }
         : ch_acquisitions_raw
             .map { aq ->
-                log.info "Available acquisition: $aq"
+                log.debug "Available acquisition: $aq"
                 aq
             }
 
