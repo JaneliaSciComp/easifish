@@ -18,9 +18,6 @@
     "segmentation_imgname": "segmentation.zarr",
 
     "skip_stitching": false,
-    "skip_bigstitcher_pairwise_stitch": false,
-    "skip_bigstitcher_create_container": false,
-    "skip_bigstitcher_affine_fusion": false,
     "skip_registration": false,
     "skip_global_align": false,
     "skip_local_align": false,
@@ -35,7 +32,7 @@
     "skip_spots_properties": false,
 
     "stitching_channel": "1",
-    "preserve_anisotropy": false,
+    "bigstitcher_steps": "createDataset,resave,detectInterestPoints,interestPointsStitcher,duplicateTransformation,createContainer,fuse",
 
     "registration_fix_id": "t1",
     "reg_ch": "1",

@@ -1,23 +1,63 @@
 createDataset:
+  classname: net.preibisch.bigstitcher.spark.CreateDataset
   advancedArgs: []
 
 resave:
-  advancedArgs: []
-
-stitch:
+  classname: net.preibisch.bigstitcher.spark.SparkResaveN5
   advancedArgs: []
 
 detectInterestPoints:
-  advancedArgs: []
+  classname: net.preibisch.bigstitcher.spark.SparkInterestPointDetection
+  advancedArgs:
+    - '--overlappingOnly'
+    - '--onlyCompareOverlapTiles'
+    - '--label=beads'
+    - '--sigma=4.2'
+    - '--threshold=0.008'
+    - '--minIntensity=230'
+    - '--maxIntensity=1800'
+    - '--downsampleXY=2'
+    - '--downsampleZ=1'
+
+phaseCorrelationStitcher:
+  classname: net.preibisch.bigstitcher.spark.SparkPhaseCorrelationPairwiseStitching
+  advancedArgs:
+    - '--maxShiftZ=0'
+
+interestPointsStitcher:
+  classname: net.preibisch.bigstitcher.spark.SparkRegisterWithInterestPoints
+  advancedArgs:
+    - '--label=beads'
+    - '--channelId=1'
+    - '--method=PRECISE_TRANSLATION'
+    - '--searchRadius=100'
+    - '--globalOptType=TWO_ROUND_SIMPLE'
+    - '--transformationModel=TRANSLATION'
+    - '--regularizationModel=NONE'
+
+
+duplicateTransformation:
+  classname: net.preibisch.bigstitcher.spark.DuplicateTransformation
+  advancedArgs:
+    - '--duplicateMode=CHANNELS'
+    - '--sourceId=1'
+    - '--transformationsMode=REPLACE_ALL'
 
 matchInterestPoints:
+  classname: net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching
   advancedArgs: []
 
 solver:
+  classname: net.preibisch.bigstitcher.spark.Solver
   advancedArgs: []
 
 createContainer:
-  advancedArgs: []
+  classname: net.preibisch.bigstitcher.spark.CreateFusionContainer
+  advancedArgs:
+    - '--multiRes'
+    - '--preserveAnisotropy'
 
 fuse:
-  advancedArgs: []
+  classname: net.preibisch.bigstitcher.spark.SparkFusion
+  advancedArgs:
+    - '--fusion=CLOSEST_PIXEL_WINS'
