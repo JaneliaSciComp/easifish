@@ -9,6 +9,7 @@ resave:
 detectInterestPoints:
   classname: net.preibisch.bigstitcher.spark.SparkInterestPointDetection
   advancedArgs:
+    - '--channelId=1'
     - '--overlappingOnly'
     - '--onlyCompareOverlapTiles'
     - '--label=beads'
@@ -29,11 +30,10 @@ interestPointsStitcher:
     - '--label=beads'
     - '--channelId=1'
     - '--method=PRECISE_TRANSLATION'
-    - '--searchRadius=100'
-    - '--globalOptType=TWO_ROUND_SIMPLE'
+    - '--searchRadius=1000'
     - '--transformationModel=TRANSLATION'
     - '--regularizationModel=NONE'
-
+    - '--globalOptType=TWO_ROUND_SIMPLE'
 
 duplicateTransformation:
   classname: net.preibisch.bigstitcher.spark.DuplicateTransformation
