@@ -42,6 +42,19 @@ duplicateTransformation:
     - '--sourceId=1'
     - '--transformationsMode=REPLACE_ALL'
 
+intensityMatch:
+  classname: net.preibisch.bigstitcher.spark.SparkIntensityMatching
+  advancedArgs:
+    - '--numCoefficients 8,8,8'
+    - '--renderScale 0.1'
+    - '--minThreshold 5'
+    - '--maxThreshold 65534'
+    - '--method HISTOGRAM'
+
+intensitySolver:
+  classname: net.preibisch.bigstitcher.spark.IntensitySolver
+  advancedArgs: []
+
 matchInterestPoints:
   classname: net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching
   advancedArgs: []
@@ -61,3 +74,4 @@ fuse:
   advancedArgs:
     # fusion arg values:AVG_BLEND,CLOSEST_PIXEL_WINS
     - '--fusion=AVG_BLEND'
+  useIntensityCoefficients: false

@@ -7,6 +7,8 @@ include { BIGSTITCHER_MODULE as DETECT_IP                } from '../../modules/j
 include { BIGSTITCHER_MODULE as STITCH_PHASE             } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as STITCH_IP                } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as DUPLICATE_TF             } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as INTENSITY_MATCH          } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as INTENSITY_SOLVE          } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as MATCH_IP                 } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as SOLVER                   } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as CREATE_CONTAINER         } from '../../modules/janelia/bigstitcher/module'
@@ -130,6 +132,14 @@ workflow BIGSTITCHER {
             def inp = bigstitcher_step_input('duplicateTransformation', stitching_data, bigstitcher_config)
             stitching_data = DUPLICATE_TF(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
+        if (has_step('intensityMatch', stitching_steps)) {
+            def inp = bigstitcher_step_input('intensityMatch', stitching_data, bigstitcher_config)
+            stitching_data = INTENSITY_MATCH(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        }
+        if (has_step('intensitySolver', stitching_steps)) {
+            def inp = bigstitcher_step_input('intensitySolver', stitching_data, bigstitcher_config)
+            stitching_data = INTENSITY_SOLVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        }
         if (has_step('matchInterestPoints', stitching_steps)) {
             def inp = bigstitcher_step_input('matchInterestPoints', stitching_data, bigstitcher_config)
             stitching_data = MATCH_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
@@ -182,9 +192,13 @@ def has_step(String step_name, List steps) {
     return aliases[step_name] in steps
 }
 
-def get_bigstitcher_class(Map config, String step_name) {
+def get_step_config(Map config, String step_name) {
     def normalized = normalize_step_name(step_name)
-    def cls = config?.get(normalized)?.get('classname')
+    config?.get(normalized) ?: [:]
+}
+
+def get_step_class(Map config, String step_name) {
+    def cls = get_step_config(config, step_name).get('classname')
     if (!cls) {
         error "Missing BigStitcher classname for step '${step_name}' in bigstitcher_config"
     }
@@ -192,8 +206,7 @@ def get_bigstitcher_class(Map config, String step_name) {
 }
 
 def get_advanced_args(Map config, String step_name) {
-    def normalized = normalize_step_name(step_name)
-    config?.get(normalized)?.get('advancedArgs') ?: []
+    get_step_config(config, step_name).get('advancedArgs') ?: []
 }
 
 /**
@@ -202,8 +215,10 @@ def get_advanced_args(Map config, String step_name) {
  * createContainer needs output container info).
  */
 def prepare_bigstitcher_args(String step_name, Map config, meta) {
-    def cls = get_bigstitcher_class(config, step_name)
+    def cls = get_step_class(config, step_name)
     def stitching_xml = get_stitching_xml_or_default(meta)
+    def intensity_location = "stitching/${meta.id}/intensity/"
+    def intensity_coefficients = "${intensity_location}coefficients.zarr"
     def params
     if (step_name == 'createDataset') {
         params = [
@@ -224,12 +239,39 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
             '--group', meta.id,
             '-s', meta.stitching_container_storage,
         ]
+    } else if (step_name == 'intensityMatch') {
+        params = [
+            '-x', stitching_xml,
+            '-o', "${meta.stitching_result_dir}/${intensity_location}",
+        ]
+    } else if (step_name == 'intensitySolver') {
+        params = [
+            '-x', stitching_xml,
+            '--matchesPath', "${meta.stitching_result_dir}/${intensity_location}",
+            '-o', "${meta.stitching_result_dir}/${intensity_coefficients}",
+            '-s', meta.stitching_container_storage,
+        ]
+        // update config for fuse step and set 'useIntensityCoefficients' automatically
+        // if the intensity correction is not needed it can still be ignored by setting 'ignoreIntensityCoefficients' to true
+        def fuse_config = get_step_config(config, 'fuse')
+        if (fuse_config) {
+            fuse_config['useIntensityCoefficients'] = true
+        } else {
+            fuse_config['useIntensityCoefficients'] = true
+            config['fuse'] = fuse_config
+        }
     } else if (step_name == 'fuse') {
+        def intensityCoefficientsArgs = get_step_config(config, step_name)['useIntensityCoefficients'] && !get_step_config(config, step_name)['ignoreIntensityCoefficients']
+            ? [
+                '--intensityN5Path', "${meta.stitching_result_dir}/${intensity_coefficients}",
+                '--intensityN5Storage', meta.stitching_container_storage,
+              ]
+            : []
         params = [
             '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
             '--group', meta.id,
             '-s', meta.stitching_container_storage,
-        ]
+        ] + intensityCoefficientsArgs
     } else {
         params = ['-x', stitching_xml]
     }
