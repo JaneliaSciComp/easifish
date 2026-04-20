@@ -205,7 +205,7 @@
                 },
                 "bigstitcher_steps": {
                     "type": "string",
-                    "description": "Comma delimited list of BigStitcher steps to run. The steps configuration is specified in bigstitcher_config"
+                    "description": "Comma delimited list of BigStitcher steps to run. The steps configuration is specified in bigstitcher_config. Valid steps are: createDataset,resave,detectInterestPoints,interestPointsStitcher,duplicateTransformation,intensityMatch,intensitySolver,createContainer,fuse"
                 }
             },
             "fa_icon": "fas fa-th"

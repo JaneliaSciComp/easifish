@@ -65,7 +65,7 @@ For more details and further functionality, please refer to the [usage documenta
 
 The pipeline supports two stitching methods, selected via `--stitching_method`:
 
-- **BigStitcher** (default) — Uses [bigstitcher-spark](https://github.com/JaneliaSciComp/bigstitcher-spark). Recommended for most cases. Does not require an MVL file. Supports fine-grained step skipping (e.g., `--skip_bigstitcher_resave`, `--skip_bigstitcher_pairwise_stitch`). If the samplesheet includes a pre-existing BDV project file (`dataset.xml`), you can skip directly to the create-container and fuse steps.
+- **BigStitcher** (default) — Uses [bigstitcher-spark](https://github.com/JaneliaSciComp/bigstitcher-spark). Recommended for most cases. Does not require an MVL file. Supports specify which stitching steps to run using `--bigstitcher_steps` parameter. For each step you can provide additional parameters in a YAML file like [bigsticher_conf.yml](conf/bigstitcher_config.yml).
 - **SaalfeldStitcher** — Uses [stitching-spark](https://github.com/saalfeldlab/stitching-spark). Requires an MVL file with stage coordinates.
 
 Both methods use Apache Spark for distributed processing. Key Spark parameters:
