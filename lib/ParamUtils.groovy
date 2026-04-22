@@ -67,4 +67,8 @@ class ParamUtils {
             return []
         }
     }
+
+    static def get_mem_gb(mem_gb, ncpus, default_mem_gb_per_cpu, safety_margin) {
+        mem_gb ?: default_mem_gb_per_cpu * ncpus - safety_margin
+    }
 }
