@@ -1,15 +1,18 @@
 include { SPARK_START                                   } from '../janelia/spark_start/main'
 include { SPARK_STOP                                    } from '../janelia/spark_stop/main'
 
-include { BIGSTITCHER_MODULE as CREATE_DATASET          } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as RESAVE                  } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as STITCH_EXISTING_DATASET } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as STITCH_NEW_DATASET      } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as CREATE_CONTAINER        } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as FUSE                    } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as DETECT_INTERESTPOINTS   } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as MATCH_INTERESTPOINTS    } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as SOLVER                  } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as CREATE_DATASET           } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as RESAVE                   } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as DETECT_IP                } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as STITCH_PHASE             } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as STITCH_IP                } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as DUPLICATE_TF             } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as INTENSITY_MATCH          } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as INTENSITY_SOLVE          } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as MATCH_IP                 } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as SOLVER                   } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as CREATE_CONTAINER         } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as FUSE                     } from '../../modules/janelia/bigstitcher/module'
 
 workflow BIGSTITCHER {
 
@@ -18,17 +21,9 @@ workflow BIGSTITCHER {
     with_spark_cluster             // boolean: use a distributed spark cluster
     stitching_result_dir           // stitching output dir
     stitched_image_name            // stitched container name
+    skip                           // boolean:
     bigstitcher_config             // BigStitcher advanced config as a YAML file
-    preserve_anisotropy
-    skip_all_steps
-    skip_create_dataset            // skip dataset creation (when stitching_xml doesn't exist)
-    skip_resave                    // skip resave step (when stitching_xml doesn't exist)
-    skip_pairwise_stitch           // skip stitching
-    run_detect_interestpoints      // boolean: run interest point detection
-    run_match_interestpoints       // boolean: run interest point matching
-    run_solver                     // boolean: run global solver
-    skip_create_container          // in case the container already exists this option allows the user to skip the step
-    skip_affine_fusion             // skip affine fusion step
+    stitching_steps                // list[string] - BigStitcher steps
     spark_workdir                  // string|file: spark work dir
     spark_local_dir                // string|file: spark local dir
     spark_workers                  // int: number of workers in the cluster (ignored if spark_cluster is false)
@@ -61,9 +56,11 @@ workflow BIGSTITCHER {
         } else if (to_lowercase_image_name.endsWith('.h5') ||
                    to_lowercase_image_name.endsWith('.hdf5')) {
             stitching_meta.stitching_container_storage = 'HDF5'
-        } else {
-            // default to OME-ZARR
+        } else if (to_lowercase_image_name.endsWith('.zarr3')) {
             stitching_meta.stitching_container_storage = 'ZARR'
+        } else {
+            // default to OME-ZARR v2
+            stitching_meta.stitching_container_storage = 'ZARR2'
         }
 
         def data_files = files + [ stitching_result_dir ] +
@@ -82,7 +79,7 @@ workflow BIGSTITCHER {
     }
 
     def stitching_results
-    if (skip_all_steps || skip_create_dataset && skip_resave && skip_pairwise_stitch && skip_create_container && skip_affine_fusion) {
+    if (skip || stitching_steps.empty) {
         stitching_results = prepared_data.map { meta, _data_files ->
             meta
         }
@@ -109,303 +106,62 @@ workflow BIGSTITCHER {
 
         stitching_input.view { it -> log.debug "Stitching input: $it" }
 
-        // Split into two paths based on whether stitching_xml exists
-        def with_xml = stitching_input.branch { it ->
-            def (meta, _spark, _files) = it
-            has_xml: meta.stitching_xml != null
-            no_xml: meta.stitching_xml == null
+        def stitching_data = stitching_input
+
+        if (has_step('createDataset', stitching_steps)) {
+            def inp = bigstitcher_step_input('createDataset', stitching_data, bigstitcher_config)
+            stitching_data = CREATE_DATASET(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        // Path 1: stitching_xml exists - use SparkPairwiseStitching directly
-        def pairwise_stitch_with_xml_output
-        if (skip_pairwise_stitch) {
-            pairwise_stitch_with_xml_output = with_xml.has_xml.map { it ->
-                def (meta, spark) = it
-                [ meta, spark ]
-            }
-        } else {
-            def pairwise_stitch_with_xml_inputs = with_xml.has_xml
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def stitching_xml = get_stitching_xml_or_default(meta)
-                log.debug "Stitch using dataset ${stitching_xml}"
-                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
-                def bigstitcher_params = [
-                    '-x', stitching_xml,
-                ] + get_advanced_args(bigstitcher_config, 'stitch')
-                log.debug "Bigstitcher parameters: ${bigstitcher_class}: ${bigstitcher_params}"
-                def module_args = [
-                    meta,
-                    spark,
-                    bigstitcher_class,
-                    bigstitcher_params,
-                ]
-                log.debug "Stitching module args: $module_args"
-                module_args: module_args
-                data_files: files
-            }
-
-            pairwise_stitch_with_xml_output = STITCH_EXISTING_DATASET(
-                pairwise_stitch_with_xml_inputs.module_args,
-                pairwise_stitch_with_xml_inputs.data_files,
-            )
+        if (has_step('resave', stitching_steps)) {
+            def inp = bigstitcher_step_input('resave', stitching_data, bigstitcher_config)
+            stitching_data = RESAVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        // Path 2: stitching_xml doesn't exist - use separate create-dataset, resave, and stitching calls
-        // Step 1: create-dataset (conditionally executed)
-        def create_dataset_output
-        if (skip_create_dataset) {
-            create_dataset_output = with_xml.no_xml.map { it ->
-                def (meta, spark) = it
-                [ meta, spark ]
-            }
-        } else {
-            def create_dataset_inputs = with_xml.no_xml
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def stitching_xml = get_stitching_xml_or_default(meta)
-                log.debug "Create dataset ${stitching_xml} from ${meta.image_dir} (${meta.pattern})"
-                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.CreateDataset'
-                def bigstitcher_params = [
-                    '--input-pattern', meta.pattern,
-                    '--input-path', meta.image_dir,
-                    '-x', stitching_xml,
-                ] + get_advanced_args(bigstitcher_config, 'createDataset')
-                log.debug "Create dataset parameters: ${bigstitcher_class}: ${bigstitcher_params}"
-                def module_args = [
-                    meta,
-                    spark,
-                    bigstitcher_class,
-                    bigstitcher_params,
-                ]
-                log.debug "Create dataset module args: $module_args"
-                module_args: module_args
-                data_files: files
-            }
-
-            create_dataset_output = CREATE_DATASET(
-                create_dataset_inputs.module_args,
-                create_dataset_inputs.data_files,
-            )
+        if (has_step('detectInterestPoints', stitching_steps)) {
+            def inp = bigstitcher_step_input('detectInterestPoints', stitching_data, bigstitcher_config)
+            stitching_data = DETECT_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        // Step 2: resave (conditionally executed)
-        def resave_output
-        if (skip_resave) {
-            resave_output = create_dataset_output
-        } else {
-            def resave_inputs = with_xml.no_xml
-            .join(create_dataset_output, by: 0)
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def stitching_xml = get_stitching_xml_or_default(meta)
-                log.debug "Resave dataset ${stitching_xml} to ${meta.image_dir}/dataset.zarr"
-                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkResaveN5'
-                def bigstitcher_params = [
-                    '-x', stitching_xml,
-                    '-o', "${meta.image_dir}/dataset.zarr",
-                ] + get_advanced_args(bigstitcher_config, 'resave')
-                log.debug "Resave parameters: ${bigstitcher_class}: ${bigstitcher_params}"
-                def module_args = [
-                    meta,
-                    spark,
-                    bigstitcher_class,
-                    bigstitcher_params,
-                ]
-                log.debug "Resave module args: $module_args"
-                module_args: module_args
-                data_files: files
-            }
-
-            resave_output = RESAVE(
-                resave_inputs.module_args,
-                resave_inputs.data_files,
-            )
+        if (has_step('phaseCorrelationStitcher', stitching_steps)) {
+            def inp = bigstitcher_step_input('phaseCorrelationStitcher', stitching_data, bigstitcher_config)
+            stitching_data = STITCH_PHASE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        // Step 3: pairwise stitching
-        def pairwise_stitch_no_xml_output
-        if (skip_pairwise_stitch) {
-            pairwise_stitch_no_xml_output = resave_output
-        } else {
-            def pairwise_stitch_no_xml_inputs = with_xml.no_xml
-            .join(resave_output, by: 0)
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def stitching_xml = get_stitching_xml_or_default(meta)
-                log.debug "Stitch dataset ${stitching_xml}"
-                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkPairwiseStitching'
-                def bigstitcher_params = [
-                    '-x', stitching_xml,
-                ] + get_advanced_args(bigstitcher_config, 'stitch')
-                log.debug "Pairwise stitching parameters: ${bigstitcher_class}: ${bigstitcher_params}"
-                def module_args = [
-                    meta,
-                    spark,
-                    bigstitcher_class,
-                    bigstitcher_params,
-                ]
-                log.debug "Pairwise stitching module args: $module_args"
-                module_args: module_args
-                data_files: files
-            }
-
-            pairwise_stitch_no_xml_output = STITCH_NEW_DATASET(
-                pairwise_stitch_no_xml_inputs.module_args,
-                pairwise_stitch_no_xml_inputs.data_files,
-            )
+        if (has_step('interestPointsStitcher', stitching_steps)) {
+            def inp = bigstitcher_step_input('interestPointsStitcher', stitching_data, bigstitcher_config)
+            stitching_data = STITCH_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        // Combine both paths
-        def pairwise_stitch_output = pairwise_stitch_with_xml_output.mix(pairwise_stitch_no_xml_output)
-
-        pairwise_stitch_output.view { it -> log.debug "Stitching output: $it" }
-
-        // Step: detect-interestpoints (opt-in)
-        def detect_interestpoints_output
-        if (!run_detect_interestpoints) {
-            detect_interestpoints_output = pairwise_stitch_output
-        } else {
-            def detect_interestpoints_inputs = stitching_input
-            .join(pairwise_stitch_output, by: 0)
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def stitching_xml = get_stitching_xml_or_default(meta)
-                log.debug "Detect interestpoints in dataset ${stitching_xml}"
-                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkInterestPointDetection'
-                def bigstitcher_params = [ '-x', stitching_xml ] + get_advanced_args(bigstitcher_config, 'detectInterestPoints')
-                def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
-                module_args: module_args
-                data_files: files
-            }
-
-            detect_interestpoints_output = DETECT_INTERESTPOINTS(
-                detect_interestpoints_inputs.module_args,
-                detect_interestpoints_inputs.data_files,
-            )
+        if (has_step('duplicateTransformation', stitching_steps)) {
+            def inp = bigstitcher_step_input('duplicateTransformation', stitching_data, bigstitcher_config)
+            stitching_data = DUPLICATE_TF(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        // Step: match-interestpoints (opt-in)
-        def match_interestpoints_output
-        if (!run_match_interestpoints) {
-            match_interestpoints_output = detect_interestpoints_output
-        } else {
-            def match_interestpoints_inputs = stitching_input
-            .join(detect_interestpoints_output, by: 0)
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def stitching_xml = get_stitching_xml_or_default(meta)
-                log.debug "Match interestpoints in dataset ${stitching_xml}"
-                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching'
-                def bigstitcher_params = [ '-x', stitching_xml ] + get_advanced_args(bigstitcher_config, 'matchInterestPoints')
-                def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
-                module_args: module_args
-                data_files: files
-            }
-
-            match_interestpoints_output = MATCH_INTERESTPOINTS(
-                match_interestpoints_inputs.module_args,
-                match_interestpoints_inputs.data_files,
-            )
+        if (has_step('intensityMatch', stitching_steps)) {
+            def inp = bigstitcher_step_input('intensityMatch', stitching_data, bigstitcher_config)
+            stitching_data = INTENSITY_MATCH(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        // Step: solver (opt-in)
-        def solver_output
-        if (!run_solver) {
-            solver_output = match_interestpoints_output
-        } else {
-            def solver_inputs = stitching_input
-            .join(match_interestpoints_output, by: 0)
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def stitching_xml = get_stitching_xml_or_default(meta)
-                log.debug "Run solver on dataset ${stitching_xml}"
-                def bigstitcher_class = 'net.preibisch.bigstitcher.spark.Solver'
-                def bigstitcher_params = [ '-x', stitching_xml ] + get_advanced_args(bigstitcher_config, 'solver')
-                def module_args = [ meta, spark, bigstitcher_class, bigstitcher_params ]
-                module_args: module_args
-                data_files: files
-            }
-
-            solver_output = SOLVER(
-                solver_inputs.module_args,
-                solver_inputs.data_files,
-            )
+        if (has_step('intensitySolver', stitching_steps)) {
+            def inp = bigstitcher_step_input('intensitySolver', stitching_data, bigstitcher_config)
+            stitching_data = INTENSITY_SOLVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        def create_fused_container_output
-        if (skip_create_container) {
-            create_fused_container_output = solver_output
-        } else {
-            def create_fused_container_inputs = stitching_input
-            .join(solver_output, by: 0)
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def stitching_xml = get_stitching_xml_or_default(meta)
-                def preserve_anisotropy_arg = preserve_anisotropy ? '--preserveAnisotropy' : ''
-                def module_args = [
-                    meta,
-                    spark,
-                    'net.preibisch.bigstitcher.spark.CreateFusionContainer',
-                    [
-                        '-x', stitching_xml,
-                        '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
-                        "--group", meta.id,
-                        '-s', meta.stitching_container_storage,
-                        '--multiRes', // always generate the multiresolution pyramid
-                        preserve_anisotropy_arg,
-                    ] + get_advanced_args(bigstitcher_config, 'createContainer')
-                ]
-                log.debug "Create-container module args: $module_args"
-
-                module_args: module_args
-                data_files: files
-            }
-
-            create_fused_container_output = CREATE_CONTAINER(
-                create_fused_container_inputs.module_args,
-                create_fused_container_inputs.data_files,
-            )
-
+        if (has_step('matchInterestPoints', stitching_steps)) {
+            def inp = bigstitcher_step_input('matchInterestPoints', stitching_data, bigstitcher_config)
+            stitching_data = MATCH_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
-
-        def fuse_output
-        if (skip_affine_fusion) {
-            fuse_output = create_fused_container_output
-        } else {
-            def fuse_inputs = stitching_input
-            .join(create_fused_container_output, by: 0)
-            .multiMap { it ->
-                def (meta, spark, files) = it
-                def module_args = [
-                    meta,
-                    spark,
-                    'net.preibisch.bigstitcher.spark.SparkAffineFusion',
-                    [
-                        '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
-                        "--group", meta.id,
-                        '-s', meta.stitching_container_storage,
-                    ] + get_advanced_args(bigstitcher_config, 'fuse')
-                ]
-                log.debug "Affine fuse module args: $module_args"
-
-                module_args: module_args
-                data_files: files
-            }
-
-            fuse_output = FUSE(
-                fuse_inputs.module_args,
-                fuse_inputs.data_files,
-            )
-
+        if (has_step('solver', stitching_steps)) {
+            def inp = bigstitcher_step_input('solver', stitching_data, bigstitcher_config)
+            stitching_data = SOLVER(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        }
+        if (has_step('createContainer', stitching_steps)) {
+            def inp = bigstitcher_step_input('createContainer', stitching_data, bigstitcher_config)
+            stitching_data = CREATE_CONTAINER(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        }
+        if (has_step('fuse', stitching_steps)) {
+            def inp = bigstitcher_step_input('fuse', stitching_data, bigstitcher_config)
+            stitching_data = FUSE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
 
         stitching_results = SPARK_STOP(
-            fuse_output,
+            stitching_data.map { meta, spark, _files -> [meta, spark] },
             with_spark_cluster,
         )
         .map { it ->
-            // Only meta contains data relevant for the next steps
             def (meta, spark) = it
             log.debug "Stopped spark ${spark} - stitching result: $meta"
             meta
@@ -416,10 +172,125 @@ workflow BIGSTITCHER {
     done = stitching_results
 }
 
+// --- Helper methods ---
+
 def get_stitching_xml_or_default(meta) {
     return meta.stitching_xml ?: "${meta.image_dir}/dataset.xml"
 }
 
-def get_advanced_args(Map config, String step) {
-    config?.get(step)?.get('advancedArgs') ?: []
+def normalize_step_name(String step_name) {
+    def canonical = [stitch: 'phaseCorrelationStitcher']
+    return canonical[step_name] ?: step_name
+}
+
+def has_step(String step_name, List steps) {
+    if (step_name in steps) return true
+    def aliases = [
+        stitch: 'phaseCorrelationStitcher',
+        phaseCorrelationStitcher: 'stitch',
+    ]
+    return aliases[step_name] in steps
+}
+
+def get_step_config(Map config, String step_name) {
+    def normalized = normalize_step_name(step_name)
+    config?.get(normalized) ?: [:]
+}
+
+def get_step_class(Map config, String step_name) {
+    def cls = get_step_config(config, step_name).get('classname')
+    if (!cls) {
+        error "Missing BigStitcher classname for step '${step_name}' in bigstitcher_config"
+    }
+    return cls
+}
+
+def get_advanced_args(Map config, String step_name) {
+    get_step_config(config, step_name).get('advancedArgs') ?: []
+}
+
+/**
+ * Prepares [class, params] for a given BigStitcher step.
+ * Handles step-specific arguments (e.g. createDataset needs input paths,
+ * createContainer needs output container info).
+ */
+def prepare_bigstitcher_args(String step_name, Map config, meta) {
+    def cls = get_step_class(config, step_name)
+    def stitching_xml = get_stitching_xml_or_default(meta)
+    def intensity_location = "stitching/${meta.id}/intensity/"
+    def intensity_coefficients = "${intensity_location}coefficients.zarr"
+    def params
+    if (step_name == 'createDataset') {
+        params = [
+            '--input-pattern', meta.pattern,
+            '--input-path', meta.image_dir,
+            '-x', stitching_xml,
+        ]
+    } else if (step_name == 'resave') {
+        params = [
+            '-x', stitching_xml,
+            '-o', "${meta.image_dir}/dataset.zarr",
+            '-s', meta.stitching_container_storage,
+        ]
+    } else if (step_name == 'createContainer') {
+        params = [
+            '-x', stitching_xml,
+            '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
+            '--group', meta.id,
+            '-s', meta.stitching_container_storage,
+        ]
+    } else if (step_name == 'intensityMatch') {
+        params = [
+            '-x', stitching_xml,
+            '-o', "${meta.stitching_result_dir}/${intensity_location}",
+        ]
+    } else if (step_name == 'intensitySolver') {
+        params = [
+            '-x', stitching_xml,
+            '--matchesPath', "${meta.stitching_result_dir}/${intensity_location}",
+            '-o', "${meta.stitching_result_dir}/${intensity_coefficients}",
+            '-s', meta.stitching_container_storage,
+        ]
+        // update config for fuse step and set 'useIntensityCoefficients' automatically
+        // if the intensity correction is not needed it can still be ignored by setting 'ignoreIntensityCoefficients' to true
+        def fuse_config = get_step_config(config, 'fuse')
+        if (fuse_config) {
+            fuse_config['useIntensityCoefficients'] = true
+        } else {
+            fuse_config['useIntensityCoefficients'] = true
+            config['fuse'] = fuse_config
+        }
+    } else if (step_name == 'fuse') {
+        def intensityCoefficientsArgs = get_step_config(config, step_name)['useIntensityCoefficients'] && !get_step_config(config, step_name)['ignoreIntensityCoefficients']
+            ? [
+                '--intensityN5Path', "${meta.stitching_result_dir}/${intensity_coefficients}",
+                '--intensityN5Storage', meta.stitching_container_storage,
+              ]
+            : []
+        params = [
+            '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
+            '--group', meta.id,
+            '-s', meta.stitching_container_storage,
+        ] + intensityCoefficientsArgs
+    } else {
+        params = ['-x', stitching_xml]
+    }
+
+    params += get_advanced_args(config, step_name)
+    log.debug "BigStitcher step '${step_name}': class=${cls}, params=${params}"
+    [cls, params]
+}
+
+/**
+ * Prepares multiMap channels for a BigStitcher step invocation.
+ * Returns an object with .module_args, .data_files, and .carry channels.
+ * After the step runs, join its output with .carry to restore [meta, spark, files].
+ */
+def bigstitcher_step_input(String step_name, ch_data, Map config) {
+    ch_data.multiMap { meta, spark, files ->
+        def (cls, step_params) = prepare_bigstitcher_args(step_name, config, meta)
+        module_args: [meta, spark, cls, step_params]
+        data_files: files
+        carry: [meta, files]
+    }
 }

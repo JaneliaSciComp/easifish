@@ -79,6 +79,8 @@ workflow SPOT_EXTRACTION {
     def spots_results
     if (params.spots_extraction_method == 'FISHSPOT') {
         log.debug "Extract spots using Fishspot"
+        def fishspots_worker_mem_gb = params.fishspots_dask_worker_mem_gb ?: (params.fishspots_dask_worker_cpus * params.default_mem_gb_per_cpu - 1)
+        def fishspots_driver_mem_gb = params.fishspots_mem_gb ?: (params.fishspots_cpus * params.default_mem_gb_per_cpu - 1)
         spots_results = FISHSPOT_EXTRACTION(
             spots_to_process_ch,
             params.distributed_spot_extraction,
@@ -88,9 +90,9 @@ workflow SPOT_EXTRACTION {
             params.fishspots_dask_workers,
             params.fishspots_dask_min_workers,
             params.fishspots_dask_worker_cpus,
-            params.fishspots_dask_worker_mem_gb,
+            fishspots_worker_mem_gb,
             params.fishspots_cpus ,
-            params.fishspots_mem_gb,
+            fishspots_driver_mem_gb,
         )
     } else {
         log.debug "Extract spots using RS_FISH"

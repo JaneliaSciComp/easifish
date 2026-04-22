@@ -1,23 +1,77 @@
 createDataset:
+  classname: net.preibisch.bigstitcher.spark.CreateDataset
   advancedArgs: []
 
 resave:
-  advancedArgs: []
-
-stitch:
+  classname: net.preibisch.bigstitcher.spark.SparkResaveN5
   advancedArgs: []
 
 detectInterestPoints:
+  classname: net.preibisch.bigstitcher.spark.SparkInterestPointDetection
+  advancedArgs:
+    - '--channelId=1'
+    - '--overlappingOnly'
+    - '--onlyCompareOverlapTiles'
+    - '--label=beads'
+    - '--sigma=4.2'
+    - '--threshold=0.008'
+    - '--minIntensity=230'
+    - '--maxIntensity=1800'
+    - '--downsampleXY=2'
+    - '--downsampleZ=1'
+
+phaseCorrelationStitcher:
+  classname: net.preibisch.bigstitcher.spark.SparkPhaseCorrelationPairwiseStitching
+  advancedArgs: []
+
+interestPointsStitcher:
+  classname: net.preibisch.bigstitcher.spark.SparkRegisterWithInterestPoints
+  advancedArgs:
+    - '--label=beads'
+    - '--channelId=1'
+    - '--method=PRECISE_TRANSLATION'
+    - '--searchRadius=1000'
+    - '--transformationModel=TRANSLATION'
+    - '--regularizationModel=NONE'
+    - '--globalOptType=TWO_ROUND_SIMPLE'
+
+duplicateTransformation:
+  classname: net.preibisch.bigstitcher.spark.DuplicateTransformation
+  advancedArgs:
+    - '--duplicateMode=CHANNELS'
+    - '--sourceId=1'
+    - '--transformationsMode=REPLACE_ALL'
+
+intensityMatch:
+  classname: net.preibisch.bigstitcher.spark.SparkIntensityMatching
+  advancedArgs:
+    - '--numCoefficients 8,8,8'
+    - '--renderScale 0.1'
+    - '--minThreshold 5'
+    - '--maxThreshold 65534'
+    - '--method HISTOGRAM'
+
+intensitySolver:
+  classname: net.preibisch.bigstitcher.spark.IntensitySolver
   advancedArgs: []
 
 matchInterestPoints:
+  classname: net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching
   advancedArgs: []
 
 solver:
+  classname: net.preibisch.bigstitcher.spark.Solver
   advancedArgs: []
 
 createContainer:
-  advancedArgs: []
+  classname: net.preibisch.bigstitcher.spark.CreateFusionContainer
+  advancedArgs:
+    - '--multiRes'
+    - '--preserveAnisotropy'
 
 fuse:
-  advancedArgs: []
+  classname: net.preibisch.bigstitcher.spark.SparkFusion
+  advancedArgs:
+    # fusion arg values:AVG_BLEND,CLOSEST_PIXEL_WINS
+    - '--fusion=AVG_BLEND'
+  useIntensityCoefficients: false

@@ -197,68 +197,15 @@
             "type": "object",
             "description": "BigStitcher specific options",
             "properties": {
-                "skip_bigstitcher_create_dataset": {
-                    "type": "boolean",
-                    "description": "Skip dataset creation with BigStitcher (when the BigDataViewer XML is not used)",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
-                "skip_bigstitcher_resave": {
-                    "type": "boolean",
-                    "description": "Skip resave step with BigStitcher (when BigDataViewer XML is not used)",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
-                "skip_bigstitcher_pairwise_stitch": {
-                    "type": "boolean",
-                    "description": "Skip pairwise stitching with BigStitcher",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
-                "skip_bigstitcher_create_container": {
-                    "type": "boolean",
-                    "description": "Skip create container with BigStitcher",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
-                "skip_bigstitcher_affine_fusion": {
-                    "type": "boolean",
-                    "description": "Skip affine fusion with BigStitcher",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
-                "run_bigstitcher_detect_intpts": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Run interest point detection with BigStitcher (SparkInterestPointDetection)",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
-                "run_bigstitcher_match_intpts": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Run interest point matching with BigStitcher (SparkGeometricDescriptorMatching)",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
-                "run_bigstitcher_solver": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Run global solver with BigStitcher (Solver)",
-                    "hidden": true,
-                    "fa_icon": "fas fa-toggle-on"
-                },
                 "bigstitcher_config": {
                     "type": "string",
                     "format": "file-path",
                     "description": "Path to a YAML config file with per-step advancedArgs for BigStitcher. Supported step keys: createDataset, resave, stitch, detectInterestPoints, matchInterestPoints, solver, createContainer, fuse.",
                     "fa_icon": "fas fa-file-code"
                 },
-                "preserve_anisotropy": {
-                    "type": "boolean",
-                    "description": "BigStitcher preserveAnisotropy flag",
-                    "default": false,
-                    "fa_icon": "fas fa-toggle-on"
+                "bigstitcher_steps": {
+                    "type": "string",
+                    "description": "Comma delimited list of BigStitcher steps to run. The steps configuration is specified in bigstitcher_config. Valid steps are: createDataset,resave,detectInterestPoints,interestPointsStitcher,duplicateTransformation,intensityMatch,intensitySolver,createContainer,fuse"
                 }
             },
             "fa_icon": "fas fa-th"
