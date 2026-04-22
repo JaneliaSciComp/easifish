@@ -92,10 +92,22 @@ workflow SEGMENTATION {
         }
     }
 
-    def cellpose_dask_worker_mem_gb = params.cellpose_dask_worker_mem_gb ?: params.cellpose_dask_worker_cpus * params.default_mem_gb_per_cpu
-    def cellpose_segmentation_mem_gb = params.cellpose_segmentation_mem_gb ?: params.cellpose_segmentation_cpus * params.default_mem_gb_per_cpu
+    def cellpose_dask_worker_mem_gb = ParamUtils.get_mem_gb(
+        params.cellpose_dask_worker_mem_gb,
+        params.cellpose_dask_worker_cpus,
+        params.default_mem_gb_per_cpu,
+        0)
+    def cellpose_segmentation_mem_gb = ParamUtils.get_mem_gb(
+        params.cellpose_segmentation_mem_gb,
+        params.cellpose_segmentation_cpus,
+        params.default_mem_gb_per_cpu,
+        0)
     def cellpose_mergelabels_cpus = params.cellpose_mergelabels_cpus ?: params.cellpose_segmentation_cpus
-    def cellpose_mergelabels_mem_gb = params.cellpose_mergelabels_mem_gb ?: cellpose_mergelabels_cpus * params.default_mem_gb_per_cpu
+    def cellpose_mergelabels_mem_gb = ParamUtils.get_mem_gb(
+        params.cellpose_mergelabels_mem_gb,
+        cellpose_mergelabels_cpus,
+        params.default_mem_gb_per_cpu,
+        0)
     def cellpose_results = CELLPOSE_SEGMENTATION(
         seg_volume,
         params.skip_segmentation,

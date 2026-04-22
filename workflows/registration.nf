@@ -360,7 +360,7 @@ workflow RUN_GLOBAL_REGISTRATION {
             global_registration_inputs,
             bigstream_config,
             params.global_align_cpus,
-            params.global_align_mem_gb ?: params.default_mem_gb_per_cpu * params.global_align_cpus,
+            ParamUtils.get_mem_gb(params.global_align_mem_gb, params.global_align_cpus, params.default_mem_gb_per_cpu, 0),
         )
     } else {
         global_registration_results = global_registration_inputs
@@ -478,7 +478,7 @@ workflow START_EASIFISH_DASK {
         params.bigstream_dask_workers,
         params.bigstream_dask_min_workers,
         params.bigstream_dask_worker_cpus,
-        params.bigstream_dask_worker_mem_gb ?: params.default_mem_gb_per_cpu * params.bigstream_dask_worker_cpus,
+        ParamUtils.get_mem_gb(params.bigstream_dask_worker_mem_gb, params.bigstream_dask_worker_cpus, params.default_mem_gb_per_cpu, 0),
     )
 
     def local_registrations_dask_cluster = cluster_info
@@ -626,7 +626,7 @@ workflow RUN_LOCAL_REGISTRATION {
             bigstream_config,
             local_registration_inputs.cluster,
             params.local_align_cpus,
-            params.local_align_mem_gb ?: params.default_mem_gb_per_cpu * params.local_align_cpus,
+            ParamUtils.get_mem_gb(params.local_align_mem_gb, params.local_align_cpus, params.default_mem_gb_per_cpu, 0),
         )
 
         local_registration_results.view { it ->
@@ -715,7 +715,7 @@ workflow RUN_COMPUTE_INVERSE {
             compute_inv_inputs.map { it[0] },
             compute_inv_inputs.map { [ it[1].scheduler_address, it[1].config ] },
             params.local_inverse_cpus,
-            params.local_inverse_mem_gb ?: params.default_mem_gb_per_cpu * params.local_inverse_cpus,
+            ParamUtils.get_mem_gb(params.local_inverse_mem_gb, params.local_inverse_cpus, params.default_mem_gb_per_cpu, 0),
         )
         inverse_results.view { it ->
             log.debug "Completed inverse -> $it"
@@ -799,7 +799,7 @@ workflow RUN_LOCAL_DEFORMS {
             deformation_inputs.map { it[0] },
             deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] },
             params.local_deform_cpus,
-            params.local_deform_mem_gb ?: params.default_mem_gb_per_cpu * params.local_deform_cpus,
+            ParamUtils.get_mem_gb(params.local_deform_mem_gb, params.local_deform_cpus, params.default_mem_gb_per_cpu, 0),
         )
 
         deformation_results.view { it ->
