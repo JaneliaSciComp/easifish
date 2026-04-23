@@ -128,6 +128,14 @@ workflow BIGSTITCHER {
             def inp = bigstitcher_step_input('interestPointsStitcher', stitching_data, bigstitcher_config)
             stitching_data = STITCH_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
+        if (has_step('matchInterestPoints', stitching_steps)) {
+            def inp = bigstitcher_step_input('matchInterestPoints', stitching_data, bigstitcher_config)
+            stitching_data = MATCH_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        }
+        if (has_step('solver', stitching_steps)) {
+            def inp = bigstitcher_step_input('solver', stitching_data, bigstitcher_config)
+            stitching_data = SOLVER(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        }
         if (has_step('duplicateTransformation', stitching_steps)) {
             def inp = bigstitcher_step_input('duplicateTransformation', stitching_data, bigstitcher_config)
             stitching_data = DUPLICATE_TF(inp.module_args, inp.data_files).join(inp.carry, by: 0)
@@ -139,14 +147,6 @@ workflow BIGSTITCHER {
         if (has_step('intensitySolver', stitching_steps)) {
             def inp = bigstitcher_step_input('intensitySolver', stitching_data, bigstitcher_config)
             stitching_data = INTENSITY_SOLVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
-        }
-        if (has_step('matchInterestPoints', stitching_steps)) {
-            def inp = bigstitcher_step_input('matchInterestPoints', stitching_data, bigstitcher_config)
-            stitching_data = MATCH_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
-        }
-        if (has_step('solver', stitching_steps)) {
-            def inp = bigstitcher_step_input('solver', stitching_data, bigstitcher_config)
-            stitching_data = SOLVER(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
         if (has_step('createContainer', stitching_steps)) {
             def inp = bigstitcher_step_input('createContainer', stitching_data, bigstitcher_config)
