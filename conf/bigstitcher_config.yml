@@ -27,13 +27,34 @@ phaseCorrelationStitcher:
 interestPointsStitcher:
   classname: net.preibisch.bigstitcher.spark.SparkRegisterWithInterestPoints
   advancedArgs:
-    - '--label=beads'
     - '--channelId=1'
+    - '--label=beads'
     - '--method=PRECISE_TRANSLATION'
     - '--searchRadius=1000'
     - '--transformationModel=TRANSLATION'
     - '--regularizationModel=NONE'
     - '--globalOptType=TWO_ROUND_SIMPLE'
+
+matchInterestPoints:
+  classname: net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching
+  advancedArgs:
+    - '--channelId=1'
+    - '--label=beads'
+    - '--method=PRECISE_TRANSLATION'
+    - '--searchRadius=1000'
+    - '--transformationModel=TRANSLATION'
+    - '--regularizationModel=NONE'
+
+solver:
+  classname: net.preibisch.bigstitcher.spark.Solver
+  advancedArgs:
+    - '--channelId=1'
+    - '--label=beads'
+    - '--method=TWO_ROUND_SIMPLE'
+    - '--preAlign PREALIGN'
+    - '--sourcePoints=IP'
+    - '--transformationModel=TRANSLATION'
+    - '--lambda=0.1'
 
 duplicateTransformation:
   classname: net.preibisch.bigstitcher.spark.DuplicateTransformation
@@ -53,14 +74,6 @@ intensityMatch:
 
 intensitySolver:
   classname: net.preibisch.bigstitcher.spark.IntensitySolver
-  advancedArgs: []
-
-matchInterestPoints:
-  classname: net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching
-  advancedArgs: []
-
-solver:
-  classname: net.preibisch.bigstitcher.spark.Solver
   advancedArgs: []
 
 createContainer:
