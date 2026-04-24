@@ -82,6 +82,18 @@ Key stitching parameters:
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `--stitching_method` | BigStitcher | `BigStitcher` or `SaalfeldStitcher` |
+
+### BigStitcher Specific Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--bigstitcher_steps` |  | BigStitcher steps to run. The valid values are: `createDataset, resave,detectInterestPoints,matchInterestPoints,stitchSolve,solveIPs,solvePairs,stitchPairs,duplicateTransformation,intensityMatch,intensitySolve,createContainer,fuse` |
+| `--bigstitcher_config` | `$projectDir/conf/bigstitcher_config.yml`  | YAML file containing advanced arguments for corresponding BigStitcher steps |
+
+### Saalfeld Stitcher Specific Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
 | `--resolution` | 0.23,0.23,0.42 | Voxel resolution in X,Y,Z (microns) |
 | `--axis_mapping` | -x,y,z | Axis orientation (`-x` flips the X axis) |
 | `--stitching_channel` | all | Channel(s) used for computing tile alignment |

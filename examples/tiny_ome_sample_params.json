@@ -32,7 +32,7 @@
     "skip_spots_properties": false,
 
     "stitching_channel": "1",
-    "bigstitcher_steps": "createDataset,resave,phaseCorrelationStitcher,createContainer,fuse",
+    "bigstitcher_steps": "createDataset,resave,detectInterestPoints,matchInterestPoints,solveIPs,duplicateTransformation,intensityMatch,intensitySolver,createContainer,fuse",
 
     "registration_fix_id": "t1",
     "reg_ch": "1",

@@ -20,21 +20,6 @@ detectInterestPoints:
     - '--downsampleXY=2'
     - '--downsampleZ=1'
 
-phaseCorrelationStitcher:
-  classname: net.preibisch.bigstitcher.spark.SparkPhaseCorrelationPairwiseStitching
-  advancedArgs: []
-
-interestPointsStitcher:
-  classname: net.preibisch.bigstitcher.spark.SparkRegisterWithInterestPoints
-  advancedArgs:
-    - '--channelId=1'
-    - '--label=beads'
-    - '--method=PRECISE_TRANSLATION'
-    - '--searchRadius=1000'
-    - '--transformationModel=TRANSLATION'
-    - '--regularizationModel=NONE'
-    - '--globalOptType=TWO_ROUND_SIMPLE'
-
 matchInterestPoints:
   classname: net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching
   advancedArgs:
@@ -45,7 +30,7 @@ matchInterestPoints:
     - '--transformationModel=TRANSLATION'
     - '--regularizationModel=NONE'
 
-solver:
+solveIPs: &solveIPsArgs
   classname: net.preibisch.bigstitcher.spark.Solver
   advancedArgs:
     - '--channelId=1'
@@ -55,6 +40,23 @@ solver:
     - '--sourcePoints=IP'
     - '--transformationModel=TRANSLATION'
     - '--lambda=0.1'
+
+stitchPairs:
+  classname: net.preibisch.bigstitcher.spark.SparkPairwiseStitching
+  advancedArgs:
+    - '--channelCombine AVERAGE'
+    - '--minR 0.7'
+    - '-ds 2,2,1'
+
+solvePairs: &solvePairsArgs
+  classname: net.preibisch.bigstitcher.spark.Solver
+  advancedArgs:
+    - '--method=ONE_ROUND_SIMPLE'
+    - '--preAlign NO_PREALIGN'
+    - '--sourcePoints=STITCHING'
+
+stitchSolve:
+  <<: *solveIPsArgs
 
 duplicateTransformation:
   classname: net.preibisch.bigstitcher.spark.DuplicateTransformation
@@ -72,7 +74,7 @@ intensityMatch:
     - '--maxThreshold 65534'
     - '--method HISTOGRAM'
 
-intensitySolver:
+intensitySolve:
   classname: net.preibisch.bigstitcher.spark.IntensitySolver
   advancedArgs: []
 

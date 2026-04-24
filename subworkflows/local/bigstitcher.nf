@@ -3,14 +3,13 @@ include { SPARK_STOP                                    } from '../janelia/spark
 
 include { BIGSTITCHER_MODULE as CREATE_DATASET           } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as RESAVE                   } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as DETECT_IP                } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as STITCH_PHASE             } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as STITCH_IP                } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as STITCH_PAIRS             } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as DETECT_IPS               } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as MATCH_IPS                } from '../../modules/janelia/bigstitcher/module'
+include { BIGSTITCHER_MODULE as STITCH_SOLVE             } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as DUPLICATE_TF             } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as INTENSITY_MATCH          } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as INTENSITY_SOLVE          } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as MATCH_IP                 } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as SOLVER                   } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as CREATE_CONTAINER         } from '../../modules/janelia/bigstitcher/module'
 include { BIGSTITCHER_MODULE as FUSE                     } from '../../modules/janelia/bigstitcher/module'
 
@@ -107,54 +106,95 @@ workflow BIGSTITCHER {
         stitching_input.view { it -> log.debug "Stitching input: $it" }
 
         def stitching_data = stitching_input
+        def current_step
 
-        if (has_step('createDataset', stitching_steps)) {
-            def inp = bigstitcher_step_input('createDataset', stitching_data, bigstitcher_config)
+        current_step = matched_step('createDataset', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'createDataset' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = CREATE_DATASET(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'createDataset' - not configured"
         }
-        if (has_step('resave', stitching_steps)) {
-            def inp = bigstitcher_step_input('resave', stitching_data, bigstitcher_config)
+        current_step = matched_step('resave', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'resave' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = RESAVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'resave' - not configured"
         }
-        if (has_step('detectInterestPoints', stitching_steps)) {
-            def inp = bigstitcher_step_input('detectInterestPoints', stitching_data, bigstitcher_config)
-            stitching_data = DETECT_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        current_step = matched_step('detectInterestPoints', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'detectInterestPoints' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = DETECT_IPS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'detectInterestPoints' - not configured"
         }
-        if (has_step('phaseCorrelationStitcher', stitching_steps)) {
-            def inp = bigstitcher_step_input('phaseCorrelationStitcher', stitching_data, bigstitcher_config)
-            stitching_data = STITCH_PHASE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        current_step = matched_step('stitchPairs', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'stitchPairs' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = STITCH_PAIRS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'stitchPairs' - not configured"
         }
-        if (has_step('interestPointsStitcher', stitching_steps)) {
-            def inp = bigstitcher_step_input('interestPointsStitcher', stitching_data, bigstitcher_config)
-            stitching_data = STITCH_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        current_step = matched_step('matchInterestPoints', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'matchInterestPoints' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = MATCH_IPS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'matchInterestPoints' - not configured"
         }
-        if (has_step('matchInterestPoints', stitching_steps)) {
-            def inp = bigstitcher_step_input('matchInterestPoints', stitching_data, bigstitcher_config)
-            stitching_data = MATCH_IP(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        current_step = matched_step('stitchSolve', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'stitchSolve' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = STITCH_SOLVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'stitchSolve' - not configured"
         }
-        if (has_step('solver', stitching_steps)) {
-            def inp = bigstitcher_step_input('solver', stitching_data, bigstitcher_config)
-            stitching_data = SOLVER(inp.module_args, inp.data_files).join(inp.carry, by: 0)
-        }
-        if (has_step('duplicateTransformation', stitching_steps)) {
-            def inp = bigstitcher_step_input('duplicateTransformation', stitching_data, bigstitcher_config)
+        current_step = matched_step('duplicateTransformation', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'duplicateTransformation' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = DUPLICATE_TF(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'duplicateTransformation' - not configured"
         }
-        if (has_step('intensityMatch', stitching_steps)) {
-            def inp = bigstitcher_step_input('intensityMatch', stitching_data, bigstitcher_config)
+        current_step = matched_step('intensityMatch', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'intensityMatch' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = INTENSITY_MATCH(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'intensityMatch' - not configured"
         }
-        if (has_step('intensitySolver', stitching_steps)) {
-            def inp = bigstitcher_step_input('intensitySolver', stitching_data, bigstitcher_config)
+        current_step = matched_step('intensitySolve', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'intensitySolve' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = INTENSITY_SOLVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'intensitySolve' - not configured"
         }
-        if (has_step('createContainer', stitching_steps)) {
-            def inp = bigstitcher_step_input('createContainer', stitching_data, bigstitcher_config)
+        current_step = matched_step('createContainer', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'createContainer' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = CREATE_CONTAINER(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'createContainer' - not configured"
         }
-        if (has_step('fuse', stitching_steps)) {
-            def inp = bigstitcher_step_input('fuse', stitching_data, bigstitcher_config)
+        current_step = matched_step('fuse', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'fuse' - not configured"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = FUSE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'fuse' - not configured"
         }
 
         stitching_results = SPARK_STOP(
@@ -179,22 +219,34 @@ def get_stitching_xml_or_default(meta) {
 }
 
 def normalize_step_name(String step_name) {
-    def canonical = [stitch: 'phaseCorrelationStitcher']
+    def canonical = [
+        stitch: 'stitchPairs',
+        solvePairs: 'stitchSolve',
+        solveIPs: 'stitchSolve',
+    ]
     return canonical[step_name] ?: step_name
 }
 
-def has_step(String step_name, List steps) {
-    if (step_name in steps) return true
+def matched_step(String step_name, List steps) {
+    if (step_name in steps)
+        return step_name
     def aliases = [
-        stitch: 'phaseCorrelationStitcher',
-        phaseCorrelationStitcher: 'stitch',
+        stitchPairs: ['stitch'],
+        stitchSolve: ['solveIPs', 'solvePairs'],
     ]
-    return aliases[step_name] in steps
+    return (aliases[step_name] ?: []).find { s -> s in steps }
 }
 
 def get_step_config(Map config, String step_name) {
-    def normalized = normalize_step_name(step_name)
-    config?.get(normalized) ?: [:]
+    def step_config = config?.get(step_name)
+    if (step_config) {
+        log.debug "Use ${step_name} config: ${step_config}"
+        return step_config
+    } else {
+        def normalized_step = normalize_step_name(step_name)
+        log.debug "Use normalized step ${normalized_step} config for ${step_name}: ${step_config}"
+        config?.get(normalized_step) ?: [:]
+    }
 }
 
 def get_step_class(Map config, String step_name) {
@@ -244,7 +296,7 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
             '-x', stitching_xml,
             '-o', "${meta.stitching_result_dir}/${intensity_location}",
         ]
-    } else if (step_name == 'intensitySolver') {
+    } else if (step_name == 'intensitySolve') {
         params = [
             '-x', stitching_xml,
             '--matchesPath', "${meta.stitching_result_dir}/${intensity_location}",
