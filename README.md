@@ -65,7 +65,7 @@ For more details and further functionality, please refer to the [usage documenta
 
 The pipeline supports two stitching methods, selected via `--stitching_method`:
 
-- **BigStitcher** (default) — Uses [bigstitcher-spark](https://github.com/JaneliaSciComp/bigstitcher-spark). Recommended for most cases. Does not require an MVL file. Supports specify which stitching steps to run using `--bigstitcher_steps` parameter. For each step you can provide additional parameters in a YAML file like [bigsticher_conf.yml](conf/bigstitcher_config.yml).
+- **BigStitcher** (default) — Uses [bigstitcher-spark](https://github.com/JaneliaSciComp/bigstitcher-spark). Recommended for most cases. Does not require an MVL file.
 - **SaalfeldStitcher** — Uses [stitching-spark](https://github.com/saalfeldlab/stitching-spark). Requires an MVL file with stage coordinates.
 
 Both methods use Apache Spark for distributed processing. Key Spark parameters:
@@ -77,18 +77,182 @@ Both methods use Apache Spark for distributed processing. Key Spark parameters:
 | `--spark_gb_per_core` | 15 | Memory (GB) allocated per core |
 | `--spark_driver_mem_gb` | 14 | Memory (GB) for the Spark driver |
 
-Key stitching parameters:
+Common stitching parameters:
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `--stitching_method` | BigStitcher | `BigStitcher` or `SaalfeldStitcher` |
+| `--stitching_result_container` | stitched.n5 | Output container name (`.n5`, `.zarr`, `.h5`) |
+| `--stitching_channel` | all | Channel(s) used for computing tile alignment |
+| `--skip_stitching` | false | Skip stitching and use pre-stitched data |
 
-### BigStitcher Specific Parameters
+### BigStitcher
+
+[BigStitcher](https://imagej.net/plugins/bigstitcher/) is an ImageJ/Fiji plugin for reconstructing large tiled datasets. The pipeline uses [bigstitcher-spark](https://github.com/JaneliaSciComp/bigstitcher-spark), a headless Spark-based reimplementation of BigStitcher that can run each stitching step on a distributed cluster.
+
+#### Parameters
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `--bigstitcher_steps` |  | BigStitcher steps to run. The valid values are: `createDataset, resave,detectInterestPoints,matchInterestPoints,stitchSolve,solveIPs,solvePairs,stitchPairs,duplicateTransformation,intensityMatch,intensitySolve,createContainer,fuse` |
-| `--bigstitcher_config` | `$projectDir/conf/bigstitcher_config.yml`  | YAML file containing advanced arguments for corresponding BigStitcher steps |
+| `--bigstitcher_steps` | (empty) | Comma-separated list of steps to run (see below) |
+| `--bigstitcher_config` | `$projectDir/conf/bigstitcher_config.yml` | YAML file with advanced arguments for each step |
+
+#### BigStitcher Steps
+
+Use `--bigstitcher_steps` to select which steps to execute. Steps run sequentially in the order listed below. Only steps present in the list are executed; the rest are skipped.
+
+| Step | Description |
+|------|-------------|
+| `createDataset` | Define the dataset from input images and create the BigStitcher XML project file (`dataset.xml`) |
+| `resave` | Convert images into an efficient chunked format (N5/Zarr/HDF5) for processing |
+| `detectInterestPoints` | Detect features (e.g. beads) in tile overlap regions |
+| `matchInterestPoints` | Match detected interest points between overlapping tile pairs using geometric descriptor matching |
+| `stitchPairs` | Calculate pairwise shifts between tiles using phase correlation (alternative to interest-point matching) |
+| `stitchSolve` | Globally optimize tile positions from matched interest points or pairwise stitching results. Aliases: `solveIPs`, `solvePairs` |
+| `duplicateTransformation` | Copy the computed transformations from the stitching channel to all other channels |
+| `intensityMatch` | Compute intensity correction coefficients across tiles to normalize brightness |
+| `intensitySolve` | Solve the intensity normalization model from the matching results |
+| `createContainer` | Create the output image container with multi-resolution pyramid metadata |
+| `fuse` | Fuse aligned tiles into the final stitched image |
+
+There are two main stitching strategies:
+
+**Interest-point based** (recommended for datasets with fiducial beads):
+```
+createDataset,resave,detectInterestPoints,matchInterestPoints,stitchSolve,duplicateTransformation,createContainer,fuse
+```
+
+**Phase-correlation based** (when beads are not available):
+```
+createDataset,resave,stitchPairs,stitchSolve,duplicateTransformation,createContainer,fuse
+```
+
+To include intensity correction, add `intensityMatch,intensitySolve` before `createContainer`.
+
+#### Advanced Configuration
+
+Each step accepts advanced arguments through the YAML configuration file specified by `--bigstitcher_config`. The default configuration is [`conf/bigstitcher_config.yml`](conf/bigstitcher_config.yml). Each step entry has a `classname` (the Java class to invoke) and an `advancedArgs` list of command-line arguments.
+
+Below are the configurable options for each step. Refer to the [bigstitcher-spark documentation](https://github.com/JaneliaSciComp/bigstitcher-spark) for full details on each argument.
+
+**detectInterestPoints** — feature detection in overlap regions:
+
+| Argument | Example | Description |
+|----------|---------|-------------|
+| `--channelId` | `1` | Channel to detect interest points in |
+| `--overlappingOnly` | (flag) | Only detect in tile overlap regions |
+| `--label` | `beads` | Label name for the detected points |
+| `--sigma` | `4.2` | Gaussian sigma for blob detection |
+| `--threshold` | `0.008` | Detection threshold |
+| `--minIntensity` | `230` | Minimum intensity to consider |
+| `--maxIntensity` | `1800` | Maximum intensity to consider |
+| `--downsampleXY` | `2` | XY downsampling factor for detection |
+| `--downsampleZ` | `1` | Z downsampling factor for detection |
+
+**matchInterestPoints** — geometric descriptor matching:
+
+| Argument | Example | Description |
+|----------|---------|-------------|
+| `--channelId` | `1` | Channel ID for matching |
+| `--label` | `beads` | Label of interest points to match |
+| `--method` | `PRECISE_TRANSLATION` | Matching method |
+| `--searchRadius` | `1000` | Search radius in pixels |
+| `--transformationModel` | `TRANSLATION` | Transformation model to fit |
+| `--regularizationModel` | `NONE` | Regularization strategy |
+
+**stitchPairs** — pairwise phase-correlation stitching:
+
+| Argument | Example | Description |
+|----------|---------|-------------|
+| `--channelCombine` | `AVERAGE` | How to combine channels (`AVERAGE`, `MIN`, `MAX`) |
+| `--minR` | `0.7` | Minimum correlation coefficient threshold |
+| `-ds` | `2,2,1` | Downsampling factors (X,Y,Z) |
+
+**stitchSolve** / **solveIPs** — global optimization solver:
+
+| Argument | Example | Description |
+|----------|---------|-------------|
+| `--channelId` | `1` | Channel used for solving |
+| `--label` | `beads` | Label of matched interest points |
+| `--method` | `TWO_ROUND_SIMPLE` | Solver strategy (`ONE_ROUND_SIMPLE`, `TWO_ROUND_SIMPLE`) |
+| `--preAlign` | `PREALIGN` | Pre-alignment method (`PREALIGN`, `NO_PREALIGN`) |
+| `--sourcePoints` | `IP` | Source of correspondences (`IP` for interest points, `STITCHING` for pairwise shifts) |
+| `--transformationModel` | `TRANSLATION` | Transformation model |
+| `--lambda` | `0.1` | Regularization parameter |
+
+**duplicateTransformation** — propagate transformations to other channels:
+
+| Argument | Example | Description |
+|----------|---------|-------------|
+| `--duplicateMode` | `CHANNELS` | What to duplicate across (`CHANNELS`) |
+| `--sourceId` | `1` | Source channel ID |
+| `--transformationsMode` | `REPLACE_ALL` | How to apply (`REPLACE_ALL`) |
+
+**intensityMatch** — brightness normalization across tiles:
+
+| Argument | Example | Description |
+|----------|---------|-------------|
+| `--numCoefficients` | `8,8,8` | Basis function grid size (X,Y,Z) |
+| `--renderScale` | `0.1` | Render scale for computation |
+| `--minThreshold` | `5` | Minimum intensity threshold |
+| `--maxThreshold` | `65534` | Maximum intensity threshold |
+| `--method` | `HISTOGRAM` | Matching method (`HISTOGRAM`, `MEAN_VARIANCE`) |
+
+**createContainer** — output container setup:
+
+| Argument | Example | Description |
+|----------|---------|-------------|
+| `--multiRes` | (flag) | Generate multi-resolution pyramid |
+| `--preserveAnisotropy` | (flag) | Preserve anisotropic voxel spacing in downsampling |
+
+**fuse** — tile fusion:
+
+| Argument | Example | Description |
+|----------|---------|-------------|
+| `--fusion` | `AVG_BLEND` | Fusion strategy (`AVG_BLEND`, `CLOSEST_PIXEL_WINS`) |
+
+Additionally, the `fuse` step supports `useIntensityCoefficients` (boolean) in the YAML config. When `intensityMatch` and `intensitySolve` steps are included, this is automatically set to `true` so the fuse step applies intensity correction. Set `ignoreIntensityCoefficients: true` under the `fuse` key to override this.
+
+#### Output Formats
+
+The output format is determined by the `--stitching_result_container` file extension:
+
+| Extension | Format |
+|-----------|--------|
+| `.n5` | N5 |
+| `.h5`, `.hdf5` | HDF5 |
+| `.zarr3` | ZARR v3 |
+| `.zarr` (default) | OME-ZARR v2 |
+
+### Using Fiji with BigStitcher for Inspection
+
+Because the pipeline creates a standard BigStitcher XML project file (`dataset.xml`), you can open and inspect the stitching results interactively in [Fiji](https://fiji.sc/) using the [BigStitcher plugin](https://imagej.net/plugins/bigstitcher/).
+
+**Opening the project in Fiji:**
+
+1. Install Fiji and ensure the BigStitcher plugin is enabled (it is included by default in Fiji).
+2. Open the `dataset.xml` file generated by the `createDataset` step via *Plugins > BigStitcher > BigStitcher*.
+3. The BigStitcher GUI will display the tile layout, detected interest points, and computed transformations.
+
+**Inspecting and adjusting stitching:**
+
+- Use BigStitcher's built-in viewers (BigDataViewer) to visually inspect tile alignment and overlap quality.
+- You can manually review and edit interest point matches, remove outlier tile pairs, or re-run the solver with different parameters.
+- Any changes made in Fiji are saved back to `dataset.xml`, so you can then resume the pipeline from a later step (e.g. `--bigstitcher_steps "createContainer,fuse"`) to fuse the manually adjusted result.
+
+**Typical hybrid workflow:**
+
+1. Run the pipeline up through the solve step to compute tile positions:
+   ```
+   --bigstitcher_steps "createDataset,resave,detectInterestPoints,matchInterestPoints,stitchSolve"
+   ```
+2. Open `dataset.xml` in Fiji to inspect alignment quality. Adjust if needed.
+3. Resume the pipeline to fuse the validated result:
+   ```
+   --bigstitcher_steps "duplicateTransformation,createContainer,fuse"
+   ```
+
+This workflow lets you leverage the pipeline's Spark-based scalability for the compute-heavy steps while retaining the ability to visually QC and manually correct stitching in Fiji's interactive environment.
 
 ### Saalfeld Stitcher Specific Parameters
 
@@ -96,11 +260,8 @@ Key stitching parameters:
 |-----------|---------|-------------|
 | `--resolution` | 0.23,0.23,0.42 | Voxel resolution in X,Y,Z (microns) |
 | `--axis_mapping` | -x,y,z | Axis orientation (`-x` flips the X axis) |
-| `--stitching_channel` | all | Channel(s) used for computing tile alignment |
 | `--stitching_block_size` | 128,128,64 | N5 block size during tile conversion (X,Y,Z) |
 | `--stitching_blur_sigma` | 2 | Gaussian blur sigma applied before alignment |
-| `--stitching_result_container` | stitched.n5 | Output container name (`.n5`, `.zarr`, `.h5`) |
-| `--skip_stitching` | false | Skip stitching and use pre-stitched data |
 
 ## Spot Extraction
 
