@@ -176,7 +176,7 @@ workflow EXTRACT_SPOTS_PROPS {
         spots_props_results = SPOTS_PROPS(
             regionprops_inputs,
             params.spots_props_cores,
-            params.spots_props_mem_gb,
+            ParamUtils.get_mem_gb(params.spots_props_mem_gb, params.spots_props_cores, params.default_mem_gb_per_cpu, 0),
         ).results
     }
 

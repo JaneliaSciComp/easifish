@@ -1320,6 +1320,11 @@
                     "hidden": true,
                     "fa_icon": "fas fa-file"
                 },
+                "spots_with_labels_output": {
+                    "type": "string",
+                    "description": "Output filename for spots with labels result",
+                    "fa_icon": "fas fa-file-export"
+                },
                 "spots_props_cores": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",

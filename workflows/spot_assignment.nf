@@ -87,15 +87,10 @@ workflow SPOT_COUNT_ASSIGN {
             ]
         }
     } else {
-        def spots_counts_mem_gb = ParamUtils.get_mem_gb(
-            params.spots_counts_mem_gb,
-            params.spots_counts_cores,
-            params.default_mem_gb_per_cpu,
-            0)
         spots_counts_outputs = SPOTS_COUNTS(
             spots_counts_input,
             params.spots_counts_cores,
-            spots_counts_mem_gb,
+            ParamUtils.get_mem_gb(params.spots_counts_mem_gb, params.spots_counts_cores, params.default_mem_gb_per_cpu, 0),
         ).results
     }
 
