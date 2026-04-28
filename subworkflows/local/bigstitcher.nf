@@ -55,11 +55,11 @@ workflow BIGSTITCHER {
         } else if (to_lowercase_image_name.endsWith('.h5') ||
                    to_lowercase_image_name.endsWith('.hdf5')) {
             stitching_meta.stitching_container_storage = 'HDF5'
-        } else if (to_lowercase_image_name.endsWith('.zarr3')) {
-            stitching_meta.stitching_container_storage = 'ZARR'
+        } else if (to_lowercase_image_name.endsWith('.zarr2')) {
+            stitching_meta.stitching_container_storage = 'ZARR2'
         } else {
             // default to OME-ZARR v2
-            stitching_meta.stitching_container_storage = 'ZARR2'
+            stitching_meta.stitching_container_storage = 'ZARR'
         }
 
         def data_files = files + [ stitching_result_dir ] +
