@@ -1235,6 +1235,12 @@
                     "fa_icon": "fas fa-comment-alt",
                     "description": "If true, enable verbose logging for fishspots",
                     "default": false
+                },
+                "post_spots_mem_gb": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory in GB to allocate for the post spots task. Default: 15",
+                    "default": 15
                 }
             }
         },
