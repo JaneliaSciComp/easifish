@@ -49,19 +49,6 @@ workflow BIGSTITCHER {
         stitching_meta.stitched_dataset = meta.id
         stitching_meta.stitching_container = stitched_image_name ?: "fused.ome.zarr"
 
-        def to_lowercase_image_name = stitching_meta.stitching_container.toLowerCase()
-        if (to_lowercase_image_name.endsWith('.n5')) {
-            stitching_meta.stitching_container_storage = 'N5'
-        } else if (to_lowercase_image_name.endsWith('.h5') ||
-                   to_lowercase_image_name.endsWith('.hdf5')) {
-            stitching_meta.stitching_container_storage = 'HDF5'
-        } else if (to_lowercase_image_name.endsWith('.zarr2')) {
-            stitching_meta.stitching_container_storage = 'ZARR2'
-        } else {
-            // default to OME-ZARR v2
-            stitching_meta.stitching_container_storage = 'ZARR'
-        }
-
         def data_files = files + [ stitching_result_dir ] +
                          (spark_local_dir ? [file(spark_local_dir)] : [])
 
@@ -282,14 +269,12 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
         params = [
             '-x', stitching_xml,
             '-o', "${meta.image_dir}/dataset.zarr",
-            '-s', meta.stitching_container_storage,
         ]
     } else if (step_name == 'createContainer') {
         params = [
             '-x', stitching_xml,
             '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
             '--group', meta.id,
-            '-s', meta.stitching_container_storage,
         ]
     } else if (step_name == 'intensityMatch') {
         params = [
@@ -301,7 +286,6 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
             '-x', stitching_xml,
             '--matchesPath', "${meta.stitching_result_dir}/${intensity_location}",
             '-o', "${meta.stitching_result_dir}/${intensity_coefficients}",
-            '-s', meta.stitching_container_storage,
         ]
         // update config for fuse step and set 'useIntensityCoefficients' automatically
         // if the intensity correction is not needed it can still be ignored by setting 'ignoreIntensityCoefficients' to true
@@ -316,13 +300,11 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
         def intensityCoefficientsArgs = get_step_config(config, step_name)['useIntensityCoefficients'] && !get_step_config(config, step_name)['ignoreIntensityCoefficients']
             ? [
                 '--intensityN5Path', "${meta.stitching_result_dir}/${intensity_coefficients}",
-                '--intensityN5Storage', meta.stitching_container_storage,
               ]
             : []
         params = [
             '-o', "${meta.stitching_result_dir}/${meta.stitching_container}",
             '--group', meta.id,
-            '-s', meta.stitching_container_storage,
         ] + intensityCoefficientsArgs
     } else {
         params = ['-x', stitching_xml]

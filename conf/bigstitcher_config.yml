@@ -83,6 +83,7 @@ createContainer:
   advancedArgs:
     - '--multiRes'
     - '--preserveAnisotropy'
+    - '--compressionLevel=5'
 
 fuse:
   classname: net.preibisch.bigstitcher.spark.SparkFusion
