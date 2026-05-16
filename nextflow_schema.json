@@ -865,6 +865,12 @@
                     "description": "Name of the global registration container",
                     "fa_icon": "fas fa-cube"
                 },
+                "global_container_zarr_format": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Zarr format version for the global registration container (2 or 3)",
+                    "fa_icon": "fas fa-cube"
+                },
                 "global_registration_timeindex": {
                     "type": "string",
                     "pattern": "\\d+",
@@ -890,6 +896,12 @@
                     "type": "string",
                     "default": "registration.n5",
                     "description": "Name of the final registration container",
+                    "fa_icon": "fas fa-cube"
+                },
+                "local_container_zarr_format": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Zarr format version for the local registration container (2 or 3)",
                     "fa_icon": "fas fa-cube"
                 },
                 "local_registration_timeindex": {
