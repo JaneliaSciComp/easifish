@@ -1640,9 +1640,9 @@
                     "fa_icon": "fas fa-hashtag"
                 },
                 "sample_z_axis": {
-                    "type": "integer",
+                    "type": "string",
                     "description": "Z axis for image to be segmented after the timeindex axis was eliminated",
-                    "default": 0,
+                    "pattern": "\\d*",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_verbose": {
