@@ -1550,7 +1550,7 @@
                     "fa_icon": "fas fa-image"
                 },
                 "segmentation_subpaths": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "Comma delimited list of segmentation datasets",
                     "fa_icon": "fas fa-database"
                 },
@@ -1634,7 +1634,7 @@
                     "fa_icon": "fas fa-hashtag"
                 },
                 "sample_timeindex": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "pattern": "\\d*",
                     "description": "Segmentation input timepoint",
                     "fa_icon": "fas fa-hashtag"
@@ -1737,7 +1737,7 @@
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "cellpose_device": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "default": "0",
                     "description": "GPU device used for cellpose segmentation",
                     "hidden": true,
@@ -1763,7 +1763,7 @@
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_diameter": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "default": "30",
                     "description": "Default cellpose cell size in X,Y,Z. It can specify the dimension for on each axis or if it's a single value the value is the same",
                     "fa_icon": "fas fa-hashtag"
