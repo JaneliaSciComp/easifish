@@ -387,39 +387,37 @@
                     "fa_icon": "fas fa-hashtag"
                 },
                 "fix_global_subpath": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "hidden": true,
                     "description": "Explicit fix image dataset used for global registration",
                     "fa_icon": "fas fa-database"
                 },
                 "fix_global_timeindex": {
-                    "type": "string",
-                    "pattern": "\\d+",
+                    "type": ["string", "integer"],
                     "description": "selected timepoint for fix low resolution image",
                     "default": "0",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "fix_global_channel": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "hidden": true,
                     "description": "Explicit fix image channel used for global registration",
                     "fa_icon": "fas fa-layer-group"
                 },
                 "mov_global_subpath": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "hidden": true,
                     "description": "Explicit moving image dataset used for global registration",
                     "fa_icon": "fas fa-database"
                 },
                 "mov_global_timeindex": {
-                    "type": "string",
-                    "pattern": "\\d+",
+                    "type": ["string", "integer"],
                     "description": "selected timepoint for moving low resolution image",
                     "default": "0",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "mov_global_channel": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "hidden": true,
                     "description": "Explicit fix image channel used for global registration",
                     "fa_icon": "fas fa-layer-group"
@@ -453,44 +451,42 @@
                     "fa_icon": "fas fa-cog"
                 },
                 "global_scale": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "Scale used for global registration",
                     "fa_icon": "fas fa-ruler"
                 },
                 "fix_local_subpath": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "hidden": true,
                     "description": "Fix dataset used for local registration",
                     "fa_icon": "fas fa-database"
                 },
                 "fix_local_timeindex": {
-                    "type": "string",
-                    "pattern": "\\d+",
+                    "type": ["string", "integer"],
                     "description": "selected timepoint for fix high resolution image",
                     "default": "0",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "fix_local_channel": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "hidden": true,
                     "description": "Explicit channel for fix high resolution image",
                     "fa_icon": "fas fa-layer-group"
                 },
                 "mov_local_subpath": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "hidden": true,
                     "description": "Moving dataset used for local registration",
                     "fa_icon": "fas fa-database"
                 },
                 "mov_local_timeindex": {
-                    "type": "string",
-                    "pattern": "\\d+",
+                    "type": ["string", "integer"],
                     "description": "selected timepoint for mov high resolution image",
                     "default": "0",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "mov_local_channel": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "hidden": true,
                     "description": "Explicit channel for mov high resolution image",
                     "fa_icon": "fas fa-layer-group"
@@ -511,7 +507,7 @@
                     "fa_icon": "fas fa-image"
                 },
                 "fix_mask_subpath": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "Dataset subpath within the fix mask container (used for both global and local alignment)",
                     "fa_icon": "fas fa-database"
                 },
@@ -521,7 +517,7 @@
                     "fa_icon": "fas fa-image"
                 },
                 "mov_mask_subpath": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "Dataset subpath within the moving mask container (used for both global and local alignment)",
                     "fa_icon": "fas fa-database"
                 },
@@ -578,7 +574,7 @@
                     "fa_icon": "fas fa-magic"
                 },
                 "mask_smooth_sigmas": {
-                    "type": "string",
+                    "type": ["string", "number"],
                     "description": "One or more gaussian smoothing sigmas from the finest to the coarser resolution. Use larger sigmas for coarser resolutions.",
                     "fa_icon": "fas fa-wave-square"
                 },
@@ -619,7 +615,7 @@
                     "fa_icon": "fas fa-cog"
                 },
                 "local_scale": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "Scale used for local registration",
                     "fa_icon": "fas fa-ruler"
                 },
@@ -647,7 +643,7 @@
                     "fa_icon": "fas fa-cube"
                 },
                 "warped_subpaths": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "explicit datasets to be warped",
                     "hidden": true,
                     "fa_icon": "fas fa-database"
@@ -672,7 +668,7 @@
                     "fa_icon": "fas fa-layer-group"
                 },
                 "warped_scales": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "All scales that need to be warped",
                     "fa_icon": "fas fa-ruler"
                 },
@@ -872,8 +868,7 @@
                     "fa_icon": "fas fa-cube"
                 },
                 "global_registration_timeindex": {
-                    "type": "string",
-                    "pattern": "\\d+",
+                    "type": ["string", "integer"],
                     "description": "selected timepoint for low resolution alignment output",
                     "default": "0",
                     "fa_icon": "fas fa-hashtag"
@@ -905,8 +900,7 @@
                     "fa_icon": "fas fa-cube"
                 },
                 "local_registration_timeindex": {
-                    "type": "string",
-                    "pattern": "\\d+",
+                    "type": ["string", "integer"],
                     "description": "selected timepoint for low resolution alignment output",
                     "default": "0",
                     "fa_icon": "fas fa-hashtag"
