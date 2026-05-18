@@ -1001,7 +1001,7 @@
                     "fa_icon": "fas fa-file-image"
                 },
                 "spots_image_subpath_ref": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "Dataset subpath used to determine the shape of the output spots image. Typically a lower-resolution dataset to reduce the size of the inspection image.",
                     "fa_icon": "fas fa-compress-arrows-alt"
                 },
@@ -1283,7 +1283,7 @@
                     "description": "data sub-directory used for spots properties"
                 },
                 "dapi_channel": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "fa_icon": "fas fa-asterisk",
                     "description": "Name of the DAPI channel.",
                     "help_text": "The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction."
