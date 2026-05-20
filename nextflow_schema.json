@@ -90,7 +90,7 @@
                     "fa_icon": "fas fa-cube"
                 },
                 "stitching_channel": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "fa_icon": "fas fa-asterisk",
                     "default": "all",
                     "description": "Name of the channel used for stitching, e.g. 'c1' or '1'. You can also specify 'all' to use all of the channels. Default: 'all'"
@@ -985,7 +985,7 @@
                     "fa_icon": "fas fa-ruler"
                 },
                 "spots_subpath": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "alternative for defining the datasets used for spot extraction. If this is defined it takes priority over spots_channels and spots_scale.",
                     "fa_icon": "fas fa-database"
                 },
@@ -1283,7 +1283,7 @@
                     "help_text": "The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction."
                 },
                 "bleeding_channel": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "fa_icon": "fas fa-asterisk",
                     "description": "Channel (other than DAPI) that needs bleedthrough correction."
                 },
@@ -1305,22 +1305,19 @@
                     "default": 2
                 },
                 "spots_timeindex": {
-                    "type": "string",
-                    "pattern": "^\\d*$",
+                    "type": ["string", "integer"],
                     "description": "This applies only to OME-ZARR inputs and specify which timeindex to be used for spot extraction",
                     "hidden": true,
                     "fa_icon": "fas fa-hashtag"
                 },
                 "labels_timeindex": {
-                    "type": "string",
-                    "pattern": "^\\d*$",
+                    "type": ["string", "integer"],
                     "description": "This applies only to OME-ZARR inputs and specify which labels timeindex to be used for extracting spot region properties",
                     "hidden": true,
                     "fa_icon": "fas fa-hashtag"
                 },
                 "labels_channel": {
-                    "type": "string",
-                    "pattern": "^\\d*$",
+                    "type": ["string", "integer"],
                     "description": "This applies only to OME-ZARR inputs and specify which labels channel to be used for extracting spot region properties",
                     "hidden": true,
                     "fa_icon": "fas fa-layer-group"
@@ -1573,7 +1570,7 @@
                     "fa_icon": "fas fa-image"
                 },
                 "cellpose_input_channels": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "One or more comma separated channels used for segmentation.",
                     "fa_icon": "fas fa-layer-group"
                 },
@@ -1583,7 +1580,7 @@
                     "fa_icon": "fas fa-file"
                 },
                 "cellpose_mask_subpath": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "description": "Subpath within the cellpose mask file to use as the mask.",
                     "fa_icon": "fas fa-folder-open"
                 },
