@@ -578,6 +578,11 @@
                     "description": "One or more gaussian smoothing sigmas from the finest to the coarser resolution. Use larger sigmas for coarser resolutions.",
                     "fa_icon": "fas fa-wave-square"
                 },
+                "mask_iterations": {
+                    "type": ["string", "integer"],
+                    "description": "One or more iteration counts for MorphACWE mask refinement from the finest to the coarser resolution.",
+                    "fa_icon": "fas fa-redo"
+                },
                 "mask_thresh_percentile": {
                     "type": "integer",
                     "description": "Intensity percentile used for finding the foreground threshold; when set, uses a simple threshold cutoff instead of the MorphACWE method",
