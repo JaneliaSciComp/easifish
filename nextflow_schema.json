@@ -71,9 +71,10 @@
             "type": "object",
             "description": "Common stitching options",
             "properties": {
-                "skip_stitching": {
+                "run_stitching": {
                     "type": "boolean",
-                    "description": "If set skip stitching",
+                    "default": true,
+                    "description": "If true run stitching",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "stitching_method": {
@@ -316,19 +317,22 @@
                     "hidden": true,
                     "fa_icon": "fas fa-stream"
                 },
-                "skip_registration": {
+                "run_registration": {
                     "type": "boolean",
-                    "description": "If true skip the entire registration, i.e., global alignment, local alignment, deformations and inverse",
+                    "default": true,
+                    "description": "If true run the registration pipeline (global align, local align, deformations, inverse)",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "skip_global_align": {
+                "run_global_align": {
                     "type": "boolean",
-                    "description": "If true skip global alignment",
+                    "default": true,
+                    "description": "If true run global alignment",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "skip_local_align": {
+                "run_local_align": {
                     "type": "boolean",
-                    "description": "If true skip local blockwise alignment",
+                    "default": true,
+                    "description": "If true run local blockwise alignment",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "run_global_metric": {
@@ -376,9 +380,10 @@
                     "description": "Radius of the neighborhood used for correlation metric evaluation",
                     "fa_icon": "fas fa-expand"
                 },
-                "skip_inverse": {
+                "run_inverse": {
                     "type": "boolean",
-                    "description": "If true skip computing the inverse transformation",
+                    "default": false,
+                    "description": "If true compute the inverse transformation",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "registration_fix_id": {
@@ -830,10 +835,11 @@
                     "description": "Use root for generating the inverse displacement vector",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "skip_deformations": {
+                "run_deformations": {
                     "type": "boolean",
+                    "default": true,
                     "hidden": true,
-                    "description": "If true skip deformations",
+                    "description": "If true apply deformations",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "bigstream_dashboard_port": {
@@ -957,9 +963,10 @@
                     "default": true,
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "skip_spot_extraction": {
+                "run_spot_extraction": {
                     "type": "boolean",
-                    "description": "If set skip spot extraction",
+                    "default": true,
+                    "description": "If true run spot extraction",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "skipped_spot_extraction_rounds": {
@@ -1271,14 +1278,16 @@
             "description": "Various spots characteristcs, such as counts, area, intensity",
             "fa_icon": "far fa-map",
             "properties": {
-                "skip_spots_counts": {
+                "run_spots_counts": {
                     "type": "boolean",
-                    "description": "If set skip spots count",
+                    "default": true,
+                    "description": "If true compute spot counts",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "skip_spots_properties": {
+                "run_spots_properties": {
                     "type": "boolean",
-                    "description": "If set skip retrieving spot region properties (intensity,...)",
+                    "default": true,
+                    "description": "If true compute spot region properties (intensity,...)",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "spots_counts_subdir": {
@@ -1369,10 +1378,10 @@
             "description": "Parameters for warping spots",
             "fa_icon": "far fa-map",
             "properties": {
-                "skip_warp_spots": {
+                "run_warp_spots": {
                     "type": "boolean",
-                    "description": "If set skip spots warping",
-                    "default": false,
+                    "description": "If true warp spots",
+                    "default": true,
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "use_inverse_transforms": {
@@ -1513,7 +1522,7 @@
             "properties": {
                 "run_warped_multiscale": {
                     "type": "boolean",
-                    "default": false,
+                    "default": true,
                     "description": "Override skip logic and force the multiscale warped pyramid to run. Useful when deformations were already run in a previous execution and you want to re-run only the pyramid step.",
                     "fa_icon": "fas fa-toggle-on"
                 },
@@ -1599,14 +1608,15 @@
                     "description": "Subpath within the cellpose mask file to use as the mask.",
                     "fa_icon": "fas fa-folder-open"
                 },
-                "skip_segmentation": {
+                "run_segmentation": {
                     "type": "boolean",
-                    "description": "If true skip segmentation",
+                    "default": true,
+                    "description": "If true run segmentation",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "run_standalone_merge_labels": {
                     "type": "boolean",
-                    "description": "If true run merge labels as a standalone step (used together with skip_segmentation to merge labels from a previous run)",
+                    "description": "If true run merge labels as a standalone step (used together with `run_segmentation = false` to merge labels from a previous run)",
                     "fa_icon": "fas fa-object-group"
                 },
                 "skip_cellpose_merge_labels": {

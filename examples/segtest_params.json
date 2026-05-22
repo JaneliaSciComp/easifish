@@ -14,14 +14,13 @@
     "sample_expansion_factor": 2,
     "sample_voxel_spacing": "0.232961,0.232961,0.425892",
 
-    "skip_stitching": true,
-    "skip_registration": true,
-    "skip_global_align": false,
-    "skip_local_align": false,
-    "skip_deformations": false,
-    "skip_inverse": false,
-    "skip_multiscale": true,
-    "skip_segmentation": false,
+    "run_stitching": false,
+    "run_registration": false,
+    "run_global_align": true,
+    "run_local_align": true,
+    "run_deformations": true,
+    "run_inverse": true,
+    "run_segmentation": true,
 
     "reg_ch": "c1",
 

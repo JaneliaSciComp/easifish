@@ -11,7 +11,7 @@ workflow INPUT_CHECK {
     samplesheet          // ch: /path/to/samplesheet.csv
     ch_input             // ch: /path/to/input_data
     output_image_dir     // String|file: path to output
-    skip
+    download_flag        // boolean: if true try to download or link the raw data
 
     main:
     def tiles = SAMPLESHEET_CHECK(samplesheet)
@@ -30,16 +30,7 @@ workflow INPUT_CHECK {
     def prepare_acq
     def ch_input_image = ch_input
 
-    if (skip) {
-        // take the tiles and prepare the output as if it was downloaded
-        prepare_acq = tiles.remote
-            .mix(tiles.local)
-            .combine(ch_input_image)
-            .map { row, input_image_dir ->
-                log.debug "Skipped downloading ${row}"
-                create_acq_channel(row, input_image_dir, output_image_dir)
-            }
-    } else {
+    if (download_flag) {
         // download remote tiles
         def downloaded_tiles = DOWNLOAD(
             tiles.remote,
@@ -62,6 +53,15 @@ workflow INPUT_CHECK {
             .map { row, input_dir, image_dir ->
                 log.debug "Completed download/link for ${row}"
                 create_acq_channel(row, input_dir, image_dir)
+            }
+    } else {
+        // take the tiles and prepare the output as if it was downloaded
+        prepare_acq = tiles.remote
+            .mix(tiles.local)
+            .combine(ch_input_image)
+            .map { row, input_image_dir ->
+                log.debug "Skipped downloading ${row}"
+                create_acq_channel(row, input_image_dir, output_image_dir)
             }
     }
 

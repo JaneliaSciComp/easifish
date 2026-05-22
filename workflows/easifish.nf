@@ -37,7 +37,7 @@ workflow EASIFISH {
         ch_inputs.map { it -> it[0] }, // samplesheet_file
         ch_inputs.map { it -> it[1] }, // inputdir
         imagesdir,
-        params.skip_stitching && !params.download_all_first,
+        params.run_stitching || params.download_all_first,
     )
 
     def ch_acquisitions_raw = checked_inputs.acquisitions

@@ -73,7 +73,13 @@ workflow SPOT_COUNT_ASSIGN {
     spots_counts_input.view { it -> log.debug "Spots counts input: $it" }
 
     def spots_counts_outputs
-    if (params.skip_spots_counts) {
+    if (params.run_spots_counts) {
+        spots_counts_outputs = SPOTS_COUNTS(
+            spots_counts_input,
+            params.spots_counts_cores,
+            ParamUtils.get_mem_gb(params.spots_counts_mem_gb, params.spots_counts_cores, params.default_mem_gb_per_cpu, 0),
+        ).results
+    } else {
         spots_counts_outputs = spots_counts_input
         | map { it ->
             def (meta_spots, spots_image_container, adjusted_spots_dataset, _seg_labels, _seg_input_dataset,spots_dir, _spots_pattern, spots_counts_output_dir) = it
@@ -86,12 +92,6 @@ workflow SPOT_COUNT_ASSIGN {
                 spots_counts_output_dir,
             ]
         }
-    } else {
-        spots_counts_outputs = SPOTS_COUNTS(
-            spots_counts_input,
-            params.spots_counts_cores,
-            ParamUtils.get_mem_gb(params.spots_counts_mem_gb, params.spots_counts_cores, params.default_mem_gb_per_cpu, 0),
-        ).results
     }
 
     emit:

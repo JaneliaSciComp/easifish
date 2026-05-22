@@ -86,7 +86,7 @@ workflow REGISTRATION {
         resolved_masks,
         bigstream_config,
         reg_outdir,
-        params.skip_global_align || params.skip_registration,
+        params.run_global_align && params.run_registration,
     )
 
     global_registration_results.global_transforms.view { it -> log.debug "Global affine transforms: $it" }
@@ -113,8 +113,8 @@ workflow REGISTRATION {
         global_registration_results.global_registration_results,
         additional_cluster_files,
         params.distributed_bigstream &&
-        !params.skip_registration &&
-        (!params.skip_local_align || !params.skip_deformations || !params.skip_inverse || params.run_warped_multiscale),
+        params.run_registration &&
+        (params.run_local_align || params.run_deformations || params.run_inverse || params.run_warped_multiscale),
         "${session_work_dir}/bigstream-dask/",
         params.dask_config,
     )
@@ -126,21 +126,21 @@ workflow REGISTRATION {
         resolved_masks,
         bigstream_config,
         reg_outdir,
-        params.skip_local_align || params.skip_registration,
+        params.run_registration && params.run_local_align,
     )
 
     def local_inverse_results = RUN_COMPUTE_INVERSE(
         registration_inputs,
         local_registration_results,
         local_registrations_cluster,
-        params.skip_inverse || params.skip_registration,
+        params.run_registration && params.run_inverse,
     )
 
     def local_deformation_results = RUN_LOCAL_DEFORMS(
         registration_inputs,
         local_registration_results,
         local_registrations_cluster,
-        params.skip_deformations || params.skip_registration,
+        params.run_registration && params.run_deformations,
     )
 
     RUN_GLOBAL_ALIGNMENT_CORRELATION(
@@ -298,7 +298,7 @@ workflow RUN_GLOBAL_REGISTRATION {
     resolved_masks    // [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath]
     bigstream_config
     reg_outdir
-    skip_global_align
+    run_global_align
 
     main:
     def fix_global_subpath = params.fix_global_subpath
@@ -355,7 +355,7 @@ workflow RUN_GLOBAL_REGISTRATION {
         log.debug "Global registration inputs: $ri"
         ri
     }
-    if (!skip_global_align) {
+    if (run_global_align) {
         global_registration_results = BIGSTREAM_GLOBALALIGN(
             global_registration_inputs,
             bigstream_config,
@@ -366,11 +366,11 @@ workflow RUN_GLOBAL_REGISTRATION {
         global_registration_results = global_registration_inputs
         | map { it ->
             def (reg_meta,
-                fix, fix_subpath, fix_timeindex, fix_channel,
-                mov, mov_subpath, mov_timeindex, mov_channel,
-                fix_mask, fix_mask_subpath,
-                mov_mask, mov_mask_subpath,
-                steps,
+                fix, fix_subpath, _fix_timeindex, _fix_channel,
+                mov, mov_subpath, _mov_timeindex, _mov_channel,
+                _fix_mask, _fix_mask_subpath,
+                _mov_mask, _mov_mask_subpath,
+                _steps,
                 transform_dir, transform_name, inv_transform_name,
                 align_dir, align_name, align_subpath) = it
             def r = [
@@ -516,7 +516,7 @@ workflow RUN_LOCAL_REGISTRATION {
     resolved_masks                   // ch: [ reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath ]
     bigstream_config                 // string|file bigstream yaml config
     reg_outdir
-    skip_local_registration
+    run_local_registration_flag
 
     main:
     def fix_local_subpath = params.fix_local_subpath
@@ -578,7 +578,7 @@ workflow RUN_LOCAL_REGISTRATION {
             local_transform_name, local_transform_subpath,
             local_inv_transform_name, local_inv_transform_subpath,
             local_registration_output, local_align_name, local_align_subpath,
-            dask_meta, dask_context) = it
+            _dask_meta, dask_context) = it
 
         def local_fix_channel = params.fix_local_channel ?: params.reg_ch
         def local_mov_channel = params.mov_local_channel ?: local_fix_channel
@@ -620,7 +620,7 @@ workflow RUN_LOCAL_REGISTRATION {
         cluster: cluster
     }
 
-    if (!skip_local_registration) {
+    if (run_local_registration_flag) {
         local_registration_results = BIGSTREAM_LOCALALIGN(
             local_registration_inputs.data,
             bigstream_config,
@@ -679,7 +679,7 @@ workflow RUN_COMPUTE_INVERSE {
     registration_inputs
     local_registration_results
     local_registrations_cluster
-    skip_inverse
+    run_inverse
 
     main:
     def compute_inv_inputs = registration_inputs
@@ -710,7 +710,7 @@ workflow RUN_COMPUTE_INVERSE {
         ]
     }
 
-    if (!skip_inverse) {
+    if (run_inverse) {
         inverse_results = BIGSTREAM_COMPUTEINVERSE(
             compute_inv_inputs.map { it[0] },
             compute_inv_inputs.map { [ it[1].scheduler_address, it[1].config ] },
@@ -736,7 +736,7 @@ workflow RUN_LOCAL_DEFORMS {
     registration_inputs
     local_registration_results
     local_registrations_cluster
-    skip_deformations
+    run_deformations
 
     main:
     def deformation_inputs = registration_inputs
@@ -794,7 +794,7 @@ workflow RUN_LOCAL_DEFORMS {
         r
     }
 
-    if (!skip_deformations) {
+    if (run_deformations) {
         deformation_results = BIGSTREAM_DEFORM(
             deformation_inputs.map { it[0] },
             deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] },

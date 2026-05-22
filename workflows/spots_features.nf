@@ -156,15 +156,21 @@ workflow EXTRACT_SPOTS_PROPS {
     }
 
     def spots_props_results
-    if (params.skip_spots_properties) {
+    if (params.run_spots_properties) {
+        spots_props_results = SPOTS_PROPS(
+            regionprops_inputs,
+            params.spots_props_cores,
+            ParamUtils.get_mem_gb(params.spots_props_mem_gb, params.spots_props_cores, params.default_mem_gb_per_cpu, 0),
+        ).results
+    } else {
         spots_props_results = regionprops_inputs
         | map { it ->
             def (meta,
-                 image_container, image_dataset, image_ch,
-                 seg_labels, seg_input_dataset,
-                 dapi_dataset, dapi_ch,
-                 bleeding_dataset, bleeding_ch,
-                 regionprops_output_dir, result_name) = it
+                 image_container, image_dataset, _image_ch,
+                 _seg_labels, _seg_input_dataset,
+                 _dapi_dataset, _dapi_ch,
+                 _bleeding_dataset, _bleeding_ch,
+                 _regionprops_output_dir, result_name) = it
             log.debug "Skip region props: $it"
             [
                 meta,
@@ -172,12 +178,7 @@ workflow EXTRACT_SPOTS_PROPS {
                 result_name
             ]
         }
-    } else {
-        spots_props_results = SPOTS_PROPS(
-            regionprops_inputs,
-            params.spots_props_cores,
-            ParamUtils.get_mem_gb(params.spots_props_mem_gb, params.spots_props_cores, params.default_mem_gb_per_cpu, 0),
-        ).results
+
     }
 
     emit:

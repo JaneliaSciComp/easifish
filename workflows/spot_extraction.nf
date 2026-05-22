@@ -45,7 +45,7 @@ workflow SPOT_EXTRACTION {
 
     def spots_to_skip_ch
     def spots_to_process_ch
-    if (params.skip_spot_extraction) {
+    if (!params.run_spot_extraction) {
         log.debug "Skipping spot extraction for all rounds"
         spots_to_skip_ch = spots_inputs
         spots_to_process_ch = channel.empty()

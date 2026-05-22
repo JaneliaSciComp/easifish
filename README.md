@@ -84,7 +84,7 @@ Common stitching parameters:
 | `--stitching_method` | BigStitcher | `BigStitcher` or `SaalfeldStitcher` |
 | `--stitching_result_container` | stitched.n5 | Output container name (`.n5`, `.zarr`, `.h5`) |
 | `--stitching_channel` | all | Channel(s) used for computing tile alignment |
-| `--skip_stitching` | false | Skip stitching and use pre-stitched data |
+| `--run_stitching` | true | Run stitching (set to false to use pre-stitched data) |
 
 ### BigStitcher
 
@@ -305,7 +305,7 @@ Common spot extraction parameters:
 | `--spots_channels` | (all non-DAPI) | Channels to run spot detection on |
 | `--dapi_channel` | (auto-detected) | DAPI channel name (excluded from detection) |
 | `--extract_spots_from_warped` | false | Extract from warped registered images |
-| `--skip_spot_extraction` | false | Skip spot extraction entirely |
+| `--run_spot_extraction` | true | Run spot extraction (set to false to skip) |
 
 ## Pipeline output
 

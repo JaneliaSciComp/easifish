@@ -12,7 +12,7 @@ workflow CELLPOSE_SEGMENTATION {
                                 //            img_container, img_subpath,
                                 //            output_dir,
                                 //            segmentation_container ]
-    skip_segmentation           // boolean: if true skip segmentation completely and just return the meta as if it ran
+    run_segmentation            // boolean: if true run segmentation; if false just return the meta as if it ran
     run_standalone_merge_labels // boolean: if true run merge labels (after distributed cellpose if it ran, or standalone otherwise)
     models_dir                  // string|file: directory
     model_name                  // string model name
@@ -35,7 +35,7 @@ workflow CELLPOSE_SEGMENTATION {
 
     main:
     def final_segmentation_results
-    if (!skip_segmentation || run_standalone_merge_labels || run_segmentation_multiscale) {
+    if (run_segmentation || run_standalone_merge_labels || run_segmentation_multiscale) {
         def segmentation_prep_inputs = ch_meta
         | multiMap { it ->
             def (meta, img_container, img_subpath, mask, mask_sp, output_dir, segmentation_container) = it
@@ -123,7 +123,7 @@ workflow CELLPOSE_SEGMENTATION {
 
         // build labels channel from DISTRIBUTEDCELLPOSE or existing output
         def labels_ch
-        if (!skip_segmentation) {
+        if (run_segmentation) {
             def cellpose_results = SEGTOOLS_DISTRIBUTED_CELLPOSE(
                 segmentation_inputs.cellpose_data,
                 segmentation_inputs.cluster_info,
