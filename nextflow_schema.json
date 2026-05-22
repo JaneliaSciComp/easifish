@@ -872,15 +872,15 @@
                     "description": "Name of the global registration container",
                     "fa_icon": "fas fa-cube"
                 },
-                "global_container_zarr_format": {
+                "bigstream_zarr_format": {
                     "type": "integer",
                     "default": 2,
-                    "description": "Zarr format version for the global registration container (2 or 3)",
+                    "description": "Zarr format version for all bigstream registration containers (2 or 3)",
                     "fa_icon": "fas fa-cube"
                 },
-                "global_container_zarr_sharding": {
+                "bigstream_zarr_sharding_factor": {
                     "type": "string",
-                    "description": "Zarr v3 shard shape for the global registration container (e.g. '128,128,128'). Only applies when global_container_zarr_format = 3.",
+                    "description": "Zarr v3 shard shape for all bigstream registration containers (e.g. '128,128,128'). Only applies when bigstream_zarr_format = 3.",
                     "fa_icon": "fas fa-th"
                 },
                 "global_registration_timeindex": {
@@ -908,17 +908,6 @@
                     "default": "registration.n5",
                     "description": "Name of the final registration container",
                     "fa_icon": "fas fa-cube"
-                },
-                "local_container_zarr_format": {
-                    "type": "integer",
-                    "default": 2,
-                    "description": "Zarr format version for the local registration container (2 or 3)",
-                    "fa_icon": "fas fa-cube"
-                },
-                "local_container_zarr_sharding": {
-                    "type": "string",
-                    "description": "Zarr v3 shard shape for the local registration container (e.g. '128,128,128'). Only applies when local_container_zarr_format = 3.",
-                    "fa_icon": "fas fa-th"
                 },
                 "local_registration_timeindex": {
                     "type": ["string", "integer"],
