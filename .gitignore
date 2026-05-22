@@ -23,3 +23,4 @@ work/
 .claude/settings.local.json
 .claude/CLAUDE.local.md
 .claude/skills
+.claude/plans
