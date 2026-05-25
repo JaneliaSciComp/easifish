@@ -1734,6 +1734,18 @@
                     "description": "Output blocksize (as CX,CY,CZ) for segmentation results. If not specified it defaults to 128x128x128",
                     "fa_icon": "fas fa-cube"
                 },
+                "segmentation_zarr_format": {
+                    "type": "integer",
+                    "default": 2,
+                    "enum": [2, 3],
+                    "description": "Zarr format version (2 or 3) for segmentation output zarr containers",
+                    "fa_icon": "fas fa-file-archive"
+                },
+                "segmentation_zarr_sharding_factor": {
+                    "type": "string",
+                    "description": "Sharding factor (as SX,SY,SZ) for zarr v3 segmentation output. Only used when segmentation_zarr_format is 3",
+                    "fa_icon": "fas fa-layer-group"
+                },
                 "cellpose_use_gpu": {
                     "type": "boolean",
                     "default": true,
