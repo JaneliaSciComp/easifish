@@ -1704,13 +1704,13 @@
                     "description": "ROI for segmentation as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
                 },
-                "distributed_cellpose_blocksize": {
+                "segmentation_processsize": {
                     "type": "string",
                     "default": "256,256,256",
                     "description": "Cellpose blocksize used for parallelizing the distributed segmentation",
                     "fa_icon": "fas fa-cube"
                 },
-                "cellpose_blocks_overlap": {
+                "segmentation_process_overlap": {
                     "type": "string",
                     "description": "Blocks overlap used for distributed segmentation",
                     "fa_icon": "fas fa-hashtag"
