@@ -875,7 +875,7 @@ workflow RESOLVE_MASKS {
             params.fix_global_timeindex, fix_global_ch,
         ]
     }
-    | unique { it[0] }
+    | unique { it -> it[0] }
 
     // fix_mask_result: [fix_id, fix_mask, fix_sp]
     def fix_mask_result
@@ -885,6 +885,7 @@ workflow RESOLVE_MASKS {
         fix_mask_result = BIGSTREAM_FOREGROUNDMASK_FIX(
             fix_image_info.map { fix_id, _reg_id, img, sp, ti, ch ->
                 def mask_sp = sp.startsWith(fix_id) ? sp : fix_id + '/' + sp.trim('/')
+                log.debug "Fixed image foreground mask inputs: ${fix_id}, ${_reg_id}, ${img}, ${sp}, ${ti}, ${ch}, ${mask_sp}"
                 [[id: fix_id], file(img), sp, ti, ch, mask_out, mask_sp]
             }
         )
@@ -928,7 +929,7 @@ workflow RESOLVE_MASKS {
             params.mov_global_timeindex, mov_global_ch
         ]
     }
-    | unique { it[0] }
+    | unique { it -> it[0] }
 
     // mov_mask_result: [mov_id, mov_mask, mov_sp]
     def mov_mask_result
@@ -938,6 +939,7 @@ workflow RESOLVE_MASKS {
         mov_mask_result = BIGSTREAM_FOREGROUNDMASK_MOV(
             mov_image_info.map { mov_id, _reg_id, img, sp, ti, ch ->
                 def mask_sp = sp.startsWith(mov_id) ? sp : mov_id + '/' + sp.trim('/')
+                log.debug "Moving image foreground mask inputs: ${mov_id}, ${_reg_id}, ${img}, ${sp}, ${ti}, ${ch}, ${mask_sp}"
                 [[id: mov_id], file(img), sp, ti, ch, mask_out, mask_sp]
             }
         )
