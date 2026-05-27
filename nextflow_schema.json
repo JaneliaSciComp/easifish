@@ -1311,6 +1311,18 @@
                     "description": "Number of cores needed for getting spots counts.",
                     "default": 1
                 },
+                "spots_counts_workers": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cogs",
+                    "description": "Number of Dask workers used for spots counts.",
+                    "default": 1
+                },
+                "spots_counts_worker_cores": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores allocated for each spots counts Dask worker.",
+                    "default": 1
+                },
                 "spots_counts_mem_gb": {
                     "type": "integer",
                     "fa_icon": "fas fa-memory",
