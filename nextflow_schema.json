@@ -593,6 +593,11 @@
                     "description": "Intensity percentile used for finding the foreground threshold; when set, uses a simple threshold cutoff instead of the MorphACWE method",
                     "fa_icon": "fas fa-percentage"
                 },
+                "mask_background": {
+                    "type": ["string", "number"],
+                    "description": "Background intensity value used for foreground mask generation.",
+                    "fa_icon": "fas fa-adjust"
+                },
                 "local_inverse_cpus": {
                     "type": "integer",
                     "default": 1,
