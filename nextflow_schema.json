@@ -764,6 +764,11 @@
                     "description": "Processing size for computing the local alignment as sizex,sizey,sizez",
                     "fa_icon": "fas fa-cube"
                 },
+                "bigstream_processsize": {
+                    "type": "string",
+                    "description": "Local processing block size for bigstream registration as sizex,sizey,sizez. If not specified it defaults to shard size for zarr3 or blocksize for zarr2",
+                    "fa_icon": "fas fa-cube"
+                },
                 "bigstream_align_blocksize": {
                     "type": "string",
                     "description": "Block size used for applying the alignment transform as sizex,sizey,sizez as well as deformed image chunksize",
