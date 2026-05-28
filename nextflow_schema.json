@@ -598,6 +598,12 @@
                     "description": "Background intensity value used for foreground mask generation.",
                     "fa_icon": "fas fa-adjust"
                 },
+                "mask_shrink_factors": {
+                    "type": "string",
+                    "default": "1,2",
+                    "description": "Comma-separated shrink factors applied to the mask at each resolution level.",
+                    "fa_icon": "fas fa-compress-arrows-alt"
+                },
                 "local_inverse_cpus": {
                     "type": "integer",
                     "default": 1,

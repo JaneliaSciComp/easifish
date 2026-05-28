@@ -82,7 +82,7 @@ workflow WARP_SPOTS {
         /* spots_file must be defined */
         def spots_file = it[2]
         if (!spots_file) {
-            log.info "No spots file found in the parameter list: $it"
+            log.debug "No spots file found in the parameter list: $it"
             return false
         }
         return true
