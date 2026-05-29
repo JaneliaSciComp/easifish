@@ -63,7 +63,7 @@ process SPOTS_RSFISH {
         --spark-conf "spark.driver.extraClassPath=/app/app.jar"
         --spark-conf "spark.executor.extraClassPath=/app/app.jar"
         --spark-conf "spark.driver.extraJavaOptions=-Dnative.libpath.verbose=true"
-        --image=\${INPUT_IMG}
+        -i \${INPUT_IMG}
         --dataset=${input_dataset}
         --output=\${full_output_filename}
         ${spots_channels_arg}
