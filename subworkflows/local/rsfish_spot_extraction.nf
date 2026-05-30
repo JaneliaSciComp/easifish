@@ -29,10 +29,12 @@ workflow RSFISH_SPOT_EXTRACTION {
              input_img, _input_subpath,
              spots_output_dir, _spots_output_name,
              _spots_image_subpath_ref, _spots_channels) = it
-        [
+        def r = [
             meta,
             [ input_img, spots_output_dir ],
         ]
+        log.debug "RS_FISH Spark input $it -> $r"
+        r
     }
 
     def rsfish_input = SPARK_START(
