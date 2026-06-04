@@ -10,7 +10,7 @@ workflow DASK_START {
     dask_worker_mem_gb // int: worker memory in GB
 
     main:
-    if (distributed) {
+    if (Boolean.valueOf(distributed)) {
         // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
         def dask_work_dir
         if (dask_work_path) {
@@ -123,19 +123,7 @@ process DASK_PREPARE {
     task.ext.when == null || task.ext.when
 
     script:
-    """
-    ${set_readlink_tool()}
-    if [[ "${dask_work_dir}" == "" ]]; then
-        dwork="dask-\$(date -I)"
-        mkdir -p \${dwork}
-        cluster_work_dir=\$(\${READLINK_TOOL} -m \${dwork})
-    else
-        cluster_work_dir=\$(\${READLINK_TOOL} -m ${dask_work_dir})
-    fi
-    cluster_work_fullpath="\${cluster_work_dir}/${meta.id}"
-    /opt/scripts/daskscripts/prepare.sh "\${cluster_work_fullpath}"
-    echo "Cluster work dir: \${cluster_work_fullpath}"
-    """
+    template 'prepare.sh'
 }
 
 process DASK_STARTMANAGER {
@@ -154,38 +142,7 @@ process DASK_STARTMANAGER {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def container_engine = workflow.containerEngine
-
-    def set_dask_config_env = dask_config ? "export DASK_CONFIG=\$(\${READLINK_TOOL} ${dask_config})" : ''
-    def dask_scheduler_pid_file = "${cluster_work_dir}/dask-scheduler.pid"
-    def dask_scheduler_info_file = "${cluster_work_dir}/dask-scheduler-info.json"
-    def terminate_file_name = "${cluster_work_dir}/terminate-dask"
-
-    """
-    ${set_readlink_tool()}
-    cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
-    ${set_dask_config_env}
-
-    echo "Scheduler's environment"
-    env
-
-    CMD=(
-        /opt/scripts/daskscripts/startmanager.sh
-        --container-engine ${container_engine}
-        --pid-file ${dask_scheduler_pid_file}
-        --scheduler-work-dir ${cluster_work_dir}
-        --scheduler-file ${dask_scheduler_info_file}
-        --terminate-file ${terminate_file_name}
-        ${args}
-    )
-    (exec "\${CMD[@]}")
-
-    dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//" )
-    cat <<-END_VERSIONS > versions.yml
-    "dask": \${dask_version}
-    END_VERSIONS
-    """
+    template 'startmanager.sh'
 }
 
 process DASK_STARTWORKER {
@@ -208,42 +165,7 @@ process DASK_STARTWORKER {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def container_engine = workflow.containerEngine
-
-    def set_dask_config_env = dask_config ? "export DASK_CONFIG=\$(\${READLINK_TOOL} ${dask_config})" : ''
-    def dask_worker_name = "worker-${worker_id}"
-    def terminate_file_name = "${cluster_work_dir}/terminate-dask"
-
-    def dask_worker_work_dir = "${cluster_work_dir}/${dask_worker_name}"
-    def dask_worker_pid_file = "${dask_worker_work_dir}/${dask_worker_name}.pid"
-
-    """
-    ${set_readlink_tool()}
-    cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
-
-    ${set_dask_config_env}
-    echo "Worker's environment"
-    env
-
-    CMD=(
-        /opt/scripts/daskscripts/startworker.sh
-        --container-engine ${container_engine}
-        --name ${dask_worker_name}
-        --worker-dir ${dask_worker_work_dir}
-        --scheduler-address ${scheduler_address}
-        --pid-file ${dask_worker_pid_file}
-        --memory-limit "${worker_mem_in_gb / worker_cpus * (worker_cpus + task.attempt - 1) as int}G"
-        --terminate-file ${terminate_file_name}
-        ${args}
-    )
-    (exec "\${CMD[@]}")
-
-    dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//" )
-    cat <<-END_VERSIONS > versions.yml
-    "dask": \${dask_version}
-    END_VERSIONS
-    """
+    template 'startworker.sh'
 }
 
 process DASK_WAITFORMANAGER {
@@ -265,36 +187,7 @@ process DASK_WAITFORMANAGER {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def dask_scheduler_info_file = "${cluster_work_dir}/dask-scheduler-info.json"
-    def terminate_file_name = "${cluster_work_dir}/terminate-dask"
-
-    """
-    ${set_readlink_tool()}
-    cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
-
-    CMD=(
-        /opt/scripts/daskscripts/waitformanager.sh
-        --flist "${dask_scheduler_info_file},${terminate_file_name}"
-        ${args}
-    )
-    (exec "\${CMD[@]}")
-
-    if [[ -e "${dask_scheduler_info_file}" ]] ; then
-        echo "\$(date): Get cluster info from ${dask_scheduler_info_file}"
-        scheduler_address=\$(jq ".address" ${dask_scheduler_info_file})
-        dashboard_port=\$(jq ".services.dashboard" ${dask_scheduler_info_file})
-    else
-        echo "\$(date): Cluster info file ${dask_scheduler_info_file} not found"
-        scheduler_address=
-        dashboard_port=
-    fi
-
-    dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//" )
-    cat <<-END_VERSIONS > versions.yml
-    "dask": \${dask_version}
-    END_VERSIONS
-    """
+    template 'waitformanager.sh'
 }
 
 process DASK_WAITFORWORKERS {
@@ -315,43 +208,6 @@ process DASK_WAITFORWORKERS {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def terminate_file_name = "${cluster_work_dir}/terminate-dask"
-
-    """
-    ${set_readlink_tool()}
-    cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
-
-    # waitforworkers.sh sets available_workers variable
-    CMD=(
-        /opt/scripts/daskscripts/waitforworkers.sh
-        --cluster-work-dir ${cluster_work_dir}
-        --scheduler-address ${scheduler_address}
-        --total-workers ${total_workers}
-        --required-workers ${required_workers}
-        --terminate-file ${terminate_file_name}
-        ${args}
-    )
-    (exec "\${CMD[@]}")
-
-    dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//" )
-    cat <<-END_VERSIONS > versions.yml
-    "dask": \${dask_version}
-    END_VERSIONS
-    """
+    template 'waitforworkers.sh'
 }
 
-def set_readlink_tool() {
-    """
-    case \$(uname) in
-        Darwin)
-            detected_os=OSX
-            READLINK_TOOL="greadlink"
-            ;;
-        *)
-            detected_os=Linux
-            READLINK_TOOL="readlink"
-            ;;
-    esac
-    """
-}

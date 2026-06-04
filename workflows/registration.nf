@@ -1005,7 +1005,7 @@ workflow RUN_GLOBAL_ALIGNMENT_CORRELATION {
     if (run_global_metric) {
         def global_metric_ch = registration_inputs
         | join(global_registration_results, by: 0)
-        | map { reg_meta, fix_meta, mov_meta,
+        | map { reg_meta, _fix_meta, _mov_meta,
                 fix, fix_sp, _mov, mov_sp,
                 _transform_dir, _transform_name, _inv_transform_name,
                 align_dir, align_name, align_subpath ->
@@ -1050,8 +1050,8 @@ workflow RUN_LOCAL_ALIGNMENT_CORRELATION {
         def local_metric_ch = registration_inputs
         | join(local_deformation_results, by: 0)
         | map { reg_meta, fix_meta, mov_meta,
-                 fix, fix_sp, mov, mov_sp,
-                 warped, warped_sp ->
+                 fix, _fix_sp, _mov, _mov_sp,
+                 warped, _warped_sp ->
             def local_results_subdir = params.local_results_subdir ?: 'local'
             def metrics_container = params.local_correlation_container
             def local_fix_channel = params.fix_local_channel ?: params.reg_ch

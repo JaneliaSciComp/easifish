@@ -13,7 +13,8 @@ process SPARK_TERMINATE {
     script:
     terminate_file_name = "${spark_work_dir}/terminate-spark"
     """
-    /opt/scripts/terminate.sh "$terminate_file_name"
+    echo "Write ${terminate_file_name}"
+    echo "DONE" > ${terminate_file_name}
     """
 }
 

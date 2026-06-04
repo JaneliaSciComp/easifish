@@ -4,7 +4,11 @@ createDataset:
 
 resave:
   classname: net.preibisch.bigstitcher.spark.SparkResaveN5
-  advancedArgs: []
+  advancedArgs:
+    - '--compression=Zstandard'
+    - '--blockSize=64,64,64'
+    - '--blockScale=16,16,8'
+    - '--useSharding'
 
 detectInterestPoints:
   classname: net.preibisch.bigstitcher.spark.SparkInterestPointDetection

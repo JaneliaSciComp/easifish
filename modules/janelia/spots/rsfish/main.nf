@@ -1,6 +1,6 @@
 process SPOTS_RSFISH {
     tag "${meta.id}"
-    container 'ghcr.io/janeliascicomp/rs-fish-spark:8f8954f'
+    container 'ghcr.io/janeliascicomp/rs-fish-spark:spark4.1.2-scala2.13-java21-ubuntu24.04-zarrv3-omedev-bcbe2c7'
     cpus { spark.driver_cpus }
     memory { "${spark.driver_memory as int}g" }
 

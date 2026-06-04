@@ -1,17 +1,17 @@
-include { SPARK_START                                   } from '../janelia/spark_start/main'
-include { SPARK_STOP                                    } from '../janelia/spark_stop/main'
+include { SPARK_START                          } from '../janelia/spark_start'
+include { SPARK_STOP                           } from '../janelia/spark_stop'
 
-include { BIGSTITCHER_MODULE as CREATE_DATASET           } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as RESAVE                   } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as STITCH_PAIRS             } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as DETECT_IPS               } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as MATCH_IPS                } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as STITCH_SOLVE             } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as DUPLICATE_TF             } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as INTENSITY_MATCH          } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as INTENSITY_SOLVE          } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as CREATE_CONTAINER         } from '../../modules/janelia/bigstitcher/module'
-include { BIGSTITCHER_MODULE as FUSE                     } from '../../modules/janelia/bigstitcher/module'
+include { SPARK_RUNAPP as CREATE_DATASET       } from '../janelia/spark_start'
+include { SPARK_RUNAPP as RESAVE               } from '../janelia/spark_start'
+include { SPARK_RUNAPP as STITCH_PAIRS         } from '../janelia/spark_start'
+include { SPARK_RUNAPP as DETECT_IPS           } from '../janelia/spark_start'
+include { SPARK_RUNAPP as MATCH_IPS            } from '../janelia/spark_start'
+include { SPARK_RUNAPP as STITCH_SOLVE         } from '../janelia/spark_start'
+include { SPARK_RUNAPP as DUPLICATE_TF         } from '../janelia/spark_start'
+include { SPARK_RUNAPP as INTENSITY_MATCH      } from '../janelia/spark_start'
+include { SPARK_RUNAPP as INTENSITY_SOLVE      } from '../janelia/spark_start'
+include { SPARK_RUNAPP as CREATE_CONTAINER     } from '../janelia/spark_start'
+include { SPARK_RUNAPP as FUSE                 } from '../janelia/spark_start'
 
 workflow BIGSTITCHER {
 
@@ -322,8 +322,13 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
  */
 def bigstitcher_step_input(String step_name, ch_data, Map config) {
     ch_data.multiMap { meta, spark, files ->
-        def (cls, step_params) = prepare_bigstitcher_args(step_name, config, meta)
-        module_args: [meta, spark, cls, step_params]
+        def (step_cls, step_args) = prepare_bigstitcher_args(step_name, config, meta)
+
+        module_args: [
+            meta, spark, spark.work_dir,
+            [] /*no app jar path*/, '' /*use default app jar*/, [:] /* no additional spark config */,
+            step_cls, step_args
+        ]
         data_files: files
         carry: [meta, files]
     }
