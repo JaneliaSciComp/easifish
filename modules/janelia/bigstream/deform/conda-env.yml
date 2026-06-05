@@ -4,4 +4,4 @@ dependencies:
   - python=3.12
   - pip
   - pip:
-    - git+https://github.com/JaneliaSciComp/bigstream@efdacac
+    - git+https://github.com/JaneliaSciComp/bigstream@11e9180
