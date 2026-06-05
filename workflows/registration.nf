@@ -987,7 +987,9 @@ workflow RESOLVE_MASKS {
     | map { _mov_id, reg_id,
             fix_m, fix_m_sp,
             mov_m, mov_m_sp ->
-        [reg_id, fix_m, fix_m_sp, mov_m, mov_m_sp]
+        def r = [reg_id, fix_m, fix_m_sp, mov_m, mov_m_sp]
+        log.debug "Registration mask: $r"
+        r
     }
 
     emit:
