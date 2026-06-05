@@ -977,7 +977,7 @@ workflow RESOLVE_MASKS {
     | map { reg_meta, fix_meta, mov_meta -> [fix_meta.id, mov_meta.id, reg_meta.id] }
 
     def with_fix = pair_keys
-    | join(fix_mask_result, by: 0)
+    | combine(fix_mask_result, by: 0) // [fix_id, mask_path, mask_subpath]
     | map { _fix_id, mov_id, reg_id, fix_m, fix_m_sp ->
         [mov_id, reg_id, fix_m, fix_m_sp]
     }
