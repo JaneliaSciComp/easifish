@@ -50,7 +50,7 @@ process DOWNLOAD {
         echo "Skip checksum verification"
     fi
 
-    if [[ \${download_fullpath}/${samplesheet_row.filename} == *.zip ]]; then
+    if [[ "\${download_fullpath}/${samplesheet_row.filename}" == *.zip ]]; then
         # use dirname in case samplesheet_row.filename has relative paths
         parentdir=\$(dirname \${download_fullpath}/${samplesheet_row.filename})
         unzip -o -d \${parentdir} \${download_fullpath}/${samplesheet_row.filename}
