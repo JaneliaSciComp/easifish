@@ -261,8 +261,8 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
     def params
     if (step_name == 'createDataset') {
         params = [
-            '--input-pattern', meta.pattern,
-            '--input-path', meta.image_dir,
+            '--input-pattern', "${meta.pattern}",
+            '--input-path', "${meta.image_dir}",
             '-x', stitching_xml,
         ]
     } else if (step_name == 'resave') {
