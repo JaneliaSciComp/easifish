@@ -67,7 +67,7 @@ CMD=(
     --conf "spark.driver.extraJavaOptions=-Dnative.libpath.verbose=true"
     ${app_spark_conf_args}
     "${app_jar}"
-    ${app_args ? app_args.join(' ') : ''}
+    ${app_args ? app_args.collect {a -> "\"$a\""} .join(' ') : ''}
 )
 
 echo "CMD: \${CMD[@]}"
