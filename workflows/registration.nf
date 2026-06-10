@@ -98,7 +98,7 @@ workflow REGISTRATION {
     def cluster_mask_files = []
 
     if (params.generate_fix_mask)
-        cluster_mask_files << "${reg_outdir}/masks/${params.fix_mask}"
+        cluster_mask_files << "${reg_outdir}/masks"
     else if (params.fix_mask?.startsWith('/'))
         cluster_mask_files << params.fix_mask
 
