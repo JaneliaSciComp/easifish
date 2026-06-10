@@ -867,13 +867,15 @@ workflow RESOLVE_MASKS {
     def fix_image_info = registration_inputs
     | map { reg_meta, fix_meta, _mov_meta ->
         def image = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
-        [
+        def r = [
             fix_meta.id,
             reg_meta.id,
             image,
             "${fix_meta.stitched_dataset}/${fix_global_sp_val}",
             params.fix_global_timeindex, fix_global_ch,
         ]
+	log.debug "Fix image info: $r"
+	r
     }
     | unique { it -> it[0] }
 
@@ -921,13 +923,15 @@ workflow RESOLVE_MASKS {
     def mov_image_info = registration_inputs
     | map { reg_meta, _fix_meta, mov_meta ->
         def image = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
-        [
+        def r = [
             mov_meta.id,
             reg_meta.id,
             image,
             "${mov_meta.stitched_dataset}/${mov_global_sp_val}",
             params.mov_global_timeindex, mov_global_ch
         ]
+	log.debug "Mov image info: $r"
+	r
     }
     | unique { it -> it[0] }
 
