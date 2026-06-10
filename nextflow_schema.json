@@ -566,7 +566,13 @@
                     "description": "Mask subsampling",
                     "fa_icon": "fas fa-compress-arrows-alt"
                 },
-                "mask_lambda": {
+                "mask_lambda1": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Controls the influence of the background over the foreground when generating the mask.",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "mask_lambda2": {
                     "type": "number",
                     "default": 2,
                     "description": "Controls the variance of the foreground region. A larger number means larger segment(s).",
@@ -751,18 +757,6 @@
                     "description": "Memory (GB) for each bigstream Dask worker",
                     "hidden": true,
                     "fa_icon": "fas fa-memory"
-                },
-                "bigstream_worker_retry": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If true, retry bigstream Dask workers on certain exit statuses (130, 137)",
-                    "fa_icon": "fas fa-redo"
-                },
-                "bigstream_worker_max_retries": {
-                    "type": "integer",
-                    "default": 1,
-                    "description": "Maximum number of retries for bigstream Dask workers when bigstream_worker_retry is enabled",
-                    "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_local_blocksize": {
                     "type": "string",
