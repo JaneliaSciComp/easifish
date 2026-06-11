@@ -135,7 +135,7 @@ process DASK_STARTMANAGER {
     tuple val(meta), path(dask_config), path(cluster_work_dir, stageAs: 'dask_work/*'), path(data, stageAs: '?/*')
 
     output:
-    tuple val(meta), env('cluster_work_fullpath'), emit: cluster_info
+    tuple val(meta), val(cluster_work_dir), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
@@ -158,7 +158,7 @@ process DASK_STARTWORKER {
     val worker_mem_in_gb
 
     output:
-    tuple val(meta), env('cluster_work_fullpath'), val(scheduler_address), emit: cluster_info
+    tuple val(meta), val(cluster_work_dir), val(scheduler_address), emit: cluster_info
     path "versions.yml", emit: versions
 
     when:
