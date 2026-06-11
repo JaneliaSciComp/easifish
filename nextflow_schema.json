@@ -1760,7 +1760,6 @@
                 "segmentation_zarr_format": {
                     "type": "integer",
                     "default": 2,
-                    "enum": [2, 3],
                     "description": "Zarr format version (2 or 3) for segmentation output zarr containers",
                     "fa_icon": "fas fa-file-archive"
                 },
