@@ -67,27 +67,21 @@ set +x
 #            first and the recorded exit code is still propagated.
 # INT/TERM trap: just sets a flag; the wait loop breaks cleanly on next tick.
 worker_exit_code=0
-terminate_requested=0
 
 function cleanup() {
     echo "Killing background processes"
     [[ -n "\${spid:-}" ]] && kill -9 "\$spid" || true
-    echo "Exit worker with \${worker_exit_code}"
-    exit \${worker_exit_code}
 }
-trap cleanup EXIT
 
 function on_signal() {
     echo "Received termination signal, stopping worker"
-    terminate_requested=1
+    cleanup
+    echo "Exit worker with \${worker_exit_code}"
+    exit \${worker_exit_code}
 }
-trap on_signal INT TERM
+trap on_signal EXIT INT TERM
 
 while true; do
-    if [[ \$terminate_requested -eq 1 ]]; then
-        echo "Worker terminating due to signal"
-        break
-    fi
     if ! kill -0 \$spid >/dev/null 2>&1; then
         echo "Process \$spid died"
         cat \${spark_worker_log_file} >&2
@@ -101,3 +95,5 @@ while true; do
     fi
     sleep \${sleep_secs} || true
 done
+
+cleanup
