@@ -28,25 +28,21 @@ env
 # INT/TERM trap: just sets a flag; the wait calls below absorb the signal-
 #                induced non-zero exit via "|| true" and let the script flow.
 worker_exit_code=0
-terminate_requested=0
 
 function cleanup() {
-    echo "Killing background processes for \${worker_name}"
     if [[ -f "\${worker_pid_file}" ]]; then
         local wpid
         wpid=\$(cat "\${worker_pid_file}" || true)
         [[ -n "\${wpid}" ]] && kill -9 "\${wpid}" || true
     fi
-    echo "Exit worker with \${worker_exit_code}"
-    exit \${worker_exit_code}
 }
-trap cleanup EXIT
 
 function on_signal() {
     echo "Received termination signal, stopping worker \${worker_name}"
-    terminate_requested=1
+    echo "Exit worker with \${worker_exit_code}"
+    exit \${worker_exit_code}
 }
-trap on_signal INT TERM
+trap on_signal EXIT INT TERM
 
 echo "Determining worker \${worker_name} IP address..."
 . ${moduleDir}/templates/determine_ip.sh ${workflow.containerEngine}
@@ -70,10 +66,7 @@ dask worker \
 # subprocess does not trip set -e before the epilogue.
 ${moduleDir}/templates/waitforanyfile.sh 0 "\${terminate_file_name},\${worker_pid_file}" || true
 
-if [[ \$terminate_requested -eq 1 ]]; then
-    echo "Worker \${worker_name} terminating due to signal"
-    worker_pid=0
-elif [[ -e "\${worker_pid_file}" ]]; then
+if [[ -e "\${worker_pid_file}" ]]; then
     worker_pid=\$(cat "\${worker_pid_file}")
     echo "Worker \${worker_name} started: pid=\$worker_pid"
     echo "Worker \${worker_name} - wait for termination event: \${terminate_file_name}"
@@ -82,6 +75,9 @@ else
     echo "Worker \${worker_name} pid file not found"
     worker_pid=0
 fi
+
+echo "Killing background processes for \${worker_name}"
+cleanup
 
 dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//")
 cat <<-END_VERSIONS > versions.yml

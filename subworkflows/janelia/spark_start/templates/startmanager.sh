@@ -92,7 +92,6 @@ set +x
 manager_exit_code=0
 
 function cleanup() {
-    echo "Killing background processes"
     [[ -n "\${spid:-}" ]] && kill -9 "\${spid}" || true
 }
 
@@ -119,4 +118,5 @@ while true; do
     sleep \${sleep_secs} || true
 done
 
+echo "Killing background spark-master"
 cleanup

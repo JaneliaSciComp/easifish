@@ -26,25 +26,21 @@ env
 # INT/TERM trap: just sets a flag; the wait calls below absorb the signal-
 #                induced non-zero exit via "|| true" and let the script flow.
 manager_exit_code=0
-terminate_requested=0
 
 function cleanup() {
-    echo "Killing scheduler background processes"
     if [[ -f "\${scheduler_pid_file}" ]]; then
         local dpid
         dpid=\$(cat "\${scheduler_pid_file}" || true)
         [[ -n "\${dpid}" ]] && kill -9 "\${dpid}" || true
     fi
-    echo "Exit manager with \${manager_exit_code}"
-    exit \${manager_exit_code}
 }
-trap cleanup EXIT
 
 function on_signal() {
     echo "Received termination signal, stopping scheduler"
-    terminate_requested=1
+    echo "Exit manager with \${manager_exit_code}"
+    exit \${manager_exit_code}
 }
-trap on_signal INT TERM
+trap on_signal EXIT INT TERM
 
 echo "Determining scheduler IP address..."
 . ${moduleDir}/templates/determine_ip.sh ${workflow.containerEngine}
@@ -63,10 +59,7 @@ dask scheduler \
 # subprocess does not trip set -e before the epilogue.
 ${moduleDir}/templates/waitforanyfile.sh 0 "\${terminate_file_name},\${scheduler_pid_file}" || true
 
-if [[ \$terminate_requested -eq 1 ]]; then
-    echo "Scheduler terminating due to signal"
-    scheduler_pid=0
-elif [[ -e "\${scheduler_pid_file}" ]]; then
+if [[ -e "\${scheduler_pid_file}" ]]; then
     scheduler_pid=\$(cat "\${scheduler_pid_file}")
     echo "Scheduler started: pid=\$scheduler_pid"
     echo "Wait for termination event: \${terminate_file_name}"
@@ -75,6 +68,9 @@ else
     echo "Scheduler pid file not found"
     scheduler_pid=0
 fi
+
+echo "Killing dask scheduler"
+cleanup
 
 dask_version=\$(dask --version | grep version | sed "s/.*version\\s*//")
 cat <<-END_VERSIONS > versions.yml

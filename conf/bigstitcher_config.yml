@@ -40,7 +40,7 @@ solveIPs: &solveIPsArgs
     - '--channelId=1'
     - '--label=beads'
     - '--method=TWO_ROUND_SIMPLE'
-    - '--preAlign PREALIGN'
+    - '--preAlign=PREALIGN'
     - '--sourcePoints=IP'
     - '--transformationModel=TRANSLATION'
     - '--lambda=0.1'
@@ -72,11 +72,11 @@ duplicateTransformation:
 intensityMatch:
   classname: net.preibisch.bigstitcher.spark.SparkIntensityMatching
   advancedArgs:
-    - '--numCoefficients 8,8,8'
-    - '--renderScale 0.1'
-    - '--minThreshold 5'
-    - '--maxThreshold 65534'
-    - '--method HISTOGRAM'
+    - '--numCoefficients=8,8,8'
+    - '--renderScale=0.1'
+    - '--minThreshold=5'
+    - '--maxThreshold=65534'
+    - '--method=HISTOGRAM'
 
 intensitySolve:
   classname: net.preibisch.bigstitcher.spark.IntensitySolver
