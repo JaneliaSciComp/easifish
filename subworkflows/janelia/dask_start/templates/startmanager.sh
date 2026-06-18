@@ -32,10 +32,11 @@ function cleanup() {
     echo "Killing scheduler background processes"
     if [[ -f "\${scheduler_pid_file}" ]]; then
         local dpid
-        dpid=\$(cat "\${scheduler_pid_file}" 2>/dev/null || true)
-        [[ -n "\${dpid}" ]] && kill -9 "\$dpid" 2>/dev/null || true
+        dpid=\$(cat "\${scheduler_pid_file}" || true)
+        [[ -n "\${dpid}" ]] && kill -9 "\${dpid}" || true
     fi
-    exit \$manager_exit_code
+    echo "Exit manager with \${manager_exit_code}"
+    exit \${manager_exit_code}
 }
 trap cleanup EXIT
 

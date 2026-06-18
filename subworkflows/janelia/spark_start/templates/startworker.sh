@@ -71,8 +71,9 @@ terminate_requested=0
 
 function cleanup() {
     echo "Killing background processes"
-    [[ -n "\${spid:-}" ]] && kill -9 "\$spid" 2>/dev/null || true
-    exit \$worker_exit_code
+    [[ -n "\${spid:-}" ]] && kill -9 "\$spid" || true
+    echo "Exit worker with \${worker_exit_code}"
+    exit \${worker_exit_code}
 }
 trap cleanup EXIT
 
@@ -94,6 +95,7 @@ while true; do
         break
     fi
     if [[ -e "\${terminate_file_name}" ]]; then
+        echo "Termination file \${terminate_file_name} - found"
         cat \${spark_worker_log_file}
         break
     fi

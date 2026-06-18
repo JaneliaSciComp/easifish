@@ -34,10 +34,11 @@ function cleanup() {
     echo "Killing background processes for \${worker_name}"
     if [[ -f "\${worker_pid_file}" ]]; then
         local wpid
-        wpid=\$(cat "\${worker_pid_file}" 2>/dev/null || true)
-        [[ -n "\${wpid}" ]] && kill -9 "\$wpid" 2>/dev/null || true
+        wpid=\$(cat "\${worker_pid_file}" || true)
+        [[ -n "\${wpid}" ]] && kill -9 "\${wpid}" || true
     fi
-    exit \$worker_exit_code
+    echo "Exit worker with \${worker_exit_code}"
+    exit \${worker_exit_code}
 }
 trap cleanup EXIT
 
