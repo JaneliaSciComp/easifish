@@ -8,7 +8,7 @@ case \$(uname) in
     *)      READLINK_TOOL="readlink"  ;;
 esac
 full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
-terminate_file_name="\${full_spark_work_dir}/terminate-spark"
+terminate_file_name="\${full_spark_work_dir}/terminate-spark-${workflow.sessionId}"
 
 declare -i worker_start_timeout=${task.ext.max_wait_secs ?: '3600'}
 declare -i worker_poll_interval=${task.ext.sleep_secs ?: '1'}

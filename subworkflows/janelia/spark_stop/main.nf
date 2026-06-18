@@ -11,7 +11,7 @@ process SPARK_TERMINATE {
     tuple val(meta), val(spark)
 
     script:
-    terminate_file_name = "${spark_work_dir}/terminate-spark"
+    terminate_file_name = "${spark_work_dir}/terminate-spark-${workflow.sessionId}"
     """
     echo "Write ${terminate_file_name}"
     echo "DONE" > ${terminate_file_name}

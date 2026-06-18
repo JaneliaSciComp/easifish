@@ -10,7 +10,7 @@ case \$(uname) in
 esac
 full_spark_work_dir=\$(\${READLINK_TOOL} -m ${spark_work_dir})
 spark_master_log_file="\${full_spark_work_dir}/sparkmaster.log"
-terminate_file_name="\${full_spark_work_dir}/terminate-spark"
+terminate_file_name="\${full_spark_work_dir}/terminate-spark-${workflow.sessionId}"
 sleep_secs="${task.ext.sleep_secs ?: '1'}"
 max_wait_secs="${task.ext.max_wait_secs ?: '3600'}"
 

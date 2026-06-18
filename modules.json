@@ -71,7 +71,7 @@
                 "janelia": {
                     "dask_start": {
                         "branch": "main",
-                        "git_sha": "7a585fa99d4d5955b155188289f2fb1b9a04ee32",
+                        "git_sha": "857f06c09d38e902268376a73b953f135d3a61e2",
                         "installed_by": ["subworkflows"]
                     },
                     "dask_stop": {
@@ -81,12 +81,12 @@
                     },
                     "spark_start": {
                         "branch": "main",
-                        "git_sha": "7a585fa99d4d5955b155188289f2fb1b9a04ee32",
+                        "git_sha": "857f06c09d38e902268376a73b953f135d3a61e2",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_stop": {
                         "branch": "main",
-                        "git_sha": "8bf62553d8593b654cb24294c684885e0d095ed3",
+                        "git_sha": "857f06c09d38e902268376a73b953f135d3a61e2",
                         "installed_by": ["subworkflows"]
                     }
                 }

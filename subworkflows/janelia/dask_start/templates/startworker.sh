@@ -17,14 +17,35 @@ memory_limit="${worker_mem_in_gb / worker_cpus * (worker_cpus + task.attempt - 1
 echo "Worker's environment"
 env
 
+# The trap pattern below preserves Nextflow's output-capture epilogue
+# (versions.yml + any appended .command.env writers). If the trap calls exit
+# inside an INT/TERM handler, the script terminates before that epilogue runs
+# and Nextflow reports missing outputs (".command.env not found" or missing
+# versions.yml).
+#
+# EXIT trap: kills the worker and applies the recorded exit code.
+#            Runs AFTER the epilogue, so outputs are written first.
+# INT/TERM trap: just sets a flag; the wait calls below absorb the signal-
+#                induced non-zero exit via "|| true" and let the script flow.
+worker_exit_code=0
+terminate_requested=0
+
 function cleanup() {
     echo "Killing background processes for \${worker_name}"
     if [[ -f "\${worker_pid_file}" ]]; then
-        local wpid=\$(cat "\${worker_pid_file}")
-        kill -9 "\$wpid" || true
+        local wpid
+        wpid=\$(cat "\${worker_pid_file}" 2>/dev/null || true)
+        [[ -n "\${wpid}" ]] && kill -9 "\$wpid" 2>/dev/null || true
     fi
+    exit \$worker_exit_code
 }
-trap cleanup INT TERM EXIT
+trap cleanup EXIT
+
+function on_signal() {
+    echo "Received termination signal, stopping worker \${worker_name}"
+    terminate_requested=1
+}
+trap on_signal INT TERM
 
 echo "Determining worker \${worker_name} IP address..."
 . ${moduleDir}/templates/determine_ip.sh ${workflow.containerEngine}
@@ -44,14 +65,18 @@ dask worker \
     2> >(tee \${worker_dir}/\${worker_name}.log >&2) \
     &
 
-# wait for PID file (or terminate signal)
-${moduleDir}/templates/waitforanyfile.sh 0 "\${terminate_file_name},\${worker_pid_file}"
+# wait for PID file (or terminate signal); || true so a signal-killed
+# subprocess does not trip set -e before the epilogue.
+${moduleDir}/templates/waitforanyfile.sh 0 "\${terminate_file_name},\${worker_pid_file}" || true
 
-if [[ -e "\${worker_pid_file}" ]]; then
+if [[ \$terminate_requested -eq 1 ]]; then
+    echo "Worker \${worker_name} terminating due to signal"
+    worker_pid=0
+elif [[ -e "\${worker_pid_file}" ]]; then
     worker_pid=\$(cat "\${worker_pid_file}")
     echo "Worker \${worker_name} started: pid=\$worker_pid"
     echo "Worker \${worker_name} - wait for termination event: \${terminate_file_name}"
-    ${moduleDir}/templates/waitforanyfile.sh \${worker_pid} "\${terminate_file_name}"
+    ${moduleDir}/templates/waitforanyfile.sh \${worker_pid} "\${terminate_file_name}" || true
 else
     echo "Worker \${worker_name} pid file not found"
     worker_pid=0
