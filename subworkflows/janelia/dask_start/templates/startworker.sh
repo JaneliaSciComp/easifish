@@ -23,7 +23,6 @@ function cleanup() {
         local wpid=\$(cat "\${worker_pid_file}")
         kill -9 "\$wpid" || true
     fi
-    exit 0
 }
 trap cleanup INT TERM EXIT
 

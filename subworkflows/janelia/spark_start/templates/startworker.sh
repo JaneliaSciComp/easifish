@@ -60,7 +60,6 @@ set +x
 function cleanup() {
     echo "Killing background processes"
     [[ \$spid ]] && kill -9 "\$spid"
-    exit 0
 }
 trap cleanup INT TERM EXIT
 
