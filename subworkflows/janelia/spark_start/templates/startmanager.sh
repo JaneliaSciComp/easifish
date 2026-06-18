@@ -79,20 +79,10 @@ attempt_setup_fake_passwd_entry
 spid=\$!
 set +x
 
-# The trap pattern below preserves Nextflow's env-capture epilogue:
-# Nextflow appends the lines that write .command.env to the END of this script,
-# so the wait loop must always reach the end of the file. Calling exit from
-# inside an INT/TERM trap (or via exit 1 in the loop) bypasses that epilogue
-# and Nextflow then reports ".command.env not found".
-#
-# EXIT trap: kills the Spark process and applies the recorded exit code.
-#            Runs AFTER the env-capture epilogue, so .command.env is written
-#            first and the recorded exit code is still propagated.
-# INT/TERM trap: just sets a flag; the wait loop breaks cleanly on next tick.
 manager_exit_code=0
 
 function cleanup() {
-    [[ -n "\${spid:-}" ]] && kill -9 "\${spid}" || true
+    [[ -n "\${spid:-}" ]] && \$(kill -9 "\${spid}" > /dev/null 2 >&1) || true
 }
 
 function on_signal() {
