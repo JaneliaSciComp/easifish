@@ -275,8 +275,12 @@ workflow SPARK_START {
             .map { it ->
                 def (meta, spark, spark_work_dir, spark_uri, data_paths) = it
                 log.debug "Spark manager available: ${meta}: ${spark} using spark work dir: ${spark_work_dir}"
-                spark.uri = spark_uri
-                [ meta, spark, spark_work_dir, data_paths ]
+                // Copy into a new map instead of mutating the shared instance in place.
+                // The same `spark` map is retained in task contexts, and Nextflow's async
+                // cache writer may Kryo-serialize it concurrently - an in-place put races
+                // with that iteration and throws ConcurrentModificationException.
+                def spark_with_uri = spark + [uri: spark_uri]
+                [ meta, spark_with_uri, spark_work_dir, data_paths ]
             }
 
         // prepare all arguments for each worker
@@ -332,12 +336,17 @@ workflow SPARK_START {
         spark_context = prepare_config_results.spark_inputs.map { it ->
             def (meta, spark, _spark_work_dir) = it
 
-            spark.workers = 1
-            spark.driver_cpus = spark.driver_cpus + spark.worker_cpus
-            spark.driver_memory = spark.driver_memory + spark.executor_memory
-            spark.uri = 'local[*]'
-            log.debug "Create local Spark context: ${meta}, ${spark}"
-            [ meta, spark ]
+            // Copy into a new map instead of mutating the shared instance in place
+            // (see the cluster path above - avoids a ConcurrentModificationException
+            // when Nextflow's cache writer serializes the map concurrently).
+            def local_spark = spark + [
+                workers      : 1,
+                driver_cpus  : spark.driver_cpus + spark.worker_cpus,
+                driver_memory: spark.driver_memory + spark.executor_memory,
+                uri          : 'local[*]',
+            ]
+            log.debug "Create local Spark context: ${meta}, ${local_spark}"
+            [ meta, local_spark ]
         }
     }
 
