@@ -80,18 +80,27 @@ spid=\$!
 set +x
 
 manager_exit_code=0
+_signal_received=0
 
 function cleanup() {
-    [[ -n "\${spid:-}" ]] && \$(kill -9 "\${spid}" > /dev/null 2 >&1) || true
+    [[ -n "\${spid:-}" ]] && kill -9 "\${spid}" 2>/dev/null || true
 }
 
-function on_signal() {
-    echo "Received termination signal, stopping manager"
+# INT/TERM: just set a flag so the loop can break cleanly and the Nextflow
+# env-capture epilogue (appended after this script) still runs before we exit.
+function on_term() {
+    echo "Received termination signal"
+    _signal_received=1
+}
+
+# EXIT: runs after the epilogue has been written, so .command.env is intact.
+function on_exit() {
     cleanup
-    echo "Exit manager with \${manager_exit_code}"
     exit \${manager_exit_code}
 }
-trap on_signal EXIT INT TERM
+
+trap on_term INT TERM
+trap on_exit EXIT
 
 while true; do
     if ! kill -0 \$spid >/dev/null 2>&1; then
@@ -103,6 +112,10 @@ while true; do
     if [[ -e "\${terminate_file_name}" ]]; then
         echo "Termination file \${terminate_file_name} - found"
         cat \${spark_master_log_file}
+        break
+    fi
+    if (( _signal_received )); then
+        echo "Exiting due to received signal"
         break
     fi
     sleep \${sleep_secs} || true

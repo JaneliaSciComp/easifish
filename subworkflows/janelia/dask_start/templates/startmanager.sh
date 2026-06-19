@@ -35,12 +35,20 @@ function cleanup() {
     fi
 }
 
-function on_signal() {
+# INT/TERM: just log; the waitforanyfile.sh calls use || true so the script
+# continues to cleanup and the Nextflow epilogue naturally.
+function on_term() {
     echo "Received termination signal, stopping scheduler"
-    echo "Exit manager with \${manager_exit_code}"
+}
+
+# EXIT: runs after the epilogue and versions.yml have been written.
+function on_exit() {
+    cleanup
     exit \${manager_exit_code}
 }
-trap on_signal EXIT INT TERM
+
+trap on_term INT TERM
+trap on_exit EXIT
 
 echo "Determining scheduler IP address..."
 . ${moduleDir}/templates/determine_ip.sh ${workflow.containerEngine}

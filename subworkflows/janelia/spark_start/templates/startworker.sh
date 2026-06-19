@@ -57,18 +57,24 @@ spid=\$!
 set +x
 
 worker_exit_code=0
+_signal_received=0
 
 function cleanup() {
-    [[ -n "\${spid:-}" ]] && \$(kill -9 "\${spid}" > /dev/null 2>&1) || true
+    [[ -n "\${spid:-}" ]] && kill -9 "\${spid}" 2>/dev/null || true
 }
 
-function on_signal() {
-    echo "Received termination signal, stopping worker"
+function on_term() {
+    echo "Received termination signal"
+    _signal_received=1
+}
+
+function on_exit() {
     cleanup
-    echo "Exit worker with \${worker_exit_code}"
     exit \${worker_exit_code}
 }
-trap on_signal EXIT INT TERM
+
+trap on_term INT TERM
+trap on_exit EXIT
 
 while true; do
     if ! kill -0 \$spid >/dev/null 2>&1; then
@@ -80,6 +86,10 @@ while true; do
     if [[ -e "\${terminate_file_name}" ]]; then
         echo "Termination file \${terminate_file_name} - found"
         cat \${spark_worker_log_file}
+        break
+    fi
+    if (( _signal_received )); then
+        echo "Exiting due to received signal"
         break
     fi
     sleep \${sleep_secs} || true
