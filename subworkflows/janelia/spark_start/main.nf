@@ -152,7 +152,7 @@ process SPARK_CLEANUP {
 }
 
 process SPARK_RUNAPP {
-    tag "${meta.id}:${app_main_class}"
+    tag "${meta.id}"
     label 'process_long'
     container 'ghcr.io/janeliascicomp/spark:4.1.2-scala2.13-java21-ubuntu24.04'
     cpus   { spark.driver_cpus }
