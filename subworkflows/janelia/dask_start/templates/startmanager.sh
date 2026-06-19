@@ -31,7 +31,15 @@ function cleanup() {
     if [[ -f "\${scheduler_pid_file}" ]]; then
         local dpid
         dpid=\$(cat "\${scheduler_pid_file}" || true)
-        [[ -n "\${dpid}" ]] && kill -9 "\${dpid}" || true
+        if [[ -n "\${dpid}" ]] && kill -0 "\${dpid}" 2>/dev/null; then
+            kill -TERM "\${dpid}" 2>/dev/null || true
+            local i=0
+            while (( i < 10 )) && kill -0 "\${dpid}" 2>/dev/null; do
+                sleep 1
+                i=\$(( i + 1 ))
+            done
+            kill -9 "\${dpid}" 2>/dev/null || true
+        fi
     fi
 }
 

@@ -33,7 +33,15 @@ function cleanup() {
     if [[ -f "\${worker_pid_file}" ]]; then
         local wpid
         wpid=\$(cat "\${worker_pid_file}" || true)
-        [[ -n "\${wpid}" ]] && kill -9 "\${wpid}" || true
+        if [[ -n "\${wpid}" ]] && kill -0 "\${wpid}" 2>/dev/null; then
+            kill -TERM "\${wpid}" 2>/dev/null || true
+            local i=0
+            while (( i < 10 )) && kill -0 "\${wpid}" 2>/dev/null; do
+                sleep 1
+                i=\$(( i + 1 ))
+            done
+            kill -9 "\${wpid}" 2>/dev/null || true
+        fi
     fi
 }
 

@@ -83,7 +83,17 @@ manager_exit_code=0
 _signal_received=0
 
 function cleanup() {
-    [[ -n "\${spid:-}" ]] && kill -9 "\${spid}" 2>/dev/null || true
+    if [[ -n "\${spid:-}" ]] && kill -0 "\${spid}" 2>/dev/null; then
+        # SIGTERM lets tini forward the signal to the spark JVM for a clean exit.
+        # kill -9 on tini alone leaves the JVM alive as an orphan.
+        kill -TERM "\${spid}" 2>/dev/null || true
+        local i=0
+        while (( i < 10 )) && kill -0 "\${spid}" 2>/dev/null; do
+            sleep 1
+            i=\$(( i + 1 ))
+        done
+        kill -9 "\${spid}" 2>/dev/null || true
+    fi
 }
 
 # INT/TERM: just set a flag so the loop can break cleanly and the Nextflow
