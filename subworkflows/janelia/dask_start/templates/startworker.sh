@@ -17,18 +17,9 @@ memory_limit="${worker_mem_in_gb / worker_cpus * (worker_cpus + task.attempt - 1
 echo "Worker's environment"
 env
 
-# The trap pattern below preserves Nextflow's output-capture epilogue
-# (versions.yml + any appended .command.env writers). If the trap calls exit
-# inside an INT/TERM handler, the script terminates before that epilogue runs
-# and Nextflow reports missing outputs (".command.env not found" or missing
-# versions.yml).
-#
-# EXIT trap: kills the worker and applies the recorded exit code.
-#            Runs AFTER the epilogue, so outputs are written first.
-# INT/TERM trap: just sets a flag; the wait calls below absorb the signal-
-#                induced non-zero exit via "|| true" and let the script flow.
 worker_exit_code=0
 
+# cleanup running process
 function cleanup() {
     if [[ -f "\${worker_pid_file}" ]]; then
         local wpid

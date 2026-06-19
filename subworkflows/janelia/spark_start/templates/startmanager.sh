@@ -113,8 +113,8 @@ trap on_term INT TERM
 trap on_exit EXIT
 
 while true; do
-    if ! kill -0 \$spid >/dev/null 2>&1; then
-        echo "Process \$spid died"
+    if ! kill -0 \${spid} >/dev/null 2>&1; then
+        echo "Process \${spid} died"
         cat \${spark_master_log_file} >&2
         manager_exit_code=1
         break
