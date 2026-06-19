@@ -33,6 +33,21 @@ matchInterestPoints:
     - '--searchRadius=1000'
     - '--transformationModel=TRANSLATION'
     - '--regularizationModel=NONE'
+    # ransacMinInlierRatio: default is 0.1 (10%).
+    # Raising to 0.2 ensures at least 1 in 5 candidates are
+    # consistent — filters tile pairs that happen to match on noise.
+    - '--ransacMinInlierRatio=0.1'
+    # More neighbors → more discriminative descriptor, fewer false matches.
+    # Default 3 is often fine; 5 helps for dense bead fields.
+    # Only supported by PRECISE_TRANSLATION.
+    - '--numNeighbors=3'
+    # Each bead tries this many top descriptor matches.
+    # Higher = more candidates for RANSAC to work with.
+    # Default 1 is minimal.
+    - '--redundancy=1'
+    # The ratio between best and second-best descriptor distance.
+    # Lower = more permissive. If you get zero candidates, try 2.0.
+    - '--significance=3'
 
 solveIPs: &solveIPsArgs
   classname: net.preibisch.bigstitcher.spark.Solver

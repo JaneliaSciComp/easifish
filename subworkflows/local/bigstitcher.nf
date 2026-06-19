@@ -3,10 +3,12 @@ include { SPARK_STOP                           } from '../janelia/spark_stop'
 
 include { SPARK_RUNAPP as CREATE_DATASET       } from '../janelia/spark_start'
 include { SPARK_RUNAPP as RESAVE               } from '../janelia/spark_start'
-include { SPARK_RUNAPP as STITCH_PAIRS         } from '../janelia/spark_start'
+include { SPARK_RUNAPP as SOLVE_PAIRS          } from '../janelia/spark_start'
 include { SPARK_RUNAPP as DETECT_IPS           } from '../janelia/spark_start'
 include { SPARK_RUNAPP as MATCH_IPS            } from '../janelia/spark_start'
-include { SPARK_RUNAPP as STITCH_SOLVE         } from '../janelia/spark_start'
+include { SPARK_RUNAPP as SOLVE_IPS            } from '../janelia/spark_start'
+include { SPARK_RUNAPP as REFINE_IPS           } from '../janelia/spark_start'
+include { SPARK_RUNAPP as SOLVE_REFINED_IPS    } from '../janelia/spark_start'
 include { SPARK_RUNAPP as DUPLICATE_TF         } from '../janelia/spark_start'
 include { SPARK_RUNAPP as INTENSITY_MATCH      } from '../janelia/spark_start'
 include { SPARK_RUNAPP as INTENSITY_SOLVE      } from '../janelia/spark_start'
@@ -97,7 +99,7 @@ workflow BIGSTITCHER {
 
         current_step = matched_step('createDataset', stitching_steps)
         if (current_step) {
-            log.debug "Run 'createDataset' - not configured"
+            log.debug "Run 'createDataset'"
             def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = CREATE_DATASET(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
@@ -105,7 +107,7 @@ workflow BIGSTITCHER {
         }
         current_step = matched_step('resave', stitching_steps)
         if (current_step) {
-            log.debug "Run 'resave' - not configured"
+            log.debug "Run 'resave'"
             def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = RESAVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
@@ -113,39 +115,49 @@ workflow BIGSTITCHER {
         }
         current_step = matched_step('detectInterestPoints', stitching_steps)
         if (current_step) {
-            log.debug "Run 'detectInterestPoints' - not configured"
+            log.debug "Run 'detectInterestPoints'"
             def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = DETECT_IPS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
             log.debug "Skip 'detectInterestPoints' - not configured"
         }
-        current_step = matched_step('stitchPairs', stitching_steps)
+        current_step = matched_step('solvePairs', stitching_steps)
         if (current_step) {
-            log.debug "Run 'stitchPairs' - not configured"
+            log.debug "Run 'solvePairs'"
             def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
-            stitching_data = STITCH_PAIRS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+            stitching_data = SOLVE_PAIRS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
-            log.debug "Skip 'stitchPairs' - not configured"
+            log.debug "Skip 'solvePairs' - not configured"
         }
         current_step = matched_step('matchInterestPoints', stitching_steps)
         if (current_step) {
-            log.debug "Run 'matchInterestPoints' - not configured"
+            log.debug "Run 'matchInterestPoints'"
             def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = MATCH_IPS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
             log.debug "Skip 'matchInterestPoints' - not configured"
         }
-        current_step = matched_step('stitchSolve', stitching_steps)
+        current_step = matched_step('solveIPs', stitching_steps)
         if (current_step) {
-            log.debug "Run 'stitchSolve' - not configured"
+            log.debug "Run 'solveIPs'"
             def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
-            stitching_data = STITCH_SOLVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
-        } else {
-            log.debug "Skip 'stitchSolve' - not configured"
+            stitching_data = SOLVE_IPS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        }
+        current_step = matched_step('refineInterestPointsMatches', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'refineInterestPointsMatches'"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = REFINE_IPS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        }
+        current_step = matched_step('solveRefinedIPS', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'solveRefinedIPS'"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = SOLVE_REFINED_IPS(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         }
         current_step = matched_step('duplicateTransformation', stitching_steps)
         if (current_step) {
-            log.debug "Run 'duplicateTransformation' - not configured"
+            log.debug "Run 'duplicateTransformation'"
             def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = DUPLICATE_TF(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
@@ -207,9 +219,7 @@ def get_stitching_xml_or_default(meta) {
 
 def normalize_step_name(String step_name) {
     def canonical = [
-        stitch: 'stitchPairs',
-        solvePairs: 'stitchSolve',
-        solveIPs: 'stitchSolve',
+        stitch: 'solvePairs',
     ]
     return canonical[step_name] ?: step_name
 }
@@ -218,8 +228,7 @@ def matched_step(String step_name, List steps) {
     if (step_name in steps)
         return step_name
     def aliases = [
-        stitchPairs: ['stitch'],
-        stitchSolve: ['solveIPs', 'solvePairs'],
+        solvePairs: ['stitch'],
     ]
     return (aliases[step_name] ?: []).find { s -> s in steps }
 }
