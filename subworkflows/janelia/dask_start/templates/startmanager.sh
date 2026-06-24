@@ -50,7 +50,7 @@ trap on_term INT TERM
 trap on_exit EXIT
 
 echo "Determining scheduler IP address..."
-. ${moduleDir}/templates/determine_ip.sh ${workflow.containerEngine}
+. ${determine_ip} ${workflow.containerEngine}
 
 # start scheduler in background
 echo "Run: dask scheduler --host \${local_ip} --pid-file \${scheduler_pid_file} --scheduler-file \${scheduler_info_file} \${args}"
@@ -64,13 +64,13 @@ dask scheduler \
 
 # wait for PID file (or terminate signal); || true so a signal-killed
 # subprocess does not trip set -e before the epilogue.
-${moduleDir}/templates/waitforanyfile.sh 0 "\${terminate_file_name},\${scheduler_pid_file}" || true
+bash ${waitforanyfile} 0 "\${terminate_file_name},\${scheduler_pid_file}" || true
 
 if [[ -e "\${scheduler_pid_file}" ]]; then
     scheduler_pid=\$(cat "\${scheduler_pid_file}")
     echo "Scheduler started: pid=\$scheduler_pid"
     echo "Wait for termination event: \${terminate_file_name}"
-    ${moduleDir}/templates/waitforanyfile.sh \${scheduler_pid} "\${terminate_file_name}" || true
+    bash ${waitforanyfile} \${scheduler_pid} "\${terminate_file_name}" || true
 else
     echo "Scheduler pid file not found"
     scheduler_pid=0

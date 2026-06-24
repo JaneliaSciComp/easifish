@@ -216,8 +216,8 @@ workflow CELLPOSE_SEGMENTATION {
             }
 
             final_segmentation_results = SEGTOOLS_DISTRIBUTED_MERGELABELS(
-                mergelabels_inputs.map { it[0] },
-                mergelabels_inputs.map { it[1] },
+                mergelabels_inputs.map { row -> row[0] },
+                mergelabels_inputs.map { row -> row[1] },
                 log_config ? file(log_config) : [],
                 mergelabels_cpus,
                 mergelabels_mem_gb,
@@ -227,7 +227,7 @@ workflow CELLPOSE_SEGMENTATION {
             | map { it ->
                 def (meta,
                      img_container, img_subpath,
-                     input_mask, input_mask_sp,
+                     _input_mask, _input_mask_sp,
                      labels_containers, labels_subpath,
                      _segmentation_work_dir) = it
                 log.debug "Inputs automatically transferred to results: $it"

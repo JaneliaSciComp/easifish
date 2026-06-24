@@ -26,6 +26,11 @@ process POST_RS_FISH {
     def spots_filepattern = rsfish_spots_filename.replace('rsfish-', '').replace('.csv', '-coord*.csv')
 
     """
+    case \$(uname) in
+        Darwin) READLINK_TOOL="greadlink" ;;
+        *)      READLINK_TOOL="readlink"  ;;
+    esac
+
     # Create command line parameters
     if [[ ! -e ${input_path} ]]; then
         # when post-rs-fish is actually skipped because the data is missing
@@ -34,9 +39,9 @@ process POST_RS_FISH {
         full_input_path=
         spots_results=
     else
-        full_input_path=\$(readlink -e ${input_path})
+        full_input_path=\$(\${READLINK_TOOL} -e ${input_path})
         echo "Input volume: \${full_input_path}"
-        full_voxel_spots_csv_file=\$(readlink ${voxel_spots_csv_file})
+        full_voxel_spots_csv_file=\$(\${READLINK_TOOL} ${voxel_spots_csv_file})
         echo "Input spots CSV file: \${full_voxel_spots_csv_file}"
 
         if [[ -f \${full_voxel_spots_csv_file} ]]; then

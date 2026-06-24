@@ -9,7 +9,7 @@ cluster_work_fullpath=\$(\${READLINK_TOOL} ${cluster_work_dir})
 scheduler_info_file="\${cluster_work_fullpath}/dask-scheduler-info.json"
 terminate_file_name="\${cluster_work_fullpath}/terminate-dask"
 
-${moduleDir}/templates/waitforanyfile.sh 0 "\${scheduler_info_file},\${terminate_file_name}" ${task.ext.scheduler_start_timeout ?: '60'} ${task.ext.scheduler_poll_interval ?: '2'}
+bash ${waitforanyfile} 0 "\${scheduler_info_file},\${terminate_file_name}" ${task.ext.scheduler_start_timeout ?: '60'} ${task.ext.scheduler_poll_interval ?: '2'}
 
 if [[ -e "\${scheduler_info_file}" ]]; then
     echo "\$(date): Get cluster info from \${scheduler_info_file}"
