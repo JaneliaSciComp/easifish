@@ -128,8 +128,6 @@ workflow SEGMENTATION {
         cellpose_segmentation_mem_gb,
         cellpose_mergelabels_cpus,
         cellpose_mergelabels_mem_gb,
-        params.multiscale_cpus,
-        params.multiscale_mem_gb,
     )
 
     emit:

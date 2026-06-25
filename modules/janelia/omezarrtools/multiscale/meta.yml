@@ -34,12 +34,6 @@ input:
       type: file
       description: |
         Optional path to a dask configuration file. If not specified, pass as empty list ([]).
-  - cpus:
-      type: integer
-      description: Number of CPUs to allocate for the process
-  - mem_gb:
-      type: integer
-      description: Amount of memory in GB to allocate for the process
 output:
   - meta:
       type: map

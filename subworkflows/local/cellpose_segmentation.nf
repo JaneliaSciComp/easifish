@@ -1,10 +1,9 @@
-include { SEGTOOLS_DISTRIBUTED_CELLPOSE    } from '../../modules/janelia/segtools/distributed/cellpose/main.nf'
-include { SEGTOOLS_DISTRIBUTED_MERGELABELS } from '../../modules/janelia/segtools/distributed/mergelabels/main.nf'
+include { SEGTOOLS_DISTRIBUTED_CELLPOSE    } from '../../modules/janelia/segtools/distributed/cellpose'
+include { SEGTOOLS_DISTRIBUTED_MERGELABELS } from '../../modules/janelia/segtools/distributed/mergelabels'
 
-include { DASK_START                       } from '../janelia/dask_start/main.nf'
-include { DASK_STOP                        } from '../janelia/dask_stop/main.nf'
-
-include { MULTISCALE                       } from './multiscale'
+include { DASK_START                       } from '../janelia/dask_start'
+include { DASK_STOP                        } from '../janelia/dask_stop'
+include { MULTISCALE                       } from '../janelia/multiscale'
 
 workflow CELLPOSE_SEGMENTATION {
     take:
@@ -30,8 +29,6 @@ workflow CELLPOSE_SEGMENTATION {
     segmentation_mem_gb         // int: number of GB of memory to use for segmentation main process
     mergelabels_cpus            // int: number of CPUs to use for merge labels main process
     mergelabels_mem_gb          // int: number of GB of memory to use for merge labels main process
-    multiscale_cpus             // int: number of CPUs allocated for labels multiscale driver
-    multiscale_mem_gb           // int: memory size in GB allocated for the labels multiscale driver
 
     main:
     def final_segmentation_results
@@ -272,8 +269,6 @@ workflow CELLPOSE_SEGMENTATION {
             labels_multiscale_inputs.map { it -> it[0] },
             labels_multiscale_inputs.map { it -> it[1] },
             run_segmentation_multiscale,
-            multiscale_cpus,
-            multiscale_mem_gb,
         )
 
         // wait until all multiscale finish

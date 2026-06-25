@@ -1,4 +1,4 @@
-include { OMEZARRTOOLS_MULTISCALE } from '../../modules/janelia/omezarrtools/multiscale'
+include { OMEZARRTOOLS_MULTISCALE } from '../../../modules/janelia/omezarrtools/multiscale'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -11,17 +11,12 @@ workflow MULTISCALE {
     ch_meta           // ch: [ meta, img_container, img_dataset ]
     ch_dask_info      // ch: [ dask_scheduler, dask_config ]
     generate_pyramid  // boolean
-    cpus              // number
-    mem_gb            // number
 
     main:
-    def multiscale_results
     if (generate_pyramid) {
         multiscale_results = OMEZARRTOOLS_MULTISCALE(
             ch_meta,
             ch_dask_info,
-            cpus,
-            mem_gb,
         ).data
         multiscale_results.view { it -> log.debug "Multiscale pyramid: $it" }
     } else {
@@ -30,5 +25,5 @@ workflow MULTISCALE {
     }
 
     emit:
-    done = multiscale_results
+    multiscale_results
 }

@@ -1953,6 +1953,18 @@
                     "fa_icon": "fas fa-question-circle",
                     "hidden": true
                 },
+                "help_full": {
+                    "type": "boolean",
+                    "description": "Display full help text.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "show_hidden": {
+                    "type": "boolean",
+                    "description": "Display all hidden parameters.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
                 "version": {
                     "type": "boolean",
                     "description": "Display version and exit.",

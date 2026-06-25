@@ -4,20 +4,19 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { BIGSTREAM_GLOBALALIGN                                    } from '../modules/janelia/bigstream/globalalign/main'
-include { BIGSTREAM_LOCALALIGN                                     } from '../modules/janelia/bigstream/localalign/main'
-include { BIGSTREAM_COMPUTEINVERSE                                 } from '../modules/janelia/bigstream/computeinverse/main'
-include { BIGSTREAM_DEFORM                                         } from '../modules/janelia/bigstream/deform/main'
+include { BIGSTREAM_GLOBALALIGN                                    } from '../modules/janelia/bigstream/globalalign'
+include { BIGSTREAM_LOCALALIGN                                     } from '../modules/janelia/bigstream/localalign'
+include { BIGSTREAM_COMPUTEINVERSE                                 } from '../modules/janelia/bigstream/computeinverse'
+include { BIGSTREAM_DEFORM                                         } from '../modules/janelia/bigstream/deform'
 
-include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_FIX } from '../modules/janelia/bigstream/foregroundmask/main'
-include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_MOV } from '../modules/janelia/bigstream/foregroundmask/main'
+include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_FIX } from '../modules/janelia/bigstream/foregroundmask'
+include { BIGSTREAM_FOREGROUNDMASK as BIGSTREAM_FOREGROUNDMASK_MOV } from '../modules/janelia/bigstream/foregroundmask'
 
-include { BIGSTREAM_CORRELATIONMETRIC                              } from '../modules/janelia/bigstream/correlationmetric/main'
+include { BIGSTREAM_CORRELATIONMETRIC                              } from '../modules/janelia/bigstream/correlationmetric'
 
-include { DASK_START                                               } from '../subworkflows/janelia/dask_start/main'
-include { DASK_STOP                                                } from '../subworkflows/janelia/dask_stop/main'
-
-include { MULTISCALE                                               } from '../subworkflows/local/multiscale'
+include { DASK_START                                               } from '../subworkflows/janelia/dask_start'
+include { DASK_STOP                                                } from '../subworkflows/janelia/dask_stop'
+include { MULTISCALE                                               } from '../subworkflows/janelia/multiscale'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,8 +177,8 @@ workflow REGISTRATION {
     | groupTuple(by: [0, 1, 2, 3, 4, 5, 6])
     | map { it ->
         def (reg_meta,
-             fix, fix_subpath,
-             mov, mov_subpath,
+             _fix, _fix_subpath,
+             _mov, _mov_subpath,
              warped, warped_subpath,
              scheduler_addresses, dask_configs) = it
         log.debug "Grouped multiscale input by ${reg_meta.id}: warped=${warped}, warped_subpath=${warped_subpath} (source: $it)"
@@ -198,11 +197,9 @@ workflow REGISTRATION {
     }
 
     def multiscale_results = MULTISCALE(
-        multiscale_warped_inputs.map { it[0] },
-        multiscale_warped_inputs.map { it[1] },
+        multiscale_warped_inputs.map { it -> it[0] },
+        multiscale_warped_inputs.map { it -> it[1] },
         params.run_warped_multiscale,
-        params.multiscale_cpus,
-        params.multiscale_mem_gb,
     )
 
     def all_registration_results = local_deformation_results
@@ -241,12 +238,12 @@ workflow REGISTRATION {
     def stopped_clusters = all_registration_results
     | map { it ->
         def (reg_meta,
-            fix, fix_subpath,
-            mov, mov_subpath,
-            warped, warped_subpath,
+            _fix, _fix_subpath,
+            _mov, _mov_subpath,
+            _warped, _warped_subpath,
             _global_transform, _global_inv_transform,
-            transform_output, transform_name, transform_subpath,
-            inv_transform_output, inv_transform_name, inv_transform_subpath,
+            _transform_output, _transform_name, _transform_subpath,
+            _inv_transform_output, _inv_transform_name, _inv_transform_subpath,
             dask_meta, dask_context) = it
         def r = [ dask_meta, dask_context, reg_meta ]
         log.debug "Prepare to stop dask cluster $reg_meta"
@@ -271,7 +268,7 @@ workflow REGISTRATION {
             global_transform, global_inv_transform,
             transform_output, transform_name, transform_subpath,
             inv_transform_output, inv_transform_name, inv_transform_subpath,
-            dask_meta, dask_context) = it
+            _dask_meta, _dask_context) = it
         def r = [
             reg_meta,
             fix, fix_subpath,

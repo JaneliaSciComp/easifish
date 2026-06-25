@@ -42,8 +42,8 @@
                     },
                     "omezarrtools/multiscale": {
                         "branch": "main",
-                        "git_sha": "55870e39751134a934ac9497ca71b8410cf617cc",
-                        "installed_by": ["modules"]
+                        "git_sha": "85c14f04783f9e832ed322572adf7901402e02a8",
+                        "installed_by": ["multiscale"]
                     },
                     "segtools/distributed/cellpose": {
                         "branch": "main",
@@ -77,6 +77,11 @@
                     "dask_stop": {
                         "branch": "main",
                         "git_sha": "4261356a66340734ba86409fb1c7b4fe50dde206",
+                        "installed_by": ["subworkflows"]
+                    },
+                    "multiscale": {
+                        "branch": "main",
+                        "git_sha": "85c14f04783f9e832ed322572adf7901402e02a8",
                         "installed_by": ["subworkflows"]
                     },
                     "spark_start": {
