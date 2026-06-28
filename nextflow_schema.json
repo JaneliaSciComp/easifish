@@ -1826,6 +1826,12 @@
                     "default": "1 99",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "cellpose_niter": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Number of iterations for cellpose dynamics (0 lets cellpose determine it automatically based on diameter).",
+                    "fa_icon": "fas fa-hashtag"
+                },
                 "cellpose_stitch_threshold": {
                     "type": "number",
                     "default": 0,
