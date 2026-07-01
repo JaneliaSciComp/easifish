@@ -25,10 +25,6 @@ workflow CELLPOSE_SEGMENTATION {
     dask_min_workers            // int: min required dask workers
     dask_worker_cpus            // int: number of CPUs per worker
     dask_worker_mem_gb          // int: number of GB of memory per worker
-    segmentation_cpus           // int: number of CPUs to use for segmentation main process
-    segmentation_mem_gb         // int: number of GB of memory to use for segmentation main process
-    mergelabels_cpus            // int: number of CPUs to use for merge labels main process
-    mergelabels_mem_gb          // int: number of GB of memory to use for merge labels main process
 
     main:
     def final_segmentation_results
@@ -126,8 +122,6 @@ workflow CELLPOSE_SEGMENTATION {
                 segmentation_inputs.cluster_info,
                 preprocessing_config ? file(preprocessing_config) : [],
                 log_config ? file(log_config) : [],
-                segmentation_cpus,
-                segmentation_mem_gb,
             ).results
 
             cellpose_results.view { it -> log.debug "Distributed cellpose results: $it" }
@@ -216,8 +210,6 @@ workflow CELLPOSE_SEGMENTATION {
                 mergelabels_inputs.map { row -> row[0] },
                 mergelabels_inputs.map { row -> row[1] },
                 log_config ? file(log_config) : [],
-                mergelabels_cpus,
-                mergelabels_mem_gb,
             ).results
         } else {
             final_segmentation_results = labels_ch

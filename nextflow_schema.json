@@ -86,7 +86,7 @@
                 },
                 "stitching_result_container": {
                     "type": "string",
-                    "default": "stitched.n5",
+                    "default": "stitched.ome.zarr",
                     "description": "Name of the stitching result container",
                     "fa_icon": "fas fa-cube"
                 },
@@ -200,7 +200,6 @@
             "properties": {
                 "bigstitcher_config": {
                     "type": "string",
-                    "format": "file-path",
                     "description": "Path to a YAML config file with per-step advancedArgs for BigStitcher. Supported step keys: createDataset, resave, stitch, detectInterestPoints, matchInterestPoints, solver, createContainer, fuse.",
                     "fa_icon": "fas fa-file-code"
                 },
@@ -434,7 +433,8 @@
                 },
                 "reuse_global_affine": {
                     "type": "boolean",
-                    "default": true,
+                    "default": false,
+                    "hidden": true,
                     "description": "If True and global affine exists, reuse it",
                     "fa_icon": "fas fa-toggle-on"
                 },
@@ -654,13 +654,13 @@
                 },
                 "local_transform_name": {
                     "type": "string",
-                    "default": "deform.n5",
+                    "default": "deform.zarr",
                     "description": "Name of the container for the local deform transformation",
                     "fa_icon": "fas fa-cube"
                 },
                 "local_inv_transform_name": {
                     "type": "string",
-                    "default": "inv-deform.n5",
+                    "default": "inv-deform.zarr",
                     "description": "Name of the container for the local inverse deform transformation",
                     "fa_icon": "fas fa-cube"
                 },
@@ -873,6 +873,7 @@
                 "bigstream_dask_nthreads": {
                     "type": "integer",
                     "default": 1,
+                    "hidden": true,
                     "description": "Number of threads per Dask worker process",
                     "fa_icon": "fas fa-layer-group"
                 },
@@ -884,7 +885,7 @@
                 },
                 "global_registration_container": {
                     "type": "string",
-                    "default": "global-registration.n5",
+                    "default": "global-registration.ome.zarr",
                     "description": "Name of the global registration container",
                     "fa_icon": "fas fa-cube"
                 },
@@ -896,7 +897,7 @@
                 },
                 "bigstream_zarr_sharding_factor": {
                     "type": "string",
-                    "description": "Zarr v3 shard shape for all bigstream registration containers (e.g. '128,128,128'). Only applies when bigstream_zarr_format = 3.",
+                    "description": "Factor applied to the block size to determine the zarr3 shard shape for all bigstream registration containers (e.g. '4,4,4'). Only applies when bigstream_zarr_format = 3.",
                     "fa_icon": "fas fa-th"
                 },
                 "global_registration_timeindex": {
@@ -921,7 +922,7 @@
                 },
                 "local_registration_container": {
                     "type": "string",
-                    "default": "registration.n5",
+                    "default": "registration.ome.zarr",
                     "description": "Name of the final registration container",
                     "fa_icon": "fas fa-cube"
                 },
@@ -981,7 +982,7 @@
                 },
                 "extract_spots_from_warped": {
                     "type": "boolean",
-                    "description": "If true, extract spots from warped (registered) images instead of stitched images",
+                    "description": "If true, extract spots from warped (registered) images instead of stitched images. If this is used no spots warping is needed because they are already in the correct coordinate space.",
                     "default": false,
                     "fa_icon": "fas fa-toggle-on"
                 },
@@ -1589,7 +1590,7 @@
                 "seg_channels": {
                     "type": "string",
                     "default": "c1",
-                    "description": "Channels used for segmentation",
+                    "description": "Channels used for segmentation. This is used mostly when the channel is not one of the ndarray's dimensions, but a subpath",
                     "fa_icon": "fas fa-layer-group"
                 },
                 "seg_scales": {
@@ -1606,7 +1607,7 @@
                 },
                 "segmentation_imgname": {
                     "type": "string",
-                    "default": "segmentation.n5",
+                    "default": "segmentation.ome.zarr",
                     "description": "Name of the segmentation image",
                     "fa_icon": "fas fa-image"
                 },
@@ -1662,7 +1663,7 @@
                 },
                 "sample_channel_axis": {
                     "type": "string",
-                    "description": "channel axis for image to be segmented after the timeindex axis was eliminated",
+                    "description": "Channel axis for image to be segmented. For OME ZARRs it's read directly from the OME metadata.",
                     "default": "0",
                     "fa_icon": "fas fa-hashtag"
                 },
@@ -1674,7 +1675,7 @@
                 },
                 "sample_z_axis": {
                     "type": "string",
-                    "description": "Z axis for image to be segmented after the timeindex axis was eliminated",
+                    "description": "Z axis for image to be segmented. Same as channel axis is only required for non-OME zarr inputs",
                     "pattern": "\\d*",
                     "fa_icon": "fas fa-hashtag"
                 },
@@ -1907,6 +1908,7 @@
                 "cellpose_dask_worker_threads": {
                     "type": "integer",
                     "default": 1,
+                    "hidden": true,
                     "description": "Number of concurrent tasks running on a cellpose Dask worker",
                     "fa_icon": "fas fa-layer-group"
                 },

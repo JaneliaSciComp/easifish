@@ -1,8 +1,6 @@
 process SEGTOOLS_DISTRIBUTED_CELLPOSE {
     tag "${meta.id}"
     container 'ghcr.io/janeliascicomp/cellpose:4.0.8-dask2025.11.0-py12'
-    cpus { cpus }
-    memory "${mem_in_gb} GB"
     conda "${moduleDir}/conda-env.yml"
 
     input:
@@ -21,8 +19,6 @@ process SEGTOOLS_DISTRIBUTED_CELLPOSE {
           path(dask_config) // this is optional - if undefined pass in as empty list ([])
     path(preprocessing_config) // preprocessing config file
     path(logging_config) // this is optional - if undefined pass in as empty list ([])
-    val(cpus)
-    val(mem_in_gb)
 
     output:
     tuple val(meta),

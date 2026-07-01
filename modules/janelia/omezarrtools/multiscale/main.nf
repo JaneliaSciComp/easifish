@@ -20,8 +20,12 @@ process OMEZARRTOOLS_MULTISCALE {
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_config ? "--dask-config ${dask_config}" : ''
     """
+    case \$(uname) in
+        Darwin) READLINK_TOOL="greadlink" ;;
+        *)      READLINK_TOOL="readlink"  ;;
+    esac
     # Create command line parameters
-    full_data_container_path=\$(readlink -e ${data_container})
+    full_data_container_path=\$(\${READLINK_TOOL} -e ${data_container})
     echo "Generate pyramid for \${full_data_container_path}:${dataset_subpath}"
     CMD=(
         python -m zarr_tools.cli.main_multiscale

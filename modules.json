@@ -42,17 +42,17 @@
                     },
                     "omezarrtools/multiscale": {
                         "branch": "main",
-                        "git_sha": "85c14f04783f9e832ed322572adf7901402e02a8",
+                        "git_sha": "d1bc1904f405348fda80e5a75cafe815a7b0ab28",
                         "installed_by": ["multiscale"]
                     },
                     "segtools/distributed/cellpose": {
                         "branch": "main",
-                        "git_sha": "691b1fa99ec53f3aba31498d2b43bbe582a7ffea",
+                        "git_sha": "6e2c7cfb8ac03d57757baa9432f387e7460788d7",
                         "installed_by": ["modules"]
                     },
                     "segtools/distributed/mergelabels": {
                         "branch": "main",
-                        "git_sha": "691b1fa99ec53f3aba31498d2b43bbe582a7ffea",
+                        "git_sha": "6e2c7cfb8ac03d57757baa9432f387e7460788d7",
                         "installed_by": ["modules"]
                     },
                     "spots/fishspots": {
