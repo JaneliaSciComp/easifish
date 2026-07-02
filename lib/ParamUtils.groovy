@@ -61,7 +61,7 @@ class ParamUtils {
         if (v == null || "$v".trim() == '') {
             return 0
         } else {
-            "$v" as BigDecimal().doubleValue()
+            BigDecimal("$v").doubleValue()
         }
     }
 
@@ -69,7 +69,7 @@ class ParamUtils {
         if (v == null || "$v".trim() == '') {
             return 0
         } else {
-            "$v" as BigDecimal().intValue()
+            BigDecimal("$v").intValue()
         }
     }
 
