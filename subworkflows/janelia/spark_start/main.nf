@@ -51,9 +51,10 @@ workflow SPARK_START {
             def tasks_per_executor = (executor_cpus / task_cpus) as int
             def parallelism = n_spark_workers * executors_per_worker * tasks_per_executor
             def executor_memory_overhead = (spark_executor_overhead_mem_gb as int) ?: 0
-            def worker_memory = (spark_worker_mem_gb as int) ?: (worker_cpus * spark_gb_per_cpu)
-            def executor_memory = (spark_executor_mem_gb as int) ?: (executor_cpus * spark_gb_per_cpu - executor_memory_overhead)
-            def driver_memory = (spark_driver_mem_gb as int) ?: (spark_driver_cpus * spark_gb_per_cpu)
+            def gb_per_cpu = (spark_gb_per_cpu as int) ?: 1
+            def worker_memory = (spark_worker_mem_gb as int) ?: (worker_cpus * gb_per_cpu)
+            def executor_memory = (spark_executor_mem_gb as int) ?: (executor_cpus * gb_per_cpu - executor_memory_overhead)
+            def driver_memory = (spark_driver_mem_gb as int) ?: (spark_driver_cpus * gb_per_cpu)
 
             def spark = [
                 work_dir: spark_work_dir,
