@@ -126,49 +126,49 @@
                     "default": 1
                 },
                 "spark_worker_cores": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated to each Spark worker. Default: 4",
                     "default": 1
                 },
                 "spark_worker_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory (in GB) allocated to each Spark worker. If not set, defaults to spark_worker_cores * spark_gb_per_core.",
                     "default": 0
                 },
                 "spark_executor_cores": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores per Spark executor. If 0, defaults to spark_worker_cores.",
                     "default": 0
                 },
                 "spark_executor_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory (in GB) allocated to each Spark executor. If not set, defaults to spark_executor_cores * spark_gb_per_core.",
                     "default": 0
                 },
                 "spark_executor_overhead_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Spark executor memory overhead (in GB).",
                     "default": 0
                 },
                 "spark_task_cores": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores per Spark task. If 0, defaults to 1.",
                     "default": 0
                 },
                 "spark_driver_cores": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated for the Spark driver. Default: 1",
                     "default": 1
                 },
                 "spark_driver_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 14g",
                     "default": 14
@@ -1093,43 +1093,43 @@
                     "default": 1
                 },
                 "rsfish_spark_worker_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory (in GB) allocated to each RS-FISH Spark worker. If not set, defaults to rsfish_spark_worker_cores * rsfish_spark_gb_per_core.",
                     "default": 0
                 },
                 "rsfish_spark_executor_cores": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores per RS-FISH Spark executor. If not set, defaults to rsfish_spark_worker_cores.",
                     "default": 0
                 },
                 "rsfish_spark_executor_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory (in GB) allocated to each RS-FISH Spark executor. If not set, defaults to rsfish_spark_executor_cores * rsfish_spark_gb_per_core.",
                     "default": 0
                 },
                 "rsfish_spark_executor_overhead_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Additional memory overhead (in GB) for each RS-FISH Spark executor.",
                     "default": 0
                 },
                 "rsfish_spark_task_cores": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores per RS-FISH Spark task. If 0, defaults to 1.",
                     "default": 0
                 },
                 "rsfish_spark_driver_cores": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated for the Spark driver. Default: 1",
                     "default": 1
                 },
                 "rsfish_spark_driver_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
                     "default": 0
@@ -1870,7 +1870,7 @@
                     "fa_icon": "fas fa-microchip"
                 },
                 "cellpose_segmentation_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "default": 0,
                     "description": "Max memory allocated for the segmentation driver",
                     "fa_icon": "fas fa-memory"
@@ -1882,7 +1882,7 @@
                     "fa_icon": "fas fa-microchip"
                 },
                 "cellpose_mergelabels_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "default": 0,
                     "description": "Max memory allocated for the merge labels driver",
                     "fa_icon": "fas fa-memory"
@@ -1906,7 +1906,7 @@
                     "fa_icon": "fas fa-microchip"
                 },
                 "cellpose_dask_worker_mem_gb": {
-                    "type": ["integer", "string"],
+                    "type": "integer",
                     "default": 0,
                     "description": "Memory allocated for a cellpose Dask worker",
                     "fa_icon": "fas fa-memory"
