@@ -1377,6 +1377,11 @@
                     "description": "Output filename for spots with labels result",
                     "fa_icon": "fas fa-file-export"
                 },
+                "spots_props_process_blocksize": {
+                    "type": "string",
+                    "description": "Blocksize used to partition a large labels image into smaller blocks that fit in memory. Blocks are processed serially.",
+                    "fa_icon": "fas fa-cube"
+                },
                 "spots_props_cores": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
