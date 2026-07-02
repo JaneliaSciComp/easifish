@@ -202,7 +202,7 @@ workflow SPARK_START {
 
     main:
     // create a Spark context for each meta
-    def n_spark_workers = spark_workers ?: 1
+    def n_spark_workers = (spark_workers as int) ?: 1
 
     def spark_config = config + [
         'spark.rpc.askTimeout': '300s',
@@ -220,17 +220,17 @@ workflow SPARK_START {
             def spark_work_dir = file("${working_dir}/spark/${meta.id}")
             def spark_local_dir = local_dir ? file(local_dir) : []
 
-            def worker_cpus = spark_worker_cpus ?: 1
-            def executor_cpus = spark_executor_cpus ?: 1
-            def driver_cpus = spark_driver_cpus ?: 1
-            def task_cpus = spark_task_cpus ?: 1
+            def worker_cpus = (spark_worker_cpus as int) ?: 1
+            def executor_cpus = (spark_executor_cpus as int) ?: 1
+            def driver_cpus = (spark_driver_cpus as int) ?: 1
+            def task_cpus = (spark_task_cpus as int) ?: 1
             def executors_per_worker = (worker_cpus / executor_cpus) as int
             def tasks_per_executor = (executor_cpus / task_cpus) as int
             def parallelism = n_spark_workers * executors_per_worker * tasks_per_executor
-            def executor_memory_overhead = spark_executor_overhead_mem_gb ?: 0
-            def worker_memory = spark_worker_mem_gb ?: (worker_cpus * spark_gb_per_cpu)
-            def executor_memory = spark_executor_mem_gb ?: (executor_cpus * spark_gb_per_cpu - executor_memory_overhead)
-            def driver_memory = spark_driver_mem_gb ?: (spark_driver_cpus * spark_gb_per_cpu)
+            def executor_memory_overhead = (spark_executor_overhead_mem_gb as int) ?: 0
+            def worker_memory = (spark_worker_mem_gb as int) ?: (worker_cpus * spark_gb_per_cpu)
+            def executor_memory = (spark_executor_mem_gb as int) ?: (executor_cpus * spark_gb_per_cpu - executor_memory_overhead)
+            def driver_memory = (spark_driver_mem_gb as int) ?: (spark_driver_cpus * spark_gb_per_cpu)
 
             def spark = [
                 work_dir: spark_work_dir,
@@ -317,13 +317,14 @@ workflow SPARK_START {
         SPARK_CLEANUP(spark_cleanup_input) // when workers exit they should clean up after themselves
 
         // wait for all workers to start
-        def needed_workers = min_workers <= 0 || min_workers > n_spark_workers
+        def n_min_workers = min_workers as int
+        def required_workers = n_min_workers <= 0 || n_min_workers > n_spark_workers
                                 ? n_spark_workers
-                                : min_workers
+                                : n_min_workers
         spark_context = SPARK_WAITFORWORKERS(
             spark_workers_common_input.map { it -> it[0..-2] /* do not include the data_paths */ },
             n_spark_workers,
-            needed_workers
+            required_workers
         )
         .map { it ->
             def (meta, spark, _spark_work_dirs, available_workers) = it

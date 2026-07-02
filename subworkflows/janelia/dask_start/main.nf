@@ -58,7 +58,7 @@ workflow DASK_START {
             waitforanyfile_script,
         )
 
-        def nworkers = total_workers ?: 1
+        def nworkers = (total_workers as int) ?: 1
 
         // prepare inputs for dask workers
         def dask_workers_input = wait_manager_results.cluster_info
@@ -82,8 +82,8 @@ workflow DASK_START {
         // start dask workers
         DASK_STARTWORKER(
             dask_workers_input,
-            dask_worker_cpus,
-            dask_worker_mem_gb,
+            (dask_worker_cpus as int),
+            (dask_worker_mem_gb as int),
             determine_ip_script,
             waitforanyfile_script,
         )
@@ -92,7 +92,7 @@ workflow DASK_START {
         def cluster = DASK_WAITFORWORKERS(
             wait_manager_results.cluster_info,
             nworkers,
-            required_workers ?: 1,
+            (required_workers as int) ?: 1,
         )
 
         dask_context = cluster.cluster_info

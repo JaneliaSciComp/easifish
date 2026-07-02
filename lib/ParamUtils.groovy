@@ -57,6 +57,22 @@ class ParamUtils {
             }
     }
 
+    static def as_double(v) {
+        if (v == null || "$v".trim() == '') {
+            return 0
+        } else {
+            "$v" as BigDecimal().doubleValue()
+        }
+    }
+
+    static def as_int(v) {
+        if (v == null || "$v".trim() == '') {
+            return 0
+        } else {
+            "$v" as BigDecimal().intValue()
+        }
+    }
+
     static def as_list(v) {
         def vlist
         if (v instanceof Collection) {
