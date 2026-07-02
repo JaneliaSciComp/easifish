@@ -1,3 +1,5 @@
+nextflow.enable.moduleBinaries = true
+
 workflow DASK_START {
     take:
     meta_and_files // channel: [val(meta), files...]
@@ -15,8 +17,6 @@ workflow DASK_START {
         // for local/conda execution and inside containers (docker/podman/singularity).
         // Staging guarantees the pipeline's own copy is used even if the image's
         // bundled scripts have diverged.
-        def determine_ip_script   = file("${moduleDir}/templates/determine_ip.sh")
-        def waitforanyfile_script = file("${moduleDir}/templates/waitforanyfile.sh")
 
         // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
         def dask_work_dir
@@ -45,8 +45,6 @@ workflow DASK_START {
         // start scheduler
         DASK_STARTMANAGER(
             dask_prepare_result,
-            determine_ip_script,
-            waitforanyfile_script,
         )
 
         // wait for manager to start
@@ -55,7 +53,6 @@ workflow DASK_START {
                 def (meta, _dask_config_path, dask_cluster_work_dir, _data_paths) = it
                 [meta, dask_cluster_work_dir]
             },
-            waitforanyfile_script,
         )
 
         def nworkers = (total_workers as int) ?: 1
@@ -84,8 +81,6 @@ workflow DASK_START {
             dask_workers_input,
             (dask_worker_cpus as int),
             (dask_worker_mem_gb as int),
-            determine_ip_script,
-            waitforanyfile_script,
         )
 
         // check dask workers
@@ -147,8 +142,6 @@ process DASK_STARTMANAGER {
 
     input:
     tuple val(meta), path(dask_config), path(cluster_work_dir, stageAs: 'dask_work/*'), path(data, stageAs: '?/*')
-    path determine_ip
-    path waitforanyfile
 
     output:
     tuple val(meta), val(cluster_work_dir), emit: cluster_info
@@ -172,8 +165,6 @@ process DASK_STARTWORKER {
     tuple val(meta), path(dask_config), path(cluster_work_dir, stageAs: 'dask_work/*'), val(scheduler_address), val(worker_id), path(data, stageAs: '?/*')
     val worker_cpus
     val worker_mem_in_gb
-    path determine_ip
-    path waitforanyfile
 
     output:
     tuple val(meta), val(cluster_work_dir), val(scheduler_address), emit: cluster_info
@@ -193,7 +184,6 @@ process DASK_WAITFORMANAGER {
 
     input:
     tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*')
-    path waitforanyfile
 
     output:
     tuple val(meta),

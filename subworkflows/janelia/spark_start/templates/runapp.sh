@@ -25,12 +25,12 @@ set +u
 . "/opt/spark/bin/load-spark-env.sh"
 set -u
 
-. ${moduleDir}/templates/userutils.sh
+. userutils.sh
 
 if [[ "${spark.uri}" == "local[*]" ]]; then
     spark_cluster_params=()
 else
-    . ${moduleDir}/templates/determine_ip.sh ${workflow.containerEngine}
+    source determine_ip.sh ${workflow.containerEngine}
     spark_cluster_params=(
         --properties-file \${spark_config_filepath}
         --conf "spark.driver.host=\${local_ip}"

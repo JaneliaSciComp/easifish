@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ue
 # Determine the IP address of the current host
 
 container_engine=$1

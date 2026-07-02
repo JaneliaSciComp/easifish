@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ue
 # Wait for the specified file to be created
 # 
 declare apid=$1

@@ -1,3 +1,4 @@
+#!/bin/bash -ue
 
 # This is based on https://github.com/apache/spark-docker/blob/master/entrypoint.sh.template
 attempt_setup_fake_passwd_entry() {

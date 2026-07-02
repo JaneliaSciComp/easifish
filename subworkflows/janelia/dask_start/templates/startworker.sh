@@ -52,7 +52,7 @@ trap on_term INT TERM
 trap on_exit EXIT
 
 echo "Determining worker \${worker_name} IP address..."
-. ${determine_ip} ${workflow.containerEngine}
+. determine_ip.sh ${workflow.containerEngine}
 
 mkdir -p \${worker_dir}
 
@@ -71,13 +71,13 @@ dask worker \
 
 # wait for PID file (or terminate signal); || true so a signal-killed
 # subprocess does not trip set -e before the epilogue.
-bash ${waitforanyfile} 0 "\${terminate_file_name},\${worker_pid_file}" || true
+waitforanyfile.sh 0 "\${terminate_file_name},\${worker_pid_file}" || true
 
 if [[ -e "\${worker_pid_file}" ]]; then
     worker_pid=\$(cat "\${worker_pid_file}")
     echo "Worker \${worker_name} started: pid=\$worker_pid"
     echo "Worker \${worker_name} - wait for termination event: \${terminate_file_name}"
-    bash ${waitforanyfile} \${worker_pid} "\${terminate_file_name}" || true
+    waitforanyfile.sh \${worker_pid} "\${terminate_file_name}" || true
 else
     echo "Worker \${worker_name} pid file not found"
     worker_pid=0

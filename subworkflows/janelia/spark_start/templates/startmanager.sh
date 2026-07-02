@@ -57,10 +57,10 @@ set +u
 . "/opt/spark/bin/load-spark-env.sh"
 set -u
 
-. ${moduleDir}/templates/userutils.sh
+. userutils.sh
 
 echo "Determining manager IP address..."
-. ${moduleDir}/templates/determine_ip.sh ${workflow.containerEngine}
+. determine_ip.sh ${workflow.containerEngine}
 
 # Start the Spark manager
 echo "Spark master (\${local_ip}) output to \${spark_master_log_file}"
