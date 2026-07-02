@@ -126,55 +126,55 @@
                     "default": 1
                 },
                 "spark_worker_cores": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated to each Spark worker. Default: 4",
                     "default": 1
                 },
                 "spark_worker_mem_gb": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory (in GB) allocated to each Spark worker. If not set, defaults to spark_worker_cores * spark_gb_per_core.",
                     "default": 0
                 },
                 "spark_executor_cores": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores per Spark executor. If 0, defaults to spark_worker_cores.",
                     "default": 0
                 },
                 "spark_executor_mem_gb": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory (in GB) allocated to each Spark executor. If not set, defaults to spark_executor_cores * spark_gb_per_core.",
                     "default": 0
                 },
                 "spark_executor_overhead_mem_gb": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-memory",
                     "description": "Spark executor memory overhead (in GB).",
                     "default": 0
                 },
                 "spark_task_cores": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores per Spark task. If 0, defaults to 1.",
                     "default": 0
                 },
                 "spark_driver_cores": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated for the Spark driver. Default: 1",
                     "default": 1
                 },
                 "spark_driver_mem_gb": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 14g",
                     "default": 14
                 },
                 "spark_gb_per_core": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-cog",
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
                     "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. ",
@@ -567,13 +567,13 @@
                     "fa_icon": "fas fa-compress-arrows-alt"
                 },
                 "mask_lambda1": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0,
                     "description": "Controls the influence of the background over the foreground when generating the mask.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "mask_lambda2": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 2,
                     "description": "Controls the variance of the foreground region. A larger number means larger segment(s).",
                     "fa_icon": "fas fa-sliders-h"
@@ -585,12 +585,12 @@
                     "fa_icon": "fas fa-magic"
                 },
                 "mask_smooth_sigmas": {
-                    "type": ["string", "number"],
+                    "type": ["number", "string"],
                     "description": "One or more gaussian smoothing sigmas from the finest to the coarser resolution. Use larger sigmas for coarser resolutions.",
                     "fa_icon": "fas fa-wave-square"
                 },
                 "mask_iterations": {
-                    "type": ["string", "integer"],
+                    "type": ["integer", "string"],
                     "description": "One or more iteration counts for MorphACWE mask refinement from the finest to the coarser resolution.",
                     "fa_icon": "fas fa-redo"
                 },
@@ -600,7 +600,7 @@
                     "fa_icon": "fas fa-percentage"
                 },
                 "mask_background": {
-                    "type": ["string", "number"],
+                    "type": ["number", "string"],
                     "description": "Background intensity value used for foreground mask generation.",
                     "fa_icon": "fas fa-adjust"
                 },
@@ -776,35 +776,35 @@
                     "fa_icon": "fas fa-cube"
                 },
                 "bigstream_local_overlap_factor": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0.125,
                     "hidden": true,
                     "description": "Block overlap used for local alignment",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_local_fg_pct": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0.5,
                     "hidden": true,
                     "description": "Foreground percentage threshold used for local alignment",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_local_deform_overlap": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0.125,
                     "hidden": true,
                     "description": "Block overlap factor used for applying the deformation transform",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_local_inv_overlap_factor": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0.25,
                     "hidden": true,
                     "description": "Processing overlap factor used for computing the inverse transform",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_inv_step": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 1,
                     "hidden": true,
                     "description": "Step used for generating inverse displacement vector",
@@ -832,14 +832,14 @@
                     "fa_icon": "fas fa-cog"
                 },
                 "bigstream_inv_step_cut_factor": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0.5,
                     "hidden": true,
                     "description": "Step cut factor used for generated inverse displacement vector",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_inv_pad": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0.1,
                     "hidden": true,
                     "description": "Padding used for generated inverse displacement vector",
@@ -1093,49 +1093,49 @@
                     "default": 1
                 },
                 "rsfish_spark_worker_mem_gb": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory (in GB) allocated to each RS-FISH Spark worker. If not set, defaults to rsfish_spark_worker_cores * rsfish_spark_gb_per_core.",
                     "default": 0
                 },
                 "rsfish_spark_executor_cores": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores per RS-FISH Spark executor. If not set, defaults to rsfish_spark_worker_cores.",
                     "default": 0
                 },
                 "rsfish_spark_executor_mem_gb": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory (in GB) allocated to each RS-FISH Spark executor. If not set, defaults to rsfish_spark_executor_cores * rsfish_spark_gb_per_core.",
                     "default": 0
                 },
                 "rsfish_spark_executor_overhead_mem_gb": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-memory",
                     "description": "Additional memory overhead (in GB) for each RS-FISH Spark executor.",
                     "default": 0
                 },
                 "rsfish_spark_task_cores": {
-                    "type": "number",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores per RS-FISH Spark task. If 0, defaults to 1.",
                     "default": 0
                 },
                 "rsfish_spark_driver_cores": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated for the Spark driver. Default: 1",
                     "default": 1
                 },
                 "rsfish_spark_driver_mem_gb": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
                     "default": 0
                 },
                 "rsfish_spark_gb_per_core": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "fa_icon": "fas fa-cog",
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker.",
                     "help_text": "The total memory usage for extracting spots from one acquisition will be workers * worker_cores * gb_per_core.",
@@ -1165,13 +1165,13 @@
                     "fa_icon": "fas fa-hashtag"
                 },
                 "fishspots_intensity_threshold": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0,
                     "description": "Fishspots intensity threshold",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "fishspots_intensity_threshold_minimum": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0,
                     "description": "Fishspots minimum intensity threshold",
                     "fa_icon": "fas fa-hashtag"
@@ -1654,12 +1654,12 @@
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "sample_anisotropy": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 1,
                     "fa_icon": "fas fa-hashtag"
                 },
                 "sample_expansion_factor": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 1,
                     "fa_icon": "fas fa-hashtag"
                 },
@@ -1840,79 +1840,79 @@
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_stitch_threshold": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0,
                     "description": "Cellpose stitch threshold value - compute masks in 2D then stitch them with IOU > 0.9 across planes.",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellprob_threshold": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "description": "Probabilty threshold to control cellpose mask size.",
                     "default": 1,
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_flow3D_smooth": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "description": "Cellpose flow3D_smooth parameter",
                     "default": 1,
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_labels_distance_th": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 1,
                     "description": "Across labels distance transform threshold for merging labels from adjacent blocks",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "cellpose_segmentation_cpus": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 1,
                     "description": "Number of CPUs allocated for the segmentation driver",
                     "fa_icon": "fas fa-microchip"
                 },
                 "cellpose_segmentation_mem_gb": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 0,
                     "description": "Max memory allocated for the segmentation driver",
                     "fa_icon": "fas fa-memory"
                 },
                 "cellpose_mergelabels_cpus": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 1,
                     "description": "Number of CPUs allocated for the merge labels driver",
                     "fa_icon": "fas fa-microchip"
                 },
                 "cellpose_mergelabels_mem_gb": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 0,
                     "description": "Max memory allocated for the merge labels driver",
                     "fa_icon": "fas fa-memory"
                 },
                 "cellpose_dask_workers": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 8,
                     "description": "Number of cellpose Dask workers",
                     "fa_icon": "fas fa-cogs"
                 },
                 "cellpose_dask_min_workers": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 1,
                     "description": "Minimum number of Dask workers required for segmentation",
                     "fa_icon": "fas fa-cogs"
                 },
                 "cellpose_dask_worker_cpus": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 1,
                     "description": "CPUs allocated for a cellpose Dask worker",
                     "fa_icon": "fas fa-microchip"
                 },
                 "cellpose_dask_worker_mem_gb": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 0,
                     "description": "Memory allocated for a cellpose Dask worker",
                     "fa_icon": "fas fa-memory"
                 },
                 "cellpose_dask_worker_threads": {
-                    "type": "integer",
+                    "type": ["integer", "string"],
                     "default": 1,
                     "hidden": true,
                     "description": "Number of concurrent tasks running on a cellpose Dask worker",
