@@ -107,6 +107,7 @@ createContainer:
 fuse:
   classname: net.preibisch.bigstitcher.spark.SparkFusion
   advancedArgs:
+    - '--fusionMethod=AFFINE'
     # fusion arg values:AVG_BLEND,CLOSEST_PIXEL_WINS
     - '--fusion=AVG_BLEND'
   useIntensityCoefficients: false

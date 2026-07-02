@@ -667,6 +667,7 @@
                 "bigstream_alter_existing_deform": {
                     "type": "boolean",
                     "default": false,
+                    "hidden": true,
                     "description": "If true, alter the existing deformation field in-place rather than creating a new one during local alignment",
                     "fa_icon": "fas fa-edit"
                 },
@@ -1089,7 +1090,7 @@
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated to each Spark worker.",
-                    "default": 5
+                    "default": 1
                 },
                 "rsfish_spark_worker_mem_gb": {
                     "type": "number",
@@ -1131,14 +1132,14 @@
                     "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 12g",
-                    "default": 4
+                    "default": 0
                 },
                 "rsfish_spark_gb_per_core": {
                     "type": "integer",
                     "fa_icon": "fas fa-cog",
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker.",
                     "help_text": "The total memory usage for extracting spots from one acquisition will be workers * worker_cores * gb_per_core.",
-                    "default": 5
+                    "default": 15
                 },
                 "rsfish_spark_max_partition_bytes": {
                     "type": "string",
