@@ -57,6 +57,10 @@ class ParamUtils {
             }
     }
 
+    static def as_bool(v) {
+        Boolean.valueOf(v)
+    }
+
     static def as_double(v) {
         if (v == null || "$v".trim() == '') {
             return 0

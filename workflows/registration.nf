@@ -85,7 +85,7 @@ workflow REGISTRATION {
         resolved_masks,
         bigstream_config,
         reg_outdir,
-        params.run_global_align && params.run_registration,
+        ParamUtils.as_bool(params.run_global_align) && ParamUtils.as_bool(params.run_registration),
     )
 
     global_registration_results.global_transforms.view { it -> log.debug "Global affine transforms: $it" }
@@ -111,9 +111,9 @@ workflow REGISTRATION {
     def local_registrations_cluster = START_EASIFISH_DASK(
         global_registration_results.global_registration_results,
         additional_cluster_files,
-        params.distributed_bigstream &&
-        params.run_registration &&
-        (params.run_local_align || params.run_deformations || params.run_inverse || params.run_warped_multiscale),
+        ParamUtils.as_bool(params.distributed_bigstream) &&
+        ParamUtils.as_bool(params.run_registration) &&
+        (ParamUtils.as_bool(params.run_local_align) || ParamUtils.as_bool(params.run_deformations) || ParamUtils.as_bool(params.run_inverse) || ParamUtils.as_bool(params.run_warped_multiscale)),
         "${session_work_dir}/bigstream-dask/",
         params.dask_config,
     )
@@ -125,35 +125,35 @@ workflow REGISTRATION {
         resolved_masks,
         bigstream_config,
         reg_outdir,
-        params.run_registration && params.run_local_align,
+        ParamUtils.as_bool(params.run_registration) && ParamUtils.as_bool(params.run_local_align),
     )
 
     def local_inverse_results = RUN_COMPUTE_INVERSE(
         registration_inputs,
         local_registration_results,
         local_registrations_cluster,
-        params.run_registration && params.run_inverse,
+        ParamUtils.as_bool(params.run_registration) && ParamUtils.as_bool(params.run_inverse),
     )
 
     def local_deformation_results = RUN_LOCAL_DEFORMS(
         registration_inputs,
         local_registration_results,
         local_registrations_cluster,
-        params.run_registration && params.run_deformations,
+        ParamUtils.as_bool(params.run_registration) && ParamUtils.as_bool(params.run_deformations),
     )
 
     RUN_GLOBAL_ALIGNMENT_CORRELATION(
         registration_inputs,
         global_registration_results.global_registration_results,
         reg_outdir,
-        params.run_global_metric,
+        ParamUtils.as_bool(params.run_global_metric),
     )
 
     RUN_LOCAL_ALIGNMENT_CORRELATION(
         registration_inputs,
         local_deformation_results,
         reg_outdir,
-        params.run_local_metric,
+        ParamUtils.as_bool(params.run_local_metric),
     )
 
     def multiscale_warped_inputs = local_deformation_results
@@ -199,7 +199,7 @@ workflow REGISTRATION {
     def multiscale_results = MULTISCALE(
         multiscale_warped_inputs.map { it -> it[0] },
         multiscale_warped_inputs.map { it -> it[1] },
-        params.run_warped_multiscale,
+        ParamUtils.as_bool(params.run_warped_multiscale),
     )
 
     def all_registration_results = local_deformation_results

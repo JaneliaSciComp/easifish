@@ -10,11 +10,11 @@ workflow EXTRACT_SPOTS_PROPS {
     def registered_images = ch_registration
     | flatMap { it ->
         def (reg_meta,
-             fix, fix_subpath,
-             mov, mov_subpath,
+             _fix, _fix_subpath,
+             _mov, _mov_subpath,
              warped, warped_subpath,
-             transform_output, transform_name, transform_subpath,
-             inv_transform_output, inv_transform_name, inv_transform_subpath) = it
+             _transform_output, _transform_name, _transform_subpath,
+             _inv_transform_output, _inv_transform_name, _inv_transform_subpath) = it
         log.debug "Get registered images for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.mov_id
@@ -71,10 +71,10 @@ workflow EXTRACT_SPOTS_PROPS {
     | flatMap { it ->
         def (reg_meta,
              fix, fix_subpath,
-             mov, mov_subpath,
-             warped, warped_subpath,
-             transform_output, transform_name, transform_subpath,
-             inv_transform_output, inv_transform_name, inv_transform_subpath) = it
+             _mov, _mov_subpath,
+             _warped, _warped_subpath,
+             _transform_output, _transform_name, _transform_subpath,
+             _inv_transform_output, _inv_transform_name, _inv_transform_subpath) = it
         log.debug "Get fixed image for region props: $it"
         def join_id = reg_meta.fix_id
         def image_id = reg_meta.fix_id
@@ -125,7 +125,7 @@ workflow EXTRACT_SPOTS_PROPS {
              image_id,
              image_container, image_dataset, image_ch,
              result_name, bleeding_channel, dapi_channel,
-             meta, seg_input_image, seg_input_dataset, seg_labels) = it
+             meta, _seg_input_image, seg_input_dataset, seg_labels) = it
         log.debug "Combined cell images with segmentation: $it"
 
         def regionprops_output_dir = file("${outdir}/${params.spots_props_subdir}/${image_id}")
@@ -156,7 +156,7 @@ workflow EXTRACT_SPOTS_PROPS {
     }
 
     def spots_props_results
-    if (params.run_spots_properties) {
+    if (ParamUtils.as_bool(params.run_spots_properties)) {
         spots_props_results = SPOTS_PROPS(
             regionprops_inputs,
             params.spots_props_cores,

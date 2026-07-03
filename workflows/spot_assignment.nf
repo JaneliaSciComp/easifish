@@ -73,7 +73,7 @@ workflow SPOT_COUNT_ASSIGN {
     spots_counts_input.view { it -> log.debug "Spots counts input: $it" }
 
     def spots_counts_outputs
-    if (params.run_spots_counts) {
+    if (ParamUtils.as_bool(params.run_spots_counts)) {
         spots_counts_outputs = SPOTS_COUNTS(
             spots_counts_input,
             params.spots_counts_cores,

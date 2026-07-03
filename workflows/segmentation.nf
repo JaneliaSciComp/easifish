@@ -99,14 +99,14 @@ workflow SEGMENTATION {
         0)
     def cellpose_results = CELLPOSE_SEGMENTATION(
         seg_volume,
-        params.run_segmentation,
-        params.run_standalone_merge_labels,
+        ParamUtils.as_bool(params.run_segmentation),
+        ParamUtils.as_bool(params.run_standalone_merge_labels),
         params.cellpose_models_dir,
         params.cellpose_model,
         params.cellpose_preprocessing_config_file,
         params.cellpose_log_config,
-        params.run_segmentation_multiscale,
-        params.distributed_cellpose,
+        ParamUtils.as_bool(params.run_segmentation_multiscale),
+        ParamUtils.as_bool(params.distributed_cellpose),
         params.dask_config,
         session_work_dir,
         params.cellpose_dask_workers,

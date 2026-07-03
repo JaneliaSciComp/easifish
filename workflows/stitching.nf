@@ -19,10 +19,10 @@ workflow STITCHING {
             : [:]
         stitching_results = BIGSTITCHER(
             ch_acquisition_data,
-            params.spark_cluster,
+            ParamUtils.as_bool(params.spark_cluster),
             stitching_result_dir,
             params.stitching_result_container,
-            !params.run_stitching,
+            !ParamUtils.as_bool(params.run_stitching),
             bigstitcher_config,
             ParamUtils.as_list(params.bigstitcher_steps),
             "${workdir}/stitching",
@@ -44,13 +44,13 @@ workflow STITCHING {
         stitching_results = SAALFELD_STITCHING(
             ch_acquisition_data,
             params.flatfield_correction,
-            params.spark_cluster,
+            ParamUtils.as_bool(params.spark_cluster),
             stitching_work_dir,
             params.darkfieldfile,
             params.flatfieldfile,
             stitching_result_dir,
             params.stitching_result_container,
-            !params.run_stitching,
+            !ParamUtils.as_bool(params.run_stitching),
             "${workdir}/stitching",
             params.spark_local_dir,
             params.spark_workers as int,

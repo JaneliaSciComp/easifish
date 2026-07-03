@@ -45,7 +45,7 @@ workflow SPOT_EXTRACTION {
 
     def spots_to_skip_ch
     def spots_to_process_ch
-    if (!params.run_spot_extraction) {
+    if (!ParamUtils.as_bool(params.run_spot_extraction)) {
         log.debug "Skipping spot extraction for all rounds"
         spots_to_skip_ch = spots_inputs
         spots_to_process_ch = channel.empty()
@@ -91,35 +91,35 @@ workflow SPOT_EXTRACTION {
             1)
         spots_results = FISHSPOT_EXTRACTION(
             spots_to_process_ch,
-            params.distributed_spot_extraction,
+            ParamUtils.as_bool(params.distributed_spot_extraction),
             params.fishspots_config,
             params.fishspots_dask_config,
             workdir,
-            params.fishspots_dask_workers,
-            params.fishspots_dask_min_workers,
-            params.fishspots_dask_worker_cpus,
-            fishspots_worker_mem_gb,
-            params.fishspots_cpus ,
-            fishspots_driver_mem_gb,
+            params.fishspots_dask_workers as int,
+            params.fishspots_dask_min_workers as int,
+            params.fishspots_dask_worker_cpus as int,
+            fishspots_worker_mem_gb as int,
+            params.fishspots_cpus as int,
+            fishspots_driver_mem_gb as int,
         )
     } else {
         log.debug "Extract spots using RS_FISH"
         spots_results = RSFISH_SPOT_EXTRACTION(
             spots_to_process_ch,
-            params.distributed_spot_extraction,
+            ParamUtils.as_bool(params.distributed_spot_extraction),
             workdir,
             params.rsfish_spark_local_dir,
-            params.rsfish_spark_workers,
-            params.rsfish_min_spark_workers,
-            params.rsfish_spark_worker_cores,
-            params.rsfish_spark_worker_mem_gb,
-            params.rsfish_spark_executor_cores,
-            params.rsfish_spark_executor_mem_gb,
-            params.rsfish_spark_executor_overhead_mem_gb,
-            params.rsfish_spark_task_cores,
-            params.rsfish_spark_driver_cores,
-            params.rsfish_spark_driver_mem_gb,
-            params.rsfish_spark_gb_per_core,
+            params.rsfish_spark_workers as int,
+            params.rsfish_min_spark_workers as int,
+            params.rsfish_spark_worker_cores as int,
+            params.rsfish_spark_worker_mem_gb as int,
+            params.rsfish_spark_executor_cores as int,
+            params.rsfish_spark_executor_mem_gb as int,
+            params.rsfish_spark_executor_overhead_mem_gb as int,
+            params.rsfish_spark_task_cores as int,
+            params.rsfish_spark_driver_cores as int,
+            params.rsfish_spark_driver_mem_gb as int,
+            params.rsfish_spark_gb_per_core as int,
             create_rsfish_spark_config(), // spark config
         )
     }
@@ -162,7 +162,7 @@ workflow SPOT_EXTRACTION {
 }
 
 def get_spot_extraction_input_output(meta, outputdir) {
-    if (!params.extract_spots_from_warped || meta.id == params.registration_fix_id) {
+    if (!ParamUtils.as_bool(params.extract_spots_from_warped) || meta.id == params.registration_fix_id) {
         // extract the spots from the stitched image
         return [
             "${meta.stitching_result_dir}/${meta.stitching_container}",
