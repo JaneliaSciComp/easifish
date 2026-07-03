@@ -1,11 +1,8 @@
 {
-    "channels": "c0,c1,c2,c3",
+    "channels": "0,1,2,3",
     "input": "${projectDir}/examples/local_samplesheets/medium_samplesheet.csv",
-    "indir": "/path/to/your/input/data",
-    "outdir": "/path/to/your/output/results",
-
-    "registration_subdir": "registration",
-    "segmentation_subdir": "segmentation",
+    "indir": null,
+    "outdir": null,
 
     "run_stitching": true,
     "run_registration": true,
@@ -13,24 +10,34 @@
     "run_local_align": true,
     "run_deformations": true,
     "run_inverse": true,
+    "run_warped_multiscale": false,
     "run_segmentation": true,
+    "run_segmentation_multiscale": true,
     "run_spot_extraction": true,
     "run_warp_spots": true,
+    "run_spots_counts": true,
+    "run_spots_properties": true,
 
-    "flatfield_correction": false,
-    "darkfieldfile": "",
-    "flatfieldfile": "",
+    "stitching_method": "BigStitcher",
+    "bigstitcher_steps": "createDataset,resave,detectInterestPoints,matchInterestPoints,solveIPs,duplicateTransformation,intensityMatch,intensitySolver,createContainer,fuse",
 
     "registration_fix_id": "t1",
-    "stitching_channel": "c3",
-    "reg_ch": "c2",
-    "global_steps": "ransac,affine",
-    "local_steps": "ransac,affine,deform",
-    "global_scale": "s3",
-    "local_scale": "s2",
-    "warped_scales": "s0",
+    "reg_ch": "2",
 
-    "cellpose_test": false,
+    "global_steps": "ransac,affine",
+    "fix_global_subpath": "3",
+    "fix_global_timeindex": "0",
+    "mov_global_subpath": "3",
+    "mov_global_timeindex": "0",
+
+    "local_steps": "ransac,affine,deform",
+    "fix_local_subpath": "1",
+    "fix_local_timeindex": "0",
+    "mov_local_subpath": "1",
+    "mov_local_timeindex": "0",
+
+    "warped_subpaths": "0",
+
     "cellpose_verbose": true,
     "cellpose_dask_workers": 20,
     "cellpose_dask_worker_cpus": 1,
@@ -46,14 +53,10 @@
     "bigstream_scheduler_port": 0,
     "bigstream_dashboard_port": 0,
 
-    "multiscale_spark_workers": 1,
-    "multiscale_spark_worker_cores": 20,
-    "multiscale_spark_gb_per_core": 5,
-
     "rsfish_spark_workers": 4,
 
-    "dapi_channel": "c2",
-    "bleeding_channel": "c3",
+    "dapi_channel": "2",
+    "bleeding_channel": "3",
 
     "lsf_opts": "-P scicompsoft",
     "cellpose_worker_cluster_opts": "-q gpu_l4 -gpu 'num=1'"

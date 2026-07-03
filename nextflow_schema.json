@@ -455,11 +455,6 @@
                     "description": "Global steps - if not set they are read from the bigstream config",
                     "fa_icon": "fas fa-cog"
                 },
-                "global_scale": {
-                    "type": ["string", "integer"],
-                    "description": "Scale used for global registration",
-                    "fa_icon": "fas fa-ruler"
-                },
                 "fix_local_subpath": {
                     "type": ["string", "integer"],
                     "hidden": true,
@@ -641,11 +636,6 @@
                     "hidden": true,
                     "fa_icon": "fas fa-cog"
                 },
-                "local_scale": {
-                    "type": ["string", "integer"],
-                    "description": "Scale used for local registration",
-                    "fa_icon": "fas fa-ruler"
-                },
                 "deform_subpath": {
                     "type": "string",
                     "hidden": true,
@@ -700,11 +690,6 @@
                     "hidden": true,
                     "description": "Channels to be warped",
                     "fa_icon": "fas fa-layer-group"
-                },
-                "warped_scales": {
-                    "type": ["string", "integer"],
-                    "description": "All scales that need to be warped",
-                    "fa_icon": "fas fa-ruler"
                 },
                 "global_align_cpus": {
                     "type": "integer",
@@ -1592,18 +1577,6 @@
                     "type": ["string", "integer"],
                     "description": "Comma delimited list of segmentation datasets",
                     "fa_icon": "fas fa-database"
-                },
-                "seg_channels": {
-                    "type": "string",
-                    "default": "c1",
-                    "description": "Channels used for segmentation. This is used mostly when the channel is not one of the ndarray's dimensions, but a subpath",
-                    "fa_icon": "fas fa-layer-group"
-                },
-                "seg_scales": {
-                    "type": "string",
-                    "default": "s2",
-                    "description": "Scale of the segmented image",
-                    "fa_icon": "fas fa-ruler"
                 },
                 "segmentation_subdir": {
                     "type": "string",

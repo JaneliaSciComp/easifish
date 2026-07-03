@@ -9,11 +9,10 @@ class ParamUtils {
     }
 
     static def get_warped_subpaths(params) {
-        def warped_channels_param = params.warped_channels ?: params.channels
-        def warped_scales_param = params.warped_scales ?: params.local_scale
+        def warped_subpaths = params.warped_subpaths ?: params.mov_local_subpath
 
-        if (params.warped_subpaths) {
-            return ParamUtils.as_list(params.warped_subpaths)
+        if (warped_subpaths) {
+            return ParamUtils.as_list(warped_subpaths)
                 .collect { warped_subpath_param ->
                     def (fix_subpath, warped_subpath) = warped_subpath_param.tokenize(':')
                     def r = [
@@ -23,20 +22,6 @@ class ParamUtils {
                     Nextflow.log.debug "Warped subpath: $r"
                     r
                 }
-        } else if (warped_channels_param && warped_scales_param) {
-            def warped_scales = ParamUtils.as_list(warped_scales_param)
-            def warped_channels = ParamUtils.as_list(warped_channels_param)
-            return [warped_channels, warped_scales]
-                .combinations()
-                .collect { warped_ch, warped_scale ->
-                    def r = [
-                        "${warped_ch}/${warped_scale}", // fixed subpath
-                        "${warped_ch}/${warped_scale}", // warped subpath
-                    ]
-                    Nextflow.log.debug "Warped subpath: $r"
-                    r
-
-            }
         } else {
             return []
         }

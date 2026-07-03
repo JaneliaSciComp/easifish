@@ -39,27 +39,15 @@ workflow SEGMENTATION {
         } else {
             input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
         }
-        if (!params.segmentation_subpaths && (!params.seg_channels || !params.dapi_channel) && !params.seg_scales) {
-            segmentation_subpaths = [ '' ] // empty subpath - the input image container contains the array data
-        } else if (params.segmentation_subpaths) {
-            // in this case the subpaths parameters must match exactly the container datasets
+
+        if (params.segmentation_subpaths) {
+            // the subpaths parameters must match exactly the container datasets
             segmentation_subpaths = ParamUtils.as_list(params.segmentation_subpaths)
                 .collect { subpath ->
                      "${meta.stitched_dataset}/${subpath}"
                 }
         } else {
-            def seg_channels = params.seg_channels
-                ? ParamUtils.as_list(params.seg_channels)
-                : ParamUtils.as_list(params.dapi_channel)
-
-            def seg_scales = ParamUtils.as_list(params.seg_scales)
-
-            segmentation_subpaths = [seg_channels, seg_scales].combinations()
-                .collect { it ->
-                    // when channel and scale is used we also prepend the stitched dataset
-                    def dataset = it.join('/')
-                    "${meta.stitched_dataset}/${dataset}"
-            }
+            segmentation_subpaths = [ '' ] // empty subpath - the input image container contains the array data
         }
 
         def mask_file

@@ -298,12 +298,8 @@ workflow RUN_GLOBAL_REGISTRATION {
     run_global_align
 
     main:
-    def fix_global_subpath = params.fix_global_subpath
-        ? params.fix_global_subpath
-        : "${params.fix_global_channel ?: params.reg_ch}/${params.global_scale}"
-    def mov_global_subpath = params.mov_global_subpath
-        ? params.mov_global_subpath
-        : "${params.mov_global_channel ?: params.reg_ch}/${params.global_scale}"
+    def fix_global_subpath = params.fix_global_subpath ?: ''
+    def mov_global_subpath = params.mov_global_subpath ?: ''
     def global_results_subdir = params.global_results_subdir ?: 'global'
     def global_registration_inputs = registration_inputs
     | map { reg_meta, fix_meta, mov_meta -> [reg_meta.id, reg_meta, fix_meta, mov_meta] }
@@ -436,7 +432,11 @@ workflow START_EASIFISH_DASK {
     | toList() // wait for all global registrations to complete
     | flatMap { global_bigstream_results ->
         def r = global_bigstream_results
-        .collect { fix_id, reg_meta, fix, fix_subpath, mov, mov_subpath, transform_dir, transform_name, align_dir, align_name, align_subpath ->
+        .collect { fix_id, _reg_meta,
+                   fix, _fix_subpath,
+                   mov, _mov_subpath,
+                   transform_dir, _transform_name,
+                   _align_dir, _align_name, _align_subpath ->
             // collect the data files into a map with
             // key = meta and value is a set of files
             def data_dir_set = [ fix, mov, transform_dir].toSet()
@@ -516,12 +516,8 @@ workflow RUN_LOCAL_REGISTRATION {
     run_local_registration_flag
 
     main:
-    def fix_local_subpath = params.fix_local_subpath
-        ? params.fix_local_subpath
-        : "${params.fix_local_channel ?: params.reg_ch}/${params.local_scale}"
-    def mov_local_subpath = params.mov_local_subpath
-        ? params.mov_local_subpath
-        : "${params.mov_local_channel ?: params.reg_ch}/${params.local_scale}"
+    def fix_local_subpath = params.fix_local_subpath ?: ''
+    def mov_local_subpath = params.mov_local_subpath ?: ''
     def local_results_subdir = params.local_results_subdir ?: 'local'
     def local_registration_inputs = registration_inputs
     | join(global_transforms, by: 0)
@@ -852,8 +848,8 @@ workflow RESOLVE_MASKS {
 
     def fix_global_ch     = params.fix_global_channel ?: params.reg_ch
     def mov_global_ch     = params.mov_global_channel ?: fix_global_ch
-    def fix_global_sp_val = params.fix_mask_subpath ?: params.fix_global_subpath ?: "${fix_global_ch}/${params.global_scale}"
-    def mov_global_sp_val = params.mov_mask_subpath ?: params.mov_global_subpath ?: "${mov_global_ch}/${params.global_scale}"
+    def fix_global_sp_val = params.fix_mask_subpath ?: params.fix_global_subpath ?: ''
+    def mov_global_sp_val = params.mov_mask_subpath ?: params.mov_global_subpath ?: ''
 
     // When we generate the mask we generate one mask for the fixed image and one mask for the moving image
     // at the same scale we use for global registration
@@ -1046,10 +1042,8 @@ workflow RUN_LOCAL_ALIGNMENT_CORRELATION {
 
     main:
     if (run_local_metric) {
-        def fix_local_subpath = params.fix_local_subpath
-            ?: "${params.fix_local_channel ?: params.reg_ch}/${params.local_scale}"
-        def mov_local_subpath = params.mov_local_subpath
-            ?: "${params.mov_local_channel ?: params.reg_ch}/${params.local_scale}"
+        def fix_local_subpath = params.fix_local_subpath ?: ''
+        def mov_local_subpath = params.mov_local_subpath ?: ''
         def local_metric_ch = registration_inputs
         | join(local_deformation_results, by: 0)
         | map { reg_meta, fix_meta, mov_meta,

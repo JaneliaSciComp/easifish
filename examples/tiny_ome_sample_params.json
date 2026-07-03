@@ -31,14 +31,12 @@
     "run_spots_counts": true,
     "run_spots_properties": true,
 
-    "stitching_channel": "1",
     "bigstitcher_steps": "createDataset,resave,detectInterestPoints,matchInterestPoints,solveIPs,duplicateTransformation,intensityMatch,intensitySolver,createContainer,fuse",
 
     "registration_fix_id": "t1",
     "reg_ch": "1",
 
     "global_steps": "ransac,affine",
-    "global_scale": "3",
     "fix_global_subpath": "3",
     "fix_global_timeindex": "0",
     "fix_global_channel": "1",
@@ -48,7 +46,6 @@
     "global_align_cpus": 1,
 
     "local_steps": "ransac,affine,deform",
-    "local_scale": "1",
     "fix_local_subpath": "1",
     "fix_local_timeindex": "0",
     "fix_local_channel": "1",
@@ -57,7 +54,6 @@
     "mov_local_channel": "1",
 
     "warped_subpaths": "0",
-    "warped_scales": "0",
 
     "distributed_bigstream": true,
     "bigstream_dask_worker_cpus": 1,
