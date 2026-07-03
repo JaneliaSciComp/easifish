@@ -13,16 +13,19 @@ workflow STITCHING {
     def stitching_result_dir = params.stitching_result_dir ? file(params.stitching_result_dir) : outdir
 
     def stitching_results
+    def run_stitching = ParamUtils.as_bool(params.run_stitching)
+    log.debug "${run_stitching ? 'Run' : 'Skip'} stitching ${params.stitching_result_container}"
     if (params.stitching_method == 'BigStitcher') {
         def bigstitcher_config = params.bigstitcher_config
             ? new org.yaml.snakeyaml.Yaml().load(new java.io.FileInputStream(params.bigstitcher_config))
             : [:]
+
         stitching_results = BIGSTITCHER(
             ch_acquisition_data,
             ParamUtils.as_bool(params.spark_cluster),
             stitching_result_dir,
             params.stitching_result_container,
-            !ParamUtils.as_bool(params.run_stitching),
+            !run_stitching,
             bigstitcher_config,
             ParamUtils.as_list(params.bigstitcher_steps),
             "${workdir}/stitching",
@@ -50,7 +53,7 @@ workflow STITCHING {
             params.flatfieldfile,
             stitching_result_dir,
             params.stitching_result_container,
-            !ParamUtils.as_bool(params.run_stitching),
+            !run_stitching,
             "${workdir}/stitching",
             params.spark_local_dir,
             params.spark_workers as int,
