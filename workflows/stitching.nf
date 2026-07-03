@@ -14,7 +14,7 @@ workflow STITCHING {
 
     def stitching_results
     def run_stitching = ParamUtils.as_bool(params.run_stitching)
-    log.debug "${run_stitching ? 'Run' : 'Skip'} stitching ${params.stitching_result_container}"
+    log.debug "${run_stitching ? 'Run' : 'Skip'} stitching ${params.stitching_result_container} (params.run_stitching=${params.run_stitching})"
     if (params.stitching_method == 'BigStitcher') {
         def bigstitcher_config = params.bigstitcher_config
             ? new org.yaml.snakeyaml.Yaml().load(new java.io.FileInputStream(params.bigstitcher_config))

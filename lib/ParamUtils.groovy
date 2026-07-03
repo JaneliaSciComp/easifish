@@ -58,14 +58,14 @@ class ParamUtils {
     }
 
     static def as_bool(v) {
-        Boolean.valueOf(v)
+        return Boolean.valueOf(v)
     }
 
     static def as_double(v) {
         if (v == null || "$v".trim() == '') {
             return 0
         } else {
-            BigDecimal("$v").doubleValue()
+            return BigDecimal("$v").doubleValue()
         }
     }
 
@@ -73,7 +73,7 @@ class ParamUtils {
         if (v == null || "$v".trim() == '') {
             return 0
         } else {
-            BigDecimal("$v").intValue()
+            return BigDecimal("$v").intValue()
         }
     }
 
@@ -89,6 +89,6 @@ class ParamUtils {
     }
 
     static def get_mem_gb(mem_gb, ncpus, default_mem_gb_per_cpu, safety_margin) {
-        mem_gb ?: default_mem_gb_per_cpu * ncpus - safety_margin
+        return mem_gb ?: default_mem_gb_per_cpu * ncpus - safety_margin
     }
 }
