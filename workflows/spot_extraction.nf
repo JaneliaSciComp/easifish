@@ -188,7 +188,6 @@ def create_rsfish_spark_config() {
 def get_spots_subpaths(meta) {
     def spots_channels = SpotsUtils.get_spots_channels(meta, params)
     def spots_subpath = params.spots_subpath ?: ''
-    def spots_scale = params.spots_scale ?: ''
     if (spots_subpath) {
         def spots_result_name = "spots-rsfish-${spots_subpath.replace('/', '-')}.csv"
         return [
@@ -199,19 +198,6 @@ def get_spots_subpaths(meta) {
                 spots_channels.join(','),
             ]
         ]
-    }
-    if (!spots_channels.empty) {
-        return spots_channels.collect { ch ->
-            def dataset = spots_scale ? "${ch}/${spots_scale}" : "${ch}"
-            def r = [
-                "${meta.id}/${dataset}",
-                "spots-rsfish-${ch}.csv",
-                params.spots_image_subpath_ref ? "${meta.id}/${params.spots_image_subpath_ref}" : '',
-                "${ch}"
-            ]
-            log.debug "Spot dataset: $r"
-            r
-        }
     } else {
         return [
             // empty result

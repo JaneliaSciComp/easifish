@@ -199,7 +199,6 @@ def sync_image_scale_with_labels_scale_for_spot_properties(image_dataset, labels
 def get_spots_features_subpath(meta) {
     def spots_channels = SpotsUtils.get_spots_channels(meta, params)
     def spots_subpath = params.spots_subpath ?: ''
-    def spots_scale = params.spots_scale ?: ''
     if (spots_channels.empty) {
         return [
         ]
@@ -208,14 +207,6 @@ def get_spots_features_subpath(meta) {
         return spots_channels.collect { ch ->
             [
                 "${meta.id}/${spots_subpath}",
-                "${meta.id}-${ch}-props.csv",
-                "${ch}",
-            ]
-        }
-    } else if (spots_scale) {
-        return spots_channels.collect { ch ->
-            [
-                "${meta.id}/${ch}/${spots_scale}",
                 "${meta.id}-${ch}-props.csv",
                 "${ch}",
             ]
