@@ -1397,7 +1397,7 @@
                     "type": "boolean",
                     "default": true,
                     "hidden": true,
-                    "description": "If true, apply inverse transforms when warping spot coordinates.",
+                    "description": "If true, apply inverse transforms when warping spot coordinates. If there are multiple transforms they are also applied in reverse order",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "warped_spots_subdir": {
