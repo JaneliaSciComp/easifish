@@ -85,14 +85,19 @@ workflow EASIFISH {
     if (ParamUtils.as_bool(params.extract_spots_from_warped)) {
         // if extracting spots from warped image - the registration must have been completed
         def indexed_stitching_results = stitching_results.map { meta -> [meta.id, meta] }
-        def indexed_registration_results = registration_results.multiMap { reg_meta, _rest ->
+        def indexed_registration_results = registration_results.multiMap { it ->
+            def reg_meta = it[0]
             fix: reg_meta.fix_id
             mov: reg_meta.mov_id
         }
 
         spot_extraction_inputs = indexed_registration_results.fix.join(indexed_stitching_results, by:0)
         .mix(indexed_registration_results.mov.join(indexed_stitching_results, by:0))
-        .map { _id, meta -> meta }
+        .map { id, meta ->
+            log.debug "Spot extraction input: ${id} -> ${meta}"
+            meta
+        }
+
     } else {
         spot_extraction_inputs = stitching_results
     }
