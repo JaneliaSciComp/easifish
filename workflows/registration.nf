@@ -258,13 +258,13 @@ workflow REGISTRATION {
     def final_results = all_registration_results
     | map { it ->
         def (reg_meta,
-            fix, fix_subpath,
-            mov, mov_subpath,
-            warped, warped_subpath,
-            global_transform, global_inv_transform,
-            transform_output, transform_name, transform_subpath,
-            inv_transform_output, inv_transform_name, inv_transform_subpath,
-            _dask_meta, _dask_context) = it
+             fix, fix_subpath,
+             mov, mov_subpath,
+             warped, warped_subpath,
+             global_transform, global_inv_transform,
+             transform_output, transform_name, transform_subpath,
+             inv_transform_output, inv_transform_name, inv_transform_subpath,
+             _dask_meta, _dask_context) = it
         def r = [
             reg_meta,
             fix, fix_subpath,
@@ -377,10 +377,10 @@ workflow RUN_GLOBAL_REGISTRATION {
     global_transforms = global_registration_results
     | map { it ->
         def (reg_meta,
-            fix, fix_subpath,
-            mov, mov_subpath,
-            transform_dir, transform_name, inv_transform_name,
-            align_dir, align_name, align_subpath) = it
+             _fix, _fix_subpath,
+             _mov, _mov_subpath,
+             transform_dir, transform_name, inv_transform_name,
+             _align_dir, _align_name, _align_subpath) = it
         log.debug "Completed global alignment: $it"
         def full_transform_path = transform_dir && transform_name
             ? "${transform_dir}/${transform_name}"
@@ -482,12 +482,12 @@ workflow START_EASIFISH_DASK {
         ]
     }
     | combine(extended_global_registration_results, by:0)
-    | map {
-        def (fix_id, dask_meta, dask_context, reg_meta,
-            global_fix, global_fix_subpath,
-            global_mov, global_mov_subpath,
-            global_transform_dir, global_transform_name,
-            global_align_dir, global_align_name, global_align_subpath) = it
+    | map { it ->
+        def (_fix_id, dask_meta, dask_context, reg_meta,
+             _global_fix, _global_fix_subpath,
+             _global_mov, _global_mov_subpath,
+             _global_transform_dir, _global_transform_name,
+             _global_align_dir, _global_align_name, _global_align_subpath) = it
         def registration_cluster = [
             reg_meta,
             dask_meta,
@@ -748,8 +748,8 @@ workflow RUN_LOCAL_DEFORMS {
 
         def r = [ warped_subpaths, warped_and_output_channels ]
                 .combinations()
-                .collect {
-                    def (subpaths, channel_mapping) = it
+                .collect { warped_it ->
+                    def (subpaths, channel_mapping) = warped_it
                     def (fixed_subpath, warped_subpath) = subpaths
                     [ fixed_subpath, warped_subpath, channel_mapping ]
                 }
@@ -785,8 +785,8 @@ workflow RUN_LOCAL_DEFORMS {
 
     if (run_deformations) {
         deformation_results = BIGSTREAM_DEFORM(
-            deformation_inputs.map { it[0] },
-            deformation_inputs.map { [ it[1].scheduler_address, it[1].config ] },
+            deformation_inputs.map { it -> it[0] },
+            deformation_inputs.map { it -> [ it[1].scheduler_address, it[1].config ] },
             params.local_deform_cpus,
             ParamUtils.get_mem_gb(params.local_deform_mem_gb, params.local_deform_cpus, params.default_mem_gb_per_cpu, 0),
         )
