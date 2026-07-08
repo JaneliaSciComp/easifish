@@ -96,12 +96,12 @@ workflow REGISTRATION {
     // all per-volume moving masks share the same masks/ subdirectory, so we mount the directory.
     def cluster_mask_files = []
 
-    if (params.generate_fix_mask)
+    if (ParamUtils.as_bool(params.generate_fix_mask))
         cluster_mask_files << "${reg_outdir}/masks"
     else if (params.fix_mask?.startsWith('/'))
         cluster_mask_files << params.fix_mask
 
-    if (params.generate_mov_mask)
+    if (ParamUtils.as_bool(params.generate_mov_mask))
         cluster_mask_files << "${reg_outdir}/masks"
     else if (params.mov_mask?.startsWith('/'))
         cluster_mask_files << params.mov_mask
