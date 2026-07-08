@@ -874,9 +874,11 @@ workflow RESOLVE_MASKS {
 
     // fix_mask_result: [fix_id, fix_mask, fix_sp]
     def fix_mask_result
-    if (params.generate_fix_mask) {
+    if (ParamUtils.as_bool(params.generate_fix_mask) && params.fix_mask) {
         fix_image_info.view { it -> log.debug "Fix image for generating mask: $it" }
-        def mask_out = file("${outdir}/${params.fix_mask}")
+        def mask_out = params.fix_mask.startsWith('/')
+            ? file(params.fix_mask)
+            : file("${outdir}/${params.fix_mask}")
         fix_mask_result = BIGSTREAM_FOREGROUNDMASK_FIX(
             fix_image_info.map { fix_id, _reg_id, img, sp, ti, ch ->
                 def mask_sp = sp.startsWith(fix_id) ? sp : fix_id + '/' + sp.trim('/')
@@ -930,9 +932,11 @@ workflow RESOLVE_MASKS {
 
     // mov_mask_result: [mov_id, mov_mask, mov_sp]
     def mov_mask_result
-    if (params.generate_mov_mask) {
+    if (ParamUtils.as_bool(params.generate_mov_mask) && params.mov_mask) {
         mov_image_info.view { it -> log.debug "Mov image for generating mask: $it" }
-        def mask_out = file("${outdir}/${params.mov_mask}")
+        def mask_out = params.mov_mask.startsWith('/')
+                ? file(params.mov_mask)
+                : file("${outdir}/${params.mov_mask}")
         mov_mask_result = BIGSTREAM_FOREGROUNDMASK_MOV(
             mov_image_info.map { mov_id, _reg_id, img, sp, ti, ch ->
                 def mask_sp = sp.startsWith(mov_id) ? sp : mov_id + '/' + sp.trim('/')
