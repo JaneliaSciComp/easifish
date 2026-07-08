@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - When running spot extraction from warped (`params.extract_spots_from_warped == true`) make sure that registration has completed.
 
-## 1.0.0 - 2026-01-08
+## 1.0.0 - 2026-07-08
 
 ### Added
 
