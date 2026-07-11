@@ -876,8 +876,7 @@
                     "fa_icon": "fas fa-cube"
                 },
                 "bigstream_zarr_format": {
-                    "type": "integer",
-                    "default": 2,
+                    "type": ["string", "integer"],
                     "description": "Zarr format version for all bigstream registration containers (2 or 3)",
                     "fa_icon": "fas fa-cube"
                 },
@@ -1738,9 +1737,7 @@
                     "fa_icon": "fas fa-cube"
                 },
                 "segmentation_zarr_format": {
-                    "type": "integer",
-                    "default": 2,
-                    "enum": [2, 3],
+                    "type": ["string", "integer"],
                     "description": "Zarr format version (2 or 3) for segmentation output zarr containers",
                     "fa_icon": "fas fa-file-archive"
                 },
