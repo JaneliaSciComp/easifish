@@ -77,7 +77,25 @@ workflow REGISTRATION {
     def reg_outdir = file("${outdir}/${params.registration_subdir}")
 
     // Resolve fix and mov masks once; same generated mask is used for both global and local.
-    def resolved_masks = RESOLVE_MASKS(registration_inputs, outdir)
+    // Fix and mov masks are generated independently from ref_volume / mov_volumes so that a
+    // mask can still be produced when only a single round is present in the samplesheet
+    // (i.e. no registration pair exists). GENERATE_MASKS returns the fix and mov masks keyed
+    // by volume id; we pair them back to registration pairs here using registration_inputs.
+    def resolved_masks_by_id = GENERATE_MASKS(ref_volume, mov_volumes, outdir)
+
+    // combined: [reg_id, fix_mask, fix_sp, mov_mask, mov_sp]
+    def resolved_masks = registration_inputs
+    | map { reg_meta, fix_meta, mov_meta -> [fix_meta.id, mov_meta.id, reg_meta.id] }
+    | combine(resolved_masks_by_id.fix_masks, by: 0) // [fix_id, fix_mask, fix_sp]
+    | map { _fix_id, mov_id, reg_id, fix_m, fix_m_sp ->
+        [mov_id, reg_id, fix_m, fix_m_sp]
+    }
+    | join(resolved_masks_by_id.mov_masks, by: 0) // [mov_id, mov_mask, mov_sp]
+    | map { _mov_id, reg_id, fix_m, fix_m_sp, mov_m, mov_m_sp ->
+        def r = [reg_id, fix_m, fix_m_sp, mov_m, mov_m_sp]
+        log.debug "Registration mask: $r"
+        r
+    }
     resolved_masks.view { it -> log.debug "Resolved masks: $it" }
 
     def global_registration_results = RUN_GLOBAL_REGISTRATION(
@@ -820,22 +838,28 @@ workflow RUN_LOCAL_DEFORMS {
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FOREGROUND MASK RESOLUTION
+    FOREGROUND MASK GENERATION
     Generates one fix mask and one mov mask (each used for both global and local alignment).
+    Fix and mov masks are resolved independently from ref_volume / mov_volumes, so that a
+    mask can still be generated when only a single round is present in the samplesheet
+    (no registration pair). In that case only the corresponding mask (fix or mov) is produced.
     Logic per slot:
       - generate_fix/mov_mask == true  → run BIGSTREAM_FOREGROUNDMASK, ignore *_mask params
       - generate_fix/mov_mask == false → use file from global_<any>/local_<any> mask params as-is
-    Emits two named channels (global_masks_per_pair / local_masks_per_pair) carrying
-    [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath] so that existing
-    global_*_mask_subpath / local_*_mask_subpath params continue to be respected when
-    masks are supplied manually.
+    Emits two channels keyed by volume id:
+      - fix_masks: [fix_id, fix_mask, fix_mask_subpath]
+      - mov_masks: [mov_id, mov_mask, mov_mask_subpath]
+    so that existing global_*_mask_subpath / local_*_mask_subpath params continue to be
+    respected when masks are supplied manually. Pairing back to registration pairs is done
+    by the caller.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow RESOLVE_MASKS {
+workflow GENERATE_MASKS {
 
     take:
-    registration_inputs  // [reg_meta, fix_meta, mov_meta]
+    ch_ref_vol          // [fix_meta]
+    ch_mov_vol          // [mov_meta]
     outdir
 
     main:
@@ -852,19 +876,18 @@ workflow RESOLVE_MASKS {
     // and these masks will be used both for local and global registration
 
     // ── Fix mask ──────────────────────────────────────────────────────────────
-    // [fix_id, reg_id, image, image_subpath, timeindex, channel]
-    def fix_image_info = registration_inputs
-    | map { reg_meta, fix_meta, _mov_meta ->
+    // [fix_id, image, image_subpath, timeindex, channel]
+    def fix_image_info = ch_ref_vol
+    | map { fix_meta ->
         def image = "${fix_meta.stitching_result_dir}/${fix_meta.stitching_container}"
         def r = [
             fix_meta.id,
-            reg_meta.id,
             image,
             "${fix_meta.stitched_dataset}/${fix_global_sp_val}",
             params.fix_global_timeindex, fix_global_ch,
         ]
-	log.debug "Fix image info: $r"
-	r
+	    log.debug "Fix image info: $r"
+	    r
     }
     | unique { it -> it[0] }
 
@@ -876,9 +899,9 @@ workflow RESOLVE_MASKS {
             ? file(params.fix_mask)
             : file("${outdir}/${params.fix_mask}")
         fix_mask_result = BIGSTREAM_FOREGROUNDMASK_FIX(
-            fix_image_info.map { fix_id, _reg_id, img, sp, ti, ch ->
+            fix_image_info.map { fix_id, img, sp, ti, ch ->
                 def mask_sp = sp.startsWith(fix_id) ? sp : fix_id + '/' + sp.trim('/')
-                log.debug "Fixed image foreground mask inputs: ${fix_id}, ${_reg_id}, ${img}, ${sp}, ${ti}, ${ch}, ${mask_sp}"
+                log.debug "Fixed image foreground mask inputs: ${fix_id}, ${img}, ${sp}, ${ti}, ${ch}, ${mask_sp}"
                 [[id: fix_id], file(img), sp, ti, ch, mask_out, mask_sp]
             }
         )
@@ -896,7 +919,7 @@ workflow RESOLVE_MASKS {
         }
 
         fix_mask_result = fix_image_info
-        | map { fix_id, _reg_id, _img, _sp, _ti, _ch ->
+        | map { fix_id, _img, _sp, _ti, _ch ->
             def mask_sp = params.fix_mask_subpath
                             ? (params.fix_mask_subpath.startsWith(fix_id)
                                 ? params.fix_mask_subpath
@@ -910,13 +933,12 @@ workflow RESOLVE_MASKS {
     }
 
     // ── Mov mask ──────────────────────────────────────────────────────────────
-    // [mov_id, reg_id, image, image_subpath, timeindex, channel, mask_output_path]
-    def mov_image_info = registration_inputs
-    | map { reg_meta, _fix_meta, mov_meta ->
+    // [mov_id, image, image_subpath, timeindex, channel]
+    def mov_image_info = ch_mov_vol
+    | map { mov_meta ->
         def image = "${mov_meta.stitching_result_dir}/${mov_meta.stitching_container}"
         def r = [
             mov_meta.id,
-            reg_meta.id,
             image,
             "${mov_meta.stitched_dataset}/${mov_global_sp_val}",
             params.mov_global_timeindex, mov_global_ch
@@ -934,9 +956,9 @@ workflow RESOLVE_MASKS {
                 ? file(params.mov_mask)
                 : file("${outdir}/${params.mov_mask}")
         mov_mask_result = BIGSTREAM_FOREGROUNDMASK_MOV(
-            mov_image_info.map { mov_id, _reg_id, img, sp, ti, ch ->
+            mov_image_info.map { mov_id, img, sp, ti, ch ->
                 def mask_sp = sp.startsWith(mov_id) ? sp : mov_id + '/' + sp.trim('/')
-                log.debug "Moving image foreground mask inputs: ${mov_id}, ${_reg_id}, ${img}, ${sp}, ${ti}, ${ch}, ${mask_sp}"
+                log.debug "Moving image foreground mask inputs: ${mov_id}, ${img}, ${sp}, ${ti}, ${ch}, ${mask_sp}"
                 [[id: mov_id], file(img), sp, ti, ch, mask_out, mask_sp]
             }
         )
@@ -953,7 +975,7 @@ workflow RESOLVE_MASKS {
             mov_mask_file = file("${outdir}/${params.mov_mask}")
         }
         mov_mask_result = mov_image_info
-        | map { mov_id, _reg_id, _img, _sp, _ti, _ch ->
+        | map { mov_id, _img, _sp, _ti, _ch ->
             def mask_sp = params.mov_mask_subpath
                             ? (params.mov_mask_subpath.startsWith(mov_id)
                                 ? params.mov_mask_subpath
@@ -966,31 +988,9 @@ workflow RESOLVE_MASKS {
         }
     }
 
-    // ── Join all masks back to registration pairs ────────────────────────────
-    // combined: [reg_id,
-    //            fix_mask, fix_sp,
-    //            mov_mask, mov_sp]
-    def pair_keys = registration_inputs
-    | map { reg_meta, fix_meta, mov_meta -> [fix_meta.id, mov_meta.id, reg_meta.id] }
-
-    def with_fix = pair_keys
-    | combine(fix_mask_result, by: 0) // [fix_id, mask_path, mask_subpath]
-    | map { _fix_id, mov_id, reg_id, fix_m, fix_m_sp ->
-        [mov_id, reg_id, fix_m, fix_m_sp]
-    }
-
-    def combined = with_fix
-    | join(mov_mask_result, by: 0)
-    | map { _mov_id, reg_id,
-            fix_m, fix_m_sp,
-            mov_m, mov_m_sp ->
-        def r = [reg_id, fix_m, fix_m_sp, mov_m, mov_m_sp]
-        log.debug "Registration mask: $r"
-        r
-    }
-
     emit:
-    masks = combined  // [reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath]
+    fix_masks = fix_mask_result  // [fix_id, fix_mask, fix_mask_subpath]
+    mov_masks = mov_mask_result  // [mov_id, mov_mask, mov_mask_subpath]
 }
 
 workflow RUN_GLOBAL_ALIGNMENT_CORRELATION {

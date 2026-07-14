@@ -291,6 +291,12 @@
                     "description": "Set verbosity for bigstream",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "bigstream_deformfield_diagnostics": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Generate displacement diagnostics for the deformation field during local (deformable) registration",
+                    "fa_icon": "fas fa-toggle-on"
+                },
                 "registration_compression": {
                     "type": "string",
                     "default": "zstd",

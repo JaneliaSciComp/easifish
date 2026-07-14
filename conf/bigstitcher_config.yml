@@ -10,6 +10,13 @@ resave:
     - '--blockScale=16,16,8'
     - '--useSharding'
 
+estimateFlatField:
+  classname: net.preibisch.bigstitcher.spark.BasicFlatfieldEstimation
+  advancedArgs:
+    - '--maxViews=0' # 0 - all
+    - '--workingSize=0'
+    - '--maxIterations=500'
+
 detectInterestPoints:
   classname: net.preibisch.bigstitcher.spark.SparkInterestPointDetection
   advancedArgs:
@@ -102,6 +109,7 @@ createContainer:
   advancedArgs:
     - '--multiRes'
     - '--preserveAnisotropy'
+    - '--dataType=UINT16'
     - '--compressionLevel=5'
 
 fuse:
