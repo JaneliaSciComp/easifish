@@ -13,9 +13,18 @@ resave:
 estimateFlatField:
   classname: net.preibisch.bigstitcher.spark.BasicFlatfieldEstimation
   advancedArgs:
-    - '--maxViews=0' # 0 - all
+    - '--lambdaFlatfield=0'
+    - '--lambdaDarkfield=0'
+    - '--numViewSetups=0'
+    - '--seed=121132323212'
+    - '--numFrames=50' # 0 - all
     - '--workingSize=0'
     - '--maxIterations=500'
+
+flatfieldCorrection:
+  classname: net.preibisch.bigstitcher.spark.SparkFlatfieldCorrection
+  advancedArgs:
+    - '--outputDataType=SAME'
 
 detectInterestPoints:
   classname: net.preibisch.bigstitcher.spark.SparkInterestPointDetection

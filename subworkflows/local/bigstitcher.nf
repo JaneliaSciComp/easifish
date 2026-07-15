@@ -3,6 +3,8 @@ include { SPARK_STOP                           } from '../janelia/spark_stop'
 
 include { SPARK_RUNAPP as CREATE_DATASET       } from '../janelia/spark_start'
 include { SPARK_RUNAPP as RESAVE               } from '../janelia/spark_start'
+include { SPARK_RUNAPP as ESTIMATE_FLATFIELD   } from '../janelia/spark_start'
+include { SPARK_RUNAPP as FLATFIELD_CORRECTION } from '../janelia/spark_start'
 include { SPARK_RUNAPP as SOLVE_PAIRS          } from '../janelia/spark_start'
 include { SPARK_RUNAPP as DETECT_IPS           } from '../janelia/spark_start'
 include { SPARK_RUNAPP as MATCH_IPS            } from '../janelia/spark_start'
@@ -112,6 +114,22 @@ workflow BIGSTITCHER {
             stitching_data = RESAVE(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
             log.debug "Skip 'resave' - not configured"
+        }
+        current_step = matched_step('estimateFlatField', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'estimateFlatField'"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = ESTIMATE_FLATFIELD(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'estimateFlatField' - not configured"
+        }
+        current_step = matched_step('flatfieldCorrection', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'flatfieldCorrection'"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = FLATFIELD_CORRECTION(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'flatfieldCorrection' - not configured"
         }
         current_step = matched_step('detectInterestPoints', stitching_steps)
         if (current_step) {
@@ -278,6 +296,18 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
         params = [
             '-x', stitching_xml,
             '-o', "${meta.image_dir}/dataset.zarr",
+        ]
+    } else if (step_name == 'estimateFlatField') {
+        params = [
+            '-x', stitching_xml,
+            '-o', "${meta.image_dir}/corrections.zarr",
+        ]
+    } else if (step_name == 'flatfieldCorrection') {
+        params = [
+            '--fields', "${meta.image_dir}/corrections.zarr",
+            '-x', stitching_xml,
+            '-xo', stitching_xml,
+            '-o', "${meta.image_dir}/dataset-ff.zarr",
         ]
     } else if (step_name == 'createContainer') {
         params = [
