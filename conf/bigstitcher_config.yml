@@ -10,7 +10,7 @@ resave:
     - '--blockScale=16,16,8'
     - '--useSharding'
 
-estimateFlatField:
+estimateFlatfield:
   classname: net.preibisch.bigstitcher.spark.BasicFlatfieldEstimation
   advancedArgs:
     - '--lambdaFlatfield=0'

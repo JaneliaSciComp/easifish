@@ -115,13 +115,13 @@ workflow BIGSTITCHER {
         } else {
             log.debug "Skip 'resave' - not configured"
         }
-        current_step = matched_step('estimateFlatField', stitching_steps)
+        current_step = matched_step('estimateFlatfield', stitching_steps)
         if (current_step) {
-            log.debug "Run 'estimateFlatField'"
+            log.debug "Run 'estimateFlatfield'"
             def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
             stitching_data = ESTIMATE_FLATFIELD(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
-            log.debug "Skip 'estimateFlatField' - not configured"
+            log.debug "Skip 'estimateFlatfield' - not configured"
         }
         current_step = matched_step('flatfieldCorrection', stitching_steps)
         if (current_step) {
@@ -297,7 +297,7 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
             '-x', stitching_xml,
             '-o', "${meta.image_dir}/dataset.zarr",
         ]
-    } else if (step_name == 'estimateFlatField') {
+    } else if (step_name == 'estimateFlatfield') {
         params = [
             '-x', stitching_xml,
             '-o', "${meta.image_dir}/corrections.zarr",
