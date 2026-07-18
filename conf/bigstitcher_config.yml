@@ -13,12 +13,15 @@ resave:
 estimateFlatfield:
   classname: net.preibisch.bigstitcher.spark.BasicFlatfieldEstimation
   advancedArgs:
-    - '--lambdaFlatfield=0'
-    - '--lambdaDarkfield=0'
-    - '--numViewSetups=0'
+    - '--lambdaFlatfield=1.2551864771945727'
+    - '--lambdaDarkfield=0.5020745908778291'
+    - '-vi'
+    - '0,0'
+    - '-vi'
+    - '0,2'
     - '--seed=121132323212'
-    - '--numFrames=50' # 0 - all
-    - '--workingSize=0'
+    - '--numFrames=0' # 0 - all
+    - '--workingSize=128'
     - '--maxIterations=500'
 
 flatfieldCorrection:
