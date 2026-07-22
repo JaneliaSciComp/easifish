@@ -5,17 +5,17 @@ ransac:
   cc_radius: 15
   match_threshold: 0.6
   max_spot_match_distance:
-  point_matches_threshold: 50
+  point_matches_threshold: 15
   align_threshold: 2.0
-  diagonal_constraint: 0.85
-  fix_spots_count_threshold: 50
+  diagonal_constraint: 0.15
+  fix_spots_count_threshold: 25
   fix_spot_detection_kwargs:
     blob_method: log
     background_subtract: false
     threshold: 0.0001
     threshold_rel: 0.001
     winsorize_limits: [0.01, 0.01]
-  mov_spots_count_threshold: 50
+  mov_spots_count_threshold: 25
   mov_spot_detection_kwargs:
     blob_method: log
     background_subtract: false
@@ -27,16 +27,16 @@ global_align:
   ransac:
     # overriden parameters
     num_sigma_max: 5
-    point_matches_threshold: 25
+    point_matches_threshold: 15
   affine:
-    alignment_spacing: 1.0
+    alignment_spacing: 2.0
     shrink_factors: [2]
     smooth_sigmas: [2]
     metric: MMI
     optimizer: RSGD
     optimizer_args:
-      learningRate: 0.25
-      minStep: 0.001
+      learningRate: 1.7
+      minStep: 0.0001
       numberOfIterations: 4000
 
 local_align:
@@ -46,35 +46,33 @@ local_align:
   transform_overlap: 0.1
   ransac:
     # overriden parameters
-    alignment_spacing: 4
+    alignment_spacing: 1
     num_sigma_max: 6
     point_matches_threshold: 15
-    fix_spots_count_threshold: 25
-    mov_spots_count_threshold: 25
+    fix_spots_count_threshold: 20
+    mov_spots_count_threshold: 20
   affine:
-    alignment_spacing: 4.0
-    shrink_factors: [4]
-    smooth_sigmas: [4.0]
+    alignment_spacing: [0.9,0.8,0.8]
+    shrink_factors: [1]
+    smooth_sigmas: [1]
     metric: MMI
     optimizer: RSGD
     optimizer_args:
-      learningRate: 0.25
-      minStep: 0.001
-      numberOfIterations: 100
+      learningRate: 4
+      minStep: 0
+      numberOfIterations: 400
   deform:
-    sampling: NONE
-    sampling_percentage: 1.0
-    alignment_spacing: 1.0
-    control_point_spacing: 128
+    alignment_spacing: 0.9
+    control_point_spacing: 40
     control_point_levels: [1]
     shrink_factors: [1]
     smooth_sigmas: [1.0]
     metric: MMI
     optimizer: RSGD
     optimizer_args:
-      learningRate: 4
-      minStep: 0.001
-      numberOfIterations: 50
+      learningRate: 1.5
+      minStep: 0.00001
+      numberOfIterations: 100
   demons:
     iterations: [200, 150, 100, 50]
     smooth_sigmas: [4.0, 2.0, 1.0, 0.25]
