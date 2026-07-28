@@ -9,7 +9,16 @@ workflow STITCHING {
     workdir             // string|file: session work directory
 
     main:
-    def stitching_work_dir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching" // stitcher's work directory
+    def stitching_work_dir
+    if (params.stitching_dir) {
+        if (params.stitching_dir.startsWith('/')) {
+            stitching_work_dir = params.stitching_dir
+        } else {
+            stitching_work_dir = "${outdir}/${params.stitching_dir}"
+        }
+    } else {
+        stitching_work_dir = "${outdir}/stitching"
+    }
     def stitching_result_dir = params.stitching_result_dir ? file(params.stitching_result_dir) : outdir
 
     def stitching_results

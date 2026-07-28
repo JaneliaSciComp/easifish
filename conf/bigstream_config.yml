@@ -24,10 +24,13 @@ ransac:
     winsorize_limits: [0.01, 0.01]
 
 global_align:
+  steps: [ransac, affine]
+
   ransac:
     # overriden parameters
     num_sigma_max: 5
     point_matches_threshold: 15
+
   affine:
     alignment_spacing: 2.0
     shrink_factors: [2]
@@ -40,7 +43,7 @@ global_align:
       numberOfIterations: 4000
 
 local_align:
-  steps: [ransac, affine, deform]
+  steps: [affine, deform]
   block_size: [128, 128, 128]
   block_overlap: 0.25
   transform_overlap: 0.1
@@ -51,6 +54,7 @@ local_align:
     point_matches_threshold: 15
     fix_spots_count_threshold: 20
     mov_spots_count_threshold: 20
+
   affine:
     alignment_spacing: [0.9,0.8,0.8]
     shrink_factors: [1]
@@ -60,7 +64,8 @@ local_align:
     optimizer_args:
       learningRate: 4
       minStep: 0
-      numberOfIterations: 400
+      numberOfIterations: 200
+
   deform:
     alignment_spacing: 0.9
     control_point_spacing: 40
@@ -70,9 +75,10 @@ local_align:
     metric: MMI
     optimizer: RSGD
     optimizer_args:
-      learningRate: 1.5
+      learningRate: 0.7
       minStep: 0.00001
-      numberOfIterations: 100
+      numberOfIterations: 60
+
   demons:
     iterations: [200, 150, 100, 50]
     smooth_sigmas: [4.0, 2.0, 1.0, 0.25]
@@ -87,44 +93,3 @@ local_align:
     histogram_match_levels: 1024
     histogram_match_points: 7
     histogram_match_threshold_at_mean: true
-  elastix:
-    align_method: bspline
-    alignment_spacing: 0.9
-    control_point_spacing: 40
-    FixedImagePyramidSchedule: [4,4,4, 2,2,2, 1,1,1]
-    MovinImagePyramidSchedule: [4,4,4, 2,2,2, 1,1,1]
-    Interpolator: LinearInterpolator
-    BSplineTransformSplineOrder: 3
-    UseCyclicTransform: 'false'
-    UseDirectionCosines: 'false'
-    UseRelativeWeights: 'false'
-    NumberOfHistogramBins: 512
-    NumberOfFixedHistogramBins: 512
-    NumberOfMovingHistogramBins: 512
-    MaximumStepLength: 1
-    MaximumNumberOfSamplingAttempts: 4
-    NumberOfJacobianMeasurements: 1000
-    NumberOfResolutions: 4
-    MaximumNumberOfIterations: 256
-    NumberOfSpatialSamples: 4096
-    ShowExactMetricValue: 'false'
-    UseMultiThreadingForMetrics: 'true'
-    FixedImageBSplineInterpolationOrder: 1
-    UseRandomSampleRegion: 'false'
-    FixedLimitRangeRatio: 0.01
-    MovingLimitRangeRatio: 0.01
-    FixedKernelBSplineOrder: 3
-    MovingKernelBSplineOrder: 3
-    UseFastAndLowMemoryVersion: 'true'
-    UseJacobianPreconditioning: 'false'
-    FiniteDifferenceDerivative: 'false'
-    SP_A: 20
-    SigmoidInitialTime: 0
-    MaxBandCovSize: 192
-    NumberOfBandStructureSamples: 10
-    UseAdaptiveStepSizes: 'true'
-    UseConstantStep: 'false'
-    MaximumStepLengthRatio: 1
-    NumberOfGradientMeasurements: 0
-    SigmoidScaleFactor: 0.1
-    ASGDParameterEstimationMethod: Original

@@ -99,6 +99,7 @@
                 "stitching_dir": {
                     "type": "string",
                     "description": "Directory containing intermediate stitching results",
+                    "default": "stitching",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "stitching_result_dir": {

@@ -31,8 +31,16 @@ workflow EASIFISH {
     def session_work_dir = "${params.workdir}/${workflow.sessionId}"
 
     def outdir = file(params.outdir).toAbsolutePath().normalize() as String
-    def imagesdir = params.stitching_dir ? file(params.stitching_dir) : "${outdir}/stitching"
-
+    def imagesdir;
+    if (params.stitching_dir) {
+        if (params.stitching_dir.startsWith('/')) {
+            imagesdir = params.stitching_dir
+        } else {
+            imagesdir = "${outdir}/${params.stitching_dir}"
+        }
+    } else {
+        imagesdir = "${outdir}/stitching"
+    }
     def checked_inputs = INPUT_CHECK (
         ch_inputs.map { it -> it[0] }, // samplesheet_file
         ch_inputs.map { it -> it[1] }, // inputdir
