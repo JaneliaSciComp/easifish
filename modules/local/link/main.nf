@@ -30,8 +30,8 @@ process LINK {
 
     if [[ ! -s "\${output_fullpath}/${samplesheet_row.filename}" ]]; then
         pushd \${output_fullpath}
-        echo "Create link \${output_fullpath}/${sameplesheet_row_file.name} to \${full_filepath}"
-        ln -sf \${full_filepath} ${sameplesheet_row_file.name}
+        echo "Create link \${output_fullpath}/${sameplesheet_row_file.name} to \"\${full_filepath}\""
+        ln -sf "\${full_filepath}" "${sameplesheet_row_file.name}"
         popd
     else
         echo "No links were needed"
