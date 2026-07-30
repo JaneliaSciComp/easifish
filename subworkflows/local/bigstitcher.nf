@@ -25,6 +25,7 @@ workflow BIGSTITCHER {
     stitching_result_dir           // stitching output dir
     stitched_image_name            // stitched container name
     skip                           // boolean:
+    bigstitcher_xml_name           // string|file - default Bigstitcher XML name (defaults to 'dataset.xml')
     bigstitcher_config             // BigStitcher advanced config as a YAML file
     stitching_steps                // list[string] - BigStitcher steps
     spark_workdir                  // string|file: spark work dir
@@ -51,7 +52,8 @@ workflow BIGSTITCHER {
         stitching_meta.session_work_dir = "${spark_workdir}/${meta.id}"
         stitching_meta.stitching_result_dir = stitching_result_dir
         stitching_meta.stitched_dataset = meta.id
-        stitching_meta.stitching_container = stitched_image_name ?: "fused.ome.zarr"
+        stitching_meta.default_stitching_xml = bigstitcher_xml_name ?: 'dataset.xml'
+        stitching_meta.stitching_container = stitched_image_name ?: 'fused.ome.zarr'
 
         def data_files = files + [ stitching_result_dir ] +
                          (spark_local_dir ? [file(spark_local_dir)] : [])
@@ -232,7 +234,7 @@ workflow BIGSTITCHER {
 // --- Helper methods ---
 
 def get_stitching_xml_or_default(meta) {
-    return meta.stitching_xml ?: "${meta.image_dir}/dataset.xml"
+    return meta.stitching_xml ?: "${meta.image_dir}/${meta.default_stitching_xml}"
 }
 
 def normalize_step_name(String step_name) {

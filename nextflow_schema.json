@@ -107,6 +107,12 @@
                     "description": "Directory containing final stitching results",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "bigstitcher_xml_name": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Name of the BigStitcher XML dataset file. If not specified, it defaults to 'dataset.xml'",
+                    "fa_icon": "fas fa-file-code"
+                },
                 "spark_cluster": {
                     "type": "boolean",
                     "fa_icon": "fas fa-cube",

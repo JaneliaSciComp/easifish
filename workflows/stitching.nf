@@ -35,6 +35,7 @@ workflow STITCHING {
             stitching_result_dir,
             params.stitching_result_container,
             !run_stitching,
+            params.bigstitcher_xml_name,
             bigstitcher_config,
             ParamUtils.as_list(params.bigstitcher_steps),
             "${workdir}/stitching",
