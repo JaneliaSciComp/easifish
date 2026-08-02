@@ -451,14 +451,9 @@
                     "description": "If True and global affine exists, reuse it",
                     "fa_icon": "fas fa-toggle-on"
                 },
-                "local_fix_roi": {
+                "local_bigstream_roi": {
                     "type": "string",
-                    "description": "Fix local mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
-                    "fa_icon": "fas fa-cog"
-                },
-                "local_mov_roi": {
-                    "type": "string",
-                    "description": "Moving local mask block coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
+                    "description": "Local ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
                 },
                 "global_steps": {
