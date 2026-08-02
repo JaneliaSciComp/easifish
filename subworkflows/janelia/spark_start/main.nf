@@ -30,7 +30,6 @@ workflow SPARK_START {
     def spark_config = config + [
         'spark.rpc.askTimeout': '300s',
         'spark.storage.blockManagerHeartBeatMs': '30000',
-        'spark.rpc.retry.wait': '30s',
         'spark.kryoserializer.buffer.max': '1024m',
         'spark.core.connection.ack.wait.timeout': '600s',
         'spark.driver.maxResultSize': '0',

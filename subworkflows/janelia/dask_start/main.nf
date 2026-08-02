@@ -2,7 +2,7 @@ nextflow.enable.moduleBinaries = true
 
 workflow DASK_START {
     take:
-    meta_and_files // channel: [val(meta), files...]
+    ch_meta // channel: [val(meta), [data_paths] ]
     distributed // bool: if true create distributed cluster
     dask_config // dask config
     dask_work_path // dask work directory
@@ -30,10 +30,10 @@ workflow DASK_START {
             dask_work_dir = []
         }
         def dask_prepare_result = DASK_PREPARE(
-            meta_and_files,
+            ch_meta,
             dask_work_dir,
         )
-        .join(meta_and_files, by: 0)
+        .join(ch_meta, by: 0)
         .map { it ->
             def (meta, dask_cluster_work_dir, data_paths) = it
             def dask_config_path = dask_config ? file(dask_config) : []
@@ -59,7 +59,7 @@ workflow DASK_START {
 
         // prepare inputs for dask workers
         def dask_workers_input = wait_manager_results.cluster_info
-            .join(meta_and_files, by: 0)
+            .join(ch_meta, by: 0)
             .flatMap { it ->
                 def (meta, cluster_work_dir, scheduler_address, dashboard_port, data_paths) = it
                 def dashboard_address_parts = scheduler_address.split(':')
@@ -105,7 +105,7 @@ workflow DASK_START {
     else {
         // do not start a distributed cluster
         log.debug("No distributed dask cluster")
-        dask_context = meta_and_files
+        dask_context = ch_meta
             .map { it ->
                 def (meta, _data_paths) = it
                 [meta, [:]]

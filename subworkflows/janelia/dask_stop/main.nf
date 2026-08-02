@@ -1,3 +1,23 @@
+workflow DASK_STOP {
+    take:
+    meta_and_context     // channel: [val(meta), dask_context]
+
+    main:
+    def cluster_info = meta_and_context
+    | filter { _meta, dask_context ->
+        // only terminate the clusters that have a work dir
+        dask_context.cluster_work_dir
+    }
+    | map { meta, dask_context ->
+        log.debug "Stop Dask ${meta}: ${dask_context}"
+        [ meta, dask_context.cluster_work_dir ]
+    }
+    | DASK_TERMINATE
+
+    emit:
+    done = cluster_info // [ meta, dask_work_dir ]
+}
+
 process DASK_TERMINATE {
     label 'process_single'
     container 'ghcr.io/janeliascicomp/dask:2024.12.1-py11-ol9'
@@ -36,24 +56,4 @@ process DASK_TERMINATE {
 
     cat ${terminate_file_name}
     """
-}
-
-workflow DASK_STOP {
-    take:
-    meta_and_context     // channel: [val(meta), dask_context]
-
-    main:
-    def cluster_info = meta_and_context
-    | filter { _meta, dask_context ->
-        // only terminate the clusters that have a work dir
-        dask_context.cluster_work_dir
-    }
-    | map { meta, dask_context ->
-        log.debug "Stop Dask ${meta}: ${dask_context}"
-        [ meta, dask_context.cluster_work_dir ]
-    }
-    | DASK_TERMINATE
-
-    emit:
-    done = cluster_info // [ meta, dask_work_dir ]
 }

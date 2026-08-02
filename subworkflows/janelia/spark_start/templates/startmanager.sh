@@ -33,7 +33,6 @@ if [[ ! -e \${spark_config_filepath} ]]; then
     echo "# Spark config file"                         > \${spark_config_filepath}
     echo "spark.rpc.askTimeout=300s"                  >> \${spark_config_filepath}
     echo "spark.storage.blockManagerHeartBeatMs=30000" >> \${spark_config_filepath}
-    echo "spark.rpc.retry.wait=30s"                   >> \${spark_config_filepath}
     echo "spark.kryoserializer.buffer.max=1024m"      >> \${spark_config_filepath}
     echo "spark.core.connection.ack.wait.timeout=600s" >> \${spark_config_filepath}
     echo "spark.driver.maxResultSize=0"               >> \${spark_config_filepath}

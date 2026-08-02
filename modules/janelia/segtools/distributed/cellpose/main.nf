@@ -12,8 +12,8 @@ process SEGTOOLS_DISTRIBUTED_CELLPOSE {
           path(models_path, stageAs: 'cellpose-models/*'), // this is optional - if undefined pass in as empty list ([])
           val(model_name), // model name
           path(output_dir),
-          val(labels),
-          val(labels_subpath),
+          val(labels_name), // labels container name
+          val(labels_subpath), // labels dataset subpath
           path(working_dir, stageAs: 'cellpose-work/*') // this is optional
     tuple val(dask_scheduler),
           path(dask_config) // this is optional - if undefined pass in as empty list ([])
@@ -55,13 +55,13 @@ process SEGTOOLS_DISTRIBUTED_CELLPOSE {
     def mask_arg = mask ? "--mask \$(\${READLINK_TOOL} ${mask})" : ''
     def mask_subpath_arg = mask_subpath ? "--mask-subpath ${mask_subpath}" : ''
     def working_dirname = working_dir ? working_dir : output_dir
-    def labels_image = labels ?: ''
+    def labels_image_name = labels_name ?: ''
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_config ? "--dask-config ${dask_config}" : ''
-    def (labels_noext, labels_ext) = labels_image.lastIndexOf('.').with { pos ->
+    def (labels_noext, labels_ext) = labels_image_name.lastIndexOf('.').with { pos ->
         pos == -1
-            ? [labels_image, '']
-            : [labels_image[0..<pos], labels_image[(pos+1)..-1]]
+            ? [labels_image_name, '']
+            : [labels_image_name[0..<pos], labels_image_name[(pos+1)..-1]]
     }
     log.debug "Labels output name:ext => ${labels_noext}:${labels_ext}"
 
@@ -88,10 +88,10 @@ process SEGTOOLS_DISTRIBUTED_CELLPOSE {
     echo "Working dir: \${working_fullpath}"
     full_workingname="\${working_fullpath}/${image_name}${subpath_name}"
     mkdir -p "\${full_workingname}"
-    if [[ "${labels_image}" == "" ]]; then
+    if [[ "${labels_image_name}" == "" ]]; then
         full_outputname=\${output_fullpath}
     else
-        full_outputname="\${output_fullpath}/${labels_image}"
+        full_outputname="\${output_fullpath}/${labels_image_name}"
     fi
     ${set_models_path}
 
