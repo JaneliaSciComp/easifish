@@ -1799,6 +1799,12 @@
                     "description": "Minimum number of pixels per mask, can turn off with -1",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "cellpose_max_size_fraction": {
+                    "type": "number",
+                    "default": 0.0,
+                    "description": "Masks larger than this fraction of the image size are removed. Set to 0 to turn off.",
+                    "fa_icon": "fas fa-hashtag"
+                },
                 "cellpose_norm_percentile": {
                     "type": "string",
                     "pattern": "^((\\d)+ (\\d)+)?$",

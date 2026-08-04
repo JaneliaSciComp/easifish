@@ -2,26 +2,27 @@ ransac:
   blob_sizes: [6, 14]
   nspots: 5000
   num_sigma_max: 5
-  cc_radius: 15
+  cc_radius: 12
   match_threshold: 0.6
   max_spot_match_distance:
   point_matches_threshold: 15
   align_threshold: 2.0
   diagonal_constraint: 0.15
+  fix_mask_percentile: [10, 90]
   fix_spots_count_threshold: 25
   fix_spot_detection_kwargs:
     blob_method: log
     background_subtract: false
     threshold: 0.0001
     threshold_rel: 0.001
-    winsorize_limits: [0.01, 0.01]
+    winsorize_limits: [0.01, 0.10]
+  mov_mask_percentile: [1, 95]
   mov_spots_count_threshold: 25
   mov_spot_detection_kwargs:
     blob_method: log
     background_subtract: false
-    threshold: 0.001
-    threshold_rel: 0.01
-    winsorize_limits: [0.01, 0.01]
+    threshold: 0.000001
+    threshold_rel: 0
 
 global_align:
   steps: [ransac, affine]
