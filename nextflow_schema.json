@@ -451,6 +451,11 @@
                     "description": "If True and global affine exists, reuse it",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "global_bigstream_roi": {
+                    "type": "string",
+                    "description": "Global ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
+                    "fa_icon": "fas fa-cog"
+                },
                 "local_bigstream_roi": {
                     "type": "string",
                     "description": "Local ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
