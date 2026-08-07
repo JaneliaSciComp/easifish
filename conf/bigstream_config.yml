@@ -43,6 +43,19 @@ global_align:
       minStep: 0.0001
       numberOfIterations: 4000
 
+  deform:
+    alignment_spacing: 2.0
+    control_point_spacing: 40
+    control_point_levels: [1]
+    shrink_factors: [2]
+    smooth_sigmas: [120]
+    metric: MMI
+    optimizer: RSGD
+    optimizer_args:
+      learningRate: 1
+      minStep: 0.00001
+      numberOfIterations: 60
+
 local_align:
   steps: [affine, deform]
   block_size: [128, 128, 128]

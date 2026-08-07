@@ -32,7 +32,7 @@
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "492bccec34f3d6560d529df7fa0629db05e17720",
+                        "git_sha": "7b11cc7812fb12424c44f59ae28cc837bf2d71c0",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {

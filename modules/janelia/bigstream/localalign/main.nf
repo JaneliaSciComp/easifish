@@ -13,7 +13,7 @@ process BIGSTREAM_LOCALALIGN {
           val(mov_timeindex), val(mov_channel),
           path(fix_mask, stageAs: 'fixmask/*'), val(fix_mask_subpath),
           path(mov_mask, stageAs: 'movmask/*'), val(mov_mask_subpath),
-          path(affine_transform), // global affine file name
+          path(global_transform), // global transform name
           val(steps),
           path(transform_dir, stageAs: 'transform/*'),
           val(transform_name), val(transform_subpath),
@@ -34,7 +34,7 @@ process BIGSTREAM_LOCALALIGN {
     tuple val(meta),
           env('full_fix_image'), val(fix_image_subpath),
           env('full_mov_image'), val(mov_image_subpath),
-          env('full_affine_transform'),
+          env('full_global_transform'),
           env('full_transform_dir'),
           val(transform_name), val(transform_subpath_output),
           val(inv_transform_name), val(inv_transform_subpath_output),
@@ -59,7 +59,7 @@ process BIGSTREAM_LOCALALIGN {
     def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--local-fix-mask-subpath ${fix_mask_subpath}" : ''
     def mov_mask_arg = mov_mask ? "--local-mov-mask \$(\${READLINK_TOOL} ${mov_mask})" : ''
     def mov_mask_subpath_arg = mov_mask && mov_mask_subpath ? "--local-mov-mask-subpath ${mov_mask_subpath}" : ''
-    def affine_transform_arg = affine_transform ? "--global-affine-transform ${affine_transform}" : ''
+    def global_transform_arg = global_transform ? "--global-transform ${global_transform}" : ''
     def steps_arg = steps ? "--local-registration-steps ${steps}" : ''
     def transform_dir_arg = transform_dir ? "--local-transform-dir ${transform_dir}" : ''
     def transform_name_arg = transform_name ? "--local-transform-name ${transform_name}" : ''
@@ -115,10 +115,10 @@ process BIGSTREAM_LOCALALIGN {
         echo "No moving volume provided"
     fi
 
-    if [[ "${affine_transform}" != "" ]] ; then
-        full_affine_transform=\$(\${READLINK_TOOL} ${affine_transform})
+    if [[ "${global_transform}" != "" ]] ; then
+        full_global_transform=\$(\${READLINK_TOOL} ${global_transform})
     else
-        full_affine_transform=
+        full_global_transform=
     fi
 
     if [[ "${transform_dir}" != "" ]] ; then
@@ -134,7 +134,7 @@ process BIGSTREAM_LOCALALIGN {
             # e.g. direct/deform.n5
             data_dir=\$(dirname "\${full_transform_dir}/${transform_name}")
             if [[ "\${data_dir}" !=  "\${full_transform_dir}" ]] ; then
-                echo "Create directory for affine transformation: \${data_dir}"
+                echo "Create directory for the transformation: \${data_dir}"
                 mkdir -p \${data_dir}
             fi
         fi
@@ -143,7 +143,7 @@ process BIGSTREAM_LOCALALIGN {
             # e.g. inverse/deform.n5
             data_dir=\$(dirname "\${full_transform_dir}/${inv_transform_name}")
             if [[ "\${data_dir}" !=  "\${full_transform_dir}" ]] ; then
-                echo "Create directory for affine transformation: \${data_dir}"
+                echo "Create directory for inverse transformation: \${data_dir}"
                 mkdir -p \${data_dir}
             fi
         fi
@@ -182,7 +182,7 @@ process BIGSTREAM_LOCALALIGN {
         ${mov_timeindex_arg} ${mov_channel_arg}
         ${fix_mask_arg} ${fix_mask_subpath_arg}
         ${mov_mask_arg} ${mov_mask_subpath_arg}
-        ${affine_transform_arg}
+        ${global_transform_arg}
         ${steps_arg}
         ${bigstream_config_arg}
         ${transform_dir_arg}
