@@ -11,9 +11,10 @@ process BIGSTREAM_DEFORM {
           val(fix_timeindex), val(fix_channel), val(fix_spacing),
           path(mov_image, stageAs: 'mov/*'),val(mov_image_subpath),
           val(mov_timeindex), val(mov_channel), val(mov_spacing),
-          path(affine_transforms, stageAs: 'affine/*'), // one or more affine transformations (paths to the corresponding affine.mat)
-          path(deform_dir, stageAs: 'deformation/*'), // location of the displacement vector
-          val(deform_subpath), // displacement vector subpath
+          path(global_transform, stageAs: 'global-transform/*'), // one or more global transformations
+          val(global_transform_subpath),
+          path(local_transform, stageAs: 'local-transform/*'), // location of the displacement vector
+          val(local_transform_subpath), // local transform subpath
           path(output_dir, stageAs: 'warped/*'),
           val(output_subpath), val(output_timeindex), val(output_channel)
     tuple val(dask_scheduler),
@@ -40,18 +41,31 @@ process BIGSTREAM_DEFORM {
     def mov_timeindex_arg = mov_timeindex ? "--mov-timeindex ${mov_timeindex}" : ''
     def mov_channel_arg = mov_channel ? "--mov-channel ${mov_channel}" : ''
     def mov_spacing_arg = mov_spacing ? "--mov-spacing ${mov_spacing}" : ''
-    def affine_transforms_arg
-    if (affine_transforms) {
-      if (affine_transforms instanceof Collection) {
-            affine_transforms_arg = "--affine-transformations $affine_transforms.join(',')"
-      } else {
-            affine_transforms_arg = "--affine-transformations ${affine_transforms}"
-      }
-    } else {
-      affine_transforms_arg = ''
+    def transforms_paths = []
+    def transforms_subpaths = []
+    if (global_transform) {
+        transforms_paths << global_transform
+        if (global_transform_subpath) {
+            transforms_subpaths << global_transform_subpath
+        } else {
+            transforms_subpaths << ''
+        }
     }
-    def local_transform_arg = deform_dir ? "--local-transform ${deform_dir}" : ''
-    def local_transform_subpath_arg = deform_dir && deform_subpath ? "--local-transform-subpath ${deform_subpath}" : ''
+    if (local_transform) {
+        transforms_paths << local_transform
+        if (local_transform_subpath) {
+            transforms_subpaths << local_transform_subpath
+        } else {
+            transforms_subpaths << ''
+        }
+    }
+    def transforms_arg
+    if (transforms_paths) {
+        def transforms_arg_value = [transforms_paths, transforms_subpaths].transpose().collect { p, sp -> "$p~$sp" }.join(',')
+        transforms_arg = "--transforms ${transforms_arg_value}"
+    } else {
+        transforms_arg = ''
+    }
     def output_subpath_arg = output_subpath ? "--output-subpath ${output_subpath}" : ''
     def output_timeindex_arg = output_timeindex ? "--output-timeindex ${output_timeindex}" : ''
     def output_channel_arg = output_channel ? "--output-channel ${output_channel}" : ''
@@ -80,8 +94,7 @@ process BIGSTREAM_DEFORM {
         ${fix_timeindex_arg} ${fix_channel_arg} ${fix_spacing_arg}
         --moving \${mov_fullpath} ${mov_image_subpath_arg}
         ${mov_timeindex_arg} ${mov_channel_arg} ${mov_spacing_arg}
-        ${affine_transforms_arg}
-        ${local_transform_arg} ${local_transform_subpath_arg}
+        ${transforms_arg}
         --output \${output_fullpath} ${output_subpath_arg}
         ${output_timeindex_arg} ${output_channel_arg}
         ${dask_scheduler_arg}

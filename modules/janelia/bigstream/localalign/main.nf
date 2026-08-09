@@ -13,7 +13,7 @@ process BIGSTREAM_LOCALALIGN {
           val(mov_timeindex), val(mov_channel),
           path(fix_mask, stageAs: 'fixmask/*'), val(fix_mask_subpath),
           path(mov_mask, stageAs: 'movmask/*'), val(mov_mask_subpath),
-          path(global_transform), // global transform name
+          path(global_transform, stageAs: 'global-transform/*'), val(global_transform_subpath),
           val(steps),
           path(transform_dir, stageAs: 'transform/*'),
           val(transform_name), val(transform_subpath),
@@ -34,7 +34,7 @@ process BIGSTREAM_LOCALALIGN {
     tuple val(meta),
           env('full_fix_image'), val(fix_image_subpath),
           env('full_mov_image'), val(mov_image_subpath),
-          env('full_global_transform'),
+          env('full_global_transform'), val(global_transform_subpath),
           env('full_transform_dir'),
           val(transform_name), val(transform_subpath_output),
           val(inv_transform_name), val(inv_transform_subpath_output),
@@ -59,7 +59,15 @@ process BIGSTREAM_LOCALALIGN {
     def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--local-fix-mask-subpath ${fix_mask_subpath}" : ''
     def mov_mask_arg = mov_mask ? "--local-mov-mask \$(\${READLINK_TOOL} ${mov_mask})" : ''
     def mov_mask_subpath_arg = mov_mask && mov_mask_subpath ? "--local-mov-mask-subpath ${mov_mask_subpath}" : ''
-    def global_transform_arg = global_transform ? "--global-transform ${global_transform}" : ''
+    def global_transform_arg
+    if (global_transform) {
+        global_transform_arg = "--global-transform ${global_transform} "
+        if (global_transform_subpath) {
+            global_transform_arg += "--global-transform-subpath ${global_transform_subpath}"
+        }
+    } else {
+        global_transform_arg = ''
+    }
     def steps_arg = steps ? "--local-registration-steps ${steps}" : ''
     def transform_dir_arg = transform_dir ? "--local-transform-dir ${transform_dir}" : ''
     def transform_name_arg = transform_name ? "--local-transform-name ${transform_name}" : ''

@@ -18,13 +18,14 @@ workflow WARP_SPOTS {
             _fix, _fix_subpath,
             _mov, _mov_subpath,
             _warped, _warped_subpath,
-            _global_transform, global_inv_transform,
+            _global_transform, _global_transform_subpath,
+            global_inv_transform, global_inv_transform_subpath,
             _deform_transform_output, _deform_transform_name, _deform_transform_subpath,
             inv_deform_transform_path, inv_deform_transform_name, inv_deform_transform_subpath) = it
 
         def id = meta_reg.mov_id
         def r = [ id, meta_reg,
-                  global_inv_transform,
+                  global_inv_transform, global_inv_transform_subpath,
                   inv_deform_transform_path, inv_deform_transform_name, inv_deform_transform_subpath,
                 ]
         log.debug "Registration results considered for warping: $r"
@@ -37,7 +38,8 @@ workflow WARP_SPOTS {
             _fix, _fix_subpath,
             _mov, _mov_subpath,
             _warped, _warped_subpath,
-            _global_transform, _global_inv_transform,
+            _global_transform, _global_transform_subpath,
+            _global_inv_transform, _global_inv_transform_subpath,
             _transform_output, _transform_name, _transform_subpath,
             _inv_transform_path, _inv_transform_name, _inv_transform_subpath) = it
         def id = meta_reg.fix_id
@@ -91,7 +93,7 @@ workflow WARP_SPOTS {
     | map { it ->
         def (id, meta_spots, spots_file, spots_image_container, spots_dataset,
             meta_reg,
-            global_inv_transform,
+            global_inv_transform, global_inv_transform_subpath,
             inv_deform_transform_path, inv_deform_transform_name, inv_deform_transform_subpath) = it
 
         def warped_spots_output_dir = file("${outdir}/${params.warped_spots_subdir}/${id}")
@@ -107,7 +109,10 @@ workflow WARP_SPOTS {
             [
                 '' /* resolution */, '' /* downsampling factors */
             ],
-            global_inv_transform ? file(global_inv_transform) : [], // inverse global affine transform
+            [
+                global_inv_transform ? file(global_inv_transform) : [], // inverse global transform
+                global_inv_transform_subpath,
+            ],
             [
                 "${inv_deform_transform_path}/${inv_deform_transform_name}",
                 inv_deform_transform_subpath,

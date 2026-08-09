@@ -12,9 +12,10 @@ process BIGSTREAM_TRANSFORMCOORDS {
           val(warped_coords_name)
     tuple path(source_image), val(source_image_subpath)
     tuple val(resolution), val(downsampling_factors)
-    path(affine_transforms) // optional affine transforms
-    tuple path(deform_dir), // optional vector displacement field
-          val(deform_subpath)
+    tuple path(global_transform, stageAs: 'global-transform/*'), // optional affine transforms
+          val(global_transform_subpath)
+    tuple path(local_transform, stageAs: 'local-transform/*'), // optional vector displacement field
+          val(local_transform_subpath)
     tuple val(dask_scheduler),
           path(dask_config) // this is optional - if undefined pass in as empty list ([])
     val(cpus)
@@ -34,18 +35,31 @@ process BIGSTREAM_TRANSFORMCOORDS {
     def downsampling_arg = downsampling_factors ? "--downsampling ${downsampling_factors}" : ''
     def source_image_arg = source_image ? "--input-volume ${source_image}" : ''
     def source_image_subpath_arg = source_image_subpath ? "--input-dataset ${source_image_subpath}" : ''
-    def affine_transforms_arg
-    if (affine_transforms) {
-      if (affine_transforms instanceof Collection) {
-            affine_transforms_arg = "--affine-transformations $affine_transforms.join(',')"
-      } else {
-            affine_transforms_arg = "--affine-transformations ${affine_transforms}"
-      }
-    } else {
-      affine_transforms_arg = ''
+    def transforms_paths = []
+    def transforms_subpaths = []
+    if (global_transform) {
+        transforms_paths << global_transform
+        if (global_transform_subpath) {
+            transforms_subpaths << global_transform_subpath
+        } else {
+            transforms_subpaths << ''
+        }
     }
-    def deform_arg = deform_dir ? "--vector-field-transform ${deform_dir}" : ''
-    def deform_subpath_arg = deform_subpath ? "--vector-field-transform-subpath ${deform_subpath}" : ''
+    if (local_transform) {
+        transforms_paths << local_transform
+        if (local_transform_subpath) {
+            transforms_subpaths << local_transform_subpath
+        } else {
+            transforms_subpaths << ''
+        }
+    }
+    def transforms_arg
+    if (transforms_paths) {
+        def transforms_arg_value = [transforms_paths, transforms_subpaths].transpose().collect { p, sp -> "$p~$sp" }.join(',')
+        transforms_arg = "--transforms ${transforms_arg_value}"
+    } else {
+        transforms_arg = ''
+    }
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
 
@@ -77,8 +91,7 @@ process BIGSTREAM_TRANSFORMCOORDS {
         ${pixel_resolution_arg}
         ${downsampling_arg}
         ${source_image_arg} ${source_image_subpath_arg}
-        ${affine_transforms_arg}
-        ${deform_arg} ${deform_subpath_arg}
+        ${transforms_arg}
         ${dask_scheduler_arg}
         ${dask_config_arg}
         ${args}

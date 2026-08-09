@@ -230,14 +230,16 @@ workflow REGISTRATION {
             transform_output, transform_name, transform_subpath,
             inv_transform_output, inv_transform_name, inv_transform_subpath,
             _ms_warped, _ms_warped_subpath,
-            global_transform, global_inv_transform) = it
+            global_transform, global_transform_subpath,
+            global_inv_transform, global_inv_transform_subpath) = it
         log.debug "Prepare all registration results: $it"
         def r = [
             reg_meta,
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
-            global_transform, global_inv_transform,
+            global_transform, global_transform_subpath,
+            global_inv_transform, global_inv_transform_subpath,
             transform_output,
             transform_name, transform_subpath,
             inv_transform_output,
@@ -255,7 +257,8 @@ workflow REGISTRATION {
             _fix, _fix_subpath,
             _mov, _mov_subpath,
             _warped, _warped_subpath,
-            _global_transform, _global_inv_transform,
+            _global_transform, _global_transform_subpath,
+            _global_inv_transform, _global_inv_transform_subpath,
             _transform_output, _transform_name, _transform_subpath,
             _inv_transform_output, _inv_transform_name, _inv_transform_subpath,
             dask_meta, dask_context) = it
@@ -279,7 +282,8 @@ workflow REGISTRATION {
              fix, fix_subpath,
              mov, mov_subpath,
              warped, warped_subpath,
-             global_transform, global_inv_transform,
+             global_transform, global_transform_subpath,
+             global_inv_transform, global_inv_transform_subpath,
              transform_output, transform_name, transform_subpath,
              inv_transform_output, inv_transform_name, inv_transform_subpath,
              _dask_meta, _dask_context) = it
@@ -288,7 +292,8 @@ workflow REGISTRATION {
             fix, fix_subpath,
             mov, mov_subpath,
             warped, warped_subpath,
-            global_transform, global_inv_transform,
+            global_transform, global_transform_subpath,
+            global_inv_transform, global_inv_transform_subpath,
             transform_output,
             transform_name, transform_subpath,
             inv_transform_output,
@@ -352,8 +357,8 @@ workflow RUN_GLOBAL_REGISTRATION {
 
             params.global_steps,
             global_registration_working_dir, // global_transform_output
-            params.global_transform_name,
-            params.global_inv_transform_name,
+            params.global_transform_name, fix_global_subpath,
+            params.global_inv_transform_name, fix_global_subpath,
             global_registration_output, // global_align_output
             params.global_registration_container, // global_aligned_name
             '',    // global_alignment_subpath (defaults to mov_global_subpath)
@@ -378,13 +383,17 @@ workflow RUN_GLOBAL_REGISTRATION {
                 _fix_mask, _fix_mask_subpath,
                 _mov_mask, _mov_mask_subpath,
                 _steps,
-                transform_dir, transform_name, inv_transform_name,
+                transform_dir,
+                transform_name, transform_dataset,
+                inv_transform_name, inv_transform_dataset,
                 align_dir, align_name, align_subpath) = it
             def r = [
                 reg_meta,
                 fix, fix_subpath,
                 mov, mov_subpath,
-                transform_dir, transform_name, inv_transform_name,
+                transform_dir,
+                transform_name, transform_dataset,
+                inv_transform_name, inv_transform_dataset,
                 align_dir, align_name, align_subpath,
             ]
             log.debug "Skip global alignment: $r"
@@ -397,7 +406,9 @@ workflow RUN_GLOBAL_REGISTRATION {
         def (reg_meta,
              _fix, _fix_subpath,
              _mov, _mov_subpath,
-             transform_dir, transform_name, inv_transform_name,
+             transform_dir,
+             transform_name, transform_dataset,
+             inv_transform_name, inv_transform_dataset,
              _align_dir, _align_name, _align_subpath) = it
         log.debug "Completed global alignment: $it"
         def full_transform_path = transform_dir && transform_name
@@ -407,7 +418,9 @@ workflow RUN_GLOBAL_REGISTRATION {
             ? "${transform_dir}/${inv_transform_name}"
             : ''
         def r = [
-            reg_meta, full_transform_path, full_inv_transform_path,
+            reg_meta,
+            full_transform_path, transform_dataset,
+            full_inv_transform_path, inv_transform_dataset,
         ]
         log.debug "Global transform $it -> $r"
         r
@@ -522,7 +535,7 @@ workflow START_EASIFISH_DASK {
 workflow RUN_LOCAL_REGISTRATION {
     take:
     registration_inputs              // ch: [ reg_meta, fix_meta, mov_meta]
-    global_transforms                // ch: [ reg_meta, global_transform, global_inv_transform ]
+    global_transforms                // ch: [ reg_meta, global_transform, global_transform_subpath, global_inv_transform, global_inv_transform_subpath ]
     local_registrations_dask_cluster // ch: [ reg_meta, dask_meta, dask_context ]
     resolved_masks                   // ch: [ reg_meta_id, fix_mask, fix_mask_subpath, mov_mask, mov_mask_subpath ]
     bigstream_config                 // string|file bigstream yaml config
@@ -535,11 +548,12 @@ workflow RUN_LOCAL_REGISTRATION {
     def local_results_subdir = params.local_results_subdir ?: 'local'
     def local_registration_inputs = registration_inputs
     | join(global_transforms, by: 0)
-    | map { reg_meta, fix_meta, mov_meta, global_transform, _global_inv_transform ->
-        [reg_meta.id, reg_meta, fix_meta, mov_meta, global_transform]
+    | map { reg_meta, fix_meta, mov_meta, global_transform, global_transform_subpath, _global_inv_transform, _global_inv_transform_subpath  ->
+        [reg_meta.id, reg_meta, fix_meta, mov_meta, global_transform, global_transform_subpath]
     }
     | join(resolved_masks, by: 0)
-    | map { _reg_id, reg_meta, fix_meta, mov_meta, global_transform,
+    | map { _reg_id, reg_meta, fix_meta, mov_meta,
+            global_transform, global_transform_subpath,
             local_fix_mask_file, fix_mask_subpath,
             local_mov_mask_file, mov_mask_subpath ->
 
@@ -560,7 +574,7 @@ workflow RUN_LOCAL_REGISTRATION {
             local_fix_mask_file, fix_mask_subpath,
             local_mov_mask_file, mov_mask_subpath,
 
-            global_transform,
+            global_transform, global_transform_subpath,
 
             params.local_steps,
             local_registration_working_dir,   // local_transform_output
@@ -580,7 +594,7 @@ workflow RUN_LOCAL_REGISTRATION {
             local_mov, local_mov_subpath,
             local_fix_mask, local_fix_mask_subpath,
             local_mov_mask, local_mov_mask_subpath,
-            global_transform,
+            global_transform, global_transform_subpath,
             local_steps, local_registration_working_dir,
             local_transform_name, local_transform_subpath,
             local_inv_transform_name, local_inv_transform_subpath,
@@ -604,7 +618,7 @@ workflow RUN_LOCAL_REGISTRATION {
 	        local_fix_mask, local_fix_mask_subpath,
             local_mov_mask, local_mov_mask_subpath,
 
-            global_transform,
+            global_transform, global_transform_subpath,
 
             local_steps,
             local_registration_working_dir, // local_transform_output
@@ -640,7 +654,7 @@ workflow RUN_LOCAL_REGISTRATION {
             // [
             //    meta, fix, fix_subpath,
             //    mov, mov_subpath,
-            //    affine_transform,
+            //    global_transform, global_transform_subpath,
             //    local_deform_dir,
             //    local_deform, local_deform_subpath,
             //    local_inv_deform, local_inv_deform_subpath
@@ -656,7 +670,7 @@ workflow RUN_LOCAL_REGISTRATION {
                 local_mov, local_mov_subpath, _local_mov_timeindex, _local_mov_channel,
                 _local_fix_mask, _local_fix_mask_subpath,
                 _local_mov_mask, _local_mov_mask_subpath,
-                global_transform,
+                global_transform, global_transform_subpath,
                 _local_steps, local_registration_working_dir,
                 local_transform_name, local_transform_subpath,
                 local_inv_transform_name, local_inv_transform_subpath,
@@ -665,7 +679,7 @@ workflow RUN_LOCAL_REGISTRATION {
                 reg_meta,
                 local_fix, local_fix_subpath,
                 local_mov, local_mov_subpath,
-                global_transform,
+                global_transform, global_transform_subpath,
                 local_registration_working_dir,
                 local_transform_name, local_transform_subpath ?: local_mov_subpath,
                 local_inv_transform_name, local_inv_transform_subpath ?: local_mov_subpath,
@@ -697,7 +711,7 @@ workflow RUN_COMPUTE_INVERSE {
             _fix_meta, _mov_meta,
             _fix, _fix_subpath,
             _mov, _mov_subpath,
-            _affine_transform,
+            _global_transform, _global_transform_subpath,
             local_transform_output,
             local_transform, local_transform_subpath,
             _local_inv_transform, _local_inv_transform_subpath,
@@ -753,7 +767,7 @@ workflow RUN_LOCAL_DEFORMS {
         def (reg_meta, fix_meta, mov_meta,
             fix, _fix_subpath,
             mov, _mov_subpath,
-            affine_transform,
+            global_transform, global_transform_subpath,
             local_transform_output,
             local_deform, local_deform_subpath,
             _local_inv_deform, _local_inv_deform_subpath,
@@ -784,7 +798,7 @@ workflow RUN_LOCAL_DEFORMS {
                         params.mov_local_timeindex, warped_channel,
                         /* mov_spacing */'',
 
-                        affine_transform,
+                        global_transform, global_transform_subpath,
 
                         "${local_transform_output}/${local_deform}", local_deform_subpath,
 

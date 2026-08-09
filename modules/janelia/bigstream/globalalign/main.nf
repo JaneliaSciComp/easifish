@@ -14,7 +14,9 @@ process BIGSTREAM_GLOBALALIGN {
           path(fix_mask, stageAs: 'fixmask/*'), val(fix_mask_subpath),
           path(mov_mask, stageAs: 'movmask/*'), val(mov_mask_subpath),
           val(steps),
-          path(transform_dir, stageAs: 'transform/*'), val(transform_name), val(inv_transform_name),
+          path(transform_dir, stageAs: 'transform/*'),
+          val(transform_name), val(transform_subpath),
+          val(inv_transform_name), val(inv_transform_subpath),
           path(align_dir, stageAs: 'align/*'), val(align_name), val(align_subpath),
           val(align_timeindex), val(align_channel)
 
@@ -28,7 +30,9 @@ process BIGSTREAM_GLOBALALIGN {
     tuple val(meta),
           env('full_fix_image'), val(fix_image_subpath),
           env('full_mov_image'), val(mov_image_subpath),
-          env('full_transform_dir'), val(transform_name), val(inv_transform_name),
+          env('full_transform_dir'),
+          val(transform_name), val(transform_subpath),
+          val(inv_transform_name), val(inv_transform_subpath),
           env('full_align_dir'), val(align_name), val(align_subpath) , emit: results
 
     when:
@@ -53,8 +57,9 @@ process BIGSTREAM_GLOBALALIGN {
     def steps_arg = steps ? "--global-registration-steps ${steps}" : ''
     def transform_dir_arg = transform_dir ? "--global-transform-dir \${full_transform_dir}" : ''
     def transform_name_arg = transform_name ? "--global-transform-name ${transform_name}" : ''
+    def transform_subpath_arg = transform_subpath ? "--global-transform-subpath ${transform_subpath}" : ''
     def inv_transform_name_arg = inv_transform_name ? "--global-inv-transform-name ${inv_transform_name}" : ''
-
+    def inv_transform_subpath_arg = inv_transform_subpath ? "--global-inv-transform-subpath ${inv_transform_subpath}" : ''
     def align_dir_arg = align_dir ? "--global-align-dir \${full_align_dir}" : ''
     def align_name_arg = align_name ? "--global-align-name ${align_name}" : ''
     def align_subpath_arg = align_subpath ? "--global-align-subpath ${align_subpath}" : ''
@@ -151,7 +156,11 @@ process BIGSTREAM_GLOBALALIGN {
         ${mov_mask_arg} ${mov_mask_subpath_arg}
         ${steps_arg}
         ${bigstream_config_arg}
-        ${transform_dir_arg} ${transform_name_arg} ${inv_transform_name_arg}
+        ${transform_dir_arg}
+        ${transform_name_arg}
+        ${transform_subpath_arg}
+        ${inv_transform_name_arg}
+        ${inv_transform_subpath_arg}
         ${align_dir_arg} ${align_name_arg} ${align_subpath_arg}
         ${align_timeindex_arg} ${align_channel_arg}
         ${args}
