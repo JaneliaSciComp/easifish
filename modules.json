@@ -17,7 +17,7 @@
                     },
                     "bigstream/deform": {
                         "branch": "main",
-                        "git_sha": "492bccec34f3d6560d529df7fa0629db05e17720",
+                        "git_sha": "f7f1a1977bfa58eea9303d66791de1ca3698d23b",
                         "installed_by": ["modules"]
                     },
                     "bigstream/foregroundmask": {
@@ -27,17 +27,17 @@
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "492bccec34f3d6560d529df7fa0629db05e17720",
+                        "git_sha": "f7f1a1977bfa58eea9303d66791de1ca3698d23b",
                         "installed_by": ["modules"]
                     },
                     "bigstream/localalign": {
                         "branch": "main",
-                        "git_sha": "7b11cc7812fb12424c44f59ae28cc837bf2d71c0",
+                        "git_sha": "f7f1a1977bfa58eea9303d66791de1ca3698d23b",
                         "installed_by": ["modules"]
                     },
                     "bigstream/transformcoords": {
                         "branch": "main",
-                        "git_sha": "492bccec34f3d6560d529df7fa0629db05e17720",
+                        "git_sha": "f7f1a1977bfa58eea9303d66791de1ca3698d23b",
                         "installed_by": ["modules"]
                     },
                     "omezarrtools/multiscale": {
