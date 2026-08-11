@@ -718,6 +718,18 @@
                     "hidden": true,
                     "fa_icon": "fas fa-memory"
                 },
+                "bigstream_global_processsize": {
+                    "type": "string",
+                    "description": "Global processing block size for bigstream registration as sizex,sizey,sizez. If specified, global alignment is done blockwise at this size; if not specified, global alignment is done on the full image",
+                    "fa_icon": "fas fa-cube"
+                },
+                "bigstream_global_overlap_factor": {
+                    "type": ["number", "string"],
+                    "default": 0.125,
+                    "hidden": true,
+                    "description": "Block overlap used for global alignment",
+                    "fa_icon": "fas fa-hashtag"
+                },
                 "local_align_cpus": {
                     "type": "integer",
                     "default": 1,
@@ -763,7 +775,7 @@
                     "description": "Processing size for computing the local alignment as sizex,sizey,sizez",
                     "fa_icon": "fas fa-cube"
                 },
-                "bigstream_processsize": {
+                "bigstream_local_processsize": {
                     "type": "string",
                     "description": "Local processing block size for bigstream registration as sizex,sizey,sizez. If not specified it defaults to shard size for zarr3 or blocksize for zarr2",
                     "fa_icon": "fas fa-cube"
@@ -774,7 +786,7 @@
                     "fa_icon": "fas fa-cube"
                 },
                 "bigstream_local_overlap_factor": {
-                    "type": "number",
+                    "type": ["number", "string"],
                     "default": 0.125,
                     "hidden": true,
                     "description": "Block overlap used for local alignment",
