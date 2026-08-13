@@ -794,7 +794,7 @@
                 },
                 "bigstream_local_fg_pct": {
                     "type": "number",
-                    "default": 0.5,
+                    "default": 0.0,
                     "hidden": true,
                     "description": "Foreground percentage threshold used for local alignment",
                     "fa_icon": "fas fa-hashtag"
