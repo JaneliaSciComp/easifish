@@ -569,9 +569,9 @@
                     "fa_icon": "fas fa-memory"
                 },
                 "mask_subsampling": {
-                    "type": "integer",
-                    "default": 2,
-                    "description": "Mask subsampling",
+                    "type": ["string", "integer"],
+                    "default": "2",
+                    "description": "Mask subsampling - it can be a tuple (comma delimited list) containing different subsampling for each dimension",
                     "fa_icon": "fas fa-compress-arrows-alt"
                 },
                 "mask_lambda1": {
