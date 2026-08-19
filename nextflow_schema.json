@@ -456,9 +456,29 @@
                     "description": "Global ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
                     "fa_icon": "fas fa-cog"
                 },
+                "global_fix_mask_roi": {
+                    "type": "string",
+                    "description": "ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax used to crop the fix mask for global alignment",
+                    "fa_icon": "fas fa-cog"
+                },
+                "global_mov_mask_roi": {
+                    "type": "string",
+                    "description": "ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax used to crop the moving mask for global alignment",
+                    "fa_icon": "fas fa-cog"
+                },
                 "local_bigstream_roi": {
                     "type": "string",
                     "description": "Local ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax",
+                    "fa_icon": "fas fa-cog"
+                },
+                "local_fix_mask_roi": {
+                    "type": "string",
+                    "description": "ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax used to crop the fix mask for local alignment",
+                    "fa_icon": "fas fa-cog"
+                },
+                "local_mov_mask_roi": {
+                    "type": "string",
+                    "description": "ROI coordinates as zmin,ymin,xmin,zmax,ymax,xmax used to crop the moving mask for local alignment",
                     "fa_icon": "fas fa-cog"
                 },
                 "global_steps": {
