@@ -732,6 +732,13 @@
                     "hidden": true,
                     "fa_icon": "fas fa-memory"
                 },
+                "bigstream_global_workers": {
+                    "type": "integer",
+                    "default": 1,
+                    "hidden": true,
+                    "description": "Number of dask workers allocated (by the local scheduler) for blockwise distributed global alignment ",
+                    "fa_icon": "fas fa-microchip"
+                },
                 "bigstream_global_processsize": {
                     "type": "string",
                     "description": "Global processing block size for bigstream registration as sizex,sizey,sizez. If specified, global alignment is done blockwise at this size; if not specified, global alignment is done on the full image",
