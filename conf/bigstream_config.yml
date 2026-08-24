@@ -24,6 +24,19 @@ ransac:
     threshold: 0.000001
     threshold_rel: 0
 
+global_prealign:
+  steps: [affine]
+  affine:
+    alignment_spacing: 4
+    shrink_factors: [2]
+    smooth_sigmas: [0.5]
+    metric: MMI
+    optimizer: RSGD
+    optimizer_args:
+      minStep: 0
+      learningRate: 0.4
+      numberOfIterations: 400
+
 global_align:
   steps: [ransac, affine]
 
