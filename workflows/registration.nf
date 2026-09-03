@@ -733,8 +733,8 @@ workflow RUN_COMPUTE_INVERSE {
 
     if (run_inverse) {
         inverse_results = BIGSTREAM_COMPUTEINVERSE(
-            compute_inv_inputs.map { it[0] },
-            compute_inv_inputs.map { [ it[1].scheduler_address, it[1].config ] },
+            compute_inv_inputs.map { it -> it[0] },
+            compute_inv_inputs.map { it -> [ it[1].scheduler_address, it[1].config ] },
             params.local_inverse_cpus,
             ParamUtils.get_mem_gb(params.local_inverse_mem_gb, params.local_inverse_cpus, params.default_mem_gb_per_cpu, 0),
         )
