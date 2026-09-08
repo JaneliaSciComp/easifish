@@ -847,6 +847,13 @@
                     "description": "Processing overlap factor used for computing the inverse transform",
                     "fa_icon": "fas fa-hashtag"
                 },
+                "local_no_missing_neighbor_rebalance": {
+                    "type": "boolean",
+                    "default": false,
+                    "hidden": true,
+                    "description": "Disable rebalancing of missing neighbors during local (deformable) alignment",
+                    "fa_icon": "fas fa-toggle-on"
+                },
                 "bigstream_inv_step": {
                     "type": "number",
                     "default": 1,
