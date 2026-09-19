@@ -300,7 +300,7 @@
                 },
                 "bigstream_deformfield_diagnostics": {
                     "type": "string",
-                    "enum": ["PER_STEP", "FINAL_STEP"],
+                    "enum": ["", "PER_STEP", "FINAL_STEP"],
                     "default": "",
                     "hidden": true,
                     "description": "When to generate displacement diagnostics for the deformation field during local (deformable) registration",
