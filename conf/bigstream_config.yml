@@ -25,7 +25,7 @@ ransac:
     threshold_rel: 0
 
 global_prealign:
-  steps: [affine]
+  steps: [ransac,affine]
   affine:
     alignment_spacing: 4
     shrink_factors: [2]

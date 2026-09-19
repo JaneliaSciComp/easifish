@@ -299,9 +299,11 @@
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "bigstream_deformfield_diagnostics": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Generate displacement diagnostics for the deformation field during local (deformable) registration",
+                    "type": "string",
+                    "enum": ["PER_STEP", "FINAL_STEP"],
+                    "default": "PER_STEP",
+                    "hidden": true,
+                    "description": "When to generate displacement diagnostics for the deformation field during local (deformable) registration",
                     "fa_icon": "fas fa-toggle-on"
                 },
                 "registration_compression": {
@@ -835,7 +837,7 @@
                 },
                 "bigstream_local_overlap_factor": {
                     "type": ["number", "string"],
-                    "default": 0.125,
+                    "default": "0.125,0.125,0.25",
                     "hidden": true,
                     "description": "Block overlap used for local alignment",
                     "fa_icon": "fas fa-hashtag"
