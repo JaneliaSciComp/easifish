@@ -844,14 +844,14 @@
                 },
                 "bigstream_local_deform_overlap": {
                     "type": "number",
-                    "default": 0.125,
+                    "default": 0.5,
                     "hidden": true,
                     "description": "Block overlap factor used for applying the deformation transform",
                     "fa_icon": "fas fa-hashtag"
                 },
                 "bigstream_local_inv_overlap_factor": {
                     "type": "number",
-                    "default": 0.25,
+                    "default": 0.5,
                     "hidden": true,
                     "description": "Processing overlap factor used for computing the inverse transform",
                     "fa_icon": "fas fa-hashtag"
