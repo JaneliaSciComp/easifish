@@ -141,7 +141,7 @@ def validateInputParameters() {
         error('Please provide an outdir to the pipeline e.g. `--outdir ./output`')
     }
 
-    if (params.spark_workers > 1 && !params.spark_cluster) {
+    if ((params.spark_workers as int) > 1 && !params.spark_cluster) {
         error('You must enable --spark_cluster if --spark_workers is greater than 1.')
     }
 

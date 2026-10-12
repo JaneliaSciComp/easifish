@@ -50,7 +50,7 @@ class ParamUtils {
         if (v == null || "$v".trim() == '') {
             return 0
         } else {
-            return BigDecimal("$v").doubleValue()
+            return new BigDecimal("$v").doubleValue()
         }
     }
 
@@ -58,7 +58,7 @@ class ParamUtils {
         if (v == null || "$v".trim() == '') {
             return 0
         } else {
-            return BigDecimal("$v").intValue()
+            return new BigDecimal("$v").intValue()
         }
     }
 
