@@ -46,6 +46,7 @@ fi
 
 # Initialize the environment for Spark
 echo "Initializing Spark environment..."
+export SPARK_MASTER_OPTS="-Dspark.port.maxRetries=64"
 export SPARK_ENV_LOADED=
 export SPARK_HOME=/opt/spark
 export PYSPARK_PYTHONPATH_SET=
