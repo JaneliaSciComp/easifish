@@ -523,6 +523,12 @@
                     "description": "List of static transformations applied to global registration",
                     "fa_icon": "fas fa-arrows-alt"
                 },
+                "global_save_composed_transform": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If true the persisted global transform is the composition of the global static transforms and the computed alignment transform",
+                    "fa_icon": "fas fa-toggle-on"
+                },
                 "fix_mask": {
                     "type": "string",
                     "description": "Mask used for the fix image (applied to both global and local alignment). Absolute path, path relative to the registration output directory, or container filename when generate_fix_mask is true.",
