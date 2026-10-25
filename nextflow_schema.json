@@ -696,6 +696,11 @@
                     "description": "If true, alter the existing deformation field in-place rather than creating a new one during local alignment",
                     "fa_icon": "fas fa-edit"
                 },
+                "bigstream_deform_processsize": {
+                    "type": "string",
+                    "description": "Processing block size used when applying the deformation as sizex,sizey,sizez",
+                    "fa_icon": "fas fa-cube"
+                },
                 "bigstream_deform_blocksize": {
                     "type": "string",
                     "description": "Deformation zarr spatial chunk size as sizex,sizey,sizez",
