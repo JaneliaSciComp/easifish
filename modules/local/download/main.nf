@@ -1,7 +1,7 @@
 process DOWNLOAD {
     tag "${samplesheet_row.filename}"
     label 'process_long'
-    container 'ghcr.io/janeliascicomp/stitching-spark:1.11.0-rc2'
+    container 'ghcr.io/janeliascicomp/bigstitcher:0.2.1-spark4.1.2-scala2.13-java21-ubuntu24.04-zarrv3-031a7b8'
     errorStrategy 'terminate'
 
     input:
@@ -30,7 +30,7 @@ process DOWNLOAD {
 
     if [[ ! -s "\${download_fullpath}/${samplesheet_row.filename}" ]]; then
         echo "Download ${samplesheet_row.uri} to \${download_fullpath}/${samplesheet_row.filename}"
-        curl -skL --user-agent 'Mozilla/5.0' "${samplesheet_row.uri}" -o "\${download_fullpath}/${samplesheet_row.filename}"
+        curl -skL "${samplesheet_row.uri}" -o "\${download_fullpath}/${samplesheet_row.filename}"
     fi
 
     if [[ ! -s "\${download_fullpath}/${samplesheet_row.filename}" ]]; then
