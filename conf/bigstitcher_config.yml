@@ -7,8 +7,9 @@ resave:
   advancedArgs:
     - '--compression=Zstandard'
     - '--blockSize=64,64,64'
-    - '--blockScale=16,16,8'
+    - '--blockScale=8,8,8'
     - '--useSharding'
+    - '--downsampling=1,1,1;2,2,2;4,4,4'
 
 estimateFlatfield:
   classname: net.preibisch.bigstitcher.spark.BasicFlatfieldEstimation
@@ -24,24 +25,24 @@ estimateFlatfield:
     - '--workingSize=128'
     - '--maxIterations=500'
 
-flatfieldCorrection:
-  classname: net.preibisch.bigstitcher.spark.SparkFlatfieldCorrection
+applyCorrections:
+  classname: net.preibisch.bigstitcher.spark.SparkIlluminationAndLensCorrections
   advancedArgs:
     - '--outputDataType=SAME'
+    - '--compression=Zstandard'
+    - '--compressionLevel=5'
 
 detectInterestPoints:
   classname: net.preibisch.bigstitcher.spark.SparkInterestPointDetection
   advancedArgs:
-    - '--channelId=1'
-    - '--overlappingOnly'
-    - '--onlyCompareOverlapTiles'
     - '--label=beads'
-    - '--sigma=4.2'
+    - '--sigma=2.1'
     - '--threshold=0.008'
-    - '--minIntensity=230'
+    - '--minIntensity=200'
     - '--maxIntensity=1800'
     - '--downsampleXY=2'
     - '--downsampleZ=1'
+    - '--type=MAX'
 
 matchInterestPoints:
   classname: net.preibisch.bigstitcher.spark.SparkGeometricDescriptorMatching
@@ -74,9 +75,10 @@ solveIPs: &solveIPsArgs
     - '--channelId=1'
     - '--label=beads'
     - '--method=TWO_ROUND_SIMPLE'
-    - '--preAlign=PREALIGN'
+    - '--preAlign=NO_PREALIGN'
     - '--sourcePoints=IP'
-    - '--transformationModel=TRANSLATION'
+    - '--transformationModel=AFFINE'
+    - '--regularizationModel=RIGID'
     - '--lambda=0.1'
 
 stitchPairs:
@@ -122,12 +124,16 @@ createContainer:
     - '--multiRes'
     - '--preserveAnisotropy'
     - '--dataType=UINT16'
+    - '--blockSize=64,64,64'
+    - '--useSharding'
+    - '--shardSizeFactor=8,8,8'
+    - '--compression=Zstandard'
     - '--compressionLevel=5'
 
 fuse:
   classname: net.preibisch.bigstitcher.spark.SparkFusion
   advancedArgs:
     - '--fusionMethod=AFFINE'
-    # fusion arg values:AVG_BLEND,CLOSEST_PIXEL_WINS
-    - '--fusion=AVG_BLEND'
+    # fusion arg values:AVG_BLEND,CLOSEST_PIXEL_WINS,MAX_INTENSITY
+    - '--fusion=CLOSEST_PIXEL_WINS'
   useIntensityCoefficients: false
