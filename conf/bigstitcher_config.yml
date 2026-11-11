@@ -9,7 +9,7 @@ resave:
     - '--blockSize=64,64,64'
     - '--blockScale=8,8,8'
     - '--useSharding'
-    - '--downsampling=1,1,1;2,2,2;4,4,4'
+    - '--downsampling=1,1,1;2,2,1;4,4,2'
 
 estimateFlatfield:
   classname: net.preibisch.bigstitcher.spark.BasicFlatfieldEstimation
@@ -121,7 +121,7 @@ intensitySolve:
 createContainer:
   classname: net.preibisch.bigstitcher.spark.CreateFusionContainer
   advancedArgs:
-    - '--multiRes'
+    - '--downsampling=1,1,1;2,2,1;4,4,2;8,8,4'
     - '--preserveAnisotropy'
     - '--dataType=UINT16'
     - '--blockSize=64,64,64'
