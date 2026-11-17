@@ -28,17 +28,10 @@ workflow SEGMENTATION {
     // get volumes to segment
     // typically this is done for the DAPI channel of the fixed round
     def seg_volume = ch_meta
-    | filter { meta ->
-        params.segmentation_input || meta.id in segmentation_ids
-    }
+    | filter { meta -> meta.id in segmentation_ids }
     | flatMap { meta ->
-        def input_img_dir
+        def input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
         def segmentation_subpaths
-        if (params.segmentation_input) {
-            input_img_dir = file(params.segmentation_input)
-        } else {
-            input_img_dir = "${meta.stitching_result_dir}/${meta.stitching_container}"
-        }
 
         if (params.segmentation_subpaths) {
             // the subpaths parameters must match exactly the container datasets

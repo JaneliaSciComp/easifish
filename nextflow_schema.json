@@ -1634,11 +1634,6 @@
                     "default": "t1",
                     "fa_icon": "fas fa-hashtag"
                 },
-                "segmentation_input": {
-                    "type": "string",
-                    "description": "Segmentation input image - if set this will be the segmentation input",
-                    "fa_icon": "fas fa-image"
-                },
                 "segmentation_subpaths": {
                     "type": ["string", "integer"],
                     "description": "Comma delimited list of segmentation datasets",
