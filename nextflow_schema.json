@@ -854,6 +854,12 @@
                     "description": "Disable rebalancing of missing neighbors during local (deformable) alignment",
                     "fa_icon": "fas fa-toggle-on"
                 },
+                "bigstream_local_stage_writes": {
+                    "type": "string",
+                    "enum": ["", "ALWAYS", "NEVER", "AUTO"],
+                    "description": "Whether blocks are written first to a staging area and then to the deform field zarr (ALWAYS) or directly to the deform field zarr (NEVER). With many distributed workers across many hosts, writing directly may create inconsistencies due to NFS caching. If empty, AUTO is used.",
+                    "fa_icon": "fas fa-pen"
+                },
                 "bigstream_inv_step": {
                     "type": "number",
                     "default": 1,
