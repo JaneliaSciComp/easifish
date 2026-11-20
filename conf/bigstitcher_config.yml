@@ -2,6 +2,14 @@ createDataset:
   classname: net.preibisch.bigstitcher.spark.CreateDataset
   advancedArgs: []
 
+screenshot:
+  classname: net.preibisch.bigstitcher.spark.Screenshot
+  advancedArgs:
+    - '--overview'
+    - '--channelId=1'
+    - '--render=slice'
+    - '--width=2048'
+
 resave:
   classname: net.preibisch.bigstitcher.spark.SparkResaveN5
   advancedArgs:

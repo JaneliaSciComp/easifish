@@ -2,6 +2,7 @@ include { SPARK_START                          } from '../janelia/spark_start'
 include { SPARK_STOP                           } from '../janelia/spark_stop'
 
 include { SPARK_RUNAPP as CREATE_DATASET       } from '../janelia/spark_start'
+include { SPARK_RUNAPP as SCREENSHOT           } from '../janelia/spark_start'
 include { SPARK_RUNAPP as RESAVE               } from '../janelia/spark_start'
 include { SPARK_RUNAPP as ESTIMATE_FLATFIELD   } from '../janelia/spark_start'
 include { SPARK_RUNAPP as APPLY_CORRECTIONS    } from '../janelia/spark_start'
@@ -108,6 +109,14 @@ workflow BIGSTITCHER {
             stitching_data = CREATE_DATASET(inp.module_args, inp.data_files).join(inp.carry, by: 0)
         } else {
             log.debug "Skip 'createDataset' - not configured"
+        }
+        current_step = matched_step('screenshot', stitching_steps)
+        if (current_step) {
+            log.debug "Run 'screenshot'"
+            def inp = bigstitcher_step_input(current_step, stitching_data, bigstitcher_config)
+            stitching_data = SCREENSHOT(inp.module_args, inp.data_files).join(inp.carry, by: 0)
+        } else {
+            log.debug "Skip 'screenshot' - not configured"
         }
         current_step = matched_step('resave', stitching_steps)
         if (current_step) {
@@ -293,6 +302,11 @@ def prepare_bigstitcher_args(String step_name, Map config, meta) {
             '--input-pattern', "${meta.pattern}",
             '--input-path', "${meta.image_dir}",
             '-x', stitching_xml,
+        ]
+    } else if (step_name == 'screenshot') {
+        params = [
+            '-x', stitching_xml,
+            '-o', "${meta.image_dir}/screenshots",
         ]
     } else if (step_name == 'resave') {
         params = [

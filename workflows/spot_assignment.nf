@@ -10,15 +10,8 @@ workflow SPOT_COUNT_ASSIGN {
     outputdir
 
     main:
-    def ch_segmentation_with_id = ch_segmentation
-    | map { it ->
-        def (meta, seg_input_image, seg_input_dataset, seg_labels) = it
-        def id = meta.id
-        def r = [ id, meta, seg_input_image, seg_input_dataset, seg_labels ]
-        log.debug "Segmentation data for spots sizes: $r"
-        r
-    }
-
+    // spots are already in the fixed space (fix round spots or warped spots)
+    // so they are paired with the segmentation labels regardless of the registration pair
     def spots_counts_input = ch_spots
     | filter { it ->
         def (_meta_spots, _meta_reg, _spots_input_image, _spots_input_dataset, _source_spots, final_spots) = it
@@ -29,44 +22,32 @@ workflow SPOT_COUNT_ASSIGN {
         return true
     }
     | map { it ->
-        def (meta_spots, meta_reg, spots_input_image, spots_input_dataset, source_spots, final_spots) = it
-        def id = meta_reg.fix_id
-        def r = [ id, meta_spots, spots_input_image, spots_input_dataset, source_spots, final_spots ]
+        def (meta_spots, _meta_reg, spots_input_image, spots_input_dataset, _source_spots, final_spots) = it
+        def r = [ meta_spots, spots_input_image, spots_input_dataset, final_spots ]
         log.debug "Spots data for spots counts: $it -> $r"
         r
     }
-    | groupTuple(by: 0)
-    | join(ch_segmentation_with_id, by: 0)
-    | flatMap { it ->
-        def (_id,
-             all_meta_spots, all_spots_image_containers, all_spots_datasets,
-             all_source_spots, all_final_spots,
+    | combine(ch_segmentation)
+    | map { it ->
+        def (meta_spots, spots_image_container, spots_dataset, final_spots,
              _meta_seg, _seg_input_image, seg_input_dataset, seg_labels) = it
 
         log.debug "Collected info for spots inputs: $it"
 
-        [all_meta_spots,
-         all_spots_image_containers,
-         all_spots_datasets,
-         all_source_spots,
-         all_final_spots].transpose()
-         .collect { meta_spots, spots_image_container,
-                    spots_dataset, _source_spots, final_spots ->
-            def spots_dir = file(final_spots).parent
-            def spots_counts_output_dir = file("${outputdir}/${params.spots_counts_subdir}/${meta_spots.id}")
-            def adjusted_spots_dataset = sync_image_scale_with_labels_scale_for_spot_assign(spots_dataset, seg_input_dataset)
+        def spots_dir = file(final_spots).parent
+        def spots_counts_output_dir = file("${outputdir}/${params.spots_counts_subdir}/${meta_spots.id}")
+        def adjusted_spots_dataset = sync_image_scale_with_labels_scale_for_spot_assign(spots_dataset, seg_input_dataset)
 
-            def r = [
-                meta_spots,
-                spots_image_container, adjusted_spots_dataset,
-                seg_labels, seg_input_dataset,
-                spots_dir,
-                params.spots_counts_pattern,
-                spots_counts_output_dir,
-            ]
-            log.debug "Spots counts input before removing duplicates: $r"
-            r
-         }
+        def r = [
+            meta_spots,
+            spots_image_container, adjusted_spots_dataset,
+            seg_labels, seg_input_dataset,
+            spots_dir,
+            params.spots_counts_pattern,
+            spots_counts_output_dir,
+        ]
+        log.debug "Spots counts input before removing duplicates: $r"
+        r
     }
     | unique { it -> it[0].id }
 
