@@ -8,6 +8,8 @@ process SPOTS_FISHSPOTS {
     tuple val(meta),
           path(input_path),
           val(input_dataset),
+          path(mask_path),
+          val(mask_subpath),
           path(spots_output_dir, stageAs: 'spots/*'),
           val(spots_result_name),
           val(spots_image_subpath_ref),
@@ -32,6 +34,8 @@ process SPOTS_FISHSPOTS {
 
     script:
     def extra_args = task.ext.args ?: ''
+    def mask_arg = mask_path ? "--mask \$(\${READLINK_TOOL} ${mask_path})" : ''
+    def mask_subpath_arg = mask_path && mask_subpath ? "--mask-subpath ${mask_subpath}" : ''
     def output_filename = spots_result_name ?: "${meta.id}-points.csv"
     def fishspots_config_arg = fishspots_config ? "--fishspots-config ${fishspots_config}" : ''
     def spots_image_subpath_ref_arg = spots_image_subpath_ref ? "--spots-image-subpath-reference ${spots_image_subpath_ref}" : ''
@@ -40,8 +44,18 @@ process SPOTS_FISHSPOTS {
     def dask_config_arg = dask_config ? "--dask-config ${dask_config}" : ''
 
     """
-    INPUT_IMG=\$(realpath ${input_path})
-    full_spots_dir=\$(readlink -m ${spots_output_dir})
+    case \$(uname) in
+        Darwin)
+            detected_os=OSX
+            READLINK_TOOL="greadlink"
+            ;;
+        *)
+            detected_os=Linux
+            READLINK_TOOL="readlink"
+            ;;
+    esac
+    INPUT_IMG=\$(\${READLINK_TOOL} ${input_path})
+    full_spots_dir=\$(\${READLINK_TOOL} -m ${spots_output_dir})
     mkdir -p \${full_spots_dir}
     full_output_filename=\${full_spots_dir}/${output_filename}
 
@@ -49,6 +63,8 @@ process SPOTS_FISHSPOTS {
         python -m easifish_spots_tools.main_spot_extraction
         --input \${INPUT_IMG}
         --input_subpath ${input_dataset}
+        ${mask_arg}
+        ${mask_subpath_arg}
         --output \${full_output_filename}
         ${fishspots_config_arg}
         ${spots_channels_arg}

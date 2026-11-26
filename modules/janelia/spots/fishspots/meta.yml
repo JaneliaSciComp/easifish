@@ -23,6 +23,15 @@ input:
   - input_dataset:
       type: string
       description: Dataset subpath within the image container
+  - mask_path:
+      type: directory
+      description: |
+        Optional path to the mask container used to restrict spot detection to the foreground.
+        If not specified, pass as empty list ([]).
+  - mask_subpath:
+      type: string
+      description: |
+        Dataset subpath within the mask container. Ignored if mask_path is not specified.
   - spots_output_dir:
       type: directory
       description: Path to the directory where spot detection results will be written

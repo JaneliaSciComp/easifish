@@ -89,8 +89,45 @@ workflow SPOT_EXTRACTION {
             params.fishspots_cpus,
             params.default_mem_gb_per_cpu,
             1)
+        def spots_mask_file
+        if (!params.spots_mask) {
+            spots_mask_file = []
+        } else if (params.spots_mask.startsWith('/')) {
+            // this is an absolute mask
+            spots_mask_file = file(params.spots_mask)
+        } else {
+            // use a path relative to outdir
+            spots_mask_file = file("${outputdir}/${params.spots_mask}")
+        }
+        def fishspots_inputs = spots_to_process_ch
+        | map { it ->
+            def (meta,
+                 input_img_dir, input_spot_subpath,
+                 spots_output_dir, spots_result_name,
+                 spots_image_subpath_ref, spots_channels) = it
+            def spots_mask_subpath_param = params.spots_mask_subpath as String
+            def spots_mask_sp
+            if (!spots_mask_subpath_param) {
+                spots_mask_sp = ''
+            } else if (ParamUtils.as_bool(params.strict_spots_mask_subpath) ||
+                       spots_mask_subpath_param.startsWith(meta.id)) {
+                // use the subpath as is
+                spots_mask_sp = spots_mask_subpath_param
+            } else {
+                spots_mask_sp = "${meta.id}/${spots_mask_subpath_param}"
+            }
+            def r = [
+                meta,
+                input_img_dir, input_spot_subpath,
+                spots_mask_file, spots_mask_sp,
+                spots_output_dir, spots_result_name,
+                spots_image_subpath_ref, spots_channels,
+            ]
+            log.debug "Fishspots input: $r"
+            r
+        }
         spots_results = FISHSPOT_EXTRACTION(
-            spots_to_process_ch,
+            fishspots_inputs,
             ParamUtils.as_bool(params.distributed_spot_extraction),
             params.fishspots_config,
             params.fishspots_dask_config,

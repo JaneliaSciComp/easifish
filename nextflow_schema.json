@@ -1009,6 +1009,12 @@
                     "default": "local",
                     "description": "Subdirectory used for local registration results",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "bigstream_local_align_extra_args": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Extra arguments passed to bigstream local alignmnet.",
+                    "fa_icon": "fas fa-pen"
                 }
             },
             "help_text": "Registration parameters"
@@ -1203,6 +1209,22 @@
                     "default": "RS_FISH",
                     "description": "Spot extraction method to use: RS_FISH or FISHSPOTS",
                     "fa_icon": "fas fa-cog"
+                },
+                "spots_mask": {
+                    "type": "string",
+                    "description": "Mask container used to restrict spot extraction to the foreground. If relative, it is resolved against the output directory. Only used by the FISHSPOT spot extraction method.",
+                    "fa_icon": "fas fa-file"
+                },
+                "spots_mask_subpath": {
+                    "type": ["string", "integer"],
+                    "description": "Dataset subpath within the spots mask container. Unless strict_spots_mask_subpath is set, if it does not start with the round id, the round id is prepended, e.g. 'mask' becomes '<round_id>/mask'.",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "strict_spots_mask_subpath": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, spots_mask_subpath is used as is, without prepending the round id.",
+                    "fa_icon": "fas fa-toggle-on"
                 },
                 "fishspots_psf_file": {
                     "type": "string",
