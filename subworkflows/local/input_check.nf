@@ -71,7 +71,16 @@ workflow INPUT_CHECK {
             def (id, metas, input_dirs, data_files, patterns) = it
             log.debug "Prepare acquisitions: $it"
             def trimmed_patterns = patterns.findAll { pattern -> pattern?.trim() }
-            def meta = metas.inject([id:id]) { acc, m -> acc << m }
+            def meta = metas.inject([id:id]) { acc, m ->
+                // tiles of the same acquisition may leave some columns empty
+                // so an empty value does not override a value set from another tile
+                m.each { k, v ->
+                    if (v || !acc.containsKey(k)) {
+                        acc[k] = v
+                    }
+                }
+                acc
+            }
 
             if (trimmed_patterns) {
                 // Set acquisition's filename pattern to the meta map
@@ -99,8 +108,9 @@ def create_acq_channel(LinkedHashMap samplesheet_row, input_dir, image_dir) {
         // the separator for multiple channels is '|'
         meta.sample_channels = samplesheet_row.sample_channels.replace('|', ',')
     }
-    if (samplesheet_row.spots_channels) {
-        meta.spots_channels = samplesheet_row.spots_channels.replace('|', ',')
+    if (samplesheet_row.containsKey('spots_channels')) {
+        // if the spots_channels column is present but empty, no spots are extracted for this acquisition
+        meta.spots_channels = (samplesheet_row.spots_channels ?: '').replace('|', ',')
     }
     if (samplesheet_row.dapi_channel) {
         meta.dapi_channel = samplesheet_row.dapi_channel

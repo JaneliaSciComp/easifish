@@ -223,6 +223,10 @@ def create_rsfish_spark_config() {
 }
 
 def get_spots_subpaths(meta) {
+    if (SpotsUtils.has_empty_spots_channels(meta)) {
+        log.info "Skip spot extraction for ${meta.id} - no spots channels"
+        return []
+    }
     def spots_channels = SpotsUtils.get_spots_channels(meta, params)
     def spots_subpath = params.spots_subpath ?: ''
     if (spots_subpath) {
